@@ -1,0 +1,4 @@
+<?php
+$MESS["LOCATION_WIDGET_AUI_BRIEFLY"] = "коротко";
+$MESS["LOCATION_WIDGET_AUI_MORE"] = "детально";
+$MESS["LOCATION_WIDGET_AUI_UNKNOWN_ERROR"] = "Невідома помилка";

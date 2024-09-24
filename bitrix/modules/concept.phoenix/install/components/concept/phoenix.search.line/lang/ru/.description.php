@@ -1,0 +1,6 @@
+<?
+$MESS ['PHOENIX_T_IBLOCK_SEARCHLINE'] = "Поиск (строка)";
+$MESS ['PHOENIX_T_IBLOCK_SEARCHLINE_DESC'] = "Поиск по разделам сайта";
+$MESS ['PHOENIX_T_IBLOCK_DESC_PAGE_GENERATOR'] = "Феникс";
+$MESS ['PHOENIX_T_IBLOCK_DESC_COMPANY_GENERATOR'] = "Концепт";
+?>

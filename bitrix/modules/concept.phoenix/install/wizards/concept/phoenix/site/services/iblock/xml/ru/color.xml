@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<hiblock>
+	<hiblock>
+		<id>1</id>
+		<name>ConceptPhoenixColorReference</name>
+		<table_name>concept_phoenix_color_reference</table_name>
+	</hiblock>
+	<langs>
+	</langs>
+	<fields>
+		<field>
+			<id>158</id>
+			<entity_id>HLBLOCK_1</entity_id>
+			<field_name>UF_NAME</field_name>
+			<user_type_id>string</user_type_id>
+			<xml_id>UF_NAME</xml_id>
+			<sort>100</sort>
+			<multiple>N</multiple>
+			<mandatory>Y</mandatory>
+			<show_filter>N</show_filter>
+			<show_in_list>Y</show_in_list>
+			<edit_in_list>Y</edit_in_list>
+			<is_searchable>N</is_searchable>
+			<settings>
+				<size>20</size>
+				<rows>1</rows>
+				<regexp />
+				<min_length>0</min_length>
+				<max_length>0</max_length>
+				<default_value />
+			</settings>
+			<edit_form_label>
+				<en>Название</en>
+				<ru>Название</ru>
+			</edit_form_label>
+			<list_column_label>
+				<en>Название</en>
+				<ru>Название</ru>
+			</list_column_label>
+			<list_filter_label>
+				<en>Название</en>
+				<ru>Название</ru>
+			</list_filter_label>
+			<error_message>
+				<en />
+				<ru />
+			</error_message>
+			<help_message>
+				<en />
+				<ru />
+			</help_message>
+			<base_type>string</base_type>
+		</field>
+		<field>
+			<id>160</id>
+			<entity_id>HLBLOCK_1</entity_id>
+			<field_name>UF_XML_ID</field_name>
+			<user_type_id>string</user_type_id>
+			<xml_id>UF_XML_ID</xml_id>
+			<sort>100</sort>
+			<multiple>N</multiple>
+			<mandatory>Y</mandatory>
+			<show_filter>N</show_filter>
+			<show_in_list>Y</show_in_list>
+			<edit_in_list>Y</edit_in_list>
+			<is_searchable>N</is_searchable>
+			<settings>
+				<size>20</size>
+				<rows>1</rows>
+				<regexp />
+				<min_length>0</min_length>
+				<max_length>0</max_length>
+				<default_value />
+			</settings>
+			<edit_form_label>
+				<en>XML_ID</en>
+				<ru>XML_ID</ru>
+			</edit_form_label>
+			<list_column_label>
+				<en>XML_ID</en>
+				<ru>XML_ID</ru>
+			</list_column_label>
+			<list_filter_label>
+				<en>XML_ID</en>
+				<ru>XML_ID</ru>
+			</list_filter_label>
+			<error_message>
+				<en />
+				<ru />
+			</error_message>
+			<help_message>
+				<en />
+				<ru />
+			</help_message>
+			<base_type>string</base_type>
+		</field>
+		<field>
+			<id>201</id>
+			<entity_id>HLBLOCK_1</entity_id>
+			<field_name>UF_COLOR</field_name>
+			<user_type_id>string</user_type_id>
+			<xml_id>UF_COLOR</xml_id>
+			<sort>100</sort>
+			<multiple>N</multiple>
+			<mandatory>N</mandatory>
+			<show_filter>N</show_filter>
+			<show_in_list>Y</show_in_list>
+			<edit_in_list>Y</edit_in_list>
+			<is_searchable>N</is_searchable>
+			<settings>
+				<size>20</size>
+				<rows>1</rows>
+				<regexp />
+				<min_length>0</min_length>
+				<max_length>0</max_length>
+				<default_value />
+			</settings>
+			<edit_form_label>
+				<en>Код цвета</en>
+				<ru>Код цвета</ru>
+			</edit_form_label>
+			<list_column_label>
+				<en>Код цвета</en>
+				<ru>Код цвета</ru>
+			</list_column_label>
+			<list_filter_label>
+				<en>Код цвета</en>
+				<ru>Код цвета</ru>
+			</list_filter_label>
+			<error_message>
+				<en />
+				<ru />
+			</error_message>
+			<help_message>
+				<en />
+				<ru />
+			</help_message>
+			<base_type>string</base_type>
+		</field>
+		<field>
+			<id>202</id>
+			<entity_id>HLBLOCK_1</entity_id>
+			<field_name>UF_PICT</field_name>
+			<user_type_id>file</user_type_id>
+			<xml_id>UF_PICT</xml_id>
+			<sort>100</sort>
+			<multiple>N</multiple>
+			<mandatory>N</mandatory>
+			<show_filter>N</show_filter>
+			<show_in_list>Y</show_in_list>
+			<edit_in_list>Y</edit_in_list>
+			<is_searchable>N</is_searchable>
+			<settings>
+				<size>20</size>
+				<list_width>200</list_width>
+				<list_height>200</list_height>
+				<max_show_size>0</max_show_size>
+				<max_allowed_size>0</max_allowed_size>
+				<extensions />
+			</settings>
+			<edit_form_label>
+				<en>Основная картинка</en>
+				<ru>Основная картинка</ru>
+			</edit_form_label>
+			<list_column_label>
+				<en>Основная картинка</en>
+				<ru>Основная картинка</ru>
+			</list_column_label>
+			<list_filter_label>
+				<en>Основная картинка</en>
+				<ru>Основная картинка</ru>
+			</list_filter_label>
+			<error_message>
+				<en />
+				<ru />
+			</error_message>
+			<help_message>
+				<en />
+				<ru />
+			</help_message>
+			<base_type>file</base_type>
+		</field>
+		<field>
+			<id>203</id>
+			<entity_id>HLBLOCK_1</entity_id>
+			<field_name>UF_PICT_SEC</field_name>
+			<user_type_id>file</user_type_id>
+			<xml_id>UF_PICT_SEC</xml_id>
+			<sort>100</sort>
+			<multiple>N</multiple>
+			<mandatory>N</mandatory>
+			<show_filter>N</show_filter>
+			<show_in_list>Y</show_in_list>
+			<edit_in_list>Y</edit_in_list>
+			<is_searchable>N</is_searchable>
+			<settings>
+				<size>20</size>
+				<list_width>200</list_width>
+				<list_height>200</list_height>
+				<max_show_size>0</max_show_size>
+				<max_allowed_size>0</max_allowed_size>
+				<extensions />
+			</settings>
+			<edit_form_label>
+				<en>Дополнительная картинка</en>
+				<ru>Дополнительная картинка</ru>
+			</edit_form_label>
+			<list_column_label>
+				<en>Дополнительная картинка</en>
+				<ru>Дополнительная картинка</ru>
+			</list_column_label>
+			<list_filter_label>
+				<en>Дополнительная картинка</en>
+				<ru>Дополнительная картинка</ru>
+			</list_filter_label>
+			<error_message>
+				<en />
+				<ru />
+			</error_message>
+			<help_message>
+				<en />
+				<ru />
+			</help_message>
+			<base_type>file</base_type>
+		</field>
+		<field>
+			<id>223</id>
+			<entity_id>HLBLOCK_1</entity_id>
+			<field_name>UF_DESCRIPTION</field_name>
+			<user_type_id>string</user_type_id>
+			<xml_id />
+			<sort>100</sort>
+			<multiple>N</multiple>
+			<mandatory>N</mandatory>
+			<show_filter>N</show_filter>
+			<show_in_list>Y</show_in_list>
+			<edit_in_list>Y</edit_in_list>
+			<is_searchable>N</is_searchable>
+			<settings>
+				<size>20</size>
+				<rows>1</rows>
+				<regexp />
+				<min_length>0</min_length>
+				<max_length>0</max_length>
+				<default_value />
+			</settings>
+			<edit_form_label>
+				<ru>Описание</ru>
+			</edit_form_label>
+			<list_column_label>
+				<ru>Описание</ru>
+			</list_column_label>
+			<list_filter_label>
+				<ru>Описание</ru>
+			</list_filter_label>
+			<error_message>
+				<ru />
+			</error_message>
+			<help_message>
+				<ru />
+			</help_message>
+			<base_type>string</base_type>
+		</field>
+		<field>
+			<id>224</id>
+			<entity_id>HLBLOCK_1</entity_id>
+			<field_name>UF_FULL_DESCRIPTION</field_name>
+			<user_type_id>string</user_type_id>
+			<xml_id />
+			<sort>100</sort>
+			<multiple>N</multiple>
+			<mandatory>N</mandatory>
+			<show_filter>N</show_filter>
+			<show_in_list>Y</show_in_list>
+			<edit_in_list>Y</edit_in_list>
+			<is_searchable>N</is_searchable>
+			<settings>
+				<size>20</size>
+				<rows>1</rows>
+				<regexp />
+				<min_length>0</min_length>
+				<max_length>0</max_length>
+				<default_value />
+			</settings>
+			<edit_form_label>
+				<ru>Полное описание</ru>
+			</edit_form_label>
+			<list_column_label>
+				<ru>Полное описание</ru>
+			</list_column_label>
+			<list_filter_label>
+				<ru>Полное описание</ru>
+			</list_filter_label>
+			<error_message>
+				<ru />
+			</error_message>
+			<help_message>
+				<ru />
+			</help_message>
+			<base_type>string</base_type>
+		</field>
+		<field>
+			<id>159</id>
+			<entity_id>HLBLOCK_1</entity_id>
+			<field_name>UF_SORT</field_name>
+			<user_type_id>double</user_type_id>
+			<xml_id>UF_SORT</xml_id>
+			<sort>110</sort>
+			<multiple>N</multiple>
+			<mandatory>N</mandatory>
+			<show_filter>N</show_filter>
+			<show_in_list>Y</show_in_list>
+			<edit_in_list>Y</edit_in_list>
+			<is_searchable>N</is_searchable>
+			<settings>
+				<precision>4</precision>
+				<size>20</size>
+				<min_value>0</min_value>
+				<max_value>0</max_value>
+				<default_value>0</default_value>
+			</settings>
+			<edit_form_label>
+				<en>Сортировка</en>
+				<ru>Сортировка</ru>
+			</edit_form_label>
+			<list_column_label>
+				<en>Сортировка</en>
+				<ru>Сортировка</ru>
+			</list_column_label>
+			<list_filter_label>
+				<en>Сортировка</en>
+				<ru>Сортировка</ru>
+			</list_filter_label>
+			<error_message>
+				<en />
+				<ru />
+			</error_message>
+			<help_message>
+				<en />
+				<ru />
+			</help_message>
+			<base_type>double</base_type>
+		</field>
+	</fields>
+	<items>
+		<item>
+			<id>1</id>
+			<uf_name>Gold</uf_name>
+			<uf_xml_id>gold_con</uf_xml_id>
+			<uf_color>#fadac1</uf_color>
+			<uf_pict>0</uf_pict>
+			<uf_pict_sec>0</uf_pict_sec>
+			<uf_description />
+			<uf_full_description />
+			<uf_sort>10</uf_sort>
+		</item>
+		<item>
+			<id>5</id>
+			<uf_name>Space Gray</uf_name>
+			<uf_xml_id>spacegray_con</uf_xml_id>
+			<uf_color>#2e2f31</uf_color>
+			<uf_pict>0</uf_pict>
+			<uf_pict_sec>0</uf_pict_sec>
+			<uf_description />
+			<uf_full_description />
+			<uf_sort>20</uf_sort>
+		</item>
+		<item>
+			<id>6</id>
+			<uf_name>Silver</uf_name>
+			<uf_xml_id>silver_con</uf_xml_id>
+			<uf_color>#e5e5e5</uf_color>
+			<uf_pict />
+			<uf_pict_sec />
+			<uf_description />
+			<uf_full_description />
+			<uf_sort>5</uf_sort>
+		</item>
+		<item>
+			<id>7</id>
+			<uf_name>Желтый</uf_name>
+			<uf_xml_id>yellow_con</uf_xml_id>
+			<uf_color>#FFFF00</uf_color>
+			<uf_pict />
+			<uf_pict_sec />
+			<uf_description />
+			<uf_full_description />
+			<uf_sort>100</uf_sort>
+		</item>
+		<item>
+			<id>8</id>
+			<uf_name>Синий</uf_name>
+			<uf_xml_id>blue_con</uf_xml_id>
+			<uf_color>#0000FF</uf_color>
+			<uf_pict />
+			<uf_pict_sec />
+			<uf_description />
+			<uf_full_description />
+			<uf_sort>100</uf_sort>
+		</item>
+		<item>
+			<id>9</id>
+			<uf_name>Черный</uf_name>
+			<uf_xml_id>black_con</uf_xml_id>
+			<uf_color>#1C1C1C</uf_color>
+			<uf_pict />
+			<uf_pict_sec />
+			<uf_description />
+			<uf_full_description />
+			<uf_sort>100</uf_sort>
+		</item>
+		<item>
+			<id>10</id>
+			<uf_name>Пёстрый</uf_name>
+			<uf_xml_id>kolbaska_con</uf_xml_id>
+			<uf_color />
+			<uf_pict>uf/588/12.jpg</uf_pict>
+			<uf_pict_sec>0</uf_pict_sec>
+			<uf_description />
+			<uf_full_description />
+			<uf_sort>500</uf_sort>
+		</item>
+		<item>
+			<id>11</id>
+			<uf_name>Зеленый</uf_name>
+			<uf_xml_id>green_con</uf_xml_id>
+			<uf_color>#009900</uf_color>
+			<uf_pict />
+			<uf_pict_sec />
+			<uf_description />
+			<uf_full_description />
+			<uf_sort>100</uf_sort>
+		</item>
+		<item>
+			<id>12</id>
+			<uf_name>Голубой</uf_name>
+			<uf_xml_id>lblue_con</uf_xml_id>
+			<uf_color>#42AAFF</uf_color>
+			<uf_pict />
+			<uf_pict_sec />
+			<uf_description />
+			<uf_full_description />
+			<uf_sort>100</uf_sort>
+		</item>
+		<item>
+			<id>13</id>
+			<uf_name>Красный</uf_name>
+			<uf_xml_id>red_con</uf_xml_id>
+			<uf_color>#CC0605</uf_color>
+			<uf_pict />
+			<uf_pict_sec />
+			<uf_description />
+			<uf_full_description />
+			<uf_sort>100</uf_sort>
+		</item>
+		<item>
+			<id>14</id>
+			<uf_name>Оранжевый</uf_name>
+			<uf_xml_id>orange_con</uf_xml_id>
+			<uf_color>#FFA420</uf_color>
+			<uf_pict />
+			<uf_pict_sec />
+			<uf_description />
+			<uf_full_description />
+			<uf_sort>100</uf_sort>
+		</item>
+		<item>
+			<id>15</id>
+			<uf_name>Белый</uf_name>
+			<uf_xml_id>white_con</uf_xml_id>
+			<uf_color>#F5F5F5</uf_color>
+			<uf_pict />
+			<uf_pict_sec />
+			<uf_description />
+			<uf_full_description />
+			<uf_sort>100</uf_sort>
+		</item>
+		<item>
+			<id>16</id>
+			<uf_name>Разноцветный</uf_name>
+			<uf_xml_id>differ_con</uf_xml_id>
+			<uf_color />
+			<uf_pict>uf/800/12.jpg</uf_pict>
+			<uf_pict_sec>0</uf_pict_sec>
+			<uf_description />
+			<uf_full_description />
+			<uf_sort>500</uf_sort>
+		</item>
+		<item>
+			<id>17</id>
+			<uf_name>Серый</uf_name>
+			<uf_xml_id>grey_con</uf_xml_id>
+			<uf_color>#BBBBBB</uf_color>
+			<uf_pict />
+			<uf_pict_sec />
+			<uf_description />
+			<uf_full_description />
+			<uf_sort>100</uf_sort>
+		</item>
+		<item>
+			<id>18</id>
+			<uf_name>Ярко-зеленый</uf_name>
+			<uf_xml_id>lime_con</uf_xml_id>
+			<uf_color>#ADFF2F</uf_color>
+			<uf_pict>0</uf_pict>
+			<uf_pict_sec>0</uf_pict_sec>
+			<uf_description />
+			<uf_full_description />
+			<uf_sort>2</uf_sort>
+		</item>
+		<item>
+			<id>19</id>
+			<uf_name>Черно-красный</uf_name>
+			<uf_xml_id>red-black_con</uf_xml_id>
+			<uf_color />
+			<uf_pict>uf/6f1/2.png</uf_pict>
+			<uf_pict_sec>0</uf_pict_sec>
+			<uf_description />
+			<uf_full_description />
+			<uf_sort>222</uf_sort>
+		</item>
+		<item>
+			<id>20</id>
+			<uf_name>Черно-желтый</uf_name>
+			<uf_xml_id>red-yell_con</uf_xml_id>
+			<uf_color />
+			<uf_pict>uf/af3/1.png</uf_pict>
+			<uf_pict_sec>0</uf_pict_sec>
+			<uf_description />
+			<uf_full_description />
+			<uf_sort>111</uf_sort>
+		</item>
+	</items>
+</hiblock>

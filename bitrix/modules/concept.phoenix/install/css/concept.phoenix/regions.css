@@ -1,0 +1,9 @@
+span.adm-detail-tab{
+    display: none;
+}
+.adm-detail-pin-btn-tabs{
+    display: none;
+}
+#wait_window_div{
+    display:none !important;
+}

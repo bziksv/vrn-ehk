@@ -1,0 +1,14 @@
+body{
+    font-family: 'SegoeUIRegular', Arial, 'PT Sans Caption';
+}
+.bold{
+    font-family: 'SegoeUIBold', Arial, 'PT Sans Caption';
+}
+@media (min-width: 992px){
+	.button-def.big {
+		font-size: 18px;
+		line-height: 18px;
+		padding-top: 20px;
+		padding-bottom: 21px;
+	}
+}

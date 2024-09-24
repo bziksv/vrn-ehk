@@ -1,0 +1,6 @@
+<?
+$sSectionName = "confirm";
+$arDirProperties = Array(
+
+);
+?>

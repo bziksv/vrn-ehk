@@ -1,0 +1,1 @@
+<img width="300" src="/upload/medialibrary/977/2.01-novinki.jpg" height="200" title="Новинки" alt="Новинки"><br>

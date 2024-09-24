@@ -1,0 +1,6 @@
+<?
+$MESS['PHOENIX_T_IBLOCK_DESC_LIST'] = "SEO модуль";
+$MESS['PHOENIX_T_IBLOCK_DESC_LIST_DESC'] = "Редактирование мета-тегов для страниц";
+$MESS['PHOENIX_T_IBLOCK_DESC_PAGE_GENERATOR'] = "Феникс";
+$MESS['PHOENIX_T_IBLOCK_DESC_COMPANY_GENERATOR'] = "Концепт";
+?>

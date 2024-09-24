@@ -1,0 +1,8 @@
+bitrix/php_interface/dbconn.php
+bitrix/.settings.php
+bitrix/managed_cache/*
+bitrix/cache/*
+bitrix/stack_cache/*
+bitrix/html_pages/*
+bitrix/modules/concept.phoenix.tar.gz
+upload/*

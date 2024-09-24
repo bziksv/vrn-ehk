@@ -1,0 +1,1 @@
+<?$MESS["PHOENIX_T_REVIEWS_INFO_PRODUCT_ID"] = "Идентификатор товара";

@@ -1,0 +1,1 @@
+<? require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/ammina.smtp/admin/stat.accounts.php");

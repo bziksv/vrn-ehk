@@ -1,0 +1,27 @@
+<?
+$MESS['AMMINA_SMTP_MENU_TEXT'] = "Ammina SMTP: Отправка почты через SMTP и DKIM";
+$MESS['AMMINA_SMTP_MENU_TITLE'] = "Ammina SMTP: Отправка почты через SMTP и DKIM";
+$MESS['AMMINA_SMTP_MENU_DOMAINS_TEXT'] = "Почтовые домены";
+$MESS['AMMINA_SMTP_MENU_DOMAINS_TITLE'] = "Настройка почтовых доменов и ключей DKIM";
+$MESS['AMMINA_SMTP_MENU_ACCOUNTS_TEXT'] = "Почтовые аккаунты";
+$MESS['AMMINA_SMTP_MENU_ACCOUNTS_TITLE'] = "Настройка почтовых аккаунтов SMTP для отправки почты";
+$MESS['AMMINA_SMTP_MENU_TEST_TEXT'] = "Тестирование отправки";
+$MESS['AMMINA_SMTP_MENU_TEST_TITLE'] = "Тестирование отправки почты при помощи модуля";
+$MESS['AMMINA_SMTP_MENU_QUEUE_TEXT'] = "Очередь отправки писем";
+$MESS['AMMINA_SMTP_MENU_QUEUE_TITLE'] = "Список отправленных и ожидающих отправки писем";
+$MESS['AMMINA_SMTP_MENU_STAT_DOMAINS_TEXT'] = "Статистика доменов";
+$MESS['AMMINA_SMTP_MENU_STAT_DOMAINS_TITLE'] = "Статистика отправки по почтовым доменам";
+$MESS['AMMINA_SMTP_MENU_STAT_DOMAINS_DAY_TEXT'] = "по дням";
+$MESS['AMMINA_SMTP_MENU_STAT_DOMAINS_DAY_TITLE'] = "Статистика отправки по почтовым доменам по дням";
+$MESS['AMMINA_SMTP_MENU_STAT_DOMAINS_HOUR_TEXT'] = "по часам";
+$MESS['AMMINA_SMTP_MENU_STAT_DOMAINS_HOUR_TITLE'] = "Статистика отправки по почтовым доменам по часам";
+$MESS['AMMINA_SMTP_MENU_STAT_DOMAINS_MINUTE_TEXT'] = "по минутам";
+$MESS['AMMINA_SMTP_MENU_STAT_DOMAINS_MINUTE_TITLE'] = "Статистика отправки по почтовым доменам по минутам";
+$MESS['AMMINA_SMTP_MENU_STAT_ACCOUNTS_TEXT'] = "Статистика аккаунтов";
+$MESS['AMMINA_SMTP_MENU_STAT_ACCOUNTS_TITLE'] = "Статистика отправки по почтовым аккаунтам";
+$MESS['AMMINA_SMTP_MENU_STAT_ACCOUNTS_DAY_TEXT'] = "по дням";
+$MESS['AMMINA_SMTP_MENU_STAT_ACCOUNTS_DAY_TITLE'] = "Статистика отправки по почтовым аккаунтам по дням";
+$MESS['AMMINA_SMTP_MENU_STAT_ACCOUNTS_HOUR_TEXT'] = "по часам";
+$MESS['AMMINA_SMTP_MENU_STAT_ACCOUNTS_HOUR_TITLE'] = "Статистика отправки по почтовым аккаунтам по часам";
+$MESS['AMMINA_SMTP_MENU_STAT_ACCOUNTS_MINUTE_TEXT'] = "по минутам";
+$MESS['AMMINA_SMTP_MENU_STAT_ACCOUNTS_MINUTE_TITLE'] = "Статистика отправки по почтовым аккаунтам по минутам";

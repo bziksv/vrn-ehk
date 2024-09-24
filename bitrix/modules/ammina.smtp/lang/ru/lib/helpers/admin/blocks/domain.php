@@ -1,0 +1,2 @@
+<?
+$MESS['AMMINA_SMTP_FIELD_DOMAIN'] = "Домен";

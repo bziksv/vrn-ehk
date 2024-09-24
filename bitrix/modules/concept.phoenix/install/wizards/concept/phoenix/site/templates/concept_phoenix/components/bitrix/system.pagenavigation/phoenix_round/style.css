@@ -1,0 +1,130 @@
+.bx-pagination {
+	margin: 0 0 40px;
+    padding: 25px 0 0;
+    border-top: 1px solid #eee;
+    position: relative;
+}
+.bx-pagination .bx-pagination-container {
+	text-align: center;
+	position: relative;
+}
+.bx-pagination .bx-pagination-container ul {
+	padding: 0 50px;
+	margin: 0 auto;
+	list-style: none;
+	display: inline-block;
+}
+.bx-pagination .bx-pagination-container ul li {
+	display: inline-block;
+	margin: 0 2px 0 2px;
+}
+.bx-pagination .bx-pagination-container ul li span{
+    -webkit-transition: color .3s ease, background-color .3s ease, border-color .3s ease;
+       -moz-transition: color .3s ease, background-color .3s ease, border-color .3s ease;
+    	-ms-transition: color .3s ease, background-color .3s ease, border-color .3s ease;
+    	 -o-transition: color .3s ease, background-color .3s ease, border-color .3s ease;
+    		transition: color .3s ease, background-color .3s ease, border-color .3s ease;
+	background: #eff0f1;
+	padding: 0 8px;
+	display: block;
+	height: 32px;
+	min-width: 32px;
+	line-height: 32px;
+	color: #444;
+	font-size: 14px;
+	border-radius: 16px;
+	vertical-align: middle;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+.bx-pagination .bx-pagination-container ul li a {
+	text-decoration: none;
+	display: block;
+	border-radius: 16px;
+	height: 32px;
+	min-width: 32px;
+	line-height: 32px;
+	color: #444;
+	vertical-align: middle;
+}
+.bx-pagination .bx-pagination-container ul li a:hover span{
+	background: #DADADA;
+}
+.bx-pagination .bx-pagination-container ul li.bx-active span{
+	
+	color: #fff;
+}
+.bx-pagination .bx-pagination-container ul li.bx-pag-all a span{
+	background: #fff;
+	border: 2px solid #eff0f1;
+	line-height: 28px;
+	padding: 0 18px;
+	color: #444;
+}
+.bx-pagination .bx-pagination-container ul li.bx-pag-all span{
+	color: #aab1b4;
+	background: #fff;
+	border: 2px solid #eff0f1;
+	line-height: 28px;
+	padding: 0 18px;
+}
+.bx-pagination .bx-pagination-container ul li.bx-pag-all a:hover span{
+	background: #fff;
+	border-color: #DADADA;
+	color: #000;
+}
+
+.bx-pagination .bx-pagination-container ul li.bx-pag-prev{
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin: 0;
+}
+.bx-pagination .bx-pagination-container ul li.bx-pag-prev span{
+    display: none;
+}
+.bx-pagination .bx-pagination-container ul li.bx-pag-prev a span{
+    display: block;
+    background: url("images/svg/arrow_l_bl.svg") center no-repeat !important;
+    width: 35px;
+    height: 22px;
+    opacity: .3;
+    border: 0 !important; 
+    padding: 0 !important;
+    margin: 0 !important;
+    position: relative;
+    top: 5px;
+    background-size: 20px !important;
+}
+.bx-pagination .bx-pagination-container ul li.bx-pag-prev a:hover span{
+    opacity: .7;
+    -webkit-transition: opacity .3s;
+    -o-transition: opacity .3s;
+    transition: opacity .3s;
+}
+.bx-pagination .bx-pagination-container ul li.bx-pag-next{
+    position: absolute;
+    right: 0;
+    top: 0;
+    margin: 0;
+}
+.bx-pagination .bx-pagination-container ul li.bx-pag-next span{
+    display: none;
+}
+.bx-pagination .bx-pagination-container ul li.bx-pag-next a span{
+    display: block;
+    background: url("images/svg/arrow_r_bl.svg") center no-repeat !important;
+    width: 35px;
+    height: 22px;
+    opacity: .3;
+    border: 0 !important; 
+    padding: 0 !important;
+    margin: 0 !important;
+    position: relative;
+    top: 5px;
+    background-size: 20px !important;
+}
+.bx-pagination .bx-pagination-container ul li.bx-pag-next a:hover span{
+    opacity: 1;
+}

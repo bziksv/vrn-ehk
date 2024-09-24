@@ -1,0 +1,6 @@
+<?
+$MESS ['PHOENIX_T_IBLOCK_COMPAREPAGE_DESC_LIST'] = "Страница сравнения";
+$MESS ['PHOENIX_T_IBLOCK_COMPAREPAGE_DESC_LIST_DESC'] = "Страница сравнения из элементов инфоблока";
+$MESS ['PHOENIX_T_IBLOCK_DESC_PAGE_GENERATOR'] = "Феникс";
+$MESS ['PHOENIX_T_IBLOCK_DESC_COMPANY_GENERATOR'] = "Концепт";
+?>

@@ -1,0 +1,8 @@
+<?
+$MESS['ammina.smtp_MENU_INDEX_TITLE'] = "Ammina: Отправка почты через SMTP и DKIM подпись (Битрикс, коробка Битрикс24, Интернет-магазин+CRM)";
+$MESS['ammina.smtp_MENU_index.php_TITLE'] = "Инструкция";
+$MESS['AMMINA_SMTP_SYS_MODULE_IS_DEMO'] = 'Модуль работает в демо-режиме. Приобрести полнофункциональную версию вы можете по адресу: <a href="https://marketplace.1c-bitrix.ru/solutions/ammina.smtp/" target="_blank">https://marketplace.1c-bitrix.ru/solutions/ammina.smtp/</a>';
+$MESS['AMMINA_SMTP_SYS_MODULE_IS_DEMO_EXPIRED'] = 'Истекло время работы модуля в демо-режиме. Приобрести полнофункциональную версию вы можете по адресу: <a href="https://marketplace.1c-bitrix.ru/solutions/ammina.smtp/" target="_blank">https://marketplace.1c-bitrix.ru/solutions/ammina.smtp/</a>';
+$MESS['AMMINA_SMTP_SYS_MODULE_RENEWAL'] = '#DATE_END# заканчивается время активной лицензии модуля. Вы не сможете получать обновления и техническую поддержку по модулю. Продлите модуль прямо сейчас для получения актуальных обновлений. <a href="#LINK#" target="_blank">Продлить модуль</a>.';
+$MESS['AMMINA_SMTP_SYS_MODULE_RENEWAL_END'] = '#DATE_END# закончилось время активной лицензии модуля. Вы не можете получать обновления и техническую поддержку по модулю. Продлите модуль прямо сейчас для получения актуальных обновлений. <a href="#LINK#" target="_blank">Продлить модуль</a>.';
+$MESS['AMMINA_SMTP_ACTIVATE_MODULE'] = "После тестирования не забудьте включить галочку &laquo;Активировать модуль&raquo; в <a href=\"/bitrix/admin/settings.php?lang=ru&mid=ammina.smtp\">настройках модуля</a>. Это необходимо для того, чтобы отправка почты работала через модуль.";

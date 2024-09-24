@@ -1,0 +1,29 @@
+<?
+$MESS['AMMINA_SMTP_PAGE_TITLE'] = "Очередь отправки почтовых писем";
+$MESS['AMMINA_SMTP_FILTER_ID'] = "ID";
+$MESS['AMMINA_SMTP_FILTER_ACCOUNT_ID'] = "Аккаунт";
+$MESS['AMMINA_SMTP_FILTER_STATUS'] = "Статус";
+$MESS['AMMINA_SMTP_FILTER_DATE_INSERT'] = "Дата добавления";
+$MESS['AMMINA_SMTP_FILTER_DATE_SEND'] = "Дата отправки";
+$MESS['AMMINA_SMTP_FILTER_FIELD_TO'] = "Получатель";
+$MESS['AMMINA_SMTP_FILTER_FIELD_SUBJECT'] = "Тема письма";
+$MESS['AMMINA_SMTP_FIELD_ID'] = "ID";
+$MESS['AMMINA_SMTP_FIELD_ACCOUNT_ID'] = "Почтовый аккаунт";
+$MESS['AMMINA_SMTP_FIELD_STATUS'] = "Статус";
+$MESS['AMMINA_SMTP_FIELD_STATUS_N'] = "[N] В очереди";
+$MESS['AMMINA_SMTP_FIELD_STATUS_E'] = "[E] Ошибка отправки";
+$MESS['AMMINA_SMTP_FIELD_STATUS_S'] = "[S] Отправлено";
+$MESS['AMMINA_SMTP_FIELD_STATUS_P'] = "[P] В процессе";
+$MESS['AMMINA_SMTP_FIELD_DATE_INSERT'] = "Дата добавления";
+$MESS['AMMINA_SMTP_FIELD_DATE_SEND'] = "Дата отправки";
+$MESS['AMMINA_SMTP_FIELD_FIELD_TO'] = "Получатель";
+$MESS['AMMINA_SMTP_FIELD_FIELD_SUBJECT'] = "Тема письма";
+$MESS['AMMINA_SMTP_FIELD_LOG_DATA'] = "Лог отправки";
+$MESS['AMMINA_SMTP_RECORD_VIEW'] = "Просмотр информации о письме";
+$MESS['AMMINA_SMTP_ACTION_VIEW'] = "Просмотр";
+$MESS['AMMINA_SMTP_ACTION_DELETE'] = "Удалить";
+$MESS['AMMINA_SMTP_ACTION_DELETE_CONFIRM'] = "Вы действительно хотите удалить письмо?";
+$MESS['AMMINA_SMTP_DELETE_ERROR'] = "Ошибка удаления почтового сообщения";
+$MESS['AMMINA_SMTP_ACTION_RESEND'] = "Повторить отправку";
+$MESS['AMMINA_SMTP_RESEND_ERROR'] = "Ошибка повторной постановки в очередь письма";
+

@@ -1,0 +1,23 @@
+/* ADMIN MENU */
+#global_menu_phoenix .adm-main-menu-item-icon{background:rgba(0, 0, 0, 0) url("../../images/concept.phoenix/global.png") no-repeat scroll 18px 9px;opacity:0.9;}
+#global_menu_phoenix .adm-main-menu-item-active .adm-main-menu-item-icon, #global_menu_phoenix:hover .adm-main-menu-item-icon{opacity:1;}
+#global_menu_phoenix .adm-main-menu-item-text{line-height: 11px;}
+#_global_menu_phoenix_items .imi_control_center{background:rgba(0, 0, 0, 0) url("../../images/concept.phoenix/img0.png") center no-repeat;}
+/*#_global_menu_phoenix_items .imi_typography{background:rgba(0, 0, 0, 0) url("../../images/concept.phoenix/menu.png") no-repeat scroll -23px 3px;}
+#_global_menu_phoenix_items .imi_pages{background:rgba(0, 0, 0, 0) url("../../images/concept.phoenix/menu.png") no-repeat scroll -55px 3px;}*/
+#_global_menu_phoenix_items .imi_contacts{background:rgba(0, 0, 0, 0) url("../../images/concept.phoenix/img1.png") center no-repeat;}
+/*#_global_menu_phoenix_items .imi_sale{background:rgba(0, 0, 0, 0) url("../../images/concept.phoenix/menu.png") no-repeat scroll -119px 4px;}
+#_global_menu_phoenix_items .imi_marketing{background:rgba(0, 0, 0, 0) url("../../images/concept.phoenix/menu.png") no-repeat scroll -87px 3px;}*/
+
+#_global_menu_phoenix_items .adm-submenu-item-name-link .adm-submenu-item-link-icon{
+    margin-top: 0;
+}
+#_global_menu_phoenix_items .adm-submenu-item-name-link .phoenix_shop_edit_icon_orders,
+#_global_menu_phoenix_items .adm-submenu-item-name-link .phoenix_shop_edit_icon{
+	margin-top: 3px;
+}
+#_global_menu_phoenix_items .imi_marketing {
+    background: rgba(0, 0, 0, 0) url(../../images/concept.phoenix/menu.png) no-repeat scroll -87px 3px;
+}
+#_global_menu_phoenix_items .phoenix_shop_edit_icon_orders{background:rgba(0, 0, 0, 0) url("../../images/concept.phoenix/shop/phoenix_shop_sprite.png") center -72px no-repeat;}
+#_global_menu_phoenix_items .phoenix_shop_edit_icon {background:url("../../images/concept.phoenix/shop/phoenix_shop_sprite.png") center -24px no-repeat !important;}

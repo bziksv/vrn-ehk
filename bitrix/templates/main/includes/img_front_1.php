@@ -1,0 +1,1 @@
+<img width="300" alt="Молотом по ценам" src="/upload/medialibrary/d36/5.03-drugoe.-molotom-po-tsenam.jpg" height="200" title="Молотом по ценам"><br>

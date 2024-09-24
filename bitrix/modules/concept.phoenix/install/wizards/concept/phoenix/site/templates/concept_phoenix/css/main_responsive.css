@@ -1,0 +1,161 @@
+@media (min-width: 992px){
+
+}
+
+/*xl & xxl*/
+@media (min-width: 1200px){
+
+}
+
+/*xxl*/
+@media (min-width: 1350px){
+	.hidden-xxl,
+	.visible-xs,
+	.visible-sm,
+	.visible-md,
+	.visible-lg,
+	.visible-xl{
+		display: none!important;
+	}
+
+	.visible-xxl{
+	    display: block!important;
+	}
+	
+	.col-xxl-1{
+        width: 8.33333333%;
+    }
+	.col-xxl-2{
+		width: 16.66666667%;
+	}
+	.col-xxl-3{
+		width: 25%;
+	}
+	.col-xxl-4{
+	    width: 33.33333333%;
+	}
+	.col-xxl-5{
+	    width: 41.66666667%;
+	}
+	.col-xxl-6{
+	    width: 50%;
+	}
+	.col-xxl-7{
+		width: 58.33333333%;
+	}
+	.col-xxl-8{
+	    width: 66.66666667%;
+	}
+	.col-xxl-9{
+	    width: 75%;
+	}
+	.col-xxl-10{
+	    width: 83.33333333%;
+	}
+	.col-xxl-11{
+		width: 91.66666667%;
+	}
+	.col-xxl-12{
+	    width: 100%;
+	}
+
+
+	.container{
+		max-width: 1340px;
+	}
+}
+
+/*semi-xxl*/
+@media (min-width: 1350px) and (max-width: 1370px){
+
+}
+
+/*xl*/
+@media (min-width: 1200px) and (max-width: 1349px){
+	.hidden-xl,
+	.visible-xs,
+	.visible-sm,
+	.visible-md,
+	.visible-lg,
+	.visible-xxl{
+		display: none!important;
+	}
+
+	.visible-xl{
+	    display: block!important;
+	}
+}
+
+/*lg*/
+@media (min-width: 992px) and (max-width: 1199px){
+	.hidden-lg,
+	.visible-xs,
+	.visible-sm,
+	.visible-md,
+	.visible-xl,
+	.visible-xxl{
+		display: none!important;
+	}
+	.visible-lg{
+	    display: block!important;
+	}
+	
+
+	.container{
+		max-width: 990px;
+	}
+}
+
+/*md*/
+@media (min-width: 768px) and (max-width: 991px){
+	.hidden-md,
+	.visible-xs,
+	.visible-sm,
+	.visible-lg,
+	.visible-xl,
+	.visible-xxl{
+		display: none!important;
+	}
+	.visible-md{
+	    display: block!important;
+	}
+
+	.container {
+	    max-width: 752px;
+	}
+}
+
+/*sm & xs*/
+@media (max-width: 767.98px){
+
+}
+
+/*sm*/
+@media (min-width: 576px) and (max-width: 767.98px){
+	.hidden-sm,
+	.visible-xs,
+	.visible-md,
+	.visible-lg,
+	.visible-xl,
+	.visible-xxl{
+		display: none!important;
+	}
+	.visible-sm{
+	    display: block!important;
+	}
+}
+
+/*xs*/
+@media (max-width: 575.98px){
+	.hidden-xs,
+	.visible-sm,
+	.visible-md,
+	.visible-lg,
+	.visible-xl,
+	.visible-xxl{
+		display: none!important;
+	}
+	.visible-xs{
+	    display: block!important;
+	}
+}

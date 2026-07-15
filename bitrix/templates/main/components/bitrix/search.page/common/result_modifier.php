@@ -1,7 +1,24 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-if (count($arResult["SEARCH"]) === 1) {
-	LocalRedirect($arResult["SEARCH"][0]["URL"]);
+require_once $_SERVER['DOCUMENT_ROOT'].'/bitrix/php_interface/include/search_by_article.php';
+
+$query = trim((string)($arResult['REQUEST']['~QUERY'] ?? $arResult['REQUEST']['QUERY'] ?? ''));
+if ($query !== '') {
+	$arResult['SEARCH'] = array_values(array_filter($arResult['SEARCH'], static function ($arItem) {
+		$iblockId = (string)($arItem['PARAM2'] ?? '');
+		return $iblockId === '' || $iblockId === '21';
+	}));
+}
+
+if (empty($arResult['SEARCH']) && $query !== '') {
+	$articleResults = vrnEhkSearchPageByArticle($query, (int)($arParams['PAGE_RESULT_COUNT'] ?? 20));
+	if (!empty($articleResults)) {
+		$arResult['SEARCH'] = $articleResults;
+	}
+}
+
+if (count($arResult['SEARCH']) === 1 && vrnEhkIsExactSearchResult($query, $arResult['SEARCH'][0])) {
+	LocalRedirect($arResult['SEARCH'][0]['URL']);
 }
 
 $arResult["TAGS_CHAIN"] = array();
@@ -29,8 +46,12 @@ if($arResult["REQUEST"]["~TAGS"])
 }
 
 foreach($arResult["SEARCH"] as &$arItem){
-	
+	if (empty($arItem['ITEM_ID']) || !ctype_digit((string)$arItem['ITEM_ID'])) {
+		continue;
+	}
 	$res = CIBlockElement::GetByID($arItem['ITEM_ID'])->GetNext();
-	$arItem['PICTURE'] = CFile::GetPath($res['PREVIEW_PICTURE']);
+	if ($res && !empty($res['PREVIEW_PICTURE'])) {
+		$arItem['PICTURE'] = CFile::GetPath($res['PREVIEW_PICTURE']);
+	}
 }
 ?>

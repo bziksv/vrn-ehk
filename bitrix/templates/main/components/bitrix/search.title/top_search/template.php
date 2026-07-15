@@ -39,5 +39,18 @@ if($arParams["SHOW_INPUT"] !== "N"):?>
 			'INPUT_ID': '<?echo $INPUT_ID?>',
 			'MIN_QUERY_LEN': 2
 		});
+
+		var container = document.getElementById('<?echo $CONTAINER_ID?>');
+		if (container) {
+			var form = container.querySelector('form');
+			if (form) {
+				BX.bind(form, 'submit', function(e) {
+					var input = form.querySelector('input[name="q"]');
+					if (!input || input.value.trim().length < 2) {
+						return BX.PreventDefault(e);
+					}
+				});
+			}
+		}
 	});
 </script>

@@ -1,6 +1,15 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("Поиск");
+
+$query = trim((string)($_REQUEST['q'] ?? ''));
+if ($query !== '') {
+	require_once $_SERVER['DOCUMENT_ROOT'].'/bitrix/php_interface/include/search_by_article.php';
+	$exactMatch = vrnEhkFindSingleExactMatch($query);
+	if ($exactMatch && !empty($exactMatch['URL'])) {
+		LocalRedirect($exactMatch['URL']);
+	}
+}
 ?><?$APPLICATION->IncludeComponent(
 	"bitrix:search.page", 
 	"common", 
@@ -12,19 +21,10 @@ $APPLICATION->SetTitle("Поиск");
 		"DEFAULT_SORT" => "rank",
 		"FILTER_NAME" => "",
 		"arrFILTER" => array(
-			0 => "main",
-			1 => "iblock_catalog",
-			2 => "iblock_info",
-		),
-		"arrFILTER_main" => array(
+			0 => "iblock_catalog",
 		),
 		"arrFILTER_iblock_catalog" => array(
 			0 => "21",
-		),
-		"arrFILTER_iblock_info" => array(
-			0 => "2",
-			1 => "3",
-			2 => "10",
 		),
 		"SHOW_WHERE" => "N",
 		"SHOW_WHEN" => "N",

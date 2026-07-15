@@ -58,13 +58,22 @@ git pull origin main
 rm -rf bitrix/cache/* bitrix/managed_cache/*
 ```
 
-### SSH-доступ
+### SSH-доступ (без пароля)
+
+Ключ на Mac уже есть: `~/.ssh/id_ed25519`. На сервере его пока нет — нужен **один раз** ввести пароль root:
 
 ```bash
+ssh-copy-id -i ~/.ssh/id_ed25519.pub root@62.109.11.114
+```
+
+Проверка:
+
+```bash
+ssh vrn-ehk          # alias из ~/.ssh/config
 ssh root@62.109.11.114
 ```
 
-Рекомендуемая запись в `~/.ssh/config`:
+Запись в `~/.ssh/config` (уже добавлена):
 
 ```
 Host vrn-ehk
@@ -72,6 +81,12 @@ Host vrn-ehk
     User root
     IdentityFile ~/.ssh/id_ed25519
     IdentitiesOnly yes
+```
+
+Публичный ключ (если копируешь вручную в `/root/.ssh/authorized_keys`):
+
+```
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGYLkfOkq1DFP6vfJft/JT/4+U3ZM5lsrMLuHqtYSvKV stanislav-almamed-github
 ```
 
 ---

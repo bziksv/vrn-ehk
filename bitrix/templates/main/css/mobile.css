@@ -276,6 +276,10 @@ h1,
 }.catalog_section_list .items .item .name{height:125px}
 .content#inner .title_block h1{
     color: #000000;
+    max-width: 100%;
+}
+.content#inner .title_block .page_title{
+    max-width: 100%;
 }
 .catalog_detail{
     padding: 0;

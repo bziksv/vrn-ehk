@@ -47,6 +47,7 @@ body:after {
   width: 250px;
   height: 250px;
   margin: 0 auto;
+  overflow: visible;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   -ms-border-radius: 4px;
@@ -203,8 +204,109 @@ body:after {
   transition: opacity 0.2s;
 }
 
+#lightbox .lb-dataContainer{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  pointer-events: none;
+  background: transparent;
+}
+#lightbox .lb-data{
+  position: static;
+  padding: 0;
+  width: auto;
+  height: 0;
+}
+#lightbox .lb-data .lb-details{
+  display: none;
+}
+#lightbox .lb-outerContainer > .lb-closeContainer{
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  left: auto;
+  width: 36px;
+  height: 36px;
+  pointer-events: auto;
+  z-index: 10003;
+}
+#lightbox .lb-outerContainer > .lb-closeContainer .lb-close{
+  display: block;
+  float: none;
+  position: static;
+  width: 36px;
+  height: 36px;
+  background: rgba(0, 0, 0, 0.55) url(../images/close.png) center center no-repeat;
+  background-size: 14px 14px;
+  border-radius: 50%;
+  opacity: 1;
+  filter: none;
+}
+#lightbox .lb-outerContainer > .lb-closeContainer .lb-close:hover{
+  background-color: rgba(0, 0, 0, 0.75);
+  opacity: 1;
+}
+
 .lb-data .lb-close:hover {
   cursor: pointer;
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
   opacity: 1;
+}
+
+#lightbox.is-zoomable .lb-outerContainer{
+  overflow: visible;
+}
+#lightbox.is-zoomable .lb-container{
+  position: relative;
+  cursor: crosshair;
+}
+#lightbox.is-zoomable .lb-nav{
+  pointer-events: none;
+}
+#lightbox.is-zoomable .lb-nav a.lb-prev,
+#lightbox.is-zoomable .lb-nav a.lb-next{
+  pointer-events: auto;
+}
+#lightbox .lb-zoom-lens{
+  position: absolute;
+  border: 2px solid #a64221;
+  background: rgba(255,255,255,0.25);
+  box-shadow: 0 0 0 1px rgba(166,66,33,0.35);
+  pointer-events: none;
+  display: none;
+  z-index: 12;
+}
+#lightbox .lb-zoom-result{
+  position: absolute;
+  left: calc(100% + 20px);
+  top: 0;
+  width: 420px;
+  height: 420px;
+  box-sizing: border-box;
+  border: 4px solid #fff;
+  background-color: #fff;
+  background-repeat: no-repeat;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 10001;
+  box-shadow: 0 12px 40px rgba(0,0,0,.45);
+  transition: opacity .12s ease;
+}
+#lightbox .lb-zoom-result.is-visible{
+  opacity: 1;
+}
+@media (max-width: 1100px){
+  #lightbox .lb-zoom-result{
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    box-shadow: none;
+  }
 }

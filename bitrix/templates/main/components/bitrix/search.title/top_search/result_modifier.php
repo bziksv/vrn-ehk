@@ -1,5 +1,8 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
+require_once $_SERVER['DOCUMENT_ROOT'].'/bitrix/php_interface/include/search_by_article.php';
+vrnEhkAppendArticleSearchResults($arResult, $arParams, (string)($_REQUEST['q'] ?? ''));
+
 //You may customize user card fields to display
 $arResult['USER_PROPERTY'] = array(
 	"UF_DEPARTMENT",

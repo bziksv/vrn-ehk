@@ -148,7 +148,7 @@
 	"bitrix:search.title",
 	"top_search",
 	array(
-		"NUM_CATEGORIES" => "3",
+		"NUM_CATEGORIES" => "1",
 		"TOP_COUNT" => "5",
 		"ORDER" => "date",
 		"USE_LANGUAGE_GUESS" => "N",
@@ -160,23 +160,7 @@
 			0 => "iblock_catalog",
 		),
 		"CATEGORY_0_iblock_catalog" => array(
-			0 => "all",
-		),
-		"CATEGORY_1_TITLE" => "Информация",
-		"CATEGORY_1" => array(
-			0 => "iblock_info",
-		),
-		"CATEGORY_1_iblock_info" => array(
-			0 => "10",
-			1 => "2",
-			2 => "3",
-			3 => "8",
-		),
-		"CATEGORY_2_TITLE" => "Сайт",
-		"CATEGORY_2" => array(
-			0 => "main",
-		),
-		"CATEGORY_2_main" => array(
+			0 => "21",
 		),
 		"SHOW_INPUT" => "Y",
 		"INPUT_ID" => "title-search-input",
@@ -264,7 +248,7 @@
                             "bitrix:search.title",
                             "top_search",
                             array(
-                                "NUM_CATEGORIES" => "3",
+                                "NUM_CATEGORIES" => "1",
                                 "TOP_COUNT" => "5",
                                 "ORDER" => "date",
                                 "USE_LANGUAGE_GUESS" => "N",
@@ -276,27 +260,11 @@
                                     0 => "iblock_catalog",
                                 ),
                                 "CATEGORY_0_iblock_catalog" => array(
-                                    0 => "all",
-                                ),
-                                "CATEGORY_1_TITLE" => "Информация",
-                                "CATEGORY_1" => array(
-                                    0 => "iblock_info",
-                                ),
-                                "CATEGORY_1_iblock_info" => array(
-                                    0 => "10",
-                                    1 => "2",
-                                    2 => "3",
-                                    3 => "8",
-                                ),
-                                "CATEGORY_2_TITLE" => "Сайт",
-                                "CATEGORY_2" => array(
-                                    0 => "main",
-                                ),
-                                "CATEGORY_2_main" => array(
+                                    0 => "21",
                                 ),
                                 "SHOW_INPUT" => "Y",
-                                "INPUT_ID" => "title-search-input",
-                                "CONTAINER_ID" => "title-search"
+                                "INPUT_ID" => "title-search-input-fixed",
+                                "CONTAINER_ID" => "title-search-fixed"
                             ),
                             false
                         );?>
@@ -366,7 +334,7 @@
 						"bitrix:search.title",
 						"top_search",
 						array(
-							"NUM_CATEGORIES" => "3",
+							"NUM_CATEGORIES" => "1",
 							"TOP_COUNT" => "5",
 							"ORDER" => "date",
 							"USE_LANGUAGE_GUESS" => "N",
@@ -378,27 +346,11 @@
 								0 => "iblock_catalog",
 							),
 							"CATEGORY_0_iblock_catalog" => array(
-								0 => "all",
-							),
-							"CATEGORY_1_TITLE" => "Информация",
-							"CATEGORY_1" => array(
-								0 => "iblock_info",
-							),
-							"CATEGORY_1_iblock_info" => array(
-								0 => "10",
-								1 => "2",
-								2 => "3",
-								3 => "8",
-							),
-							"CATEGORY_2_TITLE" => "Сайт",
-							"CATEGORY_2" => array(
-								0 => "main",
-							),
-							"CATEGORY_2_main" => array(
+								0 => "21",
 							),
 							"SHOW_INPUT" => "Y",
-							"INPUT_ID" => "title-search-input",
-							"CONTAINER_ID" => "title-search"
+							"INPUT_ID" => "title-search-input-mobile",
+							"CONTAINER_ID" => "title-search-mobile"
 						),
 						false
 					);?>

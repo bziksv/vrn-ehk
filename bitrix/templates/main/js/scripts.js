@@ -1916,23 +1916,55 @@ jQuery(function($){
 
 	initSearchSidebarSticky();
 
-	$('body').on('click','form input[type="submit"]', function(e) {
-		var form = $(this).closest('form');
+	function shouldSkipRecaptchaHandler(form)
+	{
+		if (!form || !form.length) {
+			return true;
+		}
 		if (form.closest('#title-search, #title-search-fixed, #title-search-mobile, .search_block, .search').length) {
 			return true;
 		}
-		if (form.attr('action') && form.attr('action').indexOf('/search') !== -1) {
+		var action = form.attr('action') || '';
+		if (action.indexOf('/search') !== -1) {
+			return true;
+		}
+		if (form.closest('.personal_page, .personal_enter, #authorized.popup').length) {
+			return true;
+		}
+		if (form.is('.change_pass, .update_user')) {
+			return true;
+		}
+		return false;
+	}
+
+	function formUsesRecaptcha(form)
+	{
+		return form.is('.callback_form, .callback_form_reviews, .fast_order_form, .no_item_form');
+	}
+
+	$('body').on('click','form input[type="submit"]', function(e) {
+		var form = $(this).closest('form');
+		if (shouldSkipRecaptchaHandler(form) || !formUsesRecaptcha(form)) {
+			return true;
+		}
+		if (form.find('input[name="g-recaptcha-response"]').length) {
 			return true;
 		}
 
-		var self = $(this);
+		e.preventDefault();
+
+		if (typeof grecaptcha === 'undefined') {
+			form.trigger('submit');
+			return false;
+		}
+
 		grecaptcha.ready(function() {
 			grecaptcha.execute('6Le8ZZ4aAAAAAMZUhsxou8BmT27TR4NaAh3HivxN', {action: 'submit'}).then(function(token) {
-				// Add your logic to submit to your backend server here.
-				var form = self.closest('form');
+				form.find('input[name="g-recaptcha-response"]').remove();
 				form.prepend($('<input>').attr({name : 'g-recaptcha-response', type : 'hidden', value : token}));
-				//self.remove();
-				form.submit();
+				form.trigger('submit');
+			}).catch(function() {
+				form.trigger('submit');
 			});
 		});
 		return false;

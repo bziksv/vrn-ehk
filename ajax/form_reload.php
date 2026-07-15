@@ -54,7 +54,7 @@ if($cur_user=$ar_cur_user->Fetch())
 					</span>
 				</span>
 				<div class="check">
-				    <input type="checkbox" checked="checked" name="CHEK" class="req" value="Y">
+				    <input type="checkbox" name="CHEK" class="req" value="Y">
 				        <span class="chek">Нажимая на эту кнопку, я даю свое согласие на обработку персональных данных и соглашаюсь с условиями <a target="_blank" href="/upload/politics.pdf">политики обработки персональных данных</a>.</span>
 				</div>
 				<input type="submit" value="Отправить">

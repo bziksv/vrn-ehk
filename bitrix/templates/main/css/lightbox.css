@@ -260,28 +260,42 @@ body:after {
   height: 36px;
   float: none;
   margin-top: -18px;
-  background-color: rgba(0, 0, 0, 0.55);
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: 10px 18px;
+  background: rgba(0, 0, 0, 0.55);
+  background-image: none;
   border-radius: 50%;
   opacity: 1;
   filter: none;
   z-index: 10002;
   transition: background-color 0.2s;
 }
+#lightbox .lb-nav a.lb-prev::before,
+#lightbox .lb-nav a.lb-next::before{
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid #fff;
+  border-right: 2px solid #fff;
+  box-sizing: border-box;
+}
 #lightbox .lb-nav a.lb-prev{
   left: 8px;
-  background-image: url(../images/prev.png);
+}
+#lightbox .lb-nav a.lb-prev::before{
+  transform: translate(-35%, -50%) rotate(-135deg);
 }
 #lightbox .lb-nav a.lb-next{
   right: 8px;
   left: auto;
-  background-image: url(../images/next.png);
+}
+#lightbox .lb-nav a.lb-next::before{
+  transform: translate(-65%, -50%) rotate(45deg);
 }
 #lightbox .lb-nav a.lb-prev:hover,
 #lightbox .lb-nav a.lb-next:hover{
-  background-color: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.75);
   opacity: 1;
   filter: none;
 }

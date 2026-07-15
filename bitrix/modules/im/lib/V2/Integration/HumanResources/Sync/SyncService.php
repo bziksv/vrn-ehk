@@ -2,26 +2,26 @@
 
 namespace Bitrix\Im\V2\Integration\HumanResources\Sync;
 
-use Bitrix\HumanResources\Contract\Repository\NodeRelationRepository;
-use Bitrix\HumanResources\Contract\Service\NodeMemberService;
+use Bitrix\HumanResources\Repository\NodeRelationRepository;
+use Bitrix\HumanResources\Service\NodeMemberService;
 use Bitrix\HumanResources\Item\NodeMember;
 use Bitrix\HumanResources\Item\NodeRelation;
 use Bitrix\HumanResources\Service\Container;
 use Bitrix\HumanResources\Service\NodeRelationService;
 use Bitrix\HumanResources\Type\RelationEntityType;
+use Bitrix\Im\V2\Common\PeriodAgentTrait;
 use Bitrix\Im\V2\Integration\HumanResources\Sync\Item\EntityType;
-use Bitrix\Im\V2\Integration\HumanResources\Sync\Item\SyncDirection;
 use Bitrix\Im\V2\Integration\HumanResources\Sync\SyncProcessor\Base;
 use Bitrix\Im\V2\Result;
-use Bitrix\Main\Application;
 use Bitrix\Main\Event;
 use Bitrix\Main\Loader;
 
 class SyncService
 {
+	use PeriodAgentTrait;
+
 	protected const AGENT_SHORT_PERIOD = 5;
 	protected const AGENT_LONG_PERIOD = 300;
-	protected static array $wasPeriodUpdated = [];
 
 	protected NodeMemberService $memberService;
 	protected NodeRelationService $relationService;
@@ -29,20 +29,15 @@ class SyncService
 	protected SyncProcessor $syncProcessor;
 	protected EntityType $entityType;
 
-	public function __construct(
-		EntityType $entityType,
-		?NodeMemberService $memberService = null,
-		?NodeRelationService $nodeRelationService = null,
-		?NodeRelationRepository $relationRepository = null
-	)
+	public function __construct(EntityType $entityType)
 	{
 		Loader::requireModule('humanresources');
 
 		$this->entityType = $entityType;
 		$this->syncProcessor = Base::getInstance($entityType);
-		$this->memberService = $memberService ?? Container::getNodeMemberService();
-		$this->relationService = $nodeRelationService ?? Container::getNodeRelationService();
-		$this->relationRepository = $relationRepository ?? Container::getNodeRelationRepository();
+		$this->memberService = Container::getNodeMemberService();
+		$this->relationService = Container::getNodeRelationService();
+		$this->relationRepository = Container::getNodeRelationRepository();
 	}
 
 	protected static function getAgentNameByEntityType(Item\EntityType $entityType): string
@@ -75,11 +70,39 @@ class SyncService
 		;
 	}
 
+	public static function onMemberUpdated(Event $event): void
+	{
+		/** @var NodeMember $member */
+		$member = $event->getParameter('member');
+		/** @var NodeMember|null $previousMember */
+		$previousMember = $event->getParameter('previousMember');
+
+		if ($previousMember === null)
+		{
+			return;
+		}
+
+		if ($member->nodeId === $previousMember->nodeId)
+		{
+			return;
+		}
+
+		(new static(EntityType::USER))
+			->startSync(Item\SyncInfo::createFromNodeMember($member, Item\SyncDirection::ADD))
+		;
+		(new static(EntityType::USER))
+			->startSync(Item\SyncInfo::createFromNodeMember($previousMember, Item\SyncDirection::DELETE))
+		;
+	}
+
 	public static function onRelationAdded(Event $event): void
 	{
 		/** @var NodeRelation $relation */
 		$relation = $event->getParameter('relation');
-		if ($relation->entityType !== RelationEntityType::CHAT)
+		if (
+			$relation->entityType !== RelationEntityType::CHAT
+			|| $relation->node === null
+		)
 		{
 			return;
 		}
@@ -98,9 +121,39 @@ class SyncService
 			return;
 		}
 
-		(new static(EntityType::CHAT))
-			->startSync(Item\SyncInfo::createFromNodeRelation($relation, Item\SyncDirection::DELETE))
-		;
+		$syncService = new static(EntityType::CHAT);
+
+		if (Container::getNodeService()->getNodeInformation($relation->nodeId) !== null)
+		{
+			$syncService->startSync(
+				Item\SyncInfo::createFromNodeRelation($relation, Item\SyncDirection::DELETE)
+			);
+		}
+		else
+		{
+			$syncService->startSync(
+				Item\SyncInfo::createFromNodeRelation($relation, Item\SyncDirection::NODE_DELETE)
+			);
+		}
+	}
+
+	public static function onRelationPartDeleted(Event $event): void
+	{
+		/** @var NodeRelation $relation */
+		$relation = $event->getParameter('relation');
+		if (
+			$relation->entityType !== RelationEntityType::CHAT
+			|| $relation->node === null
+			|| $relation->node->isDepartment()
+		)
+		{
+			return;
+		}
+
+		$syncService = new static(EntityType::CHAT);
+		$syncService->startSync(
+			Item\SyncInfo::createFromNodeRelation($relation, Item\SyncDirection::NODE_DELETE)
+		);
 	}
 
 	public static function syncRelationAgent(): string
@@ -205,54 +258,18 @@ class SyncService
 		return $result;
 	}
 
-	protected function wasPeriodUpdated(): bool
+	protected static function isAgentPeriodShort(int $newPeriod): bool
 	{
-		return static::$wasPeriodUpdated[$this->entityType->value] ?? false;
+		return $newPeriod === self::AGENT_SHORT_PERIOD;
+	}
+
+	protected function getPeriodGetter(): callable
+	{
+		return fn () => $this->syncProcessor->hasItemsInQueue() ? self::AGENT_SHORT_PERIOD : self::AGENT_LONG_PERIOD;
 	}
 
 	protected function determinePeriod(bool $fromAgent): void
 	{
-		if ($this->wasPeriodUpdated())
-		{
-			return;
-		}
-
-		$period = $this->syncProcessor->hasItemsInQueue() ? self::AGENT_SHORT_PERIOD : self::AGENT_LONG_PERIOD;
-		$this->setPeriod($period, $fromAgent);
-		static::$wasPeriodUpdated[$this->entityType->value] = true;
-	}
-
-	protected function setPeriod(int $period, bool $fromAgent): void
-	{
-		if ($fromAgent)
-		{
-			global $pPERIOD;
-			$pPERIOD = $period;
-
-			return;
-		}
-
-		if ($period !== self::AGENT_SHORT_PERIOD)
-		{
-			return;
-		}
-
-		$agent = \CAgent::GetList(
-			[],
-			[
-				"MODULE_ID" => "im",
-				"NAME" => self::getAgentNameByEntityType($this->entityType),
-			]
-		)->Fetch();
-
-		if ($agent === false)
-		{
-			return;
-		}
-
-		\CAgent::Update(
-			(int)$agent['ID'],
-			['NEXT_EXEC' => \ConvertTimeStamp(time() + \CTimeZone::GetOffset() + $period, 'FULL')]
-		);
+		self::setPeriodByName($fromAgent, self::getAgentNameByEntityType($this->entityType), $this->getPeriodGetter());
 	}
 }

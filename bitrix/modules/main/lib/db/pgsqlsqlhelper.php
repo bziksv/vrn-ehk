@@ -8,6 +8,7 @@ use Bitrix\Main\ORM\Fields\ScalarField;
 
 class PgsqlSqlHelper extends SqlHelper
 {
+	const FULLTEXT_MAXIMUM_LENGTH = 1000000;
 	/**
 	 * @inheritdoc
 	 */
@@ -77,6 +78,15 @@ class PgsqlSqlHelper extends SqlHelper
 		return "'" . pg_escape_bytea($value) . "'";
 		//return "E'\\\\x".bin2hex($value) . "'";
 		//return "decode('".bin2hex($value)."', 'hex')";
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function convertToFullText($value, $maxLength = 0)
+	{
+		$fulltextLength = $maxLength ? min($maxLength, static::FULLTEXT_MAXIMUM_LENGTH): static::FULLTEXT_MAXIMUM_LENGTH;
+		return "safe_text_for_tsvector('" . $this->forSql($value, $fulltextLength) . "')";
 	}
 
 	/**
@@ -178,6 +188,14 @@ class PgsqlSqlHelper extends SqlHelper
 	public function getRegexpOperator($field, $regexp)
 	{
 		return $field . ' ~ ' . $regexp;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getIlikeOperator($field, $value)
+	{
+		return $field . ' ILIKE ' . $value;
 	}
 
 	/**
@@ -386,12 +404,18 @@ class PgsqlSqlHelper extends SqlHelper
 			}
 			else
 			{
-				return 'varchar('.max(mb_strlen($values[0]), mb_strlen($values[1])).')';
+				$falseLen = mb_strlen($values[0]);
+				$trueLen = mb_strlen($values[1]);
+				if ($falseLen === 1 && $trueLen === 1)
+				{
+					return 'char(1)';
+				}
+				return 'varchar(' . max($falseLen, $trueLen) . ')';
 			}
 		}
 		elseif ($field instanceof ORM\Fields\EnumField)
 		{
-			return 'varchar('.max(array_map('strlen', $field->getValues())).')';
+			return 'varchar('.max(array_map('mb_strlen', $field->getValues())).')';
 		}
 		else
 		{
@@ -527,8 +551,8 @@ class PgsqlSqlHelper extends SqlHelper
 		$update = $this->prepareUpdate($tableName, $updateFields);
 
 		if (
-			$insert && $insert[0] != "" && $insert[1] != ""
-			&& $update
+			!empty($insert[0]) && !empty($insert[1])
+			&& !empty($update[0])
 			&& $primaryFields
 		)
 		{

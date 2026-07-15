@@ -1,16 +1,16 @@
 import { Core } from 'im.v2.application.core';
-import { ChatType } from 'im.v2.const';
+import { ChatType, RecentType } from 'im.v2.const';
 import { ChannelManager } from 'im.v2.lib.channel';
 
 import type { PullExtraParams, RawChat } from '../../types/common';
 import type { MessageAddParams } from '../../types/message';
 
-const ActionNameByChatType = {
-	[ChatType.copilot]: 'recent/setCopilot',
-	[ChatType.channel]: 'recent/setChannel',
-	[ChatType.openChannel]: 'recent/setChannel',
-	[ChatType.generalChannel]: 'recent/setChannel',
-	default: 'recent/setRecent',
+const ActionNameByRecentType = {
+	[RecentType.default]: 'recent/setRecent',
+	[RecentType.copilot]: 'recent/setCopilot',
+	[RecentType.openChannel]: 'recent/setChannel',
+	[RecentType.collab]: 'recent/setCollab',
+	[RecentType.taskComments]: 'recent/setTask',
 };
 
 export class NewMessageManager
@@ -46,6 +46,11 @@ export class NewMessageManager
 		const chat = this.getChat();
 
 		return chat?.type ?? '';
+	}
+
+	getRecentTypes(): $Values<typeof RecentType>[]
+	{
+		return this.#params.recentConfig.sections;
 	}
 
 	isLinesChat(): boolean
@@ -84,16 +89,12 @@ export class NewMessageManager
 		return this.isLinesChat() || this.isCommentChat() || !this.isUserInChat();
 	}
 
-	getActionName(): string
+	getAddActions(): string[]
 	{
-		// need to handle that case as a common chat
-		if (this.isChannelChat() && !this.isChannelListEvent())
-		{
-			return ActionNameByChatType.default;
-		}
+		const recentTypes = this.getRecentTypes();
 
-		const newMessageChatType = this.getChatType();
-
-		return ActionNameByChatType[newMessageChatType] ?? ActionNameByChatType.default;
+		return recentTypes.map((recentType) => {
+			return ActionNameByRecentType[recentType];
+		});
 	}
 }

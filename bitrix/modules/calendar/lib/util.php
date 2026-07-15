@@ -1,10 +1,15 @@
 <?php
 namespace Bitrix\Calendar;
 
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
+use Bitrix\Calendar\Integration\Pull\PushCommand;
+use Bitrix\Calendar\Integration\Pull\PushService;
 use Bitrix\Calendar\Sync\Util\MsTimezoneConverter;
+use Bitrix\Extranet\Service\ServiceContainer;
 use Bitrix\Main;
 use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
+use Bitrix\Main\LoaderException;
 use Bitrix\Main\Localization\LanguageTable;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\Emoji;
@@ -123,40 +128,7 @@ class Util
 
 	public static function checkRuZone(): bool
 	{
-		if (!is_null(self::$isRussian))
-		{
-			return self::$isRussian;
-		}
-
-		if (\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'))
-		{
-			self::$isRussian = (\CBitrix24::getPortalZone() === 'ru');
-		}
-		else
-		{
-			$iterator = LanguageTable::getList([
-				'select' => ['ID'],
-				'filter' => ['=ID' => 'ru', '=ACTIVE' => 'Y']
-			]);
-
-			$row = $iterator->fetch();
-			if (empty($row))
-			{
-				self::$isRussian = false;
-			}
-			else
-			{
-				$iterator = LanguageTable::getList([
-					'select' => ['ID'],
-					'filter' => ['@ID' => ['ua', 'by', 'kz'], '=ACTIVE' => 'Y'],
-					'limit' => 1
-				]);
-				$row = $iterator->fetch();
-				self::$isRussian = empty($row);
-			}
-		}
-
-		return self::$isRussian;
+		return in_array(Application::getInstance()->getLicense()->getRegion(), ['ru', 'by', 'kz', 'uz'], true);
 	}
 
 	public static function convertEntitiesToCodes($entityList = [])
@@ -329,6 +301,12 @@ class Util
 		return false;
 	}
 
+	public static function isCollabUser(int $userId): bool
+	{
+		return Loader::includeModule('extranet')
+		 	&& ServiceContainer::getInstance()->getCollaberService()->isCollaberById($userId);
+	}
+
 	/**
 	 * @param int $eventId
 	 * @return array|null
@@ -364,84 +342,66 @@ class Util
 		return null;
 	}
 
-	/**
-	 * @param string $command
-	 * @param int $userId
-	 * @param array $params
-	 * @return bool
-	 */
-	public static function addPullEvent(string $command, int $userId, array $params = []): bool
+	public static function addPullEvent(PushCommand $command, int $userId, array $params = []): void
 	{
-		if (!Loader::includeModule("pull"))
+		/** @noinspection PhpUnhandledExceptionInspection */
+		if (!Loader::includeModule('pull'))
 		{
-			return false;
+			return;
 		}
 
 		if (
-			in_array($command, [
-				'edit_event',
-				'delete_event',
-				'set_meeting_status',
-			])
+			in_array($command->value, [
+				PushCommand::EditEvent->value,
+				PushCommand::DeleteEvent->value,
+				PushCommand::SetMeetingStatus->value,
+			], true)
 		)
 		{
-			\CPullWatch::AddToStack(
-				'calendar-planner-'.$userId,
-				[
-					'module_id' => 'calendar',
-					'command' => $command,
-					'params' => $params
-				]
-			);
+			PushService::addEventByTag('calendar-planner-'.$userId, [
+				'module_id' => PushService::MODULE_ID,
+				'command' => $command->value,
+				'params' => $params
+			]);
 
 			if (isset($params['fields']['CAL_TYPE']) && $params['fields']['CAL_TYPE'] === 'location')
 			{
-				\CPullWatch::AddToStack(
-					'calendar-location',
-					[
-						'module_id' => 'calendar',
-						'command' => "{$command}_location",
-						'params' => [
-							'fields' => [
-								'DATE_FROM' => $params['fields']['DATE_FROM'],
-								'DATE_TO' => $params['fields']['DATE_TO'],
-								'EXDATE' => $params['fields']['EXDATE'],
-							],
+				PushService::addEventByTag('calendar-location', [
+					'module_id' => PushService::MODULE_ID,
+					'command' => "{$command->value}_location",
+					'params' => [
+						'fields' => [
+							'DATE_FROM' => $params['fields']['DATE_FROM'],
+							'DATE_TO' => $params['fields']['DATE_TO'],
+							'EXDATE' => $params['fields']['EXDATE'],
 						],
 					],
-				);
+				]);
 			}
 		}
 
 		if (
-			in_array($command, [
-				'edit_event',
-				'delete_event',
-				'set_meeting_status',
-			])
-			&& isset($params['fields'])
-			&& isset($params['fields']['SECTION_OWNER_ID'])
+			isset($params['fields']['SECTION_OWNER_ID'])
 			&& (int)$params['fields']['SECTION_OWNER_ID'] !== $userId
+			&& in_array($command->value, [
+				PushCommand::EditEvent->value,
+				PushCommand::DeleteEvent->value,
+				PushCommand::SetMeetingStatus->value,
+			], true)
 		)
 		{
-			\Bitrix\Pull\Event::add(
-				(int)$params['fields']['SECTION_OWNER_ID'],
-				[
-					'module_id' => 'calendar',
-					'command' => $command,
-					'params' => $params
-				]
-			);
+			PushService::addEvent((int)$params['fields']['SECTION_OWNER_ID'], [
+				'module_id' => PushService::MODULE_ID,
+				'command' => $command->value,
+				'params' => $params,
+			]);
 		}
 
-		return \Bitrix\Pull\Event::add(
-			$userId,
-			[
-				'module_id' => 'calendar',
-				'command' => $command,
-				'params' => $params
-			]
-		);
+		PushService::addEvent($userId, [
+			'module_id' => PushService::MODULE_ID,
+			'command' => $command->value,
+			'params' => $params,
+		]);
 	}
 
 	/**
@@ -583,10 +543,10 @@ class Util
 		return self::$userAccessCodes[$userId];
 	}
 
-
 	/**
-	 * @param int $ownerId
-	 * @param string $type
+	 * @param int|null $ownerId
+	 * @param string|null $type
+	 *
 	 * @return string
 	 */
 	public static function getPathToCalendar(?int $ownerId, ?string $type): string
@@ -594,7 +554,7 @@ class Util
 		$key = $type . $ownerId;
 		if (!isset(self::$pathCache[$key]) || !is_string(self::$pathCache[$key]))
 		{
-			if ($type === 'user')
+			if ($type === Dictionary::CALENDAR_TYPE['user'] || $type === Dictionary::CALENDAR_TYPE['open_event'])
 			{
 				$path = \COption::GetOptionString(
 					'calendar',
@@ -603,7 +563,7 @@ class Util
 					. "user/#user_id#/calendar/"
 				);
 			}
-			elseif ($type === 'group')
+			else if ($type === Dictionary::CALENDAR_TYPE['group'])
 			{
 				$path = \COption::GetOptionString(
 					'calendar',
@@ -611,6 +571,10 @@ class Util
 					\COption::getOptionString('socialnetwork', 'workgroups_page', "/workgroups/")
 					. "group/#group_id#/calendar/"
 				);
+			}
+			else if (in_array($type, ['company', 'company_calendar', 'calendar_company'], true))
+			{
+				$path = '/calendar/';
 			}
 			else
 			{
@@ -624,13 +588,17 @@ class Util
 				$pathList = \CCalendar::GetPathes();
 				if (isset($pathList[$siteId]))
 				{
-					if ($type === 'user' && isset($pathList[$siteId]['path_to_user_calendar']))
+					if ($type === Dictionary::CALENDAR_TYPE['user'] && !empty($pathList[$siteId]['path_to_user_calendar']))
 					{
 						$path = $pathList[$siteId]['path_to_user_calendar'];
 					}
-					elseif ($type === 'group' && isset($pathList[$siteId]['path_to_group_calendar']))
+					else if ($type === Dictionary::CALENDAR_TYPE['group'] && !empty($pathList[$siteId]['path_to_group_calendar']))
 					{
 						$path = $pathList[$siteId]['path_to_group_calendar'];
+					}
+					else if (!empty($pathList[$siteId]['path_to_type_company_calendar']) && in_array($type, ['company', 'company_calendar', 'calendar_company'], true))
+					{
+						$path = $pathList[$siteId]['path_to_type_company_calendar'];
 					}
 					else if (!empty($pathList[$siteId]['path_to_type_' . $type]))
 					{
@@ -644,17 +612,26 @@ class Util
 				$path =  '';
 			}
 
-			if (!empty($path) && $ownerId > 0)
+			// substitute user=0 for links to open events
+			if (!empty($path))
 			{
-				if ($type === 'user')
+				if ($ownerId > 0)
+				{
+					if ($type === Dictionary::CALENDAR_TYPE['user'])
+					{
+						$path = str_replace(['#user_id#', '#USER_ID#'], $ownerId, $path);
+					}
+					elseif ($type === Dictionary::CALENDAR_TYPE['group'])
+					{
+						$path = str_replace(['#group_id#', '#GROUP_ID#'], $ownerId, $path);
+					}
+				}
+				elseif ($type === Dictionary::CALENDAR_TYPE['open_event'])
 				{
 					$path = str_replace(['#user_id#', '#USER_ID#'], $ownerId, $path);
 				}
-				elseif ($type === 'group')
-				{
-					$path = str_replace(['#group_id#', '#GROUP_ID#'], $ownerId, $path);
-				}
 			}
+
 			self::$pathCache[$key] = $path;
 		}
 

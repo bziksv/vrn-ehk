@@ -11,7 +11,6 @@ return [
 		'main.polyfill.core',
 		'im.v2.component.message.elements',
 		'im.v2.component.message.base',
-		'im.v2.lib.parser',
 	],
 	'skip_core' => true,
 ];

@@ -1,7 +1,9 @@
 <?php
+
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
+use Bitrix\Calendar\Integration\SocialNetwork\Collab;
 use Bitrix\Calendar\Integration\SocialNetwork\Context\Context;
 use Bitrix\Intranet\Settings\Tools\ToolsManager;
-
 
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
@@ -14,14 +16,13 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 if (!CModule::IncludeModule("calendar"))
 {
-	return ShowError("EC_CALENDAR_MODULE_NOT_INSTALLED");
+	ShowError("EC_CALENDAR_MODULE_NOT_INSTALLED");
+	return;
 }
 
 CModule::IncludeModule("socialnetwork");
 $APPLICATION->ResetException();
 $APPLICATION->SetPageProperty("BodyClass", trim($APPLICATION->GetPageProperty("BodyClass")." no-all-paddings"));
-
-$arParams['FILTER_ID'] = "CALENDAR_GRID_FILTER_".$arParams["CALENDAR_TYPE"]."_". ($arParams["OWNER_ID"] ?? '') ."_".CCalendar::GetCurUserId();
 
 $viewTaskPath = '';
 $editTaskPath = '';
@@ -35,6 +36,9 @@ else if ($arParams['CALENDAR_TYPE'] === 'group')
 	$viewTaskPath = str_replace(array('#group_id#', '#action#'), array($arParams["OWNER_ID"], 'view'), $arParams['PATH_TO_GROUP_TASK']);
 	$editTaskPath = str_replace(array('#group_id#', '#action#', '#task_id#'), array($arParams["OWNER_ID"], 'edit', 0), $arParams['PATH_TO_GROUP_TASK']);
 }
+
+$arParams['EDIT_TASK_PATH'] = $editTaskPath;
+$arParams['VIEW_TASK_PATH'] = $viewTaskPath;
 
 $arParams['USER_ID'] = CCalendar::GetCurUserId();
 $arParams['SHOW_FILTER'] =
@@ -78,6 +82,19 @@ $arResult['CALENDAR'] = $EC;
 
 $arResult['CONTEXT'] = $arParams['CONTEXT'] ?? Context::getDefault();
 
+$arResult['IS_COLLAB'] = false;
+
+if (
+	$arParams['CALENDAR_TYPE'] === Dictionary::CALENDAR_TYPE['group']
+	&& !empty($arParams['OWNER_ID'])
+	&& $collab = Collab\Collabs::getInstance()->getById($arParams['OWNER_ID'])
+)
+{
+	$arResult['IS_COLLAB'] = true;
+	$arResult['COLLAB_NAME'] = $collab->getName();
+	$arResult['COLLAB_IMAGE'] = Collab\Collabs::getInstance()->getCollabImagePath($collab->getImageId());
+}
+
 $request = \Bitrix\Main\Context::getCurrent()->getRequest();
 if (isset($request['action']) && $request['action'] === 'export')
 {
@@ -91,4 +108,5 @@ else
 	;
 	$this->IncludeComponentTemplate();
 }
+
 ?>

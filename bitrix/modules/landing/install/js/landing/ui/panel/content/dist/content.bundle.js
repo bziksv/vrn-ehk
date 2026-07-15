@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,ui_designTokens,ui_fonts_opensans,landing_main,landing_ui_panel_base,main_core) {
+(function (exports,ui_designTokens,ui_fonts_opensans,landing_ui_panel_base,main_core) {
 	'use strict';
 
 	function getDeltaFromEvent(event) {
@@ -78,7 +78,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	}
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8;
-
 	/**
 	 * @memberOf BX.Landing.UI.Panel
 	 */
@@ -376,6 +375,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        this.scrollObserver.observe(card.layout);
 	      }
 	      main_core.Dom.append(card.layout, this.content);
+	      card.onAppend();
 	    }
 	  }, {
 	    key: "clear",
@@ -462,5 +462,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.Content = Content;
 
-}((this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}),BX,BX,BX.Landing,BX.Landing.UI.Panel,BX));
+}((this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}),BX,BX,BX.Landing.UI.Panel,BX));
 //# sourceMappingURL=content.bundle.js.map

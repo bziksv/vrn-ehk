@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 (function (exports,main_core,main_loader) {
@@ -172,9 +173,11 @@ this.BX.Landing = this.BX.Landing || {};
 	          top.window['landingSettingsSaved'] = true;
 	          top.BX.onCustomEvent('BX.Landing.Filter:apply');
 	          _this4.hideLoader();
-	          if (_this4.type === 'KNOWLEDGE' || _this4.type === 'GROUP') {
+	          main_core.Dom.removeClass(_this4.saveButton, 'ui-btn-wait');
+	          var previous = BX.SidePanel.Instance.getPreviousSlider();
+	          if (previous) {
+	            previous.reload();
 	            BX.SidePanel.Instance.close();
-	            BX.SidePanel.Instance.reload();
 	          } else {
 	            top.window.location.reload();
 	            BX.SidePanel.Instance.close();

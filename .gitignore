@@ -1,8 +1,45 @@
-bitrix/php_interface/dbconn.php
+# === Cursor (локально, не в репозиторий) ===
+.cursorignore
+.cursor/
+
+# === Секреты и конфиги окружения (НЕ коммитить) ===
 bitrix/.settings.php
-bitrix/managed_cache/*
-bitrix/cache/*
-bitrix/stack_cache/*
-bitrix/html_pages/*
-bitrix/modules/concept.phoenix.tar.gz
+bitrix/license_key.php
+bitrix/php_interface/dbconn.php
+bitrix/php_interface/dbconn.local.php
+.local/
+.local/**
+
+# === Медиа и кеш ===
+upload/
 upload/*
+bitrix/cache/*
+bitrix/managed_cache/*
+bitrix/stack_cache/*
+bitrix/backup/*
+bitrix/html_pages/*
+bitrix/catalog_export/*
+
+# === Дампы, архивы, бэкапы ===
+*.sql
+*.sql.gz
+*.tar
+*.tar.gz
+*.zip
+*.rar
+avito_photo.tar.gz
+bitrix/modules/concept.phoenix.tar.gz
+bitrix/templates/main.tar.gz
+
+# === Логи и служебное ===
+*.log
+log_askaron_pro1c__*.txt
+.DS_Store
+.idea/
+.osp/
+
+# === Верификация поисковиков ===
+yandex_*
+google*
+mailru-*
+cmsmagazine*

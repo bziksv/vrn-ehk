@@ -340,7 +340,7 @@ class CAllIBlockSection
 	///////////////////////////////////////////////////////////////////
 	// New section
 	///////////////////////////////////////////////////////////////////
-	function Add($arFields, $bResort=true, $bUpdateSearch=true, $bResizePictures=false)
+	public function Add($arFields, $bResort=true, $bUpdateSearch=true, $bResizePictures=false)
 	{
 		global $USER, $DB, $APPLICATION;
 
@@ -699,8 +699,10 @@ class CAllIBlockSection
 
 			$GLOBALS["USER_FIELD_MANAGER"]->Update("IBLOCK_".$IBLOCK_ID."_SECTION", $ID, $arFields);
 
-			if($bUpdateSearch)
-				CIBlockSection::UpdateSearch($ID);
+			if ($bUpdateSearch)
+			{
+				$this->UpdateSearch($ID);
+			}
 
 			if(
 				CIBlock::GetArrayByID($IBLOCK_ID, "SECTION_PROPERTY") === "Y"
@@ -778,7 +780,7 @@ class CAllIBlockSection
 	///////////////////////////////////////////////////////////////////
 	// Update section properties
 	///////////////////////////////////////////////////////////////////
-	function Update($ID, $arFields, $bResort=true, $bUpdateSearch=true, $bResizePictures=false)
+	public function Update($ID, $arFields, $bResort=true, $bUpdateSearch=true, $bResizePictures=false)
 	{
 		global $USER, $DB, $APPLICATION;
 
@@ -1222,8 +1224,10 @@ class CAllIBlockSection
 				Iblock\PropertyIndex\Manager::markAsInvalid($db_record["IBLOCK_ID"]);
 			}
 
-			if($bUpdateSearch)
-				CIBlockSection::UpdateSearch($ID);
+			if ($bUpdateSearch)
+			{
+				$this->UpdateSearch($ID);
+			}
 
 			if($arIBlock["FIELDS"]["LOG_SECTION_EDIT"]["IS_REQUIRED"] == "Y")
 			{
@@ -1275,8 +1279,8 @@ class CAllIBlockSection
 	///////////////////////////////////////////////////////////////////
 	public static function Delete($ID, $bCheckPermissions = true)
 	{
-		$err_mess = "FILE: ".__FILE__."<br>LINE: ";
 		global $DB, $APPLICATION, $USER;
+
 		$ID = (int)$ID;
 		if ($ID <= 0)
 		{
@@ -1330,7 +1334,7 @@ class CAllIBlockSection
 							UPDATE b_iblock_element
 							SET IBLOCK_SECTION_ID=".$ar_section_element["IBLOCK_SECTION_ID"]."
 							WHERE ID=".$elementId."
-						", false, $err_mess . __LINE__);
+						");
 					}
 				}
 				elseif((int)$iblockelement["WF_PARENT_ELEMENT_ID"]<=0)
@@ -1344,7 +1348,7 @@ class CAllIBlockSection
 						UPDATE b_iblock_element
 						SET IBLOCK_SECTION_ID=NULL, IN_SECTIONS='N'
 						WHERE ID=".$elementId."
-					", false, $err_mess.__LINE__);
+					");
 				}
 				unset($elementId);
 			}
@@ -1370,7 +1374,7 @@ class CAllIBlockSection
 			if (!isset($arDelCache[$s["IBLOCK_ID"]]))
 			{
 				$arDelCache[$s["IBLOCK_ID"]] = [];
-				$db_ps = $DB->Query("SELECT ID,IBLOCK_ID,VERSION,MULTIPLE FROM b_iblock_property WHERE PROPERTY_TYPE='G' AND (LINK_IBLOCK_ID=".$s["IBLOCK_ID"]." OR LINK_IBLOCK_ID=0 OR LINK_IBLOCK_ID IS NULL)", false, $err_mess.__LINE__);
+				$db_ps = $DB->Query("SELECT ID,IBLOCK_ID,VERSION,MULTIPLE FROM b_iblock_property WHERE PROPERTY_TYPE='G' AND (LINK_IBLOCK_ID=".$s["IBLOCK_ID"]." OR LINK_IBLOCK_ID=0 OR LINK_IBLOCK_ID IS NULL)");
 				while($ar_ps = $db_ps->Fetch())
 				{
 					if($ar_ps["VERSION"]==2)
@@ -1405,7 +1409,7 @@ class CAllIBlockSection
 							if (isset($tableFields["DESCRIPTION_".$prop_id]))
 								$strSql .= ",DESCRIPTION_".$prop_id."=null";
 							$strSql .= " WHERE PROPERTY_".$prop_id."=".$s["ID"];
-							if(!$DB->Query($strSql, false, $err_mess.__LINE__))
+							if(!$DB->Query($strSql))
 								return false;
 						}
 					}
@@ -1413,7 +1417,7 @@ class CAllIBlockSection
 					{
 						$tableFields = $DB->GetTableFields(str_replace("prop_m", "prop_s", $strTable));
 						$strSql = "SELECT IBLOCK_PROPERTY_ID, IBLOCK_ELEMENT_ID FROM ".$strTable." WHERE IBLOCK_PROPERTY_ID IN (".implode(", ", $arProps).") AND VALUE_NUM=".$s["ID"];
-						$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+						$rs = $DB->Query($strSql);
 						while($ar = $rs->Fetch())
 						{
 							$strSql = "
@@ -1422,24 +1426,24 @@ class CAllIBlockSection
 									".(isset($tableFields["DESCRIPTION_".$ar["IBLOCK_PROPERTY_ID"]])? ",DESCRIPTION_".$ar["IBLOCK_PROPERTY_ID"]."=null": "")."
 								WHERE IBLOCK_ELEMENT_ID = ".$ar["IBLOCK_ELEMENT_ID"]."
 							";
-							if(!$DB->Query($strSql, false, $err_mess.__LINE__))
+							if(!$DB->Query($strSql))
 								return false;
 						}
 						$strSql = "DELETE FROM ".$strTable." WHERE IBLOCK_PROPERTY_ID IN (".implode(", ", $arProps).") AND VALUE_NUM=".$s["ID"];
-						if(!$DB->Query($strSql, false, $err_mess.__LINE__))
+						if(!$DB->Query($strSql))
 							return false;
 					}
 					else
 					{
 						$strSql = "DELETE FROM ".$strTable." WHERE IBLOCK_PROPERTY_ID IN (".implode(", ", $arProps).") AND VALUE_NUM=".$s["ID"];
-						if(!$DB->Query($strSql, false, $err_mess.__LINE__))
+						if(!$DB->Query($strSql))
 							return false;
 					}
 				}
 			}
 
 			CIBlockSectionPropertyLink::DeleteBySection($ID);
-			$DB->Query("DELETE FROM b_iblock_section_element WHERE IBLOCK_SECTION_ID=".$ID, false, $err_mess.__LINE__);
+			$DB->Query("DELETE FROM b_iblock_section_element WHERE IBLOCK_SECTION_ID=".$ID);
 
 			if(CModule::IncludeModule("search"))
 				CSearch::DeleteIndex("iblock", "S".$ID);
@@ -1491,7 +1495,7 @@ class CAllIBlockSection
 				}
 			}
 
-			$res = $DB->Query("DELETE FROM b_iblock_section WHERE ID=".$ID, false, $err_mess.__LINE__);
+			$res = $DB->Query("DELETE FROM b_iblock_section WHERE ID=".$ID);
 
 			if($res)
 			{
@@ -1510,7 +1514,7 @@ class CAllIBlockSection
 	///////////////////////////////////////////////////////////////////
 	// Check function called from Add and Update
 	///////////////////////////////////////////////////////////////////
-	function CheckFields(&$arFields, $ID=false)
+	public function CheckFields(&$arFields, $ID=false)
 	{
 		global $DB, $APPLICATION;
 		$this->LAST_ERROR = "";
@@ -1637,7 +1641,7 @@ class CAllIBlockSection
 		{
 			if(
 				array_key_exists("CODE", $arFields)
-				&& mb_strlen($arFields["CODE"])
+				&& (string)$arFields['CODE'] !== ''
 				&& is_array($arIBlock["FIELDS"]["SECTION_CODE"]["DEFAULT_VALUE"])
 				&& $arIBlock["FIELDS"]["SECTION_CODE"]["DEFAULT_VALUE"]["UNIQUE"] == "Y"
 			)
@@ -1646,8 +1650,8 @@ class CAllIBlockSection
 					SELECT ID
 					FROM b_iblock_section
 					WHERE IBLOCK_ID = ".$arIBlock["ID"]."
-					AND CODE = '".$DB->ForSQL($arFields["CODE"])."'
-					AND ID <> ".intval($ID)
+					AND CODE = '".$DB->ForSQL((string)$arFields['CODE'])."'
+					AND ID <> ".(int)$ID
 				);
 				if($res->Fetch())
 					$this->LAST_ERROR .= GetMessage("IBLOCK_DUP_SECTION_CODE")."<br>";
@@ -1825,15 +1829,22 @@ class CAllIBlockSection
 		return $cnt;
 	}
 
-	function UpdateSearch($ID, $bOverWrite=false)
+	public function UpdateSearch($ID, $bOverWrite = false)
 	{
-		if(!CModule::IncludeModule("search")) return;
+		if (!Loader::includeModule('search'))
+		{
+			return;
+		}
 
 		global $DB;
-		$ID = intval($ID);
+		$ID = (int)$ID;
+		if ($ID <= 0)
+		{
+			return;
+		}
 
-		static $arGroups = array();
-		static $arSITE = array();
+		static $arGroups = [];
+		static $arSITE = [];
 
 		$strSql = "
 			SELECT BS.ID, BS.NAME, BS.DESCRIPTION_TYPE, BS.DESCRIPTION, BS.XML_ID as EXTERNAL_ID,
@@ -1848,8 +1859,12 @@ class CAllIBlockSection
 				AND BS.ID=".$ID;
 
 		$dbrIBlockSection = $DB->Query($strSql);
+		$arIBlockSection = $dbrIBlockSection->Fetch();
+		unset(
+			$dbrIBlockSection,
+		);
 
-		if($arIBlockSection = $dbrIBlockSection->Fetch())
+		if ($arIBlockSection)
 		{
 			$IBLOCK_ID = $arIBlockSection["IBLOCK_ID"];
 			$SECTION_URL =
@@ -1864,6 +1879,7 @@ class CAllIBlockSection
 			if($arIBlockSection["ACTIVE1"]!="Y" || $arIBlockSection["ACTIVE2"]!="Y" || $arIBlockSection["INDEX_SECTION"]!="Y")
 			{
 				CSearch::DeleteIndex("iblock", "S".$arIBlockSection["ID"]);
+
 				return;
 			}
 
@@ -2330,7 +2346,7 @@ class CAllIBlockSection
 			".$strSqlSearch."
 		";
 
-		$res = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$res = $DB->Query($strSql);
 		$res_cnt = $res->Fetch();
 
 		return (int)($res_cnt["C"] ?? 0);
@@ -2402,15 +2418,16 @@ class CAllIBlockSection
 	{
 		if (!isset(self::$arSectionPathCache[$sectionId]))
 		{
-			self::$arSectionPathCache[$sectionId] = "";
-			$res = CIBlockSection::GetNavChain(0, $sectionId, array("ID", "CODE"), true);
+			self::$arSectionPathCache[$sectionId] = '';
+			$res = CIBlockSection::GetNavChain(0, $sectionId, ['ID', 'CODE'], true);
 			foreach ($res as $a)
 			{
-				self::$arSectionCodeCache[$a["ID"]] = rawurlencode($a["CODE"]);
-				self::$arSectionPathCache[$sectionId] .= rawurlencode($a["CODE"])."/";
+				$a['CODE'] = (string)$a['CODE'];
+				self::$arSectionCodeCache[$a['ID']] = rawurlencode($a['CODE']);
+				self::$arSectionPathCache[$sectionId] .= rawurlencode($a['CODE']) . '/';
 			}
 			unset($a, $res);
-			self::$arSectionPathCache[$sectionId] = rtrim(self::$arSectionPathCache[$sectionId], "/");
+			self::$arSectionPathCache[$sectionId] = rtrim(self::$arSectionPathCache[$sectionId], '/');
 		}
 		return self::$arSectionPathCache[$sectionId];
 	}
@@ -2428,7 +2445,7 @@ class CAllIBlockSection
 			unset($res);
 			if ($a)
 			{
-				self::$arSectionCodeCache[$sectionId] = rawurlencode($a['CODE']);
+				self::$arSectionCodeCache[$sectionId] = rawurlencode((string)$a['CODE']);
 			}
 		}
 

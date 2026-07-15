@@ -1,4 +1,4 @@
-export const ChatActionType = Object.freeze({
+export const ActionByRole = Object.freeze({
 	avatar: 'avatar',
 	call: 'call',
 	extend: 'extend',
@@ -12,7 +12,8 @@ export const ChatActionType = Object.freeze({
 	userList: 'userList',
 	changeOwner: 'changeOwner',
 	changeManagers: 'changeManagers',
-
+	update: 'update',
+	delete: 'delete',
 	readMessage: 'readMessage',
 	openComments: 'openComments',
 	subscribeToComments: 'subscribeToComments',
@@ -24,6 +25,10 @@ export const ChatActionType = Object.freeze({
 	openAvatarMenu: 'openAvatarMenu',
 	openMessageMenu: 'openMessageMenu',
 	openSidebarMenu: 'openSidebarMenu',
+	updateInviteLink: 'updateInviteLink',
+	createDocumentSign: 'createDocumentSign',
+	createCalendarSlots: 'createCalendarSlots',
+	changeMessagesAutoDeleteDelay: 'changeMessagesAutoDeleteDelay',
 });
 
 export const ChatActionGroup = Object.freeze({
@@ -32,4 +37,17 @@ export const ChatActionGroup = Object.freeze({
 	manageUsersAdd: 'manageUsersAdd',
 	manageUsersDelete: 'manageUsersDelete',
 	manageMessages: 'manageMessages',
+});
+
+export const ActionByUserType = Object.freeze({
+	getChannels: 'getChannels',
+	getMarket: 'getMarket',
+	getOpenlines: 'getOpenlines',
+	createCollab: 'createCollab',
+	createCopilot: 'createCopilot',
+	createChannel: 'createChannel',
+	createChat: 'createChat',
+	createConference: 'createConference',
+	leaveCollab: 'leaveCollab',
+	changeMessagesAutoDeleteDelay: 'changeMessagesAutoDeleteDelay',
 });

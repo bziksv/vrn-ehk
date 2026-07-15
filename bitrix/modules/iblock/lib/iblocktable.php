@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Iblock;
 
 use Bitrix\Iblock\ORM\ElementEntity;
@@ -21,7 +22,6 @@ use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Type\DateTime;
 use CIBlockProperty;
-
 
 /**
  * Class IblockTable
@@ -374,6 +374,13 @@ class IblockTable extends DataManager
 				'reference' => ['=this.IBLOCK_TYPE_ID' => 'ref.ID'],
 			],
 
+			'FULLTEXT_INDEX' => [
+				'data_type' => 'boolean',
+				'values' => ['N', 'Y'],
+				'default' => 'N',
+				'title' => Loc::getMessage('IBLOCK_ENTITY_FULLTEXT_INDEX'),
+			],
+
 			new OneToMany('PROPERTIES', PropertyTable::class, 'IBLOCK')
 		];
 	}
@@ -622,5 +629,65 @@ class IblockTable extends DataManager
 	{
 		$primary = $event->getParameter('primary');
 		\CIBlock::CleanCache($primary['ID']);
+	}
+
+	/**
+	 * Returns iblock identifier by symbolic code. Optionally, checked site relation.
+	 *
+	 * @param string $code Iblock symbolic code.
+	 * @param string|null $siteId Site identifier.
+	 * @return int|null
+	 */
+	public static function resolveIdByCode(string $code, ?string $siteId = null): ?int
+	{
+		if ($code === '')
+		{
+			return null;
+		}
+
+		$row = static::getRow([
+			'select' => [
+				'ID',
+			],
+			'filter' => [
+				'=CODE' => $code,
+			],
+			'cache' => [
+				'ttl' => 86400,
+			],
+		]);
+
+		if ($row === null)
+		{
+			return null;
+		}
+
+		$iblockId = (int)$row['ID'];
+
+		if ($siteId === '')
+		{
+			$siteId = null;
+		}
+		if ($siteId !== null)
+		{
+			$row = IblockSiteTable::getRow([
+				'select' => [
+					'IBLOCK_ID',
+				],
+				'filter' => [
+					'=IBLOCK_ID' => $iblockId,
+					'=SITE_ID' => $siteId,
+				],
+				'cache' => [
+					'ttl' => 86400,
+				],
+			]);
+			if ($row === null)
+			{
+				$iblockId = null;
+			}
+		}
+
+		return $iblockId;
 	}
 }

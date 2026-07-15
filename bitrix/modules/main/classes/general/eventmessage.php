@@ -8,6 +8,7 @@
 
 use Bitrix\Main\Mail;
 use Bitrix\Main\Mail\Internal\EventTypeTable;
+use Bitrix\Main\ORM\Query\Query;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -419,6 +420,13 @@ class CAllEventMessage
 		$bIsLang = false;
 		if (is_array($arFilter))
 		{
+			static $map = [
+				'TYPE_ID' => 'EVENT_NAME',
+				'FROM' => 'EMAIL_FROM',
+				'TO' => 'EMAIL_TO',
+				'BODY' => 'MESSAGE',
+			];
+
 			foreach ($arFilter as $key => $val)
 			{
 				if (is_array($val))
@@ -435,34 +443,32 @@ class CAllEventMessage
 						continue;
 					}
 				}
-				$match_value_set = array_key_exists($key . "_EXACT_MATCH", $arFilter);
 				$key = strtoupper($key);
 				switch ($key)
 				{
 					case "ID":
-						$match = (isset($arFilter[$key . "_EXACT_MATCH"]) && $arFilter[$key . "_EXACT_MATCH"] == "N" && $match_value_set) ? "Y" : "N";
-						if ($match == 'Y')
-						{
-							$val = '%' . $val . '%';
-						}
-						$arSearch['%=' . $key] = $val;
-						break;
-					case "TYPE":
-						$match = (isset($arFilter[$key . "_EXACT_MATCH"]) && $arFilter[$key . "_EXACT_MATCH"] == "Y" && $match_value_set) ? "N" : "Y";
-						if ($match == 'Y')
-						{
-							$val = '%' . $val . '%';
-						}
-						$arSearch[] = ['LOGIC' => 'OR', 'EVENT_NAME' => $val, 'EVENT_MESSAGE_TYPE.NAME' => $val];
-						break;
 					case "EVENT_NAME":
 					case "TYPE_ID":
-						$match = (isset($arFilter[$key . "_EXACT_MATCH"]) && $arFilter[$key . "_EXACT_MATCH"] == "N" && $match_value_set) ? "Y" : "N";
-						if ($match == 'Y')
-						{
-							$val = '%' . $val . '%';
-						}
-						$arSearch['%=EVENT_NAME'] = $val;
+						$operation = (isset($arFilter[$key . "_EXACT_MATCH"]) && $arFilter[$key . "_EXACT_MATCH"] == "N" ? '%' : '=');
+						$field = $map[$key] ?? $key;
+						$arSearch[$operation . $field] = $val;
+						break;
+					case "FROM":
+					case "TO":
+					case "BCC":
+					case "SUBJECT":
+					case "BODY":
+						$operation = (isset($arFilter[$key . "_EXACT_MATCH"]) && $arFilter[$key . "_EXACT_MATCH"] == "Y" ? '=' : '%');
+						$field = $map[$key] ?? $key;
+						$arSearch[$operation . $field] = $val;
+						break;
+					case "TYPE":
+						$operation = (isset($arFilter[$key . "_EXACT_MATCH"]) && $arFilter[$key . "_EXACT_MATCH"] == "Y" ? '=' : '%');
+						$arSearch[] = [
+							'LOGIC' => 'OR',
+							$operation . 'EVENT_NAME' => $val,
+							$operation . 'EVENT_MESSAGE_TYPE.NAME' => $val
+						];
 						break;
 					case "TIMESTAMP_1":
 						$arSqlSearch[] = "M.TIMESTAMP_X>=TO_DATE('" . FmtDate($val, "D.M.Y") . " 00:00:00','dd.mm.yyyy hh24:mi:ss')";
@@ -479,46 +485,11 @@ class CAllEventMessage
 						$arSearch["=SITE_ID"] = $val;
 						break;
 					case "LANGUAGE_ID":
-						$arSearch["=LANGUAGE_ID"] = $val;
-						break;
 					case "ACTIVE":
 						$arSearch['=' . $key] = $val;
 						break;
-					case "FROM":
-						$match = (isset($arFilter[$key . "_EXACT_MATCH"]) && $arFilter[$key . "_EXACT_MATCH"] == "Y" && $match_value_set) ? "N" : "Y";
-						if ($match == 'Y')
-						{
-							$val = '%' . $val . '%';
-						}
-						$arSearch['%=EMAIL_FROM'] = $val;
-						break;
-					case "TO":
-						$match = (isset($arFilter[$key . "_EXACT_MATCH"]) && $arFilter[$key . "_EXACT_MATCH"] == "Y" && $match_value_set) ? "N" : "Y";
-						if ($match == 'Y')
-						{
-							$val = '%' . $val . '%';
-						}
-						$arSearch['%=EMAIL_TO'] = $val;
-						break;
-					case "BCC":
-					case "SUBJECT":
-						$match = (isset($arFilter[$key . "_EXACT_MATCH"]) && $arFilter[$key . "_EXACT_MATCH"] == "Y" && $match_value_set) ? "N" : "Y";
-						if ($match == 'Y')
-						{
-							$val = '%' . $val . '%';
-						}
-						$arSearch['%=' . $key] = $val;
-						break;
 					case "BODY_TYPE":
-						$arSearch[$key] = ($val == "text") ? 'text' : 'html';
-						break;
-					case "BODY":
-						$match = (isset($arFilter[$key . "_EXACT_MATCH"]) && $arFilter[$key . "_EXACT_MATCH"] == "Y" && $match_value_set) ? "N" : "Y";
-						if ($match == 'Y')
-						{
-							$val = '%' . $val . '%';
-						}
-						$arSearch['%=MESSAGE'] = $val;
+						$arSearch['=' . $key] = ($val == "text") ? 'text' : 'html';
 						break;
 				}
 			}
@@ -977,7 +948,7 @@ class CEventType
 
 		$arSearch['!EVENT_NAME'] = null;
 		$arQuerySelect = ['ID1' => 'EVENT_NAME', 'EVENT_NAME1' => 'EVENT_NAME'];
-		$query1 = new \Bitrix\Main\Entity\Query(Mail\Internal\EventMessageTable::getEntity());
+		$query1 = new Query(Mail\Internal\EventMessageTable::getEntity());
 		$query1->setSelect($arQuerySelect);
 		$query1->setFilter(array_merge($arSearch, $arSearch1));
 		$query1->registerRuntimeField('EVENT_MESSAGE_TYPE', [
@@ -985,7 +956,7 @@ class CEventType
 			'reference' => ['=this.EVENT_NAME' => 'ref.EVENT_NAME'],
 		]);
 
-		$query2 = new \Bitrix\Main\Entity\Query(Mail\Internal\EventTypeTable::getEntity());
+		$query2 = new Query(Mail\Internal\EventTypeTable::getEntity());
 		$query2->setSelect($arQuerySelect);
 		$query2->setFilter(array_merge($arSearch, $arSearch2));
 		$query2->registerRuntimeField('EVENT_MESSAGE', [

@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Im;
 
+use Bitrix\Im\V2\Entity\User\UserCollection;
+
 class Department
 {
 	public static function getColleagues($userId = null, $options = array())
@@ -68,18 +70,7 @@ class Department
 
 		if ($userDataOption === 'Y')
 		{
-			$result = Array();
-
-			$getOptions = Array();
-			if ($jsonOption === 'Y')
-			{
-				$getOptions['JSON'] = 'Y';
-			}
-
-			foreach ($list as $userId)
-			{
-				$result[] = \Bitrix\Im\User::getInstance($userId)->getArray($getOptions);
-			}
+			$result = self::getUsersData($list, $jsonOption === 'Y');
 		}
 		else
 		{
@@ -97,6 +88,52 @@ class Department
 		}
 
 		return $result;
+	}
+
+	public static function getColleaguesSimple(
+		\Bitrix\Im\V2\Entity\User\User $user,
+		int $limit = 50,
+	): array
+	{
+		$userId = $user->getId();
+		$departments = $user->getDepartments()->getIds();
+
+		if (empty($departments))
+		{
+			return [];
+		}
+
+		$userList = [];
+		$employees = V2\Integration\HumanResources\Department\Department::getInstance()->getEmployeeIdsWithLimit($departments, $limit);
+		foreach ($employees as $employee)
+		{
+			if ($userId !== $employee)
+			{
+				$userList[$employee] = $employee;
+			}
+		}
+
+		return self::getUsersData($userList);
+	}
+
+	protected static function getUsersData(array $userList, bool $jsonOption = true): array
+	{
+		$users = [];
+		$userCollection = new UserCollection($userList);
+		$userCollection->fillOnlineData();
+
+		$getOptions = [];
+		if ($jsonOption)
+		{
+			$getOptions['JSON'] = 'Y';
+		}
+
+		foreach ($userCollection as $user)
+		{
+			$users[] = $user->getArray($getOptions);
+		}
+
+		return $users;
 	}
 
 	public static function getDepartmentYouManage($userId = null, $options = array())
@@ -219,7 +256,7 @@ class Department
 
 	public static function getManagers($ids = null, $options = array())
 	{
-		$list = \Bitrix\Im\Integration\Intranet\Department::getList();
+		$list = \Bitrix\Im\Integration\Intranet\Department::getList($ids);
 
 		$userOptions = Array();
 		$jsonOption = $options['JSON'] ?? null;

@@ -15,6 +15,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 $pageId = "group_card";
 
 include("util_group_menu.php");
+include("util_group_limit.php");
 
 $componentParameters = [
 	"PATH_TO_USER" => $arParams["PATH_TO_USER"],
@@ -104,7 +105,6 @@ $APPLICATION->IncludeComponent(
 		'POPUP_COMPONENT_USE_BITRIX24_THEME' => 'Y',
 		'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_TYPE' => 'SONET_GROUP',
 		'POPUP_COMPONENT_BITRIX24_THEME_ENTITY_ID' => $arResult['VARIABLES']['group_id'],
-		'POPUP_COMPONENT_BITRIX24_THEME_BEHAVIOUR' => 'return',
 		'USE_UI_TOOLBAR' => 'Y',
 	]
 );

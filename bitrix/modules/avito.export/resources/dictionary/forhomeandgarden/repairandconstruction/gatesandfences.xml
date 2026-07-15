@@ -1,0 +1,99 @@
+<root>
+	<FenceType name="Ворота">
+		<GateSubType name="Секционные ворота для гаража">
+			<SectionMaterial name="Дерево"/>
+			<SectionMaterial name="Сэндвич-панели"/>
+			<SectionMaterial name="Пластик"/>
+			<SectionMaterial name="Алюминий"/>
+			<SectionMaterial name="Профлист"/>
+			<AutomaticGateControl name="Есть"/>
+			<AutomaticGateControl name="Нет"/>
+		</GateSubType>
+		<GateSubType name="Откатные ворота">
+			<AutomaticGateControl name="Есть"/>
+			<AutomaticGateControl name="Нет"/>
+			<Wicket name="С калиткой"/>
+			<Wicket name="Без калитки"/>
+			<SlidingGateMaterial name="Профлист"/>
+			<SlidingGateMaterial name="Дерево"/>
+			<SlidingGateMaterial name="Сэндвич-панели"/>
+			<SlidingGateMaterial name="Пластик"/>
+			<SlidingGateMaterial name="Алюминий"/>
+			<SlidingGateMaterial name="Евроштакетник"/>
+		</GateSubType>
+		<GateSubType name="Автоматика для ворот">
+			<GateAutomationGateConstruction name="Откатные"/>
+			<GateAutomationGateConstruction name="Распашные"/>
+			<GateAutomationGateConstruction name="Секционные"/>
+			<GateAutomationType name="GSM управление"/>
+			<GateAutomationType name="Антенны для ворот и шлагбаумов"/>
+			<GateAutomationType name="Блоки управления"/>
+			<GateAutomationType name="Брелоки-передатчики"/>
+			<GateAutomationType name="Выключатели"/>
+			<GateAutomationType name="Датчики"/>
+			<GateAutomationType name="Диммеры"/>
+			<GateAutomationType name="Другое"/>
+			<GateAutomationType name="Замки"/>
+			<GateAutomationType name="Замковые переключатели"/>
+			<GateAutomationType name="Зубчатые рейки"/>
+			<GateAutomationType name="Монтажные материалы (автоматика)"/>
+			<GateAutomationType name="Полный комплект"/>
+			<GateAutomationType name="Привода"/>
+			<GateAutomationType name="Пульты"/>
+			<GateAutomationType name="Радиоприемники"/>
+			<GateAutomationType name="Реле"/>
+			<GateAutomationType name="Сигнальные лампы"/>
+			<GateAutomationType name="Системы контроля доступа"/>
+			<GateAutomationType name="Устройства сбора и передачи данных"/>
+			<GateAutomationType name="Фотоэлементы"/>
+		</GateSubType>
+		<GateSubType name="Распашные ворота">
+			<AutomaticGateControl name="Есть"/>
+			<AutomaticGateControl name="Нет"/>
+			<Wicket name="С калиткой"/>
+			<Wicket name="Без калитки"/>
+			<SwingGatesMaterial name="Профлист"/>
+			<SwingGatesMaterial name="Дерево"/>
+			<SwingGatesMaterial name="Сэндвич-панели"/>
+			<SwingGatesMaterial name="Пластик"/>
+			<SwingGatesMaterial name="Алюминий"/>
+			<SwingGatesMaterial name="Евроштакетник"/>
+		</GateSubType>
+		<GateSubType name="Промышленные ворота"/>
+		<GateSubType name="Кованые ворота">
+			<ForgedGateType name="Распашные"/>
+			<ForgedGateType name="Откатные"/>
+			<Wicket name="С калиткой"/>
+			<Wicket name="Без калитки"/>
+			<SubstrateMaterial name="Дерево"/>
+			<SubstrateMaterial name="Поликарбонат"/>
+			<SubstrateMaterial name="Стальной лист"/>
+			<SubstrateMaterial name="Сквозные"/>
+		</GateSubType>
+		<GateSubType name="Другое"/>
+	</FenceType>
+	<FenceType name="Заборы">
+		<FenceSubType name="Металлические"/>
+		<FenceSubType name="3D заборы"/>
+		<FenceSubType name="Деревянные"/>
+		<FenceSubType name="Кованые"/>
+		<FenceSubType name="Каменные"/>
+		<FenceSubType name="Столбы и трубы для заборов"/>
+		<FenceSubType name="Колпаки, парапеты и крепёж"/>
+	</FenceType>
+	<FenceType name="Роллеты и рольставни">
+		<RollershuttersSubType name="На ворота"/>
+		<RollershuttersSubType name="На окна"/>
+		<RollershuttersSubType name="На двери"/>
+		<RollershuttersSubType name="Сантехнические"/>
+		<RollershuttersSubType name="Замки для рольставней"/>
+	</FenceType>
+	<FenceType name="Ограждения и сетки">
+		<GuardrailSubType name="Дорожные ограждения"/>
+		<GuardrailSubType name="Декоративные ограждения"/>
+		<GuardrailSubType name="Временные ограждения"/>
+		<GuardrailSubType name="Металлические сетки"/>
+		<GuardrailSubType name="Ограждение для балкона и террас"/>
+		<GuardrailSubType name="Колючая проволока"/>
+	</FenceType>
+</root>

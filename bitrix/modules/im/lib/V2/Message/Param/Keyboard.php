@@ -30,7 +30,6 @@ class Keyboard extends Param
 		elseif (!empty($value))
 		{
 			$this->keyboard = Im\Bot\Keyboard::getKeyboardByJson($value);
-			$this->isValid = $this->keyboard !== null;
 		}
 
 		if (isset($this->keyboard))
@@ -63,25 +62,6 @@ class Keyboard extends Param
 	{
 		return '';
 	}
-
-	/**
-	 * @param mixed $value
-	 * @return mixed
-	 */
-	public function loadValueFilter($value)
-	{
-		if (!empty($value))
-		{
-			$value = Im\Text::decodeEmoji($value);
-		}
-		else
-		{
-			$value = null;
-		}
-
-		return $value;
-	}
-
 
 	/**
 	 * @param mixed $value

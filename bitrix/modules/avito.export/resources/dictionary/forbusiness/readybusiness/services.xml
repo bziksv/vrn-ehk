@@ -1,0 +1,11 @@
+<Services>
+	<BusinessSubType name="Агентства недвижимости"/>
+	<BusinessSubType name="Бытовые услуги"/>
+	<BusinessSubType name="Готовые юр.лица" oldNames="Готовые юр.лица и лицензии"/>
+	<BusinessSubType name="Деловые услуги"/>
+	<BusinessSubType name="Образование"/>
+	<BusinessSubType name="Перевозки и склад"/>
+	<BusinessSubType name="Реклама и печать"/>
+	<BusinessSubType name="Ремонт и обслуживание техники"/>
+	<BusinessSubType name="Специализированные услуги"/>
+</Services>

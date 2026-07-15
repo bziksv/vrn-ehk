@@ -1,7 +1,11 @@
 <?php
+
 namespace Bitrix\Main\Data;
 
-class CacheEngineMemcache extends CacheEngine
+use Bitrix\Main\Config\Configuration;
+use Bitrix\Main\Data\LocalStorage\Storage;
+
+class CacheEngineMemcache extends Cache\KeyValueEngine implements Storage\CacheEngineInterface
 {
 	public function getConnectionName(): string
 	{
@@ -11,6 +15,26 @@ class CacheEngineMemcache extends CacheEngine
 	public static function getConnectionClass()
 	{
 		return MemcacheConnection::class;
+	}
+
+	protected function configure($options = []): array
+	{
+		$config = parent::configure($options);
+
+		$cacheConfig = Configuration::getValue('cache');
+
+		$config['persistent'] = true;
+		if (isset($cacheConfig['persistent']) && $cacheConfig['persistent'] == 0)
+		{
+			$config['persistent'] = false;
+		}
+
+		if (isset($cacheConfig['connectionTimeout']))
+		{
+			$config['connectionTimeout'] = (int)$cacheConfig['connectionTimeout'];
+		}
+
+		return $config;
 	}
 
 	protected static function getExpire($ttl)
@@ -58,15 +82,6 @@ class CacheEngineMemcache extends CacheEngine
 
 	public function checkInSet($key, $value) : bool
 	{
-		$cacheKey = sha1($key . '|' . $value);
-		$iexKey = $key . '|iex|' . $cacheKey;
-		$itemExist = self::$engine->get($iexKey);
-
-		if ($itemExist === $cacheKey)
-		{
-			return true;
-		}
-
 		$list = self::$engine->get($key);
 
 		if (!is_array($list))
@@ -76,7 +91,6 @@ class CacheEngineMemcache extends CacheEngine
 
 		if (array_key_exists($value, $list))
 		{
-			$this->set($iexKey, 2591000, $cacheKey);
 			return true;
 		}
 
@@ -85,14 +99,6 @@ class CacheEngineMemcache extends CacheEngine
 
 	public function addToSet($key, $value)
 	{
-		$cacheKey = sha1($key . '|' . $value);
-		$iexKey = $key . '|iex|' . $cacheKey;
-		$itemExist = self::$engine->get($iexKey);
-		if ($itemExist === $cacheKey)
-		{
-			return;
-		}
-
 		$list = self::$engine->get($key);
 
 		if (!is_array($list))
@@ -105,8 +111,6 @@ class CacheEngineMemcache extends CacheEngine
 			$list[$value] = 1;
 			$this->set($key, 0, $list);
 		}
-
-		$this->set($iexKey, 2591000, $cacheKey);
 	}
 
 	public function getSet($key): array
@@ -127,21 +131,9 @@ class CacheEngineMemcache extends CacheEngine
 
 		if (is_array($list) && !empty($list))
 		{
-			$list = array_keys($list);
-			foreach ($list as $iKey)
-			{
-				$delKey = $prefix . $iKey;
-				self::$engine->delete($key . '|iex|' . sha1($key . '|' . $iKey));
-
-				if ($this->useLock)
-				{
-					if ($cachedData = self::$engine->get($delKey))
-					{
-						$this->set($delKey . '|old', $this->ttlOld, $cachedData);
-					}
-				}
-				self::$engine->delete($delKey);
-			}
+			array_walk($list, function ($value, $key) {
+				self::$engine->delete($key);
+			});
 			unset($list);
 		}
 	}
@@ -153,28 +145,18 @@ class CacheEngineMemcache extends CacheEngine
 		if (is_array($list) && !empty($list))
 		{
 			$rewrite = false;
-			$tmpKey = $key . '|iex|';
-			if (is_array($member))
+			if (!is_array($member))
 			{
-				foreach ($member as $keyID)
-				{
-					if (array_key_exists($keyID, $list))
-					{
-						$rewrite = true;
-						unset($list[$keyID]);
-
-						$iexKey = $tmpKey . sha1($key . '|' . $keyID);
-						self::$engine->delete($iexKey);
-					}
-				}
+				$member = [0 => $member];
 			}
-			elseif (array_key_exists($member, $list))
-			{
-				$rewrite = true;
-				unset($list[$member]);
 
-				$iexKey = $tmpKey . sha1($key . '|' . $member);
-				self::$engine->delete($iexKey);
+			foreach ($member as $keyID)
+			{
+				if (array_key_exists($keyID, $list))
+				{
+					$rewrite = true;
+					unset($list[$keyID]);
+				}
 			}
 
 			if ($rewrite)

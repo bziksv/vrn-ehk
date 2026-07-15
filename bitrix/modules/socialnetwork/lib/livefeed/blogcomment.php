@@ -70,10 +70,22 @@ final class BlogComment extends Provider
 			return;
 		}
 
-		$res = \CBlogPost::getList([], ['ID' => $comment['POST_ID']]);
-		if (!($post = $res->fetch()))
+		static $postCache = [];
+
+		$postId = $comment['POST_ID'];
+
+		if (!isset($postCache[$postId]))
 		{
-			return;
+			$res = \CBlogPost::getList([], ['ID' => $postId]);
+			if (!($post = $res->fetch()))
+			{
+				return;
+			}
+			$postCache[$postId] = $post;
+		}
+		else
+		{
+			$post = $postCache[$postId];
 		}
 
 		if (
@@ -153,6 +165,6 @@ final class BlogComment extends Provider
 
 	public function getSuffix(): string
 	{
-		return '2';
+		return '3';
 	}
 }

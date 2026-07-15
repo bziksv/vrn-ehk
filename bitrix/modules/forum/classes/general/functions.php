@@ -1,11 +1,14 @@
 <?php
-##############################################
-# Bitrix Site Manager Forum                  #
-# Copyright (c) 2002-2007 Bitrix             #
-# https://www.bitrixsoft.com                 #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage forum
+ * @copyright 2001-2025 Bitrix
+ */
+
 IncludeModuleLangFile(__FILE__);
+
 function Error($error)
 {
 	global $MESS;
@@ -129,7 +132,7 @@ class forumTextParser extends CTextParser
 		return $result;
 	}
 
-	function convert($text, $allow = array(), $type = "html", $arFiles = false)
+	function convert($text, $allow = array(), $type = "html", $arFiles = false, $attributes = [])
 	{
 		$text = str_replace(array("\013", "\014"), "", $text);
 
@@ -158,7 +161,7 @@ class forumTextParser extends CTextParser
 			$this->arFiles = is_array($arFiles) ? $arFiles : array($arFiles);
 		$this->arFilesIDParsed = array();
 
-		$text = str_replace(array("\013", "\014"), array(chr(34), chr(39)), $this->convertText($text));
+		$text = str_replace(array("\013", "\014"), array(chr(34), chr(39)), $this->convertText($text, $attributes));
 		return $text;
 	}
 

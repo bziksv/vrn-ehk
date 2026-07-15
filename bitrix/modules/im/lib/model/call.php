@@ -5,10 +5,14 @@ namespace Bitrix\Im\Model;
 use Bitrix\Im\Call\Call;
 use Bitrix\Main\Application;
 use Bitrix\Main\Type\DateTime;
-use Bitrix\Main\Entity\DataManager;
-use Bitrix\Main\Entity\StringField;
-use Bitrix\Main\Entity\IntegerField;
-use Bitrix\Main\Entity\DatetimeField;
+use Bitrix\Main\ORM\Query\Join;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Fields\StringField;
+use Bitrix\Main\ORM\Fields\IntegerField;
+use Bitrix\Main\ORM\Fields\DatetimeField;
+use Bitrix\Main\ORM\Fields\BooleanField;
+use Bitrix\Main\ORM\Fields\EnumField;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
 
 /**
  * Class CallTable
@@ -17,9 +21,9 @@ use Bitrix\Main\Entity\DatetimeField;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Call_Query query()
- * @method static EO_Call_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Call_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Call_Result getById($id)
- * @method static EO_Call_Result getList(array $parameters = array())
+ * @method static EO_Call_Result getList(array $parameters = [])
  * @method static EO_Call_Entity getEntity()
  * @method static \Bitrix\Im\Model\EO_Call createObject($setDefaultValues = true)
  * @method static \Bitrix\Im\Model\EO_Call_Collection createCollection()
@@ -39,26 +43,62 @@ class CallTable extends DataManager
 			(new IntegerField('ID'))
 				->configurePrimary()
 				->configureAutocomplete(),
+
 			new IntegerField('TYPE'),
+
+			(new EnumField('SCHEME'))
+				->configureValues([Call::SCHEME_CLASSIC, Call::SCHEME_JWT])
+				->configureDefaultValue(Call::SCHEME_CLASSIC)
+				->configureNullable(),
+
 			new IntegerField('INITIATOR_ID'),
+
 			(new StringField('IS_PUBLIC'))
 				->configureDefaultValue('N'),
+
 			new StringField('PUBLIC_ID'),
+
 			new StringField('PROVIDER'),
+
 			new StringField('ENTITY_TYPE'),
+
 			new StringField('ENTITY_ID'),
+
 			new IntegerField('PARENT_ID'),
+
+			(new StringField('PARENT_UUID'))
+				->configureSize(36),
+
 			new StringField('STATE'),
+
 			(new DatetimeField('START_DATE'))
 				->configureDefaultValue(fn() => new DateTime()),
+
 			new DatetimeField('END_DATE'),
+
 			new IntegerField('CHAT_ID'),
+
 			new StringField('LOG_URL'),
+
 			(new StringField('UUID'))
 				->configureSize(36),
+
 			(new StringField('SECRET_KEY'))
 				->configureSize(10),
+
 			new StringField('ENDPOINT'),
+
+			(new BooleanField('RECORD_AUDIO'))
+				->configureValues('N', 'Y')
+				->configureDefaultValue('N'),
+
+			(new BooleanField('AI_ANALYZE'))
+				->configureValues('N', 'Y')
+				->configureDefaultValue('N'),
+
+			(new Reference('CALL_USER',CallUserTable::class,
+				Join::on('this.ID', 'ref.CALL_ID')))
+				->configureJoinType(Join::TYPE_INNER),
 		];
 	}
 

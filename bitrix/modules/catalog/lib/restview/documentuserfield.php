@@ -37,8 +37,13 @@ final class DocumentUserField extends Base
 
 	public function internalizeFieldsList($arguments, $fieldsInfo = []): array
 	{
-		$documentType = $arguments['filter']['DOCUMENT_TYPE'];
-		$fieldsInfo = array_merge($fieldsInfo, $this->getFields(), $this->getFieldMapForType($documentType));
+		$documentType = $arguments['filter']['DOCUMENT_TYPE'] ?? null;
+		$allowUserFields = (is_string($documentType) && $documentType !== '');
+		$fieldsInfo = array_merge(
+			$fieldsInfo,
+			$this->getFields(),
+			$allowUserFields ? $this->getFieldMapForType($documentType) : []
+		);
 
 		return parent::internalizeFieldsList($arguments, $fieldsInfo);
 	}
@@ -52,7 +57,7 @@ final class DocumentUserField extends Base
 			$value = [''];
 		}
 
-		if ($info['USER_FIELD_TYPE'] === 'file')
+		if (($info['USER_FIELD_TYPE'] ?? null) === 'file')
 		{
 			if ($isMultiple)
 			{
@@ -82,15 +87,25 @@ final class DocumentUserField extends Base
 
 	public function externalizeListFields($list, $fieldsInfo = []): array
 	{
-		$documentType = $list[0]['DOC_TYPE'];
-		$fieldsInfo = array_merge($fieldsInfo, $this->getFields(), $this->getFieldMapForType($documentType));
+		$documentType = $list[0]['DOC_TYPE'] ?? null;
+		$userFields =
+			$documentType !== null
+				? $this->getFieldMapForType($documentType)
+				: []
+		;
+		$fieldsInfo = array_merge($fieldsInfo, $this->getFields(), $userFields);
 
 		return parent::externalizeListFields($list, $fieldsInfo);
 	}
 
-	private function getFieldMapForType($documentType)
+	private function getFieldMapForType($documentType): array
 	{
 		global $USER_FIELD_MANAGER;
+
+		if (!(is_string($documentType) && $documentType !== ''))
+		{
+			return [];
+		}
 
 		$ufEntityId = StoreDocumentTableManager::getUfEntityIds()[$documentType] ?? '';
 		if (!$ufEntityId)

@@ -6,6 +6,10 @@ CREATE TABLE b_ui_entity_editor_config (
   NAME varchar(100) NOT NULL,
   CONFIG text NOT NULL,
   COMMON varchar(1) NOT NULL,
+  AUTO_APPLY_SCOPE varchar(1) NOT NULL DEFAULT 'N',
+  OPTION_CATEGORY varchar(50) NOT NULL,
+  ON_ADD varchar(1) NOT NULL DEFAULT 'Y',
+  ON_UPDATE varchar(1) NOT NULL DEFAULT 'Y',
   PRIMARY KEY (ID)
 );
 CREATE INDEX ix_b_ui_entity_editor_config_entity_type_id ON b_ui_entity_editor_config (entity_type_id);

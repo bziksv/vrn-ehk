@@ -1,16 +1,29 @@
 import { Loc } from 'main.core';
 
 import { Analytics } from 'im.v2.lib.analytics';
+import { openHelpdeskArticle } from 'im.v2.lib.helpdesk';
 
-import { EnableFeatures } from '../../../base/src/const/features';
+import { UserStatisticsLink as CheckInQrAuthPopup } from 'stafftrack.user-statistics-link';
+
+import { EnableFeatures } from 'im.v2.component.message.supervisor.base';
 
 const onOpenToolsSettings = (toolId: string) => {
 	return () => {
-		Analytics.getInstance().onOpenToolsSettings(toolId);
+		Analytics.getInstance().supervisor.onOpenToolsSettings(toolId);
 		BX.SidePanel.Instance.open(`${window.location.origin}/settings/configs/?page=tools`);
 	};
 };
-const onHelpClick = (ARTICLE_CODE: string) => BX.Helper.show(`redirect=detail&code=${ARTICLE_CODE}`);
+
+const openCheckInQrCode = () => {
+	if (!CheckInQrAuthPopup)
+	{
+		return;
+	}
+
+	new CheckInQrAuthPopup({ intent: CheckInQrAuthPopup.CHECK_IN_SETTINGS_INTENT }).show();
+};
+
+const onHelpClick = (ARTICLE_CODE: string) => openHelpdeskArticle(ARTICLE_CODE);
 
 export const metaData = {
 	[EnableFeatures.copilot]: {
@@ -215,6 +228,30 @@ export const metaData = {
 		infoButton: {
 			text: Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_MORE_DETAILED'),
 			callback: () => onHelpClick('9289135'),
+		},
+	},
+	[EnableFeatures.checkIn]: {
+		title: Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_CHECK_IN_TITLE'),
+		description: Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_CHECK_IN_DESCRIPTION'),
+		detailButton: {
+			text: Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_OPEN_SETTINGS'),
+			callback: () => openCheckInQrCode(),
+		},
+		infoButton: {
+			text: Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_MORE_DETAILED'),
+			callback: () => onHelpClick('20922794'),
+		},
+	},
+	[EnableFeatures.checkInGeo]: {
+		title: Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_CHECK_IN_GEO_TITLE'),
+		description: Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_CHECK_IN_GEO_DESCRIPTION'),
+		detailButton: {
+			text: Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_OPEN_SETTINGS'),
+			callback: () => openCheckInQrCode(),
+		},
+		infoButton: {
+			text: Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_MORE_DETAILED'),
+			callback: () => onHelpClick('20922794'),
 		},
 	},
 };

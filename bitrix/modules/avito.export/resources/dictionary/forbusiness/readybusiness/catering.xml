@@ -1,0 +1,8 @@
+<Catering>
+	<BusinessSubType name="Бары и пабы"/>
+	<BusinessSubType name="Кальянные"/>
+	<BusinessSubType name="Кондитерские и пекарни"/>
+	<BusinessSubType name="Кофейни"/>
+	<BusinessSubType name="Рестораны и кафе"/>
+	<BusinessSubType name="Фастфуд"/>
+</Catering>

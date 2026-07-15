@@ -2,37 +2,50 @@
 
 namespace Bitrix\Socialnetwork\Integration\UI\EntitySelector;
 
+use Bitrix\Intranet\Settings\Tools\ToolsManager;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\ORM\Fields\BooleanField;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\ORM\Fields\ExpressionField;
+use Bitrix\Main\ORM\Fields\IntegerField;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
+use Bitrix\Main\ORM\Query\Filter;
 use Bitrix\Main\ORM\Query\Join;
+use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Search\Content;
-use Bitrix\Main\Loader;
+use Bitrix\Socialnetwork\Collab\CollabFeature;
+use Bitrix\Socialnetwork\Collab\Control\Option\Type\WhoCanInviteOption;
+use Bitrix\Socialnetwork\Collab\Integration\IM;
+use Bitrix\Socialnetwork\Collab\Internals\CollabOptionTable;
 use Bitrix\Socialnetwork\EO_Workgroup;
 use Bitrix\Socialnetwork\EO_Workgroup_Collection;
 use Bitrix\Socialnetwork\FeaturePermTable;
 use Bitrix\Socialnetwork\FeatureTable;
+use Bitrix\Socialnetwork\Helper\Feature;
+use Bitrix\Socialnetwork\Integration\Im\Chat\Workgroup;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Socialnetwork\WorkgroupSiteTable;
 use Bitrix\Socialnetwork\WorkgroupTable;
 use Bitrix\Socialnetwork\WorkgroupViewTable;
 use Bitrix\UI\EntitySelector\BaseProvider;
 use Bitrix\UI\EntitySelector\Dialog;
-use Bitrix\Main\ORM\Query\Filter;
 use Bitrix\UI\EntitySelector\Item;
 use Bitrix\UI\EntitySelector\RecentItem;
 use Bitrix\UI\EntitySelector\SearchQuery;
 use Bitrix\UI\EntitySelector\Tab;
-use Bitrix\Intranet\Settings\Tools\ToolsManager;
+use Bitrix\Socialnetwork\Item\Workgroup\Type;
+use Bitrix\Socialnetwork\Collab\User\User;
 
 class ProjectProvider extends BaseProvider
 {
 	protected const ENTITY_ID = 'project';
 	protected const MAX_PROJECTS_IN_RECENT_TAB = 30;
 	protected const SEARCH_LIMIT = 100;
+
+	private static array $groupDialogIds = [];
 
 	public function __construct(array $options = [])
 	{
@@ -41,6 +54,16 @@ class ProjectProvider extends BaseProvider
 		if (isset($options['project']) && is_bool($options['project']))
 		{
 			$this->options['project'] = $options['project'];
+		}
+
+		if (!empty($options['!type']) && is_array($options['!type']))
+		{
+			$this->options['!type'] = $options['!type'];
+		}
+
+		if (!empty($options['type']) && is_array($options['type']))
+		{
+			$this->options['type'] = $options['type'];
 		}
 
 		if (isset($options['extranet']) && is_bool($options['extranet']))
@@ -58,6 +81,12 @@ class ProjectProvider extends BaseProvider
 			$this->options['features'] = $options['features'];
 		}
 
+		$this->options['checkFeatureForCreate'] = false;
+		if (isset($options['checkFeatureForCreate']) && is_bool($options['checkFeatureForCreate']))
+		{
+			$this->options['checkFeatureForCreate'] = $options['checkFeatureForCreate'];
+		}
+
 		$this->options['fillRecentTab'] = null; // auto
 		if (isset($options['fillRecentTab']) && is_bool($options['fillRecentTab']))
 		{
@@ -68,6 +97,18 @@ class ProjectProvider extends BaseProvider
 		if (isset($options['createProjectLink']) && is_bool($options['createProjectLink']))
 		{
 			$this->options['createProjectLink'] = $options['createProjectLink'];
+		}
+
+		$this->options['lockProjectLinkFeatureId'] = '';
+		if (isset($options['lockProjectLinkFeatureId']) && is_string($options['lockProjectLinkFeatureId']))
+		{
+			$this->options['lockProjectLinkFeatureId'] = $options['lockProjectLinkFeatureId'];
+		}
+
+		$this->options['lockProjectLink'] = false;
+		if (isset($options['lockProjectLink']) && is_bool($options['lockProjectLink']))
+		{
+			$this->options['lockProjectLink'] = $options['lockProjectLink'];
 		}
 
 		if (isset($options['projectId']))
@@ -107,6 +148,34 @@ class ProjectProvider extends BaseProvider
 		{
 			$this->options['searchLimit'] = max(1, min($options['searchLimit'], static::SEARCH_LIMIT));
 		}
+
+		$this->options['shouldSelectProjectDates'] = false;
+		if (isset($options['shouldSelectProjectDates']) && is_bool($options['shouldSelectProjectDates']))
+		{
+			$this->options['shouldSelectProjectDates'] = (bool)$options['shouldSelectProjectDates'];
+		}
+
+		$this->options['shouldSelectDialogId'] = false;
+		if (isset($options['shouldSelectDialogId']) && is_bool($options['shouldSelectDialogId']))
+		{
+			$this->options['shouldSelectDialogId'] = $options['shouldSelectDialogId'];
+		}
+
+		$this->options['checkCollabInviteOption'] = false;
+		if (isset($options['checkCollabInviteOption']) && is_bool($options['checkCollabInviteOption']))
+		{
+			$this->options['checkCollabInviteOption'] = $options['checkCollabInviteOption'];
+		}
+
+		/**
+		 * @deprecated
+		 * @see ProjectAccessCodesProvider use this instead
+		 */
+		$this->options['addProjectMetaUsers'] = false;
+		if (isset($options['addProjectMetaUsers']) && is_bool($options['addProjectMetaUsers']))
+		{
+			$this->options['addProjectMetaUsers'] = (bool)$options['addProjectMetaUsers'];
+		}
 	}
 
 	public function isAvailable(): bool
@@ -141,6 +210,9 @@ class ProjectProvider extends BaseProvider
 		$limit = 100;
 		$projects = $this->getProjectCollection(['limit' => $limit]);
 		$dialog->addItems($this->makeProjectItems($projects, ['tabs' => 'projects']));
+		$currentUserId = UserProvider::getCurrentUserId();
+		$user = new User($currentUserId);
+		$isCollaber = $user->isCollaber();
 /*
 		if ($projects->count() < $limit)
 		{
@@ -151,6 +223,20 @@ class ProjectProvider extends BaseProvider
 			}
 		}
 */
+		if ($isCollaber)
+		{
+			$dialog->addTab(new Tab([
+				'id' => 'projects',
+				'title' => Loc::getMessage('SOCNET_ENTITY_SELECTOR_COLLAB_TAB_TITLE'),
+				'stub' => true,
+				'icon' => [
+					'default' => '/bitrix/js/socialnetwork/entity-selector/src/images/collab-tab-icon.svg',
+					'selected' => '/bitrix/js/socialnetwork/entity-selector/src/images/collab-tab-icon-selected.svg'
+				]
+			]));
+		}
+		else
+		{
 		$icon =
 			'data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2223%22%20height%3D%2223%22%20'.
 			'fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M11'.
@@ -175,6 +261,7 @@ class ProjectProvider extends BaseProvider
 				//'selected' => '/bitrix/js/socialnetwork/entity-selector/images/project-tab-icon-selected.svg'
 			]
 		]));
+		}
 
 		$onlyProjectsMode = count($dialog->getEntities()) === 1;
 
@@ -193,6 +280,14 @@ class ProjectProvider extends BaseProvider
 			($this->options['createProjectLink'] !== false && $onlyProjectsMode)
 		;
 
+		if (
+			$this->options['checkFeatureForCreate']
+			&& !Feature::isFeatureEnabled(Feature::PROJECTS_GROUPS)
+		)
+		{
+			$createProjectLink = false;
+		}
+
 		if ($createProjectLink && self::canCreateProject())
 		{
 			$footerOptions = [];
@@ -200,6 +295,12 @@ class ProjectProvider extends BaseProvider
 			{
 				// Footer could be set from UserProvider
 				$footerOptions = $dialog->getFooterOptions() ?? [];
+			}
+
+			if ($this->options['lockProjectLink'])
+			{
+				$footerOptions['lockProjectLink'] = true;
+				$footerOptions['lockProjectLinkFeatureId'] = $this->options['lockProjectLinkFeatureId'] ?? '';
 			}
 
 			$footerOptions['createProjectLink'] = self::getCreateProjectUrl(UserProvider::getCurrentUserId());
@@ -218,7 +319,7 @@ class ProjectProvider extends BaseProvider
 	{
 		$options = array_merge($this->getOptions(), $options);
 
-		return self::getProjects($options);
+		return static::getProjects($options);
 	}
 
 	public function getProjectItems(array $options = []): array
@@ -247,20 +348,31 @@ class ProjectProvider extends BaseProvider
 		}
 
 		$query = WorkgroupTable::query();
-		$query->setSelect(
-			[
-				'ID',
-				'NAME',
-				'ACTIVE',
-				'PROJECT',
-				'CLOSED',
-				'VISIBLE',
-				'OPENED',
-				'IMAGE_ID',
-				'AVATAR_TYPE',
-				'LANDING'
-			]
-		);
+		$selectFields = [
+			'ID',
+			'NAME',
+			'ACTIVE',
+			'PROJECT',
+			'CLOSED',
+			'VISIBLE',
+			'OPENED',
+			'IMAGE_ID',
+			'AVATAR_TYPE',
+			'LANDING',
+			'TYPE',
+			'SCRUM_MASTER_ID',
+		];
+
+		if (
+			isset($options['shouldSelectProjectDates'])
+			&& is_bool(isset($options['shouldSelectProjectDates']))
+			&& $options['shouldSelectProjectDates']
+		)
+		{
+			$selectFields[] = 'PROJECT_DATE_START';
+			$selectFields[] = 'PROJECT_DATE_FINISH';
+		}
+		$query->setSelect($selectFields);
 
 		if (isset($options['visible']) && is_bool(isset($options['visible'])))
 		{
@@ -290,6 +402,31 @@ class ProjectProvider extends BaseProvider
 		if (isset($options['project']) && is_bool(isset($options['project'])))
 		{
 			$query->where('PROJECT', $options['project'] ? 'Y' : 'N');
+		}
+
+		if (!CollabFeature::isFeatureEnabledInPortalSettings())
+		{
+			$options['!type'] ??= [];
+
+			if (is_array($options['!type']) && !in_array(Type::Collab->value, $options['!type']))
+			{
+				$options['!type'][] = Type::Collab->value;
+			}
+		}
+
+		if (!empty($options['!type']) && is_array($options['!type']))
+		{
+			$filter = Query::filter()
+				->logic('or')
+				->whereNotIn('TYPE', $options['!type'])
+				->whereNull('TYPE');
+
+			$query->where($filter);
+		}
+
+		if (!empty($options['type']) && is_array($options['type']))
+		{
+			$query->whereIn('TYPE', $options['type']);
 		}
 
 		if (!empty($options['searchQuery']) && is_string($options['searchQuery']))
@@ -352,6 +489,63 @@ class ProjectProvider extends BaseProvider
 					['join_type' => 'INNER']
 				)
 			);
+		}
+
+		if ($options['checkCollabInviteOption'] ?? false)
+		{
+			if ($currentUserModuleAdmin)
+			{
+				// include UserToGroupTable for admin, but don't include it twice for anyone else
+				$query->registerRuntimeField(
+					new Reference(
+						'MY_PROJECT',
+						UserToGroupTable::class,
+						Join::on('this.ID', 'ref.GROUP_ID')
+							->where('ref.USER_ID', $currentUserId),
+						['join_type' => Join::TYPE_INNER]
+					)
+				);
+			}
+
+			$query->registerRuntimeField(
+				new Reference(
+					'COLLAB_OPTIONS',
+					CollabOptionTable::class,
+					Join::on('this.ID', 'ref.COLLAB_ID')
+						->where('ref.NAME', WhoCanInviteOption::DB_NAME),
+					['join_type' => Join::TYPE_INNER]
+				)
+			);
+
+			$ownerRole = UserToGroupTable::ROLE_OWNER;
+			$managerRole = UserToGroupTable::ROLE_MODERATOR;
+			$userRole = UserToGroupTable::ROLE_USER;
+			$query->registerRuntimeField((new ExpressionField(
+				'NEED_ROLE_WEIGHT',
+				"CASE
+					WHEN %s = '{$ownerRole}' THEN 2
+					WHEN %s = '{$managerRole}' THEN 1
+					ELSE 0
+				END",
+				['COLLAB_OPTIONS.VALUE', 'COLLAB_OPTIONS.VALUE']
+			))->configureValueType(IntegerField::class));
+
+			$query->registerRuntimeField((new ExpressionField(
+				'ROLE_WEIGHT',
+				"CASE
+					WHEN %s = '{$ownerRole}' THEN 2
+					WHEN %s = '{$managerRole}' THEN 1
+					WHEN %s = '{$userRole}' THEN 0
+					ELSE -1
+				END",
+				['MY_PROJECT.ROLE', 'MY_PROJECT.ROLE', 'MY_PROJECT.ROLE']
+			))->configureValueType(IntegerField::class));
+
+			$query->where((new ExpressionField(
+				'HAS_ACCESS_BY_ROLE',
+				'%s >= %s',
+				['ROLE_WEIGHT', 'NEED_ROLE_WEIGHT']
+			))->configureValueType(BooleanField::class), 'expr', true);
 		}
 
 		$extranetSiteId = Option::get('extranet', 'extranet_site');
@@ -536,6 +730,20 @@ class ProjectProvider extends BaseProvider
 			if ($isMember || ($notOnlyMyProjects && $notSecretGroup))
 			{
 				$workgroups->add($eoWorkgroup);
+			}
+		}
+
+		if ($options['shouldSelectDialogId'] ?? false)
+		{
+			$chatData = Workgroup::getChatData([
+				'group_id' => array_diff($workgroups->getIdList(), array_keys(static::$groupDialogIds)),
+				'skipAvailabilityCheck' => true,
+			]);
+
+			foreach ($workgroups as $workgroup)
+			{
+				$id = $workgroup->getId();
+				static::$groupDialogIds[$id] = IM\Dialog::getDialogId($chatData[$id] ?? 0);
 			}
 		}
 
@@ -857,34 +1065,87 @@ class ProjectProvider extends BaseProvider
 	{
 		$extranetSiteId = Option::get('extranet', 'extranet_site');
 		$extranetSiteId = ($extranetSiteId && ModuleManager::isModuleInstalled('extranet') ? $extranetSiteId : false);
+		$isExtranet = ($extranetSiteId && $project->get('IS_EXTRANET') === 'Y');
+		$isCollab = $project->getType() === Type::Collab->value;
 
-		$entityType =
-			$extranetSiteId && $project->get('IS_EXTRANET') === 'Y'
-				? 'extranet'
-				: 'project'
-		;
-
-		$item = new Item(
-			[
-				'id' => $project->getId(),
-				'entityId' => static::ENTITY_ID,
-				'entityType' => $entityType,
-				'title' => $project->getName(),
-				'avatar' => self::makeProjectAvatar($project),
-				'customData' => [
-					'landing' => $project->getLanding(),
-					'active' => $project->getActive(),
-					'visible' => $project->getVisible(),
-					'closed' => $project->getClosed(),
-					'open' => $project->getOpened(),
-					'project' => $project->getProject(),
+		$item = new Item([
+			'id' => $project->getId(),
+			'entityId' => static::ENTITY_ID,
+			'entityType' => self::makeProjectEntityType($project),
+			'title' => $project->getName(),
+			'avatar' => self::makeProjectAvatar($project),
+			'customData' => [
+				'landing' => $project->getLanding(),
+				'active' => $project->getActive(),
+				'visible' => $project->getVisible(),
+				'closed' => $project->getClosed(),
+				'open' => $project->getOpened(),
+				'project' => $project->getProject(),
+				'isCollab' => $isCollab,
+				'isExtranet' => $isExtranet,
+				'datePlan' => [
+					'dateStart' => $project->getProjectDateStart()?->getTimestamp(),
+					'dateFinish' => $project->getProjectDateFinish()?->getTimestamp(),
 				],
-			]
-		);
+			],
+		]);
+
+		if ($options['shouldSelectDialogId'] ?? false)
+		{
+			$item->getCustomData()->set('dialogId', static::$groupDialogIds[$project->getId()]);
+		}
 
 		if (!empty($options['tabs']))
 		{
 			$item->addTab($options['tabs']);
+		}
+
+		if (isset($options['addProjectMetaUsers']) && $options['addProjectMetaUsers'] === true)
+		{
+			$item->addChild(new Item([
+				'id' => $project->getId() . ':A',
+				'title' => $project->getName() . '. ' . Loc::getMessage('SOCNET_ENTITY_SELECTOR_PROJECTS_METAUSER_OWNER'),
+				'entityId' => static::ENTITY_ID,
+				'entityType' => 'project_metauser',
+				'nodeOptions' => [
+					'title' => Loc::getMessage('SOCNET_ENTITY_SELECTOR_PROJECTS_METAUSER_OWNER'),
+					'renderMode' => 'override',
+				],
+				'customData' => [
+					'projectId' => $project->getId(),
+					'metauser' => 'owner'
+				]
+			]));
+
+			$item->addChild(new Item([
+				'id' => $project->getId() . ':E',
+				'title' => $project->getName() . '. ' . Loc::getMessage('SOCNET_ENTITY_SELECTOR_PROJECTS_METAUSER_MODERATOR'),
+				'entityType' => 'project_metauser',
+				'entityId' => static::ENTITY_ID,
+				'nodeOptions' => [
+					'title' => Loc::getMessage('SOCNET_ENTITY_SELECTOR_PROJECTS_METAUSER_MODERATOR'),
+					'renderMode' => 'override',
+				],
+				'customData' => [
+					'projectId' => $project->getId(),
+					'metauser' => 'moderator'
+				]
+			]));
+
+			$item->addChild(new Item([
+				'id' => $project->getId() . ':K',
+				'title' => $project->getName() . '. ' . Loc::getMessage('SOCNET_ENTITY_SELECTOR_PROJECTS_METAUSER_ALL'),
+				'entityId' => static::ENTITY_ID,
+				'entityType' => 'project_metauser',
+				'nodeOptions' => [
+					'title' => Loc::getMessage('SOCNET_ENTITY_SELECTOR_PROJECTS_METAUSER_ALL'),
+					'renderMode' => 'override',
+				],
+				'customData' => [
+					'projectId' => $project->getId(),
+					'metauser' => 'all'
+				]
+			]));
 		}
 
 		return $item;
@@ -911,6 +1172,16 @@ class ProjectProvider extends BaseProvider
 		}
 
 		return null;
+	}
+
+	public static function makeProjectEntityType(EO_Workgroup $project): ?string
+	{
+		$extranetSiteId = Option::get('extranet', 'extranet_site');
+		$extranetSiteId = ($extranetSiteId && ModuleManager::isModuleInstalled('extranet') ? $extranetSiteId : false);
+		$isExtranet = ($extranetSiteId && $project->get('IS_EXTRANET') === 'Y');
+		$isCollab = $project->getType() === Type::Collab->value;
+
+		return ($isExtranet && !$isCollab) ? 'extranet' : $project->getType();
 	}
 
 	public static function getProjectUrl(?int $projectId = null, ?int $currentUserId = null): string

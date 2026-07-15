@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["ADDITIONAL_PROPS"] = "Schaltflächen der zusätzlichen Produkteigenschaften";
 $MESS["ADDITIONAL_PROPS_DEFAULT"] = "Zusätzliche Eigenschaften";
 $MESS["ALLOW_NEW_PROFILE"] = "Mehrfache Kundenprofile erlauben";
@@ -145,4 +145,3 @@ $MESS["YM_GOALS_NEXT_PICKUP"] = "Ziel-ID für Übergang von Abholungsstandorten 
 $MESS["YM_GOALS_NEXT_PROPERTIES"] = "Ziel-ID für Äbergang von Produkteigenschaften zur Schaltfläche 'Weiter'";
 $MESS["YM_GOALS_NEXT_REGION"] = "Ziel-ID für Übergang von der Lieferregion zur Schaltfläche 'Weiter'";
 $MESS["YM_GOALS_SAVE_ORDER"] = "Ziel-ID für Bestellbearbeitung";
-?>

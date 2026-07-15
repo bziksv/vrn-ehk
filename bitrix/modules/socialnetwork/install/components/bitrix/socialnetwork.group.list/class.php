@@ -14,14 +14,18 @@ use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\SystemException;
+use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\Web\Uri;
 use Bitrix\Socialnetwork\Component\WorkgroupList;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Filter;
 use Bitrix\Socialnetwork\Component\WorkgroupList\EntityManager;
+use Bitrix\Socialnetwork\EO_Workgroup;
 use Bitrix\Socialnetwork\Helper;
+use Bitrix\Socialnetwork\Helper\Analytics\ProjectAnalytics;
 use Bitrix\Socialnetwork\Internals\EventService\Push\PullDictionary;
+use Bitrix\Socialnetwork\Item\Workgroup\Type;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Socialnetwork\WorkgroupFavoritesTable;
 use Bitrix\Socialnetwork\WorkgroupSiteTable;
@@ -107,6 +111,7 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 		'SCRUM',
 		'ACTIVITY_DATE',
 		'IS_PINNED',
+		'TYPE',
 	];
 
 	protected $actionData;
@@ -732,6 +737,8 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 		{
 			$this->query->addFilter('=SUBJECT_ID', $this->arParams['SUBJECT_ID']);
 		}
+
+		$this->query->addFilter('!=TYPE', Type::Collab->value);
 	}
 
 	private function addQueryPermissionsFilter(): void
@@ -893,6 +900,7 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 			'NUMBER_OF_MEMBERS',
 			'DATE_UPDATE',
 			'DATE_ACTIVITY',
+			'TYPE',
 		];
 
 		if ($this->runtimeFieldsManager->has('CURRENT_RELATION'))
@@ -1427,6 +1435,7 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 		$this->subscribePull();
 
 		$this->includeComponentTemplate();
+		$this->sendAnalytics();
 	}
 
 	private function setTitle(): void
@@ -2027,32 +2036,14 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 
 			$groupId = $group->getId();
 
-			$groupUrl = str_replace(
-				[ '#id#', '#ID#', '#GROUP_ID#', '#group_id#' ],
-				$groupId,
-				(
-					in_array($this->arParams['MODE'], self::getTasksModeList(), true)
-						? $this->arParams['PATH_TO_GROUP_TASKS']
-							: $this->arParams['PATH_TO_GROUP']
-				)
-			);
-
 			$groupType = '';
 			if ($group->getProject())
 			{
 				$groupType = 'project';
-				if ((int)$group->getScrumMasterId() > 0)
+				if ($group->getScrumMasterId() > 0)
 				{
 					$groupType = 'scrum';
 				}
-			}
-
-			if ($groupType === 'scrum')
-			{
-				$groupUrl = (new Uri($groupUrl))
-					->addParams(['scrum' => 'Y'])
-					->getUri()
-				;
 			}
 
 			foreach ($this->gridColumns as $column)
@@ -2063,33 +2054,32 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 						$processedRow['columns'][$column] = (string)$groupId;
 						break;
 					case 'NAME':
-						$result = '
-							' . Helper\UI\Grid\Workgroup\Avatar::getValue($group) . '
-							<a class="sonet-group-grid-name-text" href="' . $groupUrl . '">' .
-								htmlspecialcharsEx($group->getName()) .
-							'</a>
-						';
-						$result = '<div class="sonet-group-grid-name-container">' . $result . '</div>';
-						$processedRow['columns'][$column] = $result;
+						$processedRow['columns'][$column] = $this->getGroupGridName($group);
 						break;
 					case 'ROLE':
 						$value = '';
 						if ($relationItem !== null)
 						{
-							$value = Helper\UI\Grid\Workgroup\Role::getRoleValue([
-								'RELATION' => [
-									'USER_ID' => $this->arParams['USER_ID'],
-									'ROLE' => $relationItem->getRole(),
-									'AUTO_MEMBER' => $relationItem->getAutoMember(),
-									'INITIATED_TYPE' => $relationItem->getInitiatedByType(),
-								],
-								'GROUP' => [
-									'ID' => $group->getId(),
-									'PROJECT' => $group->getProject(),
-									'SCRUM_MASTER_ID' => $group->getScrumMasterId(),
-								],
-								'GRID_ID' => $this->gridId,
-							]);
+							if (
+								$this->arParams['USER_ID'] === $this->currentUserId
+								|| in_array($relationItem->getRole(), UserToGroupTable::getRolesMember(), true)
+							)
+							{
+								$value = Helper\UI\Grid\Workgroup\Role::getRoleValue([
+									'RELATION' => [
+										'USER_ID' => $this->arParams['USER_ID'],
+										'ROLE' => $relationItem->getRole(),
+										'AUTO_MEMBER' => $relationItem->getAutoMember(),
+										'INITIATED_TYPE' => $relationItem->getInitiatedByType(),
+									],
+									'GROUP' => [
+										'ID' => $group->getId(),
+										'PROJECT' => $group->getProject(),
+										'SCRUM_MASTER_ID' => $group->getScrumMasterId(),
+									],
+									'GRID_ID' => $this->gridId,
+								]);
+							}
 						}
 						elseif (
 							$this->arParams['USER_ID'] ===  $this->currentUserId
@@ -2255,5 +2245,71 @@ class CSocialnetworkGroupListComponent extends WorkgroupList
 		}
 
 		return $groupIds;
+	}
+
+	private function getGroupGridName(EO_Workgroup $group): string
+	{
+		$groupType = $this->getGroupType($group);
+		$groupUrl = $this->getGroupUrl($group->getId());
+
+		if ($groupType === 'scrum')
+		{
+			$groupUrl = (new Uri($groupUrl))
+				->addParams(['scrum' => 'Y'])
+				->getUri();
+		}
+
+		$name = HtmlFilter::encode($group->getName());
+		$avatarPart = Helper\UI\Grid\Workgroup\Avatar::getValue($group);
+		$namePart ="<a class=\"sonet-group-grid-name-text\" href=\"{$groupUrl}\">{$name}</a>";
+
+		return '<div class="sonet-group-grid-name-container">' . $avatarPart . $namePart . '</div>';
+	}
+
+	private function getGroupUrl(int $groupId): string
+	{
+		$path = in_array($this->arParams['MODE'], self::getTasksModeList(), true)
+			? $this->arParams['PATH_TO_GROUP_TASKS']
+			: $this->arParams['PATH_TO_GROUP'];
+
+		return str_replace(['#id#', '#ID#', '#GROUP_ID#', '#group_id#'], $groupId, $path);
+	}
+
+	private function getGroupType(EO_Workgroup $group): string
+	{
+		if ($group->getProject())
+		{
+			if ($group->getScrumMasterId() > 0)
+			{
+				return Type::Scrum->value;
+			}
+
+			return Type::Project->value;
+		}
+
+		if ($group->getType() === Type::Collab->value)
+		{
+			return Type::Collab->value;
+		}
+
+		return Type::getDefault()->value;
+	}
+
+	private function sendAnalytics(): void
+	{
+		$analytics = ProjectAnalytics::getInstance();
+		if (($this->arParams['MODE'] ?? '') === WorkgroupList::MODE_TASKS_SCRUM)
+		{
+			$analytics->onProjectListOpened(
+				eventName: $analytics::EVENT_SCRUM_VIEW,
+				category: $analytics::CATEGORY_SCRUM,
+				section: $analytics::SECTION_SCRUM,
+				subSection: $analytics::SUBSECTION_SCRUM_GRID,
+			);
+		}
+		else
+		{
+			$analytics->onProjectListOpened();
+		}
 	}
 }

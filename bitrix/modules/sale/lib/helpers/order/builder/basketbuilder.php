@@ -499,6 +499,10 @@ abstract class BasketBuilder
 
 		$productProviderData = array();
 
+		/** @var BasketItem $firstBasketItem */
+		$firstBasketItem = $basketItems[0] ?? null;
+		$vatIncludedFromFirstItem = $firstBasketItem?->getField('VAT_INCLUDED');
+
 		/** @var BasketItem $item */
 		foreach($basketItems as $item)
 		{
@@ -627,7 +631,7 @@ abstract class BasketBuilder
 			}
 
 			OrderEdit::setProductDetails(
-				$productFormData["OFFER_ID"],
+				$productFormData["OFFER_ID"] ?? null,
 				$order->getUserId(),
 				$order->getSiteId(),
 				array_merge($product, $productFormData)
@@ -650,6 +654,11 @@ abstract class BasketBuilder
 				}
 
 				$product["CURRENCY"] = $order->getCurrency();
+			}
+
+			if ($vatIncludedFromFirstItem)
+			{
+				$product = $this->correctVatIncludedByFirstItem($product, $vatIncludedFromFirstItem);
 			}
 
 			$this->setBasketItemFields($item, $product);
@@ -820,7 +829,7 @@ abstract class BasketBuilder
 
 		$item = $this->getBasket()->createItem(
 			$productData["MODULE"] ?? '',
-			$productData["OFFER_ID"],
+			$productData["OFFER_ID"] ?? null,
 			$setBasketCode
 		);
 
@@ -860,11 +869,10 @@ abstract class BasketBuilder
 
 			if ($catalogIncluded)
 			{
-				$dbList = \CCatalogMeasure::getList();
-
-				while($arList = $dbList->Fetch())
+				$iterator = \CCatalogMeasure::getList();
+				while ($measure = $iterator->Fetch())
 				{
-					$result[$arList["CODE"]] = ($arList["SYMBOL_RUS"] != '' ? $arList["SYMBOL_RUS"] : $arList["SYMBOL_INTL"]);
+					$result[$measure["CODE"]] = ($measure["SYMBOL_RUS"] != '' ? $measure["SYMBOL_RUS"] : $measure["SYMBOL_INTL"]);
 				}
 			}
 
@@ -974,5 +982,45 @@ abstract class BasketBuilder
 		}
 
 		return $this;
+	}
+
+	/**
+	 * @param array $product
+	 * @param string $vatIncludedFromFirstItem
+	 * @return array
+	 */
+	public function correctVatIncludedByFirstItem(array $product, string $vatIncludedFromFirstItem): array
+	{
+		if (
+			empty($product['PRICE'])
+			||
+			empty($product['BASE_PRICE'])
+			||
+			empty($product['VAT_RATE'])
+		)
+		{
+			$product['VAT_INCLUDED'] = $vatIncludedFromFirstItem;
+
+			return $product;
+		}
+
+		$vatIncludedFrom = $product['VAT_INCLUDED'];
+		$price = (float)$product['PRICE'];
+		$basePrice = (float)$product['BASE_PRICE'];
+
+		if ($vatIncludedFrom === 'Y' && $vatIncludedFromFirstItem === 'N')
+		{
+			$calculator = new \Bitrix\Sale\Tax\VatCalculator($product['VAT_RATE']);
+			$price = $calculator->allocate($product['PRICE']);
+			$basePrice = $calculator->allocate($product['BASE_PRICE']);
+		}
+
+		$product['PRICE'] = $price;
+		$product['BASE_PRICE'] = $basePrice;
+
+		// There can be only one value for all of them
+		$product['VAT_INCLUDED'] = $vatIncludedFromFirstItem;
+
+		return $product;
 	}
 }

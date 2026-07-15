@@ -4,7 +4,6 @@ namespace Bitrix\Socialnetwork\Controller;
 
 use Bitrix\Intranet\Integration\Templates\Bitrix24\ThemePicker;
 use Bitrix\Intranet\Internals\ThemeTable;
-use Bitrix\Main;
 use Bitrix\Main\Context;
 use Bitrix\Main\Engine;
 use Bitrix\Main\Engine\Controller;
@@ -16,9 +15,11 @@ use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Main\UserTable;
+use Bitrix\Socialnetwork\Collab\Integration\IM\Dialog;
 use Bitrix\Socialnetwork\EO_UserToGroup;
 use Bitrix\Socialnetwork\Helper;
 use Bitrix\Socialnetwork\Helper\AvatarManager;
+use Bitrix\Socialnetwork\Integration\Im\Chat;
 use Bitrix\Socialnetwork\Integration\Main\File;
 use Bitrix\Socialnetwork\Integration\Pull\PushService;
 use Bitrix\Socialnetwork\Internals\Counter;
@@ -28,6 +29,7 @@ use Bitrix\Socialnetwork\Internals\EventService\Push\PushEventDictionary;
 use Bitrix\Socialnetwork\Internals\EventService\Service;
 use Bitrix\Socialnetwork\Item\Subscription;
 use Bitrix\Socialnetwork\Item\WorkgroupFavorites;
+use Bitrix\Socialnetwork\Provider\GroupProvider;
 use Bitrix\Socialnetwork\Space\MembersManager;
 use Bitrix\Socialnetwork\Space\Toolbar\Switcher\Option\Pin;
 use Bitrix\Socialnetwork\UserToGroupTable;
@@ -54,6 +56,7 @@ class Workgroup extends Base
 			'INITIATE_PERMS',
 			'PROJECT_DATE_START', 'PROJECT_DATE_FINISH',
 			'SCRUM_OWNER_ID', 'SCRUM_MASTER_ID', 'SCRUM_SPRINT_DURATION', 'SCRUM_TASK_RESPONSIBLE',
+			'TYPE',
 		];
 	}
 
@@ -67,8 +70,8 @@ class Workgroup extends Base
 			return null;
 		}
 
-		$select = ($params['select'] ?? []);
-		$filter = ($params['filter'] ?? []);
+		$select = (array)($params['select'] ?? []);
+		$filter = (array)($params['filter'] ?? []);
 		$filter['ID'] = $groupId;
 
 		if (!\CSocNetUser::isCurrentUserModuleAdmin(SITE_ID, false))
@@ -402,9 +405,32 @@ class Workgroup extends Base
 			}
 		}
 
+		if (($params['shouldSelectDialogId'] ?? 'N') === 'Y')
+		{
+			$chatData = Chat\Workgroup::getChatData([
+				'group_id' => $ids,
+				'skipAvailabilityCheck' => true,
+			]);
+
+			foreach ($workgroups as $id => $fields)
+			{
+				$workgroups[$id]['DIALOG_ID'] = Dialog::getDialogId($chatData[$id] ?? 0);
+			}
+		}
+
 		$workgroups = $this->convertKeysToCamelCase($workgroups);
 
 		return new Engine\Response\DataType\Page('workgroups', array_values($workgroups), $count);
+	}
+
+	/**
+	 * @restMethod socialnetwork.api.workgroup.isExistingGroup
+	 */
+	public function isExistingGroupAction(string $name): array
+	{
+		return [
+			'exists' => GroupProvider::getInstance()->isExistingGroup($name),
+		];
 	}
 
 	private function prepareSelect(array $select = []): array
@@ -1200,6 +1226,40 @@ class Workgroup extends Base
 		];
 	}
 
+	/**
+	 * The method will enable trial mode for projects or scrum.
+	 *
+	 * @param bool $scrum If you need to create a trial for scrum.
+	 * @return bool
+	 */
+	public function turnOnTrialAction(bool $scrum = false): bool
+	{
+		if (!Helper\Workgroup\Access::canCreate())
+		{
+			$this->addError(new Error('Access denied'));
+
+			return false;
+		}
+
+		$feature = $scrum ? Helper\Feature::SCRUM_CREATE : Helper\Feature::PROJECTS_GROUPS;
+
+		if (
+			!Helper\Feature::isFeatureEnabled($feature)
+			&& Helper\Feature::canTurnOnTrial($feature)
+		)
+		{
+			Helper\Feature::turnOnTrial($feature);
+
+			return true;
+		}
+		else
+		{
+			$this->addError(new Error('Already included'));
+
+			return false;
+		}
+	}
+
 	private function getColoredDefaultAvatar(string $color): string
 	{
 		if (in_array($color, Helper\Workgroup::getAvatarColors(), true))
@@ -1272,15 +1332,22 @@ class Workgroup extends Base
 		string $signedParameters = ''
 	): ?array
 	{
+		if ($groupId <= 0)
+		{
+			$this->addEmptyGroupIdError();
+
+			return null;
+		}
+
 		if (
-			$groupId <= 0
-			|| !Helper\Workgroup\Access::canView([
+			!Helper\Workgroup\Access::canView([
 				'groupId' => $groupId,
 				'checkAdminSession' => ($this->getScope() !== Controller::SCOPE_REST),
 			])
 		)
 		{
-			$this->addEmptyGroupIdError();
+			$this->addError(new Error('Access denied'));
+
 			return null;
 		}
 

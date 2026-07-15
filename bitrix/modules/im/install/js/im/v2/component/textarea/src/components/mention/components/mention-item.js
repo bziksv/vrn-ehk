@@ -2,7 +2,8 @@ import { Loc, Text } from 'main.core';
 
 import { ChatType } from 'im.v2.const';
 import { highlightText } from 'im.v2.lib.text-highlighter';
-import { ChatAvatar, AvatarSize, ChatTitleWithHighlighting } from 'im.v2.component.elements';
+import { ChatTitleWithHighlighting } from 'im.v2.component.elements.chat-title';
+import { ChatAvatar, AvatarSize } from 'im.v2.component.elements.avatar';
 
 import '../css/mention-item.css';
 
@@ -12,6 +13,7 @@ const ItemTextByChatType = {
 	[ChatType.openChannel]: Loc.getMessage('IM_TEXTAREA_MENTION_OPEN_CHANNEL_TYPE'),
 	[ChatType.generalChannel]: Loc.getMessage('IM_TEXTAREA_MENTION_OPEN_CHANNEL_TYPE'),
 	[ChatType.channel]: Loc.getMessage('IM_TEXTAREA_MENTION_PRIVATE_CHANNEL_TYPE'),
+	[ChatType.collab]: Loc.getMessage('IM_TEXTAREA_MENTION_COLLAB_TYPE'),
 	default: Loc.getMessage('IM_TEXTAREA_MENTION_CHAT_TYPE'),
 };
 
@@ -65,7 +67,7 @@ export const MentionItem = {
 				return '';
 			}
 
-			return this.user.workPosition;
+			return this.$store.getters['users/getPosition'](this.dialogId);
 		},
 		userItemText(): string
 		{

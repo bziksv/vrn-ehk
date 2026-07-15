@@ -12,6 +12,7 @@
 		};
 
 	window.FCList = function (params, add) {
+		this.author = params.author;
 		this.exemplarId = params["EXEMPLAR_ID"]/* || BX.util.getRandomString(20)*/; // To identify myself
 		this.ENTITY_XML_ID = params["ENTITY_XML_ID"]; // like groupId for lists
 		this.template = params["template"]; //html message
@@ -848,7 +849,7 @@
 			e["UCDone"] = true;
 			setTimeout(this.quoteShow, 50, e, params);
 		},
-		reply : function(node) {
+		reply : function(node, context = 'add_comment_field') {
 			var author = {
 				id: undefined,
 				name: undefined,
@@ -865,7 +866,16 @@
 			}
 			if (this.form)
 			{
-				BX.onCustomEvent(this.form, "onReply", [this, author]);
+				if (
+					this.form.handler
+					&& this.form.handler.htmlEditor
+					&& this.form.handler.htmlEditor.IsVisible()
+					&& !node
+				)
+				{
+					return;
+				}
+				BX.onCustomEvent(this.form, "onReply", [this, author, context]);
 			}
 			else
 			{
@@ -1049,26 +1059,33 @@
 				return false;
 			}
 
-			var id = messageId.join("-");
-			var html = (data["message"] ||  window.fcParseTemplate(
-					{ messageFields : data["messageFields"] },
-					{
-						EXEMPLAR_ID : this.exemplarId,
-						RIGHTS : this.rights,
-						DATE_TIME_FORMAT : this.DATE_TIME_FORMAT,
-						VIEW_URL : this.params.VIEW_URL,
-						EDIT_URL : this.params.EDIT_URL,
-						MODERATE_URL : this.params.MODERATE_URL,
-						DELETE_URL : this.params.DELETE_URL,
-						AUTHOR_URL : this.params.AUTHOR_URL,
-						AUTHOR_URL_PARAMS : this.params.AUTHOR_URL_PARAMS,
+			var id = messageId.join('-');
+			var html = (data.message || window.fcParseTemplate(
+				{ messageFields: data.messageFields },
+				{
+					EXEMPLAR_ID: this.exemplarId,
+					RIGHTS: this.rights,
+					DATE_TIME_FORMAT: this.DATE_TIME_FORMAT,
+					VIEW_URL: this.params.VIEW_URL,
+					EDIT_URL: this.params.EDIT_URL,
+					MODERATE_URL: this.params.MODERATE_URL,
+					DELETE_URL: this.params.DELETE_URL,
+					AUTHOR_URL: this.params.AUTHOR_URL,
+					AUTHOR_URL_PARAMS: this.params.AUTHOR_URL_PARAMS,
 
-						NAME_TEMPLATE : this.params.NAME_TEMPLATE,
-						SHOW_LOGIN : this.params.SHOW_LOGIN,
-						CLASSNAME : BX.type.isPlainObject(options) && options.live ? 'feed-com-block-live' : '',
-					},
-					this.getTemplate()
-				));
+					NAME_TEMPLATE: this.params.NAME_TEMPLATE,
+					SHOW_LOGIN: this.params.SHOW_LOGIN,
+					CLASSNAME: BX.type.isPlainObject(options) && options.live ? 'feed-com-block-live' : '',
+				},
+				this.getTemplate(),
+			));
+
+			let fileCountDownloaded = document.getElementsByClassName('diskuf-files-entity').length;
+			if (fileCountDownloaded === 0)
+			{
+				BX.load(['/bitrix/js/disk/css/legacy_uf_common.css']);
+			}
+
 			var ob = BX.processHTML(html, false);
 			var results;
 			var newCommentsContainer = this.node.newComments;
@@ -1199,6 +1216,24 @@
 				}, 1000);
 			}
 
+			const messageFields = data.messageFields;
+			const fieldAuthor = messageFields?.AUTHOR;
+
+			const authorTitle = container.querySelector('.post-comment-author');
+			if (authorTitle && this.author.AUTHOR_TYPE)
+			{
+				BX.Dom.addClass(authorTitle, `feed-com-name-${this.author.AUTHOR_TYPE}`);
+			}
+
+			BX?.MPL?.UIAvatar?.({
+				node: container,
+				user: {
+					name: fieldAuthor.FULL_NAME,
+					image: fieldAuthor.AVATAR,
+					type: fieldAuthor.TYPE,
+				},
+			});
+
 			if (
 				animation !== "simple"
 				&& BX.Type.isUndefined(window.BXMobileApp) // non-mobile
@@ -1259,31 +1294,32 @@
 			var cnt = 0,
 			func = function()
 			{
-				if (100 < ++cnt)
-				{
-					return;
-				}
-				if (this.getCommentNode(messageId[1]).childNodes.length > 0)
-				{
-					BX.ajax.processScripts(ob.SCRIPT);
-					if (this.params["BIND_VIEWER"] === "Y" && BX["viewElementBind"])
+					if (100 < ++cnt)
 					{
-						BX.viewElementBind(
-							this.getCommentNode(messageId[1]), {},
-							function(node ){
-								return BX.type.isElementNode(node) && (node.getAttribute("data-bx-viewer") || node.getAttribute("data-bx-image"));
-							}
-						);
+						return;
 					}
-				}
-				else
-				{
-					setTimeout(func, 500)
-				}
-				BX.onCustomEvent(window, "OnUCRecordHasDrawn", [this.ENTITY_XML_ID, messageId, (data["messageFields"] || data)]);
-				BX.onCustomEvent(window, "OnUCCommentWasAdded", [this.ENTITY_XML_ID, messageId, (data["messageFields"] || data)]);
-				BX.onCustomEvent(window, "OnUCFeedChanged", [messageId]);
-			}.bind(this);
+					if (this.getCommentNode(messageId[1]).childNodes.length > 0)
+					{
+						BX.ajax.processScripts(ob.SCRIPT);
+						if (this.params["BIND_VIEWER"] === "Y" && BX["viewElementBind"])
+						{
+							BX.viewElementBind(
+								this.getCommentNode(messageId[1]), {},
+								function(node ){
+									return BX.type.isElementNode(node) && (node.getAttribute("data-bx-viewer") || node.getAttribute("data-bx-image"));
+								}
+							);
+						}
+					}
+					else
+					{
+						setTimeout(func, 500)
+					}
+
+					BX.onCustomEvent(window, "OnUCRecordHasDrawn", [this.ENTITY_XML_ID, messageId, (messageFields || data)]);
+					BX.onCustomEvent(window, "OnUCCommentWasAdded", [this.ENTITY_XML_ID, messageId, (messageFields || data)]);
+					BX.onCustomEvent(window, "OnUCFeedChanged", [messageId]);
+				}.bind(this);
 			setTimeout(func, 500);
 			return true;
 		},
@@ -2306,72 +2342,74 @@
 	 * @param txt
 	 * @return string
 	 */
-	window["fcParseTemplate"] = function(data, params, txt) {
+	window.fcParseTemplate = function(data, params, txt) {
 		params = (params || {});
 
-		params["RIGHTS"] = (params["RIGHTS"] || {});
-		for (var ii = 0, rights = ["MODERATE", "EDIT", "DELETE"]; ii < rights.length; ii++)
+		params.RIGHTS = (params.RIGHTS || {});
+		for (var ii = 0, rights = ['MODERATE', 'EDIT', 'DELETE']; ii < rights.length; ii++)
 		{
-			params["RIGHTS"][rights[ii]] =
-				BX.util.in_array(params["RIGHTS"][rights[ii]], ["Y", "ALL", "OWN", "OWNLAST"]) ? params["RIGHTS"][rights[ii]] : "N";
+			params.RIGHTS[rights[ii]] =	BX.util.in_array(
+				params.RIGHTS[rights[ii]],
+				['Y', 'ALL', 'OWN', 'OWNLAST'],
+			) ? params.RIGHTS[rights[ii]] : 'N';
 		}
 
-		params["DATE_TIME_FORMAT"] = (!!params["DATE_TIME_FORMAT"] ? params["DATE_TIME_FORMAT"] : 'd F Y G:i');
-		params["TIME_FORMAT"] = (!!params["DATE_TIME_FORMAT"] && params["DATE_TIME_FORMAT"].indexOf("a") >= 0 ? 'g:i a' : 'G:i');
+		params.DATE_TIME_FORMAT = (params.DATE_TIME_FORMAT ? params.DATE_TIME_FORMAT : 'd F Y G:i');
+		params.TIME_FORMAT = (params.DATE_TIME_FORMAT && params.DATE_TIME_FORMAT.includes('a') ? 'g:i a' : 'G:i');
 
-		params["VIEW_URL"] = (params["VIEW_URL"] || "");
-		params["EDIT_URL"] = (params["EDIT_URL"] || "");
-		params["MODERATE_URL"] = (params["MODERATE_URL"] || "");
-		params["DELETE_URL"] = (params["DELETE_URL"] || "");
-		params["AUTHOR_URL"] = (params["AUTHOR_URL"] || "");
+		params.VIEW_URL = (params.VIEW_URL || '');
+		params.EDIT_URL = (params.EDIT_URL || '');
+		params.MODERATE_URL = (params.MODERATE_URL || '');
+		params.DELETE_URL = (params.DELETE_URL || '');
+		params.AUTHOR_URL = (params.AUTHOR_URL || '');
 
-		params["NAME_TEMPLATE"] = (params["NAME_TEMPLATE"] || "");
-		params["SHOW_LOGIN"] = (params["SHOW_LOGIN"] || "");
+		params.NAME_TEMPLATE = (params.NAME_TEMPLATE || '');
+		params.SHOW_LOGIN = (params.SHOW_LOGIN || '');
 
-		var res = (data && data["messageFields"] ? data["messageFields"] : data);
+		var res = (data && data.messageFields ? data.messageFields : data);
 		var replacement = {
-				"ID" : "",
-				"FULL_ID" : "",
-				"CONTENT_ID" : "",
-				"ENTITY_XML_ID" : "",
-				"EXEMPLAR_ID" : "",
-				"NEW" : "old",
-				"APPROVED" : "Y",
-				"DATE" : "",
-				"TEXT" : "",
-				"CLASSNAME" : "",
-				"VIEW_URL" : "",
-				"VIEW_SHOW" : "N",
-				"EDIT_URL" : "",
-				"EDIT_SHOW" : "N",
-				"MODERATE_URL" : "",
-				"MODERATE_SHOW" : "N",
-				"DELETE_URL" : "",
-				"DELETE_SHOW" : "N",
-				"CREATETASK_SHOW" : "N",
-				"BEFORE_HEADER" : "",
-				"BEFORE_ACTIONS" : "",
-				"AFTER_ACTIONS" : "",
-				"AFTER_HEADER" : "",
-				"BEFORE" : "",
-				"AFTER" : "",
-				"BEFORE_RECORD" : "",
-				"AFTER_RECORD" : "",
-				"AUTHOR_ID" : 0,
-				"AUTHOR_AVATAR_IS" : "N",
-				"AUTHOR_AVATAR" : "",
-				"AUTHOR_URL" : "",
-				"AUTHOR_NAME" : "",
-				"AUTHOR_EXTRANET_STYLE" : "",
-				"SHOW_POST_FORM" : "Y",
-				"SHOW_MENU" : "Y",
-				"VOTE_ID" : "",
-				"AUTHOR_TOOLTIP_PARAMS" : "",
-				"background:url('') no-repeat center;" : "",
-				"LIKE_REACT" : "",
-				"RATING_NONEMPTY_CLASS" : "",
-				"MOBILE_HINTS" : ""
-			};
+			ID: '',
+			FULL_ID: '',
+			CONTENT_ID: '',
+			ENTITY_XML_ID: '',
+			EXEMPLAR_ID: '',
+			NEW: 'old',
+			APPROVED: 'Y',
+			DATE: '',
+			TEXT: '',
+			CLASSNAME: '',
+			VIEW_URL: '',
+			VIEW_SHOW: 'N',
+			EDIT_URL: '',
+			EDIT_SHOW: 'N',
+			MODERATE_URL: '',
+			MODERATE_SHOW: 'N',
+			DELETE_URL: '',
+			DELETE_SHOW: 'N',
+			CREATETASK_SHOW: 'N',
+			BEFORE_HEADER: '',
+			BEFORE_ACTIONS: '',
+			AFTER_ACTIONS: '',
+			AFTER_HEADER: '',
+			BEFORE: '',
+			AFTER: '',
+			BEFORE_RECORD: '',
+			AFTER_RECORD: '',
+			AUTHOR_ID: '',
+			AUTHOR_AVATAR_IS: 'N',
+			AUTHOR_AVATAR: '',
+			AUTHOR_URL: '',
+			AUTHOR_NAME: '',
+			AUTHOR_EXTRANET_STYLE: '',
+			SHOW_POST_FORM: 'Y',
+			SHOW_MENU: 'Y',
+			VOTE_ID: '',
+			AUTHOR_TOOLTIP_PARAMS: '',
+			"background:url('') no-repeat center;": '',
+			LIKE_REACT: '',
+			RATING_NONEMPTY_CLASS: '',
+			MOBILE_HINTS: '',
+		};
 		if (!!res && !!data["messageFields"])
 		{
 			res["AUTHOR"] = (!!res["AUTHOR"] ? res["AUTHOR"] : {});
@@ -2392,6 +2430,10 @@
 				else if (res["AUTHOR"]["TYPE"] === "EXTRANET")
 				{
 					authorStyle = " feed-com-name-extranet";
+				}
+				else if (res["AUTHOR"]["TYPE"] === "COLLABER")
+				{
+					authorStyle = " feed-com-name-collaber";
 				}
 			}
 			else if (res["AUTHOR"]["IS_EXTRANET"] == "Y")
@@ -2498,6 +2540,7 @@
 							? (params["AUTHOR_URL"].indexOf("?") >= 0 ? '&' : '?') + 'entityType=' + params["AUTHOR_URL_PARAMS"]["entityType"] + '&entityId=' + params["AUTHOR_URL_PARAMS"]["entityId"]
 							: ''
 					),
+				"AUTHOR_TYPE": res["AUTHOR"]["TYPE"],
 				"AUTHOR_NAME" : BX.formatName(res["AUTHOR"], params["NAME_TEMPLATE"], params["SHOW_LOGIN"]),
 				"AUTHOR_EXTRANET_STYLE" : authorStyle,
 				"VOTE_ID" : (res["RATING"] && res["RATING"]["VOTE_ID"] ? res["RATING"]["VOTE_ID"] : ""),
@@ -2508,7 +2551,7 @@
 				"RATING_NONEMPTY_CLASS" : (res["RATING"] && res["RATING"]["TOTAL_VOTES"] ? "comment-block-rating-nonempty" : ""),
 				"POST_ENTITY_TYPE" : (!!params["POST_CONTENT_TYPE_ID"] ? params["POST_CONTENT_TYPE_ID"] : ""),
 				"COMMENT_ENTITY_TYPE" : (!!params["COMMENT_CONTENT_TYPE_ID"] ? params["COMMENT_CONTENT_TYPE_ID"] : ""),
-				"MOBILE_HINTS" : ""
+				"MOBILE_HINTS" : "",
 			};
 		}
 		else

@@ -4,7 +4,7 @@
 	border-radius: 20px;
 	font-weight: 600;
 	font-size: 14px;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-style: normal;
 }
 
@@ -21,7 +21,7 @@
 	text-transform: none;
 	color: #ffffff;
 	display: flex;
-	align-items: center;
+	align-items: end;
 	justify-content: center;
 	line-height: 14px;
 	letter-spacing: 0.4px;

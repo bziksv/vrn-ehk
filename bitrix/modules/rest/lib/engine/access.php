@@ -2,14 +2,17 @@
 
 namespace Bitrix\Rest\Engine;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Type\Date;
 use Bitrix\Main\Web\Json;
 use Bitrix\Rest\AppTable;
+use Bitrix\Rest\Infrastructure\Market\MarketSubscription;
 use Bitrix\Rest\Marketplace\Client;
 use Bitrix\Rest\Marketplace\Immune;
+use Bitrix\Rest\Service\ServiceContainer;
 
 /**
  * Class Access
@@ -37,6 +40,7 @@ class Access
 	private const OPTION_HOLD_CHECK_COUNT_APP = '~hold_check_count_app';
 	private const DEFAULT_AVAILABLE_COUNT = -1;
 	private const DEFAULT_AVAILABLE_COUNT_DEMO = 10;
+	private const SYSTEM_METHODS = ['crm.automation.trigger'];
 
 	private static $availableApp = [];
 	private static $availableAppCount = [];
@@ -76,7 +80,10 @@ class Access
 			{
 				static::$availableApp[$app] = true;
 			}
-			elseif (static::isFeatureEnabled())
+			elseif (
+				!MarketSubscription::createByDefault()->isRequiredSubscriptionModelStarted()
+				&& self::isFeatureEnabled()
+			)
 			{
 				static::$availableApp[$app] = true;
 			}
@@ -93,11 +100,65 @@ class Access
 					{
 						static::$availableApp[$app] = true;
 					}
+					elseif ($appInfo['STATUS'] === AppTable::STATUS_FREE && self::isFeatureEnabled())
+					{
+						static::$availableApp[$app] = true;
+					}
 				}
 			}
 		}
 
 		return static::$availableApp[$app];
+	}
+
+	public static function canInstallApp(array $installAppData): bool
+	{
+		$appCode = $installAppData['CODE'] ?? null;
+		if (!$appCode)
+		{
+			return false;
+		}
+
+		return static::isAvailable($appCode)
+			&& static::isAvailableCount(static::ENTITY_TYPE_APP, $appCode)
+			|| static::isAllowFreeApp($installAppData);
+	}
+
+	public static function isAllowFreeApp(array $freeAppData): bool
+	{
+		$isFreeApp = ($freeAppData['FREE'] ?? 'N') === 'Y';
+
+		return $isFreeApp
+			&& self::isFeatureEnabled();
+	}
+
+	public static function isAvailableAPAuthByPasswordId(int $passwordId): bool
+	{
+		if (!ModuleManager::isModuleInstalled('bitrix24'))
+		{
+			return true;
+		}
+
+		if (Client::isSubscriptionAvailable())
+		{
+			return true;
+		}
+
+		if (self::isFeatureEnabled() && !MarketSubscription::createByDefault()->isRequiredSubscriptionModelStarted())
+		{
+			return true;
+		}
+
+		if (
+			self::isFeatureEnabled()
+			&& ServiceContainer::getInstance()->getAPAuthPasswordService()->isSystemPasswordById($passwordId)
+			&& (!\CRestServer::instance() || in_array(\CRestServer::instance()?->getMethod(), static::SYSTEM_METHODS, true))
+		)
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -240,7 +301,14 @@ class Access
 	{
 		$result = [
 			static::ENTITY_TYPE_APP => [],
-			static::ENTITY_TYPE_APP_STATUS => [],
+			static::ENTITY_TYPE_APP_STATUS => [
+				AppTable::STATUS_SUBSCRIPTION => 0,
+				AppTable::STATUS_FREE => 0,
+				AppTable::STATUS_LOCAL => 0,
+				AppTable::STATUS_PAID => 0,
+				AppTable::STATUS_DEMO => 0,
+				AppTable::STATUS_TRIAL => 0,
+			],
 			static::ENTITY_COUNT => 0
 		];
 		$immuneList = Immune::getList();
@@ -293,13 +361,24 @@ class Access
 	{
 		$isB24 = ModuleManager::isModuleInstalled('bitrix24') && Loader::includeModule('bitrix24');
 		$dateFinish = Client::getSubscriptionFinalDate();
-		$isSubscriptionDemoAvailable = Client::isSubscriptionDemoAvailable() && !$dateFinish;
+		$isSubscriptionDemoAvailable = Client::isSubscriptionDemoAvailable();
+		$region = Application::getInstance()->getLicense()->getRegion();
 
 		if ($action === static::ACTION_BUY)
 		{
-			if ($isB24 && $isSubscriptionDemoAvailable && \CBitrix24::isLicenseNeverPayed())
+			if (
+				$isB24
+				&& $isSubscriptionDemoAvailable
+				&& \CBitrix24::isLicenseNeverPayed()
+				&& $region === 'ru'
+			)
 			{
 				return 'limit_market_trial_demo';
+			}
+
+			if ($isB24 && Client::isSubscriptionDemo() && !Client::canBuySubscription())
+			{
+				return 'limit_subscription_market_bundle';
 			}
 
 			return 'limit_subscription_market_trial_access';
@@ -360,7 +439,8 @@ class Access
 		}
 
 		$isFreeEntity = false;
-		if ($entityType === static::ENTITY_TYPE_INTEGRATION || $entityType === static::ENTITY_TYPE_AP_CONNECT)
+
+		if ($region !== 'ru' && ($entityType === static::ENTITY_TYPE_INTEGRATION || $entityType === static::ENTITY_TYPE_AP_CONNECT))
 		{
 			$isFreeEntity = true;
 		}
@@ -371,7 +451,7 @@ class Access
 				&& (isset($entityData['ACTIVE']) && $entityData['ACTIVE'])
 				&& (
 					$entityData['STATUS'] === AppTable::STATUS_FREE
-					|| $entityData['STATUS'] === AppTable::STATUS_LOCAL
+					|| ($entityData['STATUS'] === AppTable::STATUS_LOCAL && $region !== 'ru')
 				)
 			)
 			{
@@ -421,7 +501,7 @@ class Access
 				else
 				{
 					// choose subscription
-					$code = 'limit_subscription_market_marketpaid';
+					$code = 'limit_subscription_market_access_buy_marketplus';
 				}
 			}
 		}
@@ -450,21 +530,26 @@ class Access
 				if ($isSubscriptionDemoAvailable)
 				{
 					// activate demo subscription
-					$code = 'limit_subscription_market_access';
+					$code = 'limit_subscription_market_access_buy_marketplus';
 				}
 				elseif (!$isB24)
 				{
 					// choose subscription
 					$code = 'plus_need_trial';
 				}
-				else
+				elseif ($isMinLicense)
 				{
 					// choose license with subscription
 					$code = 'limit_subscription_market_tarifwithmarket';
+
 					if ($action === static::ACTION_OPEN)
 					{
 						$code = 'installed_plus_buy_license_with_plus';
 					}
+				}
+				else
+				{
+					$code = 'limit_subscription_market_marketpaid_trialend';
 				}
 			}
 			elseif ($isB24 && !$isUsedDemoLicense)
@@ -481,7 +566,6 @@ class Access
 			}
 			elseif ($isB24 && !$isMaxApplicationDemo)
 			{
-				// choose license
 				$code = 'limit_free_rest_hold_no_demo';
 			}
 			elseif ($isSubscriptionDemoAvailable)
@@ -518,9 +602,12 @@ class Access
 					$code = 'limit_free_apps_need_demo';
 				}
 			}
+			elseif ($region === 'ru')
+			{
+				$code = 'limit_subscription_market_access_buy_marketplus';
+			}
 			else
 			{
-				// choose license
 				$code = 'limit_free_apps_buy_license';
 			}
 		}
@@ -533,7 +620,21 @@ class Access
 			if (!$isFreeEntity)
 			{
 				// activate demo subscription
-				$code = 'limit_subscription_market_access_buy_marketplus';
+				if ($region === 'ru')
+				{
+					if (!$isMinLicense)
+					{
+						$code = 'limit_subscription_market_access_buy_marketplus';
+					}
+					else
+					{
+						$code = 'limit_market_trial_demo';
+					}
+				}
+				else
+				{
+					$code = 'limit_subscription_market_access_buy_marketplus';
+				}
 			}
 			elseif ($isB24 && $isDemo)
 			{
@@ -553,16 +654,7 @@ class Access
 		}
 		elseif ($canBuySubscription)
 		{
-			if ($isSubscriptionFinished)
-			{
-				// choose subscription
-				$code = 'limit_subscription_market_access_buy_marketplus';
-			}
-			else
-			{
-				// choose new subscription
-				$code = 'plus_need_trial';
-			}
+			$code = 'limit_subscription_market_marketpaid_trialend';
 		}
 		elseif ($isB24 && $isDemo)
 		{

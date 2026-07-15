@@ -2,37 +2,41 @@
 
 namespace Bitrix\Im\V2\Chat;
 
-use Bitrix\Im\User;
 use Bitrix\Im\Notify;
 use Bitrix\Im\Color;
-use Bitrix\Im\Model\RelationTable;
+use Bitrix\Im\V2\Analytics\ChatAnalytics;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Chat\Copilot\CopilotPopupItem;
+use Bitrix\Im\V2\Chat\Param\Params;
+use Bitrix\Im\V2\Entity\File\ChatAvatar;
+use Bitrix\Im\V2\Entity\User\User;
+use Bitrix\Im\V2\Entity\User\UserCollection;
 use Bitrix\Im\V2\Entity\User\UserPopupItem;
+use Bitrix\Im\V2\Entity\User\UserType;
+use Bitrix\Im\V2\Integration\AI\AIHelper;
+use Bitrix\Im\V2\Integration\AI\EngineManager;
 use Bitrix\Im\V2\Integration\AI\RoleManager;
 use Bitrix\Im\V2\Integration\HumanResources\Structure;
-use Bitrix\Im\V2\Link\Url\UrlService;
+use Bitrix\Im\V2\Logger;
 use Bitrix\Im\V2\Message;
-use Bitrix\Im\V2\Message\MessageError;
-use Bitrix\Im\V2\Message\Params;
 use Bitrix\Im\V2\Message\Send\PushService;
 use Bitrix\Im\V2\Message\Send\SendingConfig;
-use Bitrix\Im\V2\Message\Send\SendingService;
-use Bitrix\Im\V2\Message\Send\MentionService;
-use Bitrix\Im\V2\MessageCollection;
-use Bitrix\Im\V2\Message\ReadService;
-use Bitrix\Im\V2\Bot\BotService;
+use Bitrix\Im\V2\Relation;
+use Bitrix\Im\V2\Relation\AddUsersConfig;
 use Bitrix\Im\V2\Rest\PopupData;
 use Bitrix\Im\V2\Rest\PopupDataAggregatable;
 use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Service\Context;
-use Bitrix\Imbot\Bot\CopilotChatBot;
+use Bitrix\ImBot\Bot\Network;
+use Bitrix\ImBot\Bot\Support24;
+use Bitrix\ImBot\Bot\SupportBox;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Pull\Event;
-use CPullWatch;
+use Bitrix\Im\V2\Message\Delete\DisappearService;
+use Bitrix\Im\V2\Chat\Add\AddResult;
 
-class GroupChat extends Chat implements PopupDataAggregatable
+class GroupChat extends Chat
 {
 	protected function getDefaultType(): string
 	{
@@ -60,13 +64,16 @@ class GroupChat extends Chat implements PopupDataAggregatable
 		return !$this->getEntityType();
 	}
 
-	protected function checkAccessWithoutCaching(int $userId): bool
+	protected function checkAccessInternal(int $userId): Result
 	{
-		$options = [
-			'FILTER' => ['USER_ID' => $userId],
-		];
+		$result = new Result();
 
-		return $this->getRelations($options)->hasUser($userId, $this->getChatId());
+		if ($this->getRelationByUserId($userId) === null)
+		{
+			$result->addError(new ChatError(ChatError::ACCESS_DENIED));
+		}
+
+		return $result;
 	}
 
 	public function linkToStructureNodes(array $structureNodes): void
@@ -89,9 +96,9 @@ class GroupChat extends Chat implements PopupDataAggregatable
 		(new Structure($this))->unlink($structureNodes);
 	}
 
-	public function add(array $params, ?Context $context = null): Result
+	public function add(array $params, ?Context $context = null): AddResult
 	{
-		$result = new Result;
+		$result = new AddResult();
 		$skipAddMessage = ($params['SKIP_ADD_MESSAGE'] ?? 'N') === 'Y';
 		$forceSendGreetingMessages = ($params['SEND_GREETING_MESSAGES'] ?? 'N') === 'Y';
 		$paramsResult = $this->prepareParams($params);
@@ -105,7 +112,7 @@ class GroupChat extends Chat implements PopupDataAggregatable
 		}
 
 		$chat = new static($params);
-		$chat->setExtranet($chat->checkIsExtranet())->setContext($context);
+		$chat->onBeforeAdd();
 		$chat->save();
 
 		if (!$chat->getChatId())
@@ -113,14 +120,14 @@ class GroupChat extends Chat implements PopupDataAggregatable
 			return $result->addError(new ChatError(ChatError::CREATION_ERROR));
 		}
 
-		$usersToInvite = $chat->filterUsersToAdd($chat->getUserIds());
-		$addedUsers = $usersToInvite;
+		$addedUsers = $usersToInvite = $chat->getUserIds() ?? [];
 		if ($chat->getAuthorId())
 		{
 			$addedUsers[$chat->getAuthorId()] = $chat->getAuthorId();
 			unset($usersToInvite[$chat->getAuthorId()]);
 		}
-		$chat->addUsersToRelation($addedUsers, $params['MANAGERS'] ?? [], false);
+		$addUsersConfig = new AddUsersConfig($params['MANAGERS'] ?? [], false);
+		$chat->addUsersToRelation($addedUsers, $addUsersConfig);
 		$needToSendGreetingMessages = !$skipAddMessage && ($chat->needToSendGreetingMessages() || $forceSendGreetingMessages);
 		if ($needToSendGreetingMessages)
 		{
@@ -130,7 +137,7 @@ class GroupChat extends Chat implements PopupDataAggregatable
 
 		if (!$skipAddMessage)
 		{
-			$chat->sendMessageUsersAdd($usersToInvite);
+			$chat->sendMessageUsersAdd($usersToInvite, $addUsersConfig);
 		}
 		$chat->linkToStructureNodes($params['STRUCTURE_NODES'] ?? []);
 		$chat->sendEventUsersAdd($addedUsers);
@@ -141,73 +148,83 @@ class GroupChat extends Chat implements PopupDataAggregatable
 		}
 		$chat->addIndex();
 
-		$result->setResult([
-			'CHAT_ID' => $chat->getChatId(),
-			'CHAT' => $chat,
-		]);
+		$result->setChat($chat);
 
-		self::cleanCache($chat->getChatId());
-		$chat->isFilledNonCachedData = false;
-		$chat->onUserAddAfterChatCreate($usersToInvite);
+		$chat->onAfterAdd();
+		$chat->onUserAddAfterChatAdd($usersToInvite);
 
 		return $result;
 	}
 
-	protected function onUserAddAfterChatCreate(array $addedUsers): void
+	protected function onBeforeAdd(?Context $context = null): void
 	{
-		return;
+		$userIds = $this->getUserIds() ?? [];
+		$containsExtranet = UserCollection::hasUserByType($userIds, UserType::EXTRANET);
+		$this->setExtranet($containsExtranet)->setContext($context);
+		if (UserCollection::hasUserByType($userIds, UserType::COLLABER))
+		{
+			$this->getChatParams()->addParamByName(Params::CONTAINS_COLLABER, true, false);
+			$this->getChatParams()->addParamByName(Params::CONTAINS_COLLABER, true, false);
+		}
+		if (AIHelper::containsCopilotBot($this->usersIds))
+		{
+			$this->fillCopilotBeforeChatAdd($context);
+		}
+
+		$this->setUserCount(count($userIds));
+	}
+
+	protected function onAfterAdd(?Context $context = null): void
+	{
+		Message\Delete\DisappearService::sendMessageAfterChatAdd($this);
+
+		self::cleanCache($this->getChatId());
+		$this->isFilledNonCachedData = false;
+	}
+
+	protected function onUserAddAfterChatAdd(array $addedUsers): void
+	{
+		$this->disableUserDeleteMessage();
 	}
 
 	protected function filterParams(array $params): array
 	{
-		if (isset($params['USER_ID']))
+		if (
+			isset($params['MESSAGES_AUTO_DELETE_DELAY'])
+			&& (int)$params['MESSAGES_AUTO_DELETE_DELAY'] !== 0
+			&& !DisappearService::checkAvailability($this->getExtendedType(false))->isSuccess()
+		)
 		{
-			$params['USER_ID'] = (int)$params['USER_ID'];
+			unset($params['MESSAGES_AUTO_DELETE_DELAY']);
 		}
-		else
-		{
-			$params['USER_ID'] = $this->getContext()->getUserId();
-		}
-
-		if (isset($params['AUTHOR_ID']))
-		{
-			$params['AUTHOR_ID'] = (int)$params['AUTHOR_ID'];
-		}
-		elseif (isset($params['OWNER_ID']))
-		{
-			$params['AUTHOR_ID'] = (int)$params['OWNER_ID'];
-		}
-
-		foreach (['USERS', 'MANAGERS'] as $paramName)
-		{
-			if (!isset($params[$paramName]) || !is_array($params[$paramName]))
-			{
-				$params[$paramName] = [];
-			}
-			else
-			{
-				$params[$paramName] = filter_var(
-					$params[$paramName],
-					FILTER_VALIDATE_INT,
-					[
-						'flags' => FILTER_REQUIRE_ARRAY,
-						'options' => ['min_range' => 1]
-					]
-				);
-
-				foreach ($params[$paramName] as $key => $paramValue)
-				{
-					if (!is_int($paramValue))
-					{
-						unset($params[$paramName][$key]);
-					}
-				}
-			}
-		}
-
-		$params['SKIP_ADD_MESSAGE'] = isset($params['SKIP_ADD_MESSAGE']) && $params['SKIP_ADD_MESSAGE'] === 'Y';
 
 		return $params;
+	}
+
+	protected function validateAuthorId(int $authorId): Result
+	{
+		$result = new Result();
+		if ($authorId <= 0)
+		{
+			return $result->addError(
+				new ChatError(
+					ChatError::AUTHOR_ID_EMPTY,
+					'Using AUTHOR_ID = 0 is deprecated and will be disallowed soon. Please provide a valid user ID.'
+				)
+			);
+		}
+
+		if (!User::getInstance($authorId)->isExist())
+		{
+			return $result->addError(
+				new ChatError(
+					ChatError::AUTHOR_NOT_EXISTS,
+					'The specified AUTHOR_ID does not match any existing user. Please provide a valid user ID.'
+				)
+			);
+		}
+
+		return $result;
 	}
 
 	protected function prepareParams(array $params = []): Result
@@ -215,77 +232,74 @@ class GroupChat extends Chat implements PopupDataAggregatable
 		$result = new Result();
 		$params = $this->filterParams($params);
 
-		if (!isset($params['AUTHOR_ID']))
+		$params['AUTHOR_ID'] = (int)($params['AUTHOR_ID'] ?? $this->getContext()->getUserId());
+		$validateAuthorIdResult = $this->validateAuthorId((int)$params['AUTHOR_ID']);
+		if (!$validateAuthorIdResult->isSuccess())
 		{
-			$params['AUTHOR_ID'] = $this->getContext()->getUserId();
+			(new Logger('chat-creation-author-id-error'))->logErrors($validateAuthorIdResult->getErrorCollection());
 		}
 
-		if (!isset($params['OWNER_ID']))
-		{
-			$params['OWNER_ID'] = $this->getContext()->getUserId();
-		}
-
+		$users = $params['USERS'] ?? [];
+		$managers = $params['MANAGERS'] ?? [];
+		$params['USERS'] = is_array($users) ? $users : [];
+		$params['MANAGERS'] = is_array($managers) ? $managers : [];
 		[$users, $structureNodes] = Structure::splitEntities($params['MEMBER_ENTITIES'] ?? []);
 
-		$params['MANAGERS'] ??= [];
 		$params['MANAGERS'] = array_unique(array_merge($params['MANAGERS'], [$params['AUTHOR_ID']]));
-
-		$params['USERS'] = array_filter(array_unique(array_merge($params['USERS'], $params['MANAGERS'], $users)));
-		$params['USER_COUNT'] = count($params['USERS']);
+		$params['USERS'] = array_unique(array_merge($params['USERS'], $params['MANAGERS'], $users));
 		$params['STRUCTURE_NODES'] = $structureNodes;
 
 		if (
 			isset($params['AVATAR'])
-			&& $params['AVATAR']
 			&& !is_numeric((string)$params['AVATAR'])
 		)
 		{
-			$params['AVATAR'] = \CRestUtil::saveFile($params['AVATAR']);
-			$imageCheck = (new \Bitrix\Main\File\Image($params['AVATAR']["tmp_name"]))->getInfo();
-			if(
-				!$imageCheck
-				|| !$imageCheck->getWidth()
-				|| $imageCheck->getWidth() > 5000
-				|| !$imageCheck->getHeight()
-				|| $imageCheck->getHeight() > 5000
-			)
-			{
-				$params['AVATAR'] = null;
-			}
-
-			if (!$params['AVATAR'] || mb_strpos($params['AVATAR']['type'], "image/") !== 0)
-			{
-				$params['AVATAR'] = null;
-			}
-			else
-			{
-				$params['AVATAR'] = \CFile::saveFile($params['AVATAR'], 'im');
-			}
+			$params['AVATAR'] = ChatAvatar::saveAvatarByString($params['AVATAR']);
 		}
 
 		return $result->setResult($params);
 	}
 
-	protected function addUsersToRelation(array $usersToAdd, array $managerIds = [], ?bool $hideHistory = null, \Bitrix\Im\V2\Relation\Reason $reason = \Bitrix\Im\V2\Relation\Reason::DEFAULT)
+	protected function addUsersToRelation(array $usersToAdd, AddUsersConfig $config): void
 	{
-		parent::addUsersToRelation($usersToAdd, $managerIds, $hideHistory ?? \CIMSettings::GetStartChatMessage() == \CIMSettings::START_MESSAGE_LAST, $reason);
+		$isHideHistory = $config->hideHistory ?? \CIMSettings::GetStartChatMessage() == \CIMSettings::START_MESSAGE_LAST;
+		$config = $config->setHideHistory($isHideHistory);
+		parent::addUsersToRelation($usersToAdd, $config);
 	}
 
-	public function addManagers(array $userIds): self
+	public function addManagers(array $userIds, bool $sendPush = true): self
 	{
-		return $this->changeManagers($userIds, true);
+		return $this->changeManagers($userIds, true, $sendPush);
 	}
 
-	public function deleteManagers(array $userIds): self
+	public function deleteManagers(array $userIds, bool $sendPush = true): self
 	{
-		return $this->changeManagers($userIds, false);
+		return $this->changeManagers($userIds, false, $sendPush);
 	}
 
-	protected function changeManagers(array $userIds, bool $isManager): self
+	protected function changeManagers(array $userIds, bool $isManager, bool $sendPush = true): self
+	{
+		$usersMap = [];
+		foreach ($userIds as $userId)
+		{
+			$usersMap[(int)$userId] = $isManager;
+		}
+
+		$this->changeManagersByMap($usersMap, $sendPush);
+
+		return $this;
+	}
+
+	/**
+	 * @param bool[] $usersMap
+	 * @param bool $sendPush
+	 * @return self
+	 */
+	public function changeManagersByMap(array $usersMap, bool $sendPush = true): self
 	{
 		$relations = $this->getRelations();
 
-		foreach ($userIds as $userId)
+		foreach ($usersMap as $userId => $isManager)
 		{
 			$relation = $relations->getByUserId($userId, $this->getChatId());
 			if ($relation === null)
@@ -294,10 +308,19 @@ class GroupChat extends Chat implements PopupDataAggregatable
 			}
 
 			$relation->setManager($isManager);
+
+			if ($this->chatId !== null)
+			{
+				(new ChatAnalytics($this))->addEditPermissions();
+			}
 		}
 
 		$relations->save(true);
-		$this->sendPushManagersChange();
+
+		if ($sendPush)
+		{
+			$this->sendPushManagersChange();
+		}
 
 		return $this;
 	}
@@ -315,6 +338,11 @@ class GroupChat extends Chat implements PopupDataAggregatable
 			'extra' => \Bitrix\Im\Common::getPullExtra()
 		];
 		\Bitrix\Pull\Event::add($this->getRelations()->getUserIds(), $push);
+	}
+
+	protected function getPushService(Message $message, SendingConfig $config): PushService
+	{
+		return new Message\Send\Push\GroupPushService($message, $config);
 	}
 
 	public function checkTitle(): Result
@@ -375,8 +403,8 @@ class GroupChat extends Chat implements PopupDataAggregatable
 
 	public function sendPushUpdateMessage(Message $message): void
 	{
-		$pushFormat = new Message\PushFormat();
-		$push = $pushFormat->formatMessageUpdate($message);
+		$pushFormat = new Message\PushFormat($message);
+		$push = $pushFormat->formatMessageUpdate();
 		$push['params']['dialogId'] = $this->getDialogId();
 		if ($this->getType() === self::IM_TYPE_COMMENT)
 		{
@@ -404,7 +432,7 @@ class GroupChat extends Chat implements PopupDataAggregatable
 		}
 		$author = \Bitrix\Im\V2\Entity\User\User::getInstance($authorId);
 
-		$replace = ['#USER_NAME#' => htmlspecialcharsback($author->getName())];
+		$replace = ['#USER_NAME#' => "[USER={$authorId}][/USER]"];
 		$messageText =  Loc::getMessage($this->getCodeGreetingMessage($author), $replace);
 
 		if ($messageText)
@@ -541,232 +569,58 @@ class GroupChat extends Chat implements PopupDataAggregatable
 		]);
 	}
 
-	/**
-	 * Provides message sending process.
-	 *
-	 * @param Message|string|array $message
-	 * @param SendingConfig|array|null $sendingConfig
-	 * @return Result
-	 */
-	public function sendMessage($message, $sendingConfig = null): Result
+	protected function prepareMessage(Message $message): void
 	{
-		$result = new Result;
+		parent::prepareMessage($message);
 
-		if (!$this->getChatId())
-		{
-			return $result->addError(new ChatError(ChatError::WRONG_TARGET_CHAT));
-		}
-
-		if (is_string($message))
-		{
-			$message = (new Message)->setMessage($message);
-		}
-		elseif (!$message instanceof Message)
-		{
-			$message = new Message($message);
-		}
-
-		$message
-			->setRegistry($this->messageRegistry)
-			->setContext($this->context)
-			->setChatId($this->getChatId())
-			->setNotifyModule('im')
-			->setNotifyEvent(Notify::EVENT_GROUP)
-		;
-
-		// config for sending process
-		if ($sendingConfig instanceof SendingConfig)
-		{
-			$sendingServiceConfig = $sendingConfig;
-		}
-		else
-		{
-			$sendingServiceConfig = new SendingConfig();
-			if (is_array($sendingConfig))
-			{
-				$sendingServiceConfig->fill($sendingConfig);
-			}
-		}
-		// sending process
-		$sendService = new SendingService($sendingServiceConfig);
-		$sendService->setContext($this->context);
-
-
-		// check duplication by UUID
-		if (
-			!$message->isSystem()
-			&& $message->getUuid()
-		)
-		{
-			$checkUuidResult = $sendService->checkDuplicateByUuid($message);
-			if (!$checkUuidResult->isSuccess())
-			{
-				return $result->addErrors($checkUuidResult->getErrors());
-			}
-			$data = $checkUuidResult->getResult();
-			if (!empty($data['messageId']))
-			{
-				return $result->setResult($checkUuidResult->getResult());
-			}
-		}
-
-		// author from current context
-		if (
-			!$message->getAuthorId()
-			&& !$message->isSystem()
-		)
+		if (!$message->getAuthorId() && !$message->isSystem())
 		{
 			$message->setAuthorId($this->getContext()->getUserId());
 		}
 
-		// Extranet cannot send system
-		if (
-			$message->isSystem()
-			&& $message->getAuthorId()
-			&& User::getInstance($message->getAuthorId())->isExtranet()
-		)
+		if ($message->isSystem())
 		{
-			$message->markAsSystem(false);
+			$message->setAuthorId(0);
 		}
 
-		// permissions
-		if (
-			!$sendingServiceConfig->skipUserCheck()
-			&& !$sendingServiceConfig->convertMode()
-			&& !$message->isSystem()
-		)
+		$message->setNotifyModule('im')->setNotifyEvent(Notify::EVENT_GROUP);
+	}
+
+	public function getMultidialogData(): array
+	{
+		if (!Loader::includeModule('imbot'))
 		{
-			if (!$this->hasAccess($message->getAuthorId()))
-			{
-				return $result->addError(new ChatError(ChatError::ACCESS_DENIED));
-			}
+			return [];
 		}
 
-		// fire event `im:OnBeforeChatMessageAdd` before message send
-		$eventResult = $sendService->fireEventBeforeMessageSend($this, $message);
-		if (!$eventResult->isSuccess())
+		if ($this->getEntityType() !== Support24::CHAT_ENTITY_TYPE && $this->getEntityType() !== Network::CHAT_ENTITY_TYPE)
 		{
-			// cancel sending by event
-			return $result->addErrors($eventResult->getErrors());
+			return [];
 		}
 
-		// check for empty message
-		if (
-			!$message->getMessage()
-			&& !$message->hasFiles()
-			&& !$message->getParams()->isSet(Params::ATTACH)
-		)
-		{
-			return $result->addError(new MessageError(MessageError::EMPTY_MESSAGE));
-		}
-
-		if ($sendingServiceConfig->keepConnectorSilence())
-		{
-			$message->getParams()->get(Params::STYLE_CLASS)->setValue('bx-messenger-content-item-system');
-		}
-
-
-		// Replacements / DateLink
-		if ($sendingServiceConfig->generateUrlPreview())
-		{
-			$message->parseDates();
-		}
-
-		// Emoji
-		$message->checkEmoji();
-
-		// BB codes with disk files
-		$message->uploadFileFromText();
-
-		// Format attached files
-		$message->formatFilesMessageOut();
-
-		// Save + Save Params
-		$saveResult = $message->save();
-		if (!$saveResult->isSuccess())
-		{
-			return $result->addErrors($saveResult->getErrors());
-		}
-
-		$sendService->updateMessageUuid($message);
-
-		// Unread
-		$readService = new ReadService($message->getAuthorId());
-		$readService->markMessageUnread($message, $this->getRelations());
-
-		// Chat message counter
-		$this
-			->setLastMessageId($message->getMessageId())
-			->incrementMessageCount()
-			->save()
+		$userId = $this
+			->getRelations()
+			->filter(fn (Relation $relation) => !$relation->getUser()->isBot())
+			->getAny()
+			?->getUserId() ?? 0
 		;
 
-		// Recent
-		if ($sendingServiceConfig->addRecent())
+		if ($this->getEntityType() === Support24::CHAT_ENTITY_TYPE)
 		{
-			$readService->markRecentUnread($message);
+			if (Loader::includeModule('bitrix24') && Support24::isEnabled())
+			{
+				return Support24::getMultidialog($this->getId(), $this->getAuthorId(), $userId) ?? [];
+			}
+
+			return SupportBox::getMultidialog($this->getId(), $this->getAuthorId(), $userId) ?? [];
 		}
 
-		// Counters
-		$counters = [];
-		if ($sendingServiceConfig->sendPush())
+		if ($this->getEntityType() === Network::CHAT_ENTITY_TYPE)
 		{
-			$counters = $readService->getCountersForUsers($message, $this->getRelations());
+			return Network::getMultidialog($this->getId(), $this->getAuthorId(), $userId) ?? [];
 		}
 
-		// fire event `im:OnAfterMessagesAdd`
-		$sendService->fireEventAfterMessageSend($this, $message);
-
-		// Recent
-		if (
-			$sendingServiceConfig->addRecent()
-			&& !$sendingServiceConfig->skipAuthorAddRecent()// Do not add author into recent list in case of self message chat.
-		)
-		{
-			$this->riseInRecent($message);
-		}
-
-		// Rich
-		if ($sendingServiceConfig->generateUrlPreview())
-		{
-			// generate preview or set bg job
-			$message->generateUrlPreview();
-		}
-
-		if ($this->getParentMessageId())
-		{
-			$this->updateParentMessageCount();
-		}
-
-		// send Push
-		if ($sendingServiceConfig->sendPush())
-		{
-			$pushService = new PushService($sendingServiceConfig);
-			$pushService->sendPushGroupChat($this, $message, $counters);
-		}
-
-		// Mentions
-		if (!$message->isSystem())
-		{
-			$mentionService = new MentionService($sendingServiceConfig);
-			$mentionService->setContext($this->context);
-			$mentionService->sendMentions($this, $message);
-		}
-
-		// Run message command
-		$botService = new BotService($sendingServiceConfig);
-		$botService->setContext($this->context);
-		$botService->runMessageCommand($this, $message);
-
-		// Links
-		(new UrlService())->saveUrlsFromMessage($message);
-
-		// search
-		$message->updateSearchIndex();
-
-		$result->setResult(['messageId' => $message->getMessageId()]);
-
-		return $result;
+		return [];
 	}
 
 	protected function sendDescriptionMessage(?int $authorId = null): void
@@ -789,29 +643,111 @@ class GroupChat extends Chat implements PopupDataAggregatable
 		]);
 	}
 
-	protected function getCopilotRoles(): array
+	public function containsCopilot(): bool
+	{
+		return (bool)$this->getChatParams()->get(Params::IS_COPILOT)?->getValue();
+	}
+
+	public function getCopilotRole(): ?string
 	{
 		if (
 			Loader::includeModule('imbot')
-			&& in_array(CopilotChatBot::getBotId(), $this->getRelations()->getUserIds(), true)
+			&& $this->containsCopilot()
 		)
 		{
-			$copilotRoles = (new RoleManager())->getMainRole($this->getChatId());
+			return (new RoleManager())->getMainRole($this->getChatId());
 		}
 
-		return isset($copilotRoles) ? [$this->getDialogId() => $copilotRoles] : [];
+		return null;
+	}
+
+	protected function fillCopilotBeforeChatAdd(?Context $context): void
+	{
+		$this->getChatParams()->addParamByName(Chat\Param\Params::IS_COPILOT, true, false);
+
+		$engineManager = new EngineManager();
+		$context ??= new Context();
+		$engineCode = $engineManager->getLastSelectedEngineCode($context->getUserId());
+
+		if ($engineManager->validateEngineCode($engineCode))
+		{
+			$this->setEngineCode($engineCode);
+		}
+	}
+
+	public function getEngineCode(): ?string
+	{
+		if (!$this->containsCopilot())
+		{
+			return null;
+		}
+
+		$engineManager = new EngineManager();
+		$engineCode = $this->getChatParams()->get(Chat\Param\Params::COPILOT_ENGINE_CODE)?->getValue();
+
+		return
+			$engineManager->validateEngineCode($engineCode)
+				? $engineCode
+				: $engineManager::getDefaultEngineCode()
+		;
+	}
+
+	public function setEngineCode(?string $code): self
+	{
+		if (!isset($code))
+		{
+			return $this;
+		}
+
+		$engineManager = new EngineManager();
+		if (!$engineManager->validateEngineCode($code) || !$this->containsCopilot())
+		{
+			return $this;
+		}
+
+		$engineCode = (string)$this->getChatParams()->get(Chat\Param\Params::COPILOT_ENGINE_CODE)?->getValue();
+		if ($engineCode !== $code)
+		{
+			$this->getChatParams()->addParamByName(Chat\Param\Params::COPILOT_ENGINE_CODE, $code, false);
+		}
+
+		return $this;
+	}
+
+	public function getDefaultEngineCode(): ?string
+	{
+		return EngineManager::getDefaultEngineCode();
+	}
+
+	protected static function mirrorDataEntityFields(): array
+	{
+		$result = parent::mirrorDataEntityFields();
+
+		$result['ENGINE_CODE'] = [
+			'get' => 'getEngineCode', /** @see static::getEngineCode */
+			'set' => 'setEngineCode', /** @see static::setEngineCode */
+			'default' => 'getDefaultEngineCode', /** @see static::getDefaultEngineCode */
+			'nullable' => true,
+			'skipSave' => true,
+		];
+
+		return $result;
 	}
 
 	public function getPopupData(array $excludedList = []): PopupData
 	{
-		$userIds = [$this->getContext()->getUserId()];
+		$userId = $this->getContext()->getUserId();
 
-		return new PopupData(
-			[
-				new UserPopupItem($userIds),
-				new CopilotPopupItem($this->getCopilotRoles(), CopilotPopupItem::ENTITIES['chat']),
-			],
-			$excludedList
-		);
+		return parent::getPopupData($excludedList)
+			->add(new UserPopupItem([$userId]))
+			->add(CopilotPopupItem::getInstanceByChatIds([$this->getChatId()]))
+			->add(new Chat\MessagesAutoDelete\MessagesAutoDeleteConfigs([$this->getChatId()]))
+			->add($this->getCallToken())
+		;
+	}
+
+	protected function needToSendMessageUserDelete(): bool
+	{
+		return true;
 	}
 }

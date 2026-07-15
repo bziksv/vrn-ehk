@@ -5,6 +5,7 @@ namespace Bitrix\Calendar\Access\Rule;
 use Bitrix\Calendar\Access\Model\SectionModel;
 use Bitrix\Calendar\Access\Model\TypeModel;
 use Bitrix\Calendar\Access\Rule\Traits\ExtranetUserTrait;
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Main\Access\AccessibleItem;
 use Bitrix\Calendar\Access\ActionDictionary;
 use Bitrix\Calendar\Access\Rule\Traits\CurrentUserTrait;
@@ -42,10 +43,19 @@ class SectionAccessRule extends \Bitrix\Main\Access\Rule\AbstractRule
 			return true;
 		}
 
+		if ($item->getType() === Dictionary::CALENDAR_TYPE['open_event'])
+		{
+			return true;
+		}
+
 		$type = TypeModel::createFromSectionModel($item);
 		$typeCheck = true;
 
-		if ($item->getType() !== \Bitrix\Calendar\Core\Event\Tools\Dictionary::CALENDAR_TYPE['resource'])
+		if ($item->getType() === Dictionary::CALENDAR_TYPE['group'])
+		{
+			$typeCheck = $this->controller->check(ActionDictionary::ACTION_TYPE_EDIT, $type);
+		}
+		else if ($item->getType() !== \Bitrix\Calendar\Core\Event\Tools\Dictionary::CALENDAR_TYPE['resource'])
 		{
 			$typeCheck = $this->controller->check(ActionDictionary::ACTION_TYPE_ACCESS, $type);
 		}

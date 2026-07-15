@@ -3,6 +3,9 @@
 namespace Bitrix\Im\V2\Chat;
 
 use Bitrix\Im\V2\Entity\User\User;
+use Bitrix\Im\V2\Relation\AddUsersConfig;
+use Bitrix\Im\V2\Relation\DeleteUserConfig;
+use Bitrix\Im\V2\Result;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Type\DateTime;
 
@@ -10,12 +13,36 @@ class OpenChannelChat extends ChannelChat
 {
 	public const PULL_TAG_SHARED_LIST = 'IM_SHARED_CHANNEL_LIST';
 
-	protected function sendMessageUsersAdd(array $usersToAdd, bool $skipRecent = false): void
+	public function getRecentSectionsForGuest(): array
 	{
-		return;
+		return ['openChannel'];
 	}
 
-	protected function sendMessageUserDelete(int $userId, bool $skipRecent = false): void
+	protected function sendMessageUsersAdd(array $usersToAdd, AddUsersConfig $config): void
+	{
+		parent::sendMessageUsersAdd($this->getExtranetUsersToAdd($usersToAdd), $config);
+	}
+
+	protected function getExtranetUsersToAdd(array $usersToAdd): array
+	{
+		if (!$this->getExtranet())
+		{
+			return [];
+		}
+
+		$extranetUsersToAdd = [];
+		foreach ($usersToAdd as $userId)
+		{
+			if (User::getInstance($userId)->isExtranet())
+			{
+				$extranetUsersToAdd[$userId] = $userId;
+			}
+		}
+
+		return $extranetUsersToAdd;
+	}
+
+	protected function sendMessageUserDelete(int $userId, DeleteUserConfig $config): void
 	{
 		return;
 	}
@@ -53,9 +80,9 @@ class OpenChannelChat extends ChannelChat
 		return $accessCodes;
 	}
 
-	protected function updateStateAfterUsersAdd(array $usersToAdd): self
+	protected function updateStateAfterRelationsAdd(array $usersToAdd): self
 	{
-		parent::updateStateAfterUsersAdd($usersToAdd);
+		parent::updateStateAfterRelationsAdd($usersToAdd);
 
 		if (Loader::includeModule('pull'))
 		{
@@ -68,15 +95,37 @@ class OpenChannelChat extends ChannelChat
 		return $this;
 	}
 
+	public function filterUsersToMention(array $userIds): array
+	{
+		$result = [];
+		$relations = $this->getRelationsByUserIds($userIds);
+
+		foreach ($userIds as $userId)
+		{
+			$relation = $relations->getByUserId($userId, $this->getChatId());
+			if (
+				($relation === null
+				|| $relation->getNotifyBlock())
+				&& \CIMSettings::GetNotifyAccess($userId, 'im', 'mention', \CIMSettings::CLIENT_SITE)
+			)
+			{
+				$result[$userId] = $userId;
+			}
+		}
+
+		return $result;
+	}
+
 	public function needToSendPublicPull(): bool
 	{
 		return true;
 	}
 
-	public static function sendSharedPull(array $pull): void
+	public static function sendSharedPull(array $pull): bool
 	{
 		$pull['extra']['is_shared_event'] = true;
-		\CPullWatch::AddToStack(\Bitrix\Im\V2\Chat\OpenChannelChat::PULL_TAG_SHARED_LIST, $pull);
+
+		return \CPullWatch::AddToStack(\Bitrix\Im\V2\Chat\OpenChannelChat::PULL_TAG_SHARED_LIST, $pull);
 	}
 
 	public function isNew(): bool
@@ -97,16 +146,23 @@ class OpenChannelChat extends ChannelChat
 		return self::IM_TYPE_OPEN_CHANNEL;
 	}
 
-	protected function checkAccessWithoutCaching(int $userId): bool
+	protected function checkAccessInternal(int $userId): Result
 	{
-		$hasAccess = parent::checkAccessWithoutCaching($userId);
+		$checkResult = parent::checkAccessInternal($userId);
 
-		if ($hasAccess)
+		if ($checkResult->isSuccess())
 		{
-			return true;
+			return $checkResult;
 		}
 
-		return !User::getInstance($userId)->isExtranet();
+		$result = new Result();
+
+		if (User::getInstance($userId)->isExtranet())
+		{
+			$result->addError(new ChatError(ChatError::ACCESS_DENIED));
+		}
+
+		return $result;
 	}
 
 	public static function extendPullWatchToCommonList(?int $userId = null): void

@@ -6,9 +6,8 @@ import {
 	prepareAvatar,
 	prepareChatName,
 	prepareLastMessageViews,
-	prepareWritingList,
 	prepareManagerList,
-	prepareMuteList
+	prepareMuteList,
 } from './format-functions';
 
 export const chatFieldsConfig: FieldsConfig = [
@@ -112,6 +111,11 @@ export const chatFieldsConfig: FieldsConfig = [
 		checkFunction: Type.isBoolean,
 	},
 	{
+		fieldName: 'containsCollaber',
+		targetFieldName: 'containsCollaber',
+		checkFunction: Type.isBoolean,
+	},
+	{
 		fieldName: 'entityLink',
 		targetFieldName: 'entityLink',
 		checkFunction: Type.isPlainObject,
@@ -130,10 +134,9 @@ export const chatFieldsConfig: FieldsConfig = [
 		checkFunction: Type.isPlainObject,
 	},
 	{
-		fieldName: 'writingList',
-		targetFieldName: 'writingList',
-		checkFunction: Type.isArray,
-		formatFunction: prepareWritingList,
+		fieldName: 'inputActionList',
+		targetFieldName: 'inputActionList',
+		checkFunction: Type.isPlainObject,
 	},
 	{
 		fieldName: 'managerList',
@@ -179,9 +182,24 @@ export const chatFieldsConfig: FieldsConfig = [
 		checkFunction: Type.isPlainObject,
 	},
 	{
+		fieldName: 'tariffRestrictions',
+		targetFieldName: 'tariffRestrictions',
+		checkFunction: Type.isPlainObject,
+	},
+	{
 		fieldName: 'parentChatId',
 		targetFieldName: 'parentChatId',
 		checkFunction: Type.isNumber,
+	},
+	{
+		fieldName: 'backgroundId',
+		targetFieldName: 'backgroundId',
+		checkFunction: Type.isString,
+	},
+	{
+		fieldName: 'textFieldEnabled',
+		targetFieldName: 'isTextareaEnabled',
+		checkFunction: Type.isBoolean,
 	},
 ];
 

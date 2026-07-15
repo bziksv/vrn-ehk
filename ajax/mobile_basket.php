@@ -5,7 +5,7 @@
     "SHOW_PERSONAL_LINK" => "N",
     "SHOW_NUM_PRODUCTS" => "Y",
     "SHOW_TOTAL_PRICE" => "N",
-    "SHOW_PRODUCTS" => "N",
+    "SHOW_PRODUCTS" => "Y",
     "POSITION_FIXED" => "N"
 ),
     false

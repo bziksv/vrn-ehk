@@ -1,0 +1,613 @@
+<Root>
+	<GoodsSubType name="Косметологическое">
+		<EquipmentType name="Аппараты плазменного омоложения">
+			<PlasmaBrand file="forbeautysalon/apparaty_plazmennogo_omolozheniya.xml" rename="true"/>
+			<PlasmaType name="Фракционный" multiple="true"/>
+			<PlasmaType name="Холодная плазма"/>
+			<PlasmaType name="Горячая плазма"/>
+			<PlasmaType name="Плазменная ручка"/>
+			<PlasmaType name="Комбинированный (плазма и RF)"/>
+			<PlasmaRate name="до 50 кГц"/>
+			<PlasmaRate name="50–100 кГц"/>
+			<PlasmaRate name="101–200 кГц"/>
+			<PlasmaRate name="201–300 кГц"/>
+			<PlasmaRate name="более 300 кГц"/>
+			<PlasmaMode name="1 режим"/>
+			<PlasmaMode name="2 режима"/>
+			<PlasmaMode name="3 режима"/>
+			<PlasmaMode name="4 режима"/>
+			<PlasmaMode name="более 4 режимов"/>
+		</EquipmentType>
+		<EquipmentType name="Аппараты для пилинга и чистки">
+			<PeelingBrand file="forbeautysalon/apparaty_dlya_pilinga_i_chistki.xml" rename="true"/>
+			<PeelingType name="Ультразвуковой">
+				<PeelingRate variable="text"/>
+			</PeelingType>
+			<PeelingType name="Вакуумный"/>
+			<PeelingType name="Гидропилинг"/>
+			<PeelingType name="Алмазная дермабразия"/>
+			<PeelingType name="Брашинг"/>
+			<PeelingType name="Фракционный"/>
+			<PeelingType name="Комбинированный"/>
+			<PeelingPower variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Косметологические комбайны">
+			<HarvesterBrand file="forbeautysalon/kosmetologicheskie_kombajn.xml" rename="true"/>
+			<HarvesterType name="Вакуумный массаж" multiple="true"/>
+			<HarvesterType name="Дарсонвализация"/>
+			<HarvesterType name="Дермабразия"/>
+			<HarvesterType name="Кавитация"/>
+			<HarvesterType name="Криотерапия"/>
+			<HarvesterType name="Лазерная терапия"/>
+			<HarvesterType name="Мезотерапия"/>
+			<HarvesterType name="Микротоковая терапия"/>
+			<HarvesterType name="RF-лифтинг"/>
+			<HarvesterType name="Ультразвуковая чистка"/>
+			<HarvesterType name="Электропорация"/>
+			<HarvesterPower name="до 50 Вт"/>
+			<HarvesterPower name="50–100 Вт"/>
+			<HarvesterPower name="более 100 Вт"/>
+			<HarvesterFunctions name="2–5 функций"/>
+			<HarvesterFunctions name="6–10 функций"/>
+			<HarvesterFunctions name="более 10 функций"/>
+		</EquipmentType>
+		<EquipmentType name="Лазерные аппараты для косметологии">
+			<LaserBrand file="forbeautysalon/lazernye_apparaty_dlya_kosmetologii.xml" rename="true"/>
+			<LaserType name="Диодный"/>
+			<LaserType name="Александритовый"/>
+			<LaserType name="Неодимовый"/>
+			<LaserType name="Рубиновый"/>
+			<LaserType name="Пикосекундный"/>
+			<LaserType name="Комбинированный"/>
+			<LaserPurpose name="Удаление волос" multiple="true"/>
+			<LaserPurpose name="Удаление тату"/>
+			<LaserPurpose name="Удаление пигментации"/>
+			<LaserPurpose name="Лечение сосудов"/>
+			<LaserPurpose name="Лечение акне"/>
+			<LaserPurpose name="Омоложение кожи"/>
+			<LaserPower variable="text"/>
+			<LaserSize variable="text"/>
+			<LaserCooling name="Воздушное"/>
+			<LaserCooling name="Водяное"/>
+			<LaserCooling name="Контактное"/>
+			<LaserCooling name="Комбинированное"/>
+		</EquipmentType>
+		<EquipmentType name="Аппараты для мезотерапии и биоревитализации">
+			<MesotherapyBrand file="forbeautysalon/apparaty_dlya_mezoterapii_i_biorevitalizacii.xml" rename="true"/>
+			<MesotherapyType name="Инжектор">
+				<MesotherapyNeedle name="0.2–0.5 мм"/>
+				<MesotherapyNeedle name="0.6–1.0 мм"/>
+				<MesotherapyNeedle name="1.1–1.5 мм"/>
+				<MesotherapyNeedle name="1.6–2.0 мм"/>
+				<MesotherapyNeedle name="2.1–2.5 мм"/>
+			</MesotherapyType>
+			<MesotherapyType name="Мезороллер">
+				<MesotherapyNeedle name="0.2–0.5 мм"/>
+				<MesotherapyNeedle name="0.6–1.0 мм"/>
+				<MesotherapyNeedle name="1.1–1.5 мм"/>
+				<MesotherapyNeedle name="1.6–2.0 мм"/>
+				<MesotherapyNeedle name="2.1–2.5 мм"/>
+			</MesotherapyType>
+			<MesotherapyType name="Дермапен">
+				<MesotherapyNeedle name="0.2–0.5 мм"/>
+				<MesotherapyNeedle name="0.6–1.0 мм"/>
+				<MesotherapyNeedle name="1.1–1.5 мм"/>
+				<MesotherapyNeedle name="1.6–2.0 мм"/>
+				<MesotherapyNeedle name="2.1–2.5 мм"/>
+			</MesotherapyType>
+			<MesotherapyType name="Фракционный">
+				<MesotherapyNeedle name="0.2–0.5 мм"/>
+				<MesotherapyNeedle name="0.6–1.0 мм"/>
+				<MesotherapyNeedle name="1.1–1.5 мм"/>
+				<MesotherapyNeedle name="1.6–2.0 мм"/>
+				<MesotherapyNeedle name="2.1–2.5 мм"/>
+			</MesotherapyType>
+			<MesotherapyType name="Безинъекционный">
+				<MesotherapyPower variable="text"/>
+				<MesotherapyRate name="до 1 МГц"/>
+				<MesotherapyRate name="1–2 МГц"/>
+				<MesotherapyRate name="2–3 МГц"/>
+				<MesotherapyRate name="более 3 МГц"/>
+			</MesotherapyType>
+			<MesotherapyType name="Комбинированный">
+				<MesotherapyPower variable="text"/>
+				<MesotherapyRate name="до 1 МГц"/>
+				<MesotherapyRate name="1–2 МГц"/>
+				<MesotherapyRate name="2–3 МГц"/>
+				<MesotherapyRate name="более 3 МГц"/>
+			</MesotherapyType>
+		</EquipmentType>
+		<EquipmentType name="Аппараты для физиотерапии">
+			<PhysioBrand file="forbeautysalon/apparaty_dlya_fizioterapii.xml" rename="true"/>
+			<PhysioType name="Магнитное">
+				<PhysioRate name="до 10 Гц"/>
+				<PhysioRate name="10–100 Гц"/>
+				<PhysioRate name="101 Гц – 1 МГц"/>
+				<PhysioRate name="1–3 МГц"/>
+				<PhysioRate name="более 3 МГц"/>
+			</PhysioType>
+			<PhysioType name="Световое"/>
+			<PhysioType name="Тепловое"/>
+			<PhysioType name="Ультразвуковое">
+				<PhysioRate name="до 10 Гц"/>
+				<PhysioRate name="10–100 Гц"/>
+				<PhysioRate name="101 Гц – 1 МГц"/>
+				<PhysioRate name="1–3 МГц"/>
+				<PhysioRate name="более 3 МГц"/>
+			</PhysioType>
+			<PhysioType name="Электрическое">
+				<PhysioRate name="до 10 Гц"/>
+				<PhysioRate name="10–100 Гц"/>
+				<PhysioRate name="101 Гц – 1 МГц"/>
+				<PhysioRate name="1–3 МГц"/>
+				<PhysioRate name="более 3 МГц"/>
+			</PhysioType>
+			<PhysioPower variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Аппараты для SMAS-лифтинга">
+			<SMASBrand file="forbeautysalon/apparaty_dlya_smasliftinga.xml" rename="true"/>
+			<SMASType name="Ультразвуковой (HIFU)"/>
+			<SMASType name="Радиочастотный (RF)"/>
+			<SMASType name="Лазерный"/>
+			<SMASType name="Комбинированный"/>
+			<SMASPower variable="text"/>
+			<SMASDepth name="1.5 мм"/>
+			<SMASDepth name="3.0 мм"/>
+			<SMASDepth name="4.5 мм"/>
+			<SMASDepth name="6.0 мм"/>
+			<SMASDepth name="9.0 мм"/>
+		</EquipmentType>
+		<EquipmentType name="Запчасти и расходные материалы"/>
+		<EquipmentType name="Косметологические кресла">
+			<CosmetologyChairBrand file="forbeautysalon/kosmetologicheskie_kresla.xml" rename="true"/>
+			<CosmetologyChairType name="Гидравлика"/>
+			<CosmetologyChairType name="Пневматика"/>
+			<CosmetologyChairType name="Электропривод"/>
+			<CosmetologyChairType name="Механика"/>
+			<CosmetologyChairSection name="1"/>
+			<CosmetologyChairSection name="2"/>
+			<CosmetologyChairSection name="3"/>
+			<CosmetologyChairSection name="4"/>
+			<CosmetologyChairFunctions name="Подогрев" multiple="true"/>
+			<CosmetologyChairFunctions name="Массаж"/>
+			<CosmetologyChairFunctions name="Колёсики для перемещения"/>
+		</EquipmentType>
+		<EquipmentType name="Аппараты для RF-лифтинга">
+			<RFBrand file="forbeautysalon/apparaty_dlya_rfliftinga.xml" rename="true"/>
+			<RFType name="Монополярный"/>
+			<RFType name="Биполярный"/>
+			<RFType name="Триполярный"/>
+			<RFType name="Мультиполярный"/>
+			<RFType name="Фракционный"/>
+			<RFType name="Комбинированный"/>
+			<RFPower name="до 50 Вт"/>
+			<RFPower name="50–100 Вт"/>
+			<RFPower name="101–150 Вт"/>
+			<RFPower name="151–200 Вт"/>
+			<RFPower name="более 200 Вт"/>
+			<RFDepth name="до 1 мм"/>
+			<RFDepth name="1–2 мм"/>
+			<RFDepth name="2–3 мм"/>
+			<RFDepth name="3–4 мм"/>
+			<RFDepth name="более 4 мм"/>
+		</EquipmentType>
+	</GoodsSubType>
+    <GoodsSubType name="Маникюр и педикюр">
+	    <EquipmentType name="Аппараты для маникюра и педикюра">
+		    <ApparatusBrand file="forbeautysalon/apparaty_dlya_manikyura_i_pedikyura.xml" rename="true"/>
+		    <ApparatusVacuum name="Да"/>
+		    <ApparatusVacuum name="Нет"/>
+		    <ApparatusRotation name="до 10,000 об/мин"/>
+		    <ApparatusRotation name="10,000–20,000 об/мин"/>
+		    <ApparatusRotation name="21,000–30,000 об/мин"/>
+		    <ApparatusRotation name="31,000–40,000 об/мин"/>
+		    <ApparatusRotation name="более 40,000 об/мин"/>
+		    <ApparatusPower name="до 20 Вт"/>
+		    <ApparatusPower name="20–30 Вт"/>
+		    <ApparatusPower name="31–40 Вт"/>
+		    <ApparatusPower name="41–50 Вт"/>
+		    <ApparatusPower name="более 50 Вт"/>
+	    </EquipmentType>
+	    <EquipmentType name="Маникюрные столы">
+		    <NailTableMaterial name="ДСП"/>
+		    <NailTableMaterial name="МДФ"/>
+		    <NailTableMaterial name="Натуральное дерево"/>
+		    <NailTableMaterial name="Пластик"/>
+		    <NailTableMaterial name="Металл"/>
+		    <NailTableMaterial name="Стекло"/>
+		    <NailTableMaterial name="Комбинированный"/>
+		    <NailTableColor name="Бежевый"/>
+		    <NailTableColor name="Белый"/>
+		    <NailTableColor name="Бирюзовый"/>
+		    <NailTableColor name="Бордовый"/>
+		    <NailTableColor name="Голубой"/>
+		    <NailTableColor name="Жёлтый"/>
+		    <NailTableColor name="Зелёный"/>
+		    <NailTableColor name="Золотой"/>
+		    <NailTableColor name="Коричневый"/>
+		    <NailTableColor name="Красный"/>
+		    <NailTableColor name="Оранжевый"/>
+		    <NailTableColor name="Розовый"/>
+		    <NailTableColor name="Серебристый"/>
+		    <NailTableColor name="Серый"/>
+		    <NailTableColor name="Синий"/>
+		    <NailTableColor name="Фиолетовый"/>
+		    <NailTableColor name="Чёрный"/>
+		    <NailTableColor name="Разноцветный"/>
+		    <NailTableColor name="Другой"/>
+		    <NailTableHood name="Да"/>
+		    <NailTableHood name="Нет"/>
+	    </EquipmentType>
+	    <EquipmentType name="Педикюрные кресла">
+		    <Brand file="forbeautysalon/dlya_salonov_krasoty_parikmaherskie_mojki_manikyurnye_stoly_pedikyurnye_kresla.xml" rename="true"/>
+		    <PedicureChairType name="Гидравлика"/>
+		    <PedicureChairType name="Пневматика"/>
+		    <PedicureChairType name="Электропривод"/>
+		    <PedicureChairType name="Механика"/>
+		    <PedicureChairHeight name="до 50 см"/>
+		    <PedicureChairHeight name="50–70 см"/>
+		    <PedicureChairHeight name="71–90 см"/>
+		    <PedicureChairHeight name="91–110 см"/>
+		    <PedicureChairHeight name="более 110 см"/>
+		    <PedicureChairMaterial name="Металл"/>
+		    <PedicureChairMaterial name="Алюминий"/>
+		    <PedicureChairMaterial name="Сталь"/>
+		    <PedicureChairMaterial name="Пластик"/>
+		    <PedicureChairMaterial name="Дерево"/>
+		    <PedicureChairMaterial name="Хромированная сталь"/>
+		    <PedicureChairMaterial name="Комбинированный"/>
+		    <PedicureChairDrive name="1"/>
+		    <PedicureChairDrive name="2"/>
+		    <PedicureChairDrive name="3"/>
+		    <PedicureChairDrive name="4"/>
+		    <PedicureChairDrive name="5"/>
+		    <PedicureChairDrive name="6"/>
+		    <PedicureChairSection name="1"/>
+		    <PedicureChairSection name="2"/>
+		    <PedicureChairSection name="3"/>
+		    <PedicureChairSection name="4"/>
+	    </EquipmentType>
+	    <EquipmentType name="Стерилизаторы">
+		    <SterilizerBrand file="forbeautysalon/sterilizatory.xml" rename="true"/>
+		    <SterilizerType name="Сухожар"/>
+		    <SterilizerType name="Автоклав"/>
+		    <SterilizerType name="Ультрафиолет"/>
+		    <SterilizerType name="Кварцевый"/>
+		    <SterilizerType name="Гласперленовый"/>
+		    <SterilizerVolume name="до 0,5 л"/>
+		    <SterilizerVolume name="0,5–1 л"/>
+		    <SterilizerVolume name="1–2 л"/>
+		    <SterilizerVolume name="2–5 л"/>
+		    <SterilizerVolume name="более 5 л"/>
+	    </EquipmentType>
+	    <EquipmentType name="Запчасти и расходные материалы"/>
+    </GoodsSubType>
+    <GoodsSubType name="Парикмахерское">
+	    <EquipmentType name="Климазоны и сушуары"/>
+	    <EquipmentType name="Парикмахерские кресла">
+		    <BarberChairType name="Гидравлика"/>
+		    <BarberChairType name="Пневматика"/>
+		    <BarberChairType name="Электропривод"/>
+		    <BarberChairType name="Механика"/>
+		    <BarberChairBrand file="forbeautysalon/parikmaherskie_kresla.xml" rename="true"/>
+		    <BarberChairBase name="Пятилучье"/>
+		    <BarberChairBase name="Диск"/>
+		    <BarberChairBase name="Квадрат"/>
+	    </EquipmentType>
+	    <EquipmentType name="Парикмахерские мойки">
+		    <Brand file="forbeautysalon/dlya_salonov_krasoty_parikmaherskie_mojki_manikyurnye_stoly_pedikyurnye_kresla.xml" rename="true"/>
+		    <BarberSinkColor name="Серый"/>
+		    <BarberSinkColor name="Синий"/>
+		    <BarberSinkColor name="Бежевый"/>
+		    <BarberSinkColor name="Чёрный"/>
+		    <BarberSinkColor name="Коричневый"/>
+		    <BarberSinkColor name="Белый"/>
+		    <BarberSinkColor name="Зелёный"/>
+		    <BarberSinkColor name="Красный"/>
+		    <BarberSinkColor name="Розовый"/>
+		    <BarberSinkColor name="Разноцветный"/>
+		    <BarberSinkColor name="Фиолетовый"/>
+		    <BarberSinkColor name="Голубой"/>
+		    <BarberSinkColor name="Оранжевый"/>
+		    <BarberSinkColor name="Жёлтый"/>
+		    <BarberSinkColor name="Серебряный"/>
+		    <BarberSinkColor name="Золотой"/>
+		    <BarberSinkColor name="Бордовый"/>
+		    <BarberSinkSetup name="Напольная" multiple="true"/>
+		    <BarberSinkSetup name="Настенная"/>
+		    <BarberSinkSetup name="Встраиваемая"/>
+		    <BarberSinkSetup name="Передвижная"/>
+		    <BarberSinkSetup name="Стационарная"/>
+	    </EquipmentType>
+	    <EquipmentType name="Запчасти и расходные материалы"/>
+    </GoodsSubType>
+    <GoodsSubType name="Эпиляция">
+	    <EquipmentType name="Лазерная эпиляция">
+		    <LaserEpilType name="Диодный"/>
+		    <LaserEpilType name="Александритовый"/>
+		    <LaserEpilType name="Неодимовый"/>
+		    <LaserEpilType name="Рубиновый"/>
+		    <LaserEpilType name="Пикосекундный"/>
+		    <LaserEpilType name="Комбинированный"/>
+		    <Brand file="forbeautysalon/epilyaciya.xml" rename="true"/>
+		    <LaserEpilSize variable="text"/>
+	    </EquipmentType>
+	    <EquipmentType name="Фотоэпиляция">
+		    <PhotoEpilType name="IPL и SHR"/>
+		    <PhotoEpilType name="AFT"/>
+		    <PhotoEpilType name="ELOS"/>
+		    <PhotoEpilType name="HPL"/>
+		    <PhotoEpilType name="VPL"/>
+		    <Brand file="forbeautysalon/epilyaciya.xml" rename="true"/>
+		    <PhotoEpilFunctions name="Фотоомоложение" multiple="true"/>
+		    <PhotoEpilFunctions name="Удаление постакне"/>
+		    <PhotoEpilFunctions name="Удаление пигментации"/>
+		    <PhotoEpilFunctions name="Лечение купероза"/>
+		    <PhotoEpilFunctions name="Улучшение текстуры кожи"/>
+		    <PhotoEpilFunctions name="RF-лифтинг"/>
+	    </EquipmentType>
+	    <EquipmentType name="Электроэпиляция">
+		    <ElectroEpilType name="Игольчатый"/>
+		    <ElectroEpilType name="Пинцетный"/>
+		    <ElectroEpilType name="Термолиз"/>
+		    <ElectroEpilType name="Электролиз"/>
+		    <ElectroEpilType name="Бленд"/>
+		    <Brand file="forbeautysalon/epilyaciya.xml" rename="true"/>
+		    <ElectroEpilPower name="до 10 Вт"/>
+		    <ElectroEpilPower name="11–20 Вт"/>
+		    <ElectroEpilPower name="21–30 Вт"/>
+		    <ElectroEpilPower name="31–50 Вт"/>
+		    <ElectroEpilPower name="более 50 Вт"/>
+	    </EquipmentType>
+	    <EquipmentType name="Запчасти и расходные материалы"/>
+    </GoodsSubType>
+    <GoodsSubType name="Солярии">
+	    <SolariumType name="Вертикальный"/>
+	    <SolariumType name="Горизонтальный"/>
+	    <SolariumType name="Кресло-солярий"/>
+	    <SolariumType name="Комбинированный"/>
+	    <SolariumBrand file="forbeautysalon/solyarii.xml" rename="true"/>
+	    <SolariumPower name="до 100 Вт"/>
+	    <SolariumPower name="101–200 Вт"/>
+	    <SolariumPower name="201–300 Вт"/>
+	    <SolariumPower name="301–500 Вт"/>
+	    <SolariumPower name="более 500 Вт"/>
+	    <SolariumLamp variable="text"/>
+    </GoodsSubType>
+    <GoodsSubType name="Тату и татуаж" oldNames="Тату">
+	    <EquipmentType name="Аппараты для удаления тату">
+		    <TattooRemovalType name="Диодный"/>
+		    <TattooRemovalType name="Александритовый"/>
+		    <TattooRemovalType name="Неодимовый"/>
+		    <TattooRemovalType name="Рубиновый"/>
+		    <TattooRemovalType name="Пикосекундный"/>
+		    <TattooRemovalType name="Комбинированный"/>
+		    <Brand file="forbeautysalon/epilyaciya.xml" rename="true"/>
+		    <TattooRemovalSize variable="text"/>
+		    <TattooRemovalLength name="532 нм"/>
+		    <TattooRemovalLength name="585 нм"/>
+		    <TattooRemovalLength name="650 нм"/>
+		    <TattooRemovalLength name="694 нм"/>
+		    <TattooRemovalLength name="755 нм"/>
+		    <TattooRemovalLength name="810 нм"/>
+		    <TattooRemovalLength name="1064 нм"/>
+		    <TattooRemovalLength name="1320 нм"/>
+		    <TattooRemovalPower name="до 500 мДж"/>
+		    <TattooRemovalPower name="501–1000 мДж"/>
+		    <TattooRemovalPower name="1001–1500 мДж"/>
+		    <TattooRemovalPower name="1501–2000 мДж"/>
+		    <TattooRemovalPower name="более 2000 мДж"/>
+	    </EquipmentType>
+	    <EquipmentType name="Тату-машинки и аксессуары"/>
+	    <EquipmentType name="Холдеры"/>
+    </GoodsSubType>
+	<GoodsSubType name="Массаж и коррекция фигуры">
+		<EquipmentType name="Массажные столы и кушетки">
+			<MassageTableConstruct name="Стационарная"/>
+			<MassageTableConstruct name="Складная"/>
+			<MassageTableConstruct name="Портативная"/>
+			<MassageTableHeight variable="text"/>
+			<MassageTableLoad name="до 150 кг"/>
+			<MassageTableLoad name="150–200 кг"/>
+			<MassageTableLoad name="201–250 кг"/>
+			<MassageTableLoad name="251–300 кг"/>
+			<MassageTableLoad name="более 300 кг"/>
+			<MassageTableMaterial name="Эко-кожа"/>
+			<MassageTableMaterial name="Натуральная кожа"/>
+			<MassageTableMaterial name="Винил"/>
+			<MassageTableMaterial name="Ткань"/>
+			<MassageTableMaterial name="ПВХ"/>
+			<MassageTableMaterial name="Микрофибра"/>
+		</EquipmentType>
+		<EquipmentType name="Аппараты для лазерного липолиза">
+			<LipolysisBrand file="forbeautysalon/massazh_i_korrekciya_figury.xml" rename="true"/>
+			<LipolysisType name="Диодный"/>
+			<LipolysisType name="Низкоуровневый (LLLT)"/>
+			<LipolysisType name="Холодный"/>
+			<LipolysisPower variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Аппараты для EMS и миостимуляции">
+			<EMSBrand file="forbeautysalon/apparaty_dlya_ems_i_miostimulyacii.xml" rename="true"/>
+			<EMSType name="EMS"/>
+			<EMSType name="TENS"/>
+			<EMSType name="Комбинированный"/>
+			<EMSPower variable="text"/>
+			<EMSPulse name="1–10 Гц"/>
+			<EMSPulse name="11–50 Гц"/>
+			<EMSPulse name="51–100 Гц"/>
+			<EMSPulse name="101–150 Гц"/>
+			<EMSAmperage name="до 10 мА"/>
+			<EMSAmperage name="10–20 мА"/>
+			<EMSAmperage name="21–50 мА"/>
+			<EMSAmperage name="51–100 мА"/>
+			<EMSAmperage name="более 100 мА"/>
+		</EquipmentType>
+		<EquipmentType name="Аппараты для вибромассажа">
+			<VibrationBrand file="forbeautysalon/massazh_i_korrekciya_figury.xml" rename="true"/>
+			<VibrationType name="Ручной" multiple="true"/>
+			<VibrationType name="Стационарный"/>
+			<VibrationType name="Портативный"/>
+			<VibrationType name="Пояс"/>
+			<VibrationZone name="Лицо"/>
+			<VibrationZone name="Тело"/>
+			<VibrationZone name="Руки"/>
+			<VibrationZone name="Ноги"/>
+			<VibrationZone name="Спина"/>
+			<VibrationZone name="Универсальный"/>
+			<VibrationPower variable="text"/>
+			<VibrationFrequency name="до 10 Гц"/>
+			<VibrationFrequency name="10–30 Гц"/>
+			<VibrationFrequency name="31–50 Гц"/>
+			<VibrationFrequency name="более 50 Гц"/>
+		</EquipmentType>
+		<EquipmentType name="Аппараты для эндосфера-терапии">
+			<EndosphereBrand file="forbeautysalon/massazh_i_korrekciya_figury.xml" rename="true"/>
+			<EndosphereControl name="Механическое"/>
+			<EndosphereControl name="Электронное"/>
+			<EndosphereControl name="Сенсорное"/>
+			<EndosphereZone name="Лицо"/>
+			<EndosphereZone name="Тело"/>
+			<EndosphereZone name="Универсальный"/>
+			<EndospherePower variable="text"/>
+			<EndosphereFrequency name="до 50 Гц"/>
+			<EndosphereFrequency name="50–100 Гц"/>
+			<EndosphereFrequency name="101–150 Гц"/>
+			<EndosphereFrequency name="151–200 Гц"/>
+			<EndosphereFrequency name="более 200 Гц"/>
+		</EquipmentType>
+		<EquipmentType name="Аксессуары для массажных процедур"/>
+		<EquipmentType name="Аппараты для прессотерапии">
+			<PressBrand file="forbeautysalon/apparaty_dlya_pressoterapii.xml" rename="true"/>
+			<PressZone name="Ноги" multiple="true"/>
+			<PressZone name="Руки"/>
+			<PressZone name="Живот"/>
+			<PressZone name="Ягодицы"/>
+			<PressZone name="Универсальный"/>
+			<PressCameras name="до 4 камер"/>
+			<PressCameras name="5–6 камер"/>
+			<PressCameras name="7–8 камер"/>
+			<PressCameras name="9–10 камер"/>
+			<PressCameras name="более 10 камер"/>
+			<PressPower variable="text"/>
+			<PressPressure variable="text"/>
+			<PressMaterial name="Нейлон"/>
+			<PressMaterial name="ПВХ"/>
+			<PressMaterial name="Полиуретан"/>
+			<PressMaterial name="Ткань"/>
+			<PressMaterial name="Комбинированный"/>
+		</EquipmentType>
+		<EquipmentType name="Аппараты для криолиполиза">
+			<CryolipolysisBrand file="forbeautysalon/apparaty_dlya_kriolipoliza.xml" rename="true"/>
+			<CryolipolysisCooling name="Воздушное"/>
+			<CryolipolysisCooling name="Водяное"/>
+			<CryolipolysisCooling name="Контактное"/>
+			<CryolipolysisTemp name="от 0°C до -5°C"/>
+			<CryolipolysisTemp name="от -5°C до -10°C"/>
+			<CryolipolysisTemp name="от -10°C и ниже"/>
+			<CryolipolysisPower variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Вакуумно-роликовые аппараты">
+			<VacuumRollerBrand file="forbeautysalon/massazh_i_korrekciya_figury.xml" rename="true"/>
+			<VacuumRollerType name="Вакуумный">
+				<VacuumRollerPower variable="text"/>
+			</VacuumRollerType>
+			<VacuumRollerType name="Роликовый">
+				<VacuumRollerFrequency variable="text"/>
+			</VacuumRollerType>
+			<VacuumRollerType name="Комбинированный">
+				<VacuumRollerPower variable="text"/>
+				<VacuumRollerFrequency variable="text"/>
+			</VacuumRollerType>
+		</EquipmentType>
+		<EquipmentType name="Аппараты для вакуумного массажа">
+			<VacuumBrand file="forbeautysalon/massazh_i_korrekciya_figury.xml" rename="true"/>
+			<VacuumZone name="Лицо"/>
+			<VacuumZone name="Ноги"/>
+			<VacuumZone name="Руки"/>
+			<VacuumZone name="Тело"/>
+			<VacuumZone name="Универсальный"/>
+			<VacuumPower variable="text"/>
+		</EquipmentType>
+	</GoodsSubType>
+	<GoodsSubType name="Инвентарь">
+		<EquipmentType name="Лампы-лупы">
+			<LampType name="Кольцевой"/>
+			<LampType name="Точечный"/>
+			<LampType name="Линейный"/>
+			<LampType name="Комбинированный"/>
+			<LampSetup name="Настольная"/>
+			<LampSetup name="Напольная"/>
+			<LampSetup name="С креплением на стол"/>
+			<LampSetup name="На штативе"/>
+			<LampPower variable="text"/>
+			<LampZoom name="1.5x"/>
+			<LampZoom name="2x"/>
+			<LampZoom name="3x"/>
+			<LampZoom name="5x"/>
+			<LampZoom name="8x"/>
+			<LampZoom name="10x"/>
+			<LampZoom name="более 10x"/>
+		</EquipmentType>
+		<EquipmentType name="Зеркала">
+			<MirrorSetup name="Настенное"/>
+			<MirrorSetup name="Настольное"/>
+			<MirrorSetup name="Напольное"/>
+			<MirrorSetup name="С подставкой"/>
+			<MirrorSetup name="Складное"/>
+			<MirrorForm name="Круглое"/>
+			<MirrorForm name="Овальное"/>
+			<MirrorForm name="Квадратное"/>
+			<MirrorForm name="Прямоугольное"/>
+			<MirrorForm name="Фигурное"/>
+			<MirrorLight name="Есть"/>
+			<MirrorLight name="Нет"/>
+			<MirrorWidth variable="text"/>
+			<MirrorHeight variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Кресла-реклайнеры">
+			<ReclinerChairType name="Гидравлика"/>
+			<ReclinerChairType name="Пневматика"/>
+			<ReclinerChairType name="Электропривод"/>
+			<ReclinerChairType name="Механика"/>
+			<ReclinerChairSection name="1"/>
+			<ReclinerChairSection name="2"/>
+			<ReclinerChairSection name="3"/>
+			<ReclinerChairSection name="4"/>
+			<ReclinerChairHeight variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Тележки">
+			<CaseMaterial name="Металл"/>
+			<CaseMaterial name="Пластик"/>
+			<CaseMaterial name="Дерево"/>
+			<CaseMaterial name="Комбинированный"/>
+			<CaseColor name="Бежевый"/>
+			<CaseColor name="Белый"/>
+			<CaseColor name="Бирюзовый"/>
+			<CaseColor name="Бордовый"/>
+			<CaseColor name="Голубой"/>
+			<CaseColor name="Жёлтый"/>
+			<CaseColor name="Зелёный"/>
+			<CaseColor name="Золотой"/>
+			<CaseColor name="Коричневый"/>
+			<CaseColor name="Красный"/>
+			<CaseColor name="Оранжевый"/>
+			<CaseColor name="Розовый"/>
+			<CaseColor name="Серебристый"/>
+			<CaseColor name="Серый"/>
+			<CaseColor name="Синий"/>
+			<CaseColor name="Фиолетовый"/>
+			<CaseColor name="Чёрный"/>
+			<CaseColor name="Разноцветный"/>
+			<CaseColor name="Другой"/>
+			<CaseShelves name="1"/>
+			<CaseShelves name="2"/>
+			<CaseShelves name="3"/>
+			<CaseShelves name="4"/>
+			<CaseShelves name="5"/>
+			<CaseShelves name="более 5"/>
+			<CaseLength variable="text"/>
+			<CaseWidth variable="text"/>
+			<CaseHeight variable="text"/>
+		</EquipmentType>
+	</GoodsSubType>
+</Root>

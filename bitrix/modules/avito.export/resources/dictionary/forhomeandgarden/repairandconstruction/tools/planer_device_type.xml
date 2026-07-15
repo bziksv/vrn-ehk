@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DeviceTypeValues>
+	<DeviceType>Галтель</DeviceType>
+	<DeviceType>Горбач (американка)</DeviceType>
+	<DeviceType>Грунтубель</DeviceType>
+	<DeviceType>Доборный</DeviceType>
+	<DeviceType>Калёвка</DeviceType>
+	<DeviceType>Кромочный</DeviceType>
+	<DeviceType>Медведка</DeviceType>
+	<DeviceType>Отборник (зензубель)</DeviceType>
+	<DeviceType>Обдирочный</DeviceType>
+	<DeviceType>Полуфуганок</DeviceType>
+	<DeviceType>Рубанок универсальный</DeviceType>
+	<DeviceType>Струг</DeviceType>
+	<DeviceType>Торцовый</DeviceType>
+	<DeviceType>Фальцгебель</DeviceType>
+	<DeviceType>Фуганок</DeviceType>
+	<DeviceType>Цикля</DeviceType>
+	<DeviceType>Цинубель</DeviceType>
+	<DeviceType>Шерхебель</DeviceType>
+	<DeviceType>Шлифтик</DeviceType>
+	<DeviceType>Шпунтубель</DeviceType>
+	<DeviceType>Штабгобель</DeviceType>
+</DeviceTypeValues>

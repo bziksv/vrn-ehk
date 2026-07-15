@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GateAutomationTypeValues>
+	<GateAutomationType>Антенны для ворот и шлагбаумов</GateAutomationType>
+	<GateAutomationType>Блоки управления</GateAutomationType>
+	<GateAutomationType>Брелоки-передатчики</GateAutomationType>
+	<GateAutomationType>Выключатели</GateAutomationType>
+	<GateAutomationType>Замки</GateAutomationType>
+	<GateAutomationType>Замковые переключатели</GateAutomationType>
+	<GateAutomationType>Зубчатые рейки</GateAutomationType>
+	<GateAutomationType>Датчики</GateAutomationType>
+	<GateAutomationType>Диммеры</GateAutomationType>
+	<GateAutomationType>GSM управление</GateAutomationType>
+	<GateAutomationType>Монтажные материалы (автоматика)</GateAutomationType>
+	<GateAutomationType>Полный комплект</GateAutomationType>
+	<GateAutomationType>Привода</GateAutomationType>
+	<GateAutomationType>Пульты</GateAutomationType>
+	<GateAutomationType>Радиоприемники</GateAutomationType>
+	<GateAutomationType>Реле</GateAutomationType>
+	<GateAutomationType>Сигнальные лампы</GateAutomationType>
+	<GateAutomationType>Системы контроля доступа</GateAutomationType>
+	<GateAutomationType>Устройства сбора и передачи данных</GateAutomationType>
+	<GateAutomationType>Фотоэлементы</GateAutomationType>
+	<GateAutomationType>Другое</GateAutomationType>
+</GateAutomationTypeValues>

@@ -12,11 +12,16 @@ use Bitrix\Calendar\Core\Event\Properties\Location;
 use Bitrix\Calendar\Core\Event\Properties\MeetingDescription;
 use Bitrix\Calendar\Core\Event\Properties\RecurringEventRules;
 use Bitrix\Calendar\Core\Event\Properties\Relations;
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
+use Bitrix\Calendar\Core\eventoption\EventOption;
 use Bitrix\Calendar\Core\Role\Role;
 use Bitrix\Calendar\Core\Section\Section;
+use Bitrix\Calendar\UserField\ResourceBooking;
+use Bitrix\Calendar\Util;
 use Bitrix\Main\Text\Emoji;
+use Bitrix\Main\Type\Contract\Arrayable;
 
-class Event implements EntityInterface
+class Event implements EntityInterface, Arrayable
 {
 	private const MIN_MEETING_PARTICIPANT = 2;
 
@@ -163,6 +168,10 @@ class Event implements EntityInterface
 	 */
 	private bool $isMeeting = false;
 	/**
+	 * @var int|null
+	 */
+	private ?int $dtLength = 0;
+	/**
 	 * @var string|null
 	 */
 	private ?string $meetingStatus = null;
@@ -170,6 +179,10 @@ class Event implements EntityInterface
 	 * @var Relations|null
 	 */
 	private ?Relations $relations = null;
+
+	private ?EventOption $eventOption = null;
+
+	private ?int $collabId = null;
 
 	/**
 	 * @param Builder $builder
@@ -511,6 +524,28 @@ class Event implements EntityInterface
 		return $this;
 	}
 
+	public function addExcludedDate(Date $date): self
+	{
+		if (!$this->excludedDateCollection)
+		{
+			$this->excludedDateCollection = new ExcludedDatesCollection([$date]);
+
+			return $this;
+		}
+
+		foreach ($this->excludedDateCollection as $exDate)
+		{
+			if ($exDate->format('Ymd') === $date->format('Ymd'))
+			{
+				return $this;
+			}
+		}
+
+		$this->excludedDateCollection->add($date);
+
+		return $this;
+	}
+
 	/**
 	 * @param string|null $eventType
 	 *
@@ -829,9 +864,6 @@ class Event implements EntityInterface
 		return $this->dateModified;
 	}
 
-	/**
-	 * @return ExcludedDatesCollection
-	 */
 	public function getExcludedDateCollection(): ?ExcludedDatesCollection
 	{
 		return $this->excludedDateCollection;
@@ -1006,5 +1038,119 @@ class Event implements EntityInterface
 	{
 		$this->calType = $calendarType;
 		return $this;
+	}
+
+	public function getEventOption(): ?EventOption
+	{
+		return $this->eventOption;
+	}
+
+	public function setEventOption(?EventOption $eventOption): self
+	{
+		$this->eventOption = $eventOption;
+
+		return $this;
+	}
+
+	public function isOpenEvent(): bool
+	{
+		return $this->getSection()?->getType() === Dictionary::CALENDAR_TYPE['open_event'];
+	}
+
+	public function setDtLength(?int $dtLength): self
+	{
+		$this->dtLength = $dtLength;
+
+		return $this;
+	}
+
+	public function getDtLength(): ?int
+	{
+		return $this->dtLength;
+	}
+
+	public function setCollabId(?int $collabId): self
+	{
+		$this->collabId = $collabId;
+
+		return $this;
+	}
+
+	public function getCollabId(): ?int
+	{
+		return $this->collabId;
+	}
+
+	public function toArray(): array
+	{
+		return [
+			'ID' => $this->id,
+			'PARENT_ID' => $this->parentId,
+			'ACTIVE' => $this->isActive ? 'Y' : 'N',
+			'DELETED' => $this->isDeleted ? 'Y' : 'N',
+			'CAL_TYPE' => $this->calType,
+			'OWNER' => $this->owner?->getId(),
+			'NAME' => $this->name,
+			'DATE_FROM' => $this->start,
+			'DATE_TO' => $this->end,
+			'TZ_FROM' => $this->startTimeZone,
+			'TZ_TO' => $this->endTimeZone,
+			'DT_SKIP_TIME' => $this->isFullDay ? 'Y' : 'N',
+			'DT_LENGTH' => $this->dtLength,
+			'EVENT_TYPE' => $this->eventType,
+			'CREATED_BY' => $this->creator?->getId(),
+			'DATE_CREATE' => $this->dateCreate,
+			'DESCRIPTION' => $this->description,
+			'ACCESSIBILITY' => $this->accessibility,
+			'IMPORTANCE' => $this->importance,
+			'IS_MEETING' => $this->isMeeting,
+			'MEETING_STATUS' => $this->meetingStatus,
+			'MEETING_HOST' => $this->eventHost?->getId(),
+			'MEETING' => $this->getMeetingDescription(),
+			'LOCATION' => $this->location?->toString(),
+			'REMIND' => $this->remindCollection->getCollection(),
+			'COLOR' => $this->color,
+			'RRULE' => $this->recurringRule->toArray(),
+			'VERSION' => $this->version,
+			'ATTENDEES_CODE' => implode(',', $this->attendeeCollection->getAttendeesCodes()),
+			'SECTION_ID' => $this->section?->getId(),
+		];
+	}
+
+	/**
+	 * @param string $masterVendorEventId Vendor ID of the master event
+	 *
+	 * @return string
+	 */
+	public function buildInstanceId(string $masterVendorEventId): string
+	{
+		$base = $masterVendorEventId . '_';
+		$timezone = $this->getOriginalDateFrom()->setTimezone(Util::prepareTimezone());
+
+		if ($this->isFullDayEvent())
+		{
+			return $base . $timezone->format('Ymd');
+		}
+		else
+		{
+			return $base . $timezone->format('Ymd\THis\Z');
+		}
+	}
+
+	public function canBeChanged(): bool
+	{
+		// Changing an event for an invitee
+		if ($this->id !== $this->parentId)
+		{
+			return false;
+		}
+
+		// Prevent changing events with booking
+		if ($this->getSpecialLabel() === ResourceBooking::EVENT_LABEL)
+		{
+			return false;
+		}
+
+		return true;
 	}
 }

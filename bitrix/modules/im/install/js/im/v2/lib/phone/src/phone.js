@@ -9,6 +9,8 @@ import { DesktopApi } from 'im.v2.lib.desktop-api';
 import { CallManager } from 'im.v2.lib.call';
 import { SoundNotificationManager } from 'im.v2.lib.sound-notification';
 
+import type { JsonObject } from 'main.core';
+
 import type { ImModelUser } from 'im.v2.model';
 
 type PhoneSettings = {
@@ -141,6 +143,16 @@ export class PhoneManager
 		}
 
 		this.#controller.debug = debug;
+	}
+
+	getPhoneCallView()
+	{
+		if (!this.#controller)
+		{
+			return null;
+		}
+
+		return this.#controller?.callView;
 	}
 
 	#init(phoneSettings: PhoneSettings)

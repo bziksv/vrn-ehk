@@ -1,0 +1,19 @@
+<root>
+	<GoodsType name="Чай, кофе, какао">
+		<GoodsSubType name="Чай"/>
+		<GoodsSubType name="Кофе"/>
+		<GoodsSubType name="Какао"/>
+	</GoodsType>
+	<GoodsType name="Напитки"/>
+	<GoodsType name="Рыба, морепродукты, икра"/>
+	<GoodsType name="Мясо, птица, субпродукты"/>
+	<GoodsType name="Кондитерские изделия"/>
+	<GoodsType name="Мёд"/>
+	<GoodsType name="Бакалея"/>
+	<GoodsType name="Овощи и зелень"/>
+	<GoodsType name="Молочные продукты, сыры, яйца"/>
+	<GoodsType name="Фрукты и ягоды"/>
+	<GoodsType name="Хлеб и выпечка"/>
+	<GoodsType name="Специализированное питание"/>
+	<GoodsType name="Другое"/>
+</root>

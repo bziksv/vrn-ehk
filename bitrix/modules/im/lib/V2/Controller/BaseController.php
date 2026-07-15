@@ -10,7 +10,7 @@ use Bitrix\Im\V2\Controller\Filter\AuthorizationPrefilter;
 use Bitrix\Im\V2\Controller\Filter\AutoJoinToChat;
 use Bitrix\Im\V2\Controller\Filter\CheckChatAccess;
 use Bitrix\Im\V2\Controller\Filter\SameChatMessageFilter;
-use Bitrix\Im\V2\Controller\Filter\StartIdFilter;
+use Bitrix\Im\V2\Controller\Filter\UpdateStatus;
 use Bitrix\Im\V2\Link\Pin\PinCollection;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Message\MessageError;
@@ -19,6 +19,7 @@ use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Rest\RestAdapter;
 use Bitrix\Im\V2\Rest\RestConvertible;
 use Bitrix\Main\Application;
+use Bitrix\Main\Engine\ActionFilter\CloseSession;
 use Bitrix\Main\Engine\AutoWire\ExactParameter;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Engine\Response\Converter;
@@ -54,7 +55,7 @@ abstract class BaseController extends Controller
 				Message::class,
 				'message',
 				function ($className, int $messageId) {
-					return $this->getMessageById($messageId);
+					return new Message($messageId);
 				}
 			),
 			new ExactParameter(
@@ -86,11 +87,12 @@ abstract class BaseController extends Controller
 		return array_merge(
 			[
 				new AuthorizationPrefilter(),
+				new UpdateStatus(),
 			],
 			parent::getDefaultPreFilters(),
 			[
+				new CloseSession(true),
 				new SameChatMessageFilter(),
-				new StartIdFilter(),
 				new CheckChatAccess(),
 				new ActionUuidHandler(),
 				new AutoJoinToChat(),
@@ -119,6 +121,7 @@ abstract class BaseController extends Controller
 			['ID' => 'DESC'],
 			$pinLimit
 		);
+
 		$restAdapter = new RestAdapter($chat, $messages, $pins);
 
 		$rest = $restAdapter->toRestFormat();
@@ -171,16 +174,11 @@ abstract class BaseController extends Controller
 
 	protected function getChatByPostId(int $postId, bool $createIfNotExists): ?Chat
 	{
-		$message = $this->getMessageById($postId);
+		$message = new Message($postId);
 
-		if ($message === null)
+		if (!$message->checkAccess()->isSuccess())
 		{
-			return null;
-		}
-
-		if (!$message->hasAccess())
-		{
-			$this->addError(new MessageError(MessageError::MESSAGE_ACCESS_ERROR));
+			$this->addError(new MessageError(MessageError::ACCESS_DENIED));
 
 			return null;
 		}
@@ -197,20 +195,6 @@ abstract class BaseController extends Controller
 		return $result->getResult();
 	}
 
-	protected function getMessageById(int $id): ?Message
-	{
-		$message = new \Bitrix\Im\V2\Message($id);
-
-		if ($message->getMessageId() === null)
-		{
-			$this->addError(new MessageError(MessageError::MESSAGE_NOT_FOUND));
-
-			return null;
-		}
-
-		return $message;
-	}
-
 	protected function getMessagesByIds(array $ids): ?MessageCollection
 	{
 		if (count($ids) > static::MAX_MESSAGES_COUNT)
@@ -221,7 +205,16 @@ abstract class BaseController extends Controller
 		}
 		$ids = array_map('intval', $ids);
 
-		return new MessageCollection($ids);
+		$messageCollection = new MessageCollection($ids);
+
+		if ($messageCollection->isEmpty())
+		{
+			$this->addError(new MessageError(MessageError::NOT_FOUND));
+
+			return null;
+		}
+
+		return $messageCollection;
 	}
 
 	protected function convertCharToBool(string $char, bool $default = false): bool
@@ -257,5 +250,13 @@ abstract class BaseController extends Controller
 		$data  = $list->toArray();
 
 		return $data[$key] ?? null;
+	}
+
+	protected function prepareFields(array $fields, array $whiteList): array
+	{
+		$converter = new Converter(Converter::TO_SNAKE | Converter::TO_UPPER | Converter::KEYS);
+		$fields = $converter->process($fields);
+
+		return  $this->checkWhiteList($fields, $whiteList);
 	}
 }

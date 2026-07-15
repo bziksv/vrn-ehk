@@ -10,34 +10,44 @@
 
 	font-family: var(--im-font-family-system);
 	line-height: var(--im-font-line-height-lg);
-}
 
-.bx-im-upload-preview-file-item__image-container {
-	display: flex;
-	justify-content: center;
-	width: 360px;
-	height: 176px;
-	background-color: var(--im-upload-preview-file-item__background-color_container);
-	border-radius: 6px;
-	flex-shrink: 0;
 	position: relative;
+	display: flex;
+
+	transition: 200ms ease border;
+	border-top: 1px transparent solid;
+	border-bottom: 1px transparent solid;
+	box-sizing: border-box;
 }
 
-.bx-im-upload-preview-file-item__scope.--single .bx-im-upload-preview-file-item__image-container{
-	height: 360px;
+.bx-im-upload-preview-file-item__scope.--dropzone-before {
+	border-top: 1px red solid;
 }
 
-.bx-im-upload-preview-file-item__item-image {
-	object-fit: contain;
-	width: 100%;
+.bx-im-upload-preview-file-item__scope.--dropzone-after {
+	border-bottom: 1px red solid;
+}
+
+
+.bx-im-upload-preview-file-item__drag {
+	display: flex;
+	align-items: center;
+	cursor: move;
+	user-select: none;
+	margin-right: 3px;
+}
+
+.bx-im-upload-preview-file-item__drag-icon {
+	background-image: url("../images/upload-preview/drag-icon.svg");
+	width: 24px;
+	height: 24px;
 }
 
 .bx-im-upload-preview-file-item__item-error {
 	background-color: var(--im-upload-preview-file-item__background-color_container);
 	width: 100%;
+	height: 57px;
 	display: flex;
-	flex-direction: column;
-	justify-content: center;
 	align-items: center;
 	border-radius: 6px;
 }
@@ -46,70 +56,95 @@
 	width: 48px;
 	height: 48px;
 	background: var(--im-upload-preview-file-item__background_error-icon);
-	margin-bottom: 17px;
+	margin-left: 8px;
 }
 
 .bx-im-upload-preview-file-item__item-error-text {
 	font-size: var(--im-font-size-xs);
 	color: var(--im-upload-preview-file-item__color_error-text);
 	max-width: 197px;
-	text-align: center;
+	margin-left: 12px;
 }
 
 .bx-im-upload-preview-file-item__file-container {
 	display: flex;
-	gap: 12px;
-	height: 72px;
+	gap: 8px;
+	height: 56px;
+	padding-top: 6px;
+	cursor: pointer;
 }
 
 .bx-im-upload-preview-file-item__icon {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	width: 72px;
-	height: 72px;
-	border: 1px solid var(--im-upload-preview-file-item__border-color_file-icon);
-	border-radius: 6px;
+	width: 40px;
+	height: 40px;
 	flex-shrink: 0;
 }
 
 .bx-im-upload-preview-file-item__info {
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
+	justify-content: flex-start;
 	gap: 2px;
 	overflow: hidden;
 }
 
 .bx-im-upload-preview-file-item__name {
-	font-size: var(--im-font-size-lg);
+	font-size: var(--im-font-size-md);
 	font-weight: var(--im-font-weight-medium);
-	color: var(--im-upload-preview-file-item__color_file-name);
+	line-height: var(--ui-font-line-height-3xs);
+	color: var(--im-color-palette-black-base);
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	overflow: hidden;
 }
 
 .bx-im-upload-preview-file-item__size {
-	font-size: var(--im-font-size-sm);
-	color: var(--im-upload-preview-file-item__color_file-size);
+	font-size: var(--ui-font-size-xs);
+	line-height: var(--ui-font-line-height-2xs);
+	color: rgba(var(--im-color-palette-gray-90-rgb), 0.5);
 }
 
-.bx-im-upload-preview-file-item__play-icon-container {
-	position: absolute;
-	top: calc(50% - 27px);
-	left: calc(50% - 27px);
-	width: 54px;
-	height: 54px;
-	border-radius: 50%;
-	background-color: var(--im-upload-preview-file-item__background-color_play-icon);
+.bx-im-upload-preview-file-item__remove {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	position: absolute;
+	top: 7px;
+	right: -3px;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	transition: opacity 200ms ease;
+	opacity: 0;
+	cursor: pointer;
 }
 
-.bx-im-upload-preview-file-item__play-icon {
-	width: 27px;
-	height: 27px;
-	background: url("../images/play-icon.svg") no-repeat center;
+.bx-im-upload-preview-file-item__item-error + .bx-im-upload-preview-file-item__remove {
+	top: 11px;
+	right: 3px;
+}
+
+.bx-im-upload-preview-file-item__remove-icon {
+	width: 22px;
+	height: 22px;
+	background: url("../images/upload-preview/remove-icon.svg") no-repeat center;
+	transition: opacity 200ms ease;
+	opacity: .8;
+}
+
+.bx-im-upload-preview-file-item__scope:hover .bx-im-upload-preview-file-item__remove,
+.bx-im-upload-preview-file-item__remove:hover .bx-im-upload-preview-file-item__remove-icon {
+	opacity: 1;
+}
+
+.bx-im-upload-preview-file-item__preview {
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+	width: 100%;
+	height: 100%;
+	border-radius: 8px;
 }

@@ -1,0 +1,29 @@
+<ProductType>
+	<RimType name="Кованые"/>
+	<RimType name="Литые"/>
+	<RimType name="Штампованные"/>
+	<RimType name="Спицованные"/>
+	<RimType name="Сборные"/>
+	<RimBolts name="0"/>
+	<RimBolts name="3"/>
+	<RimBolts name="4"/>
+	<RimBolts name="5"/>
+	<RimBolts name="6"/>
+	<RimBolts name="7"/>
+	<RimBolts name="8"/>
+	<RimBolts name="9"/>
+	<RimBolts name="10"/>
+	<RimBolts name="11"/>
+	<RimBolts name="12"/>
+	<RimBolts name="16"/>
+	<RimBolts name="19"/>
+	<RimBolts name="24"/>
+	<Quantity name="за 1 шт."/>
+	<Quantity name="за 2 шт."/>
+	<Quantity name="за 3 шт."/>
+	<Quantity name="за 4 шт."/>
+	<Quantity name="за 5 шт."/>
+	<Quantity name="за 6 шт."/>
+	<Quantity name="за 7 шт."/>
+	<Quantity name="за 8 шт."/>
+</ProductType>

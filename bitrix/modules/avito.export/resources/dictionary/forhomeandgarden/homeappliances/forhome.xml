@@ -1,0 +1,26 @@
+<root>
+	<ProductType name="Пылесосы и запчасти">
+		<GoodsSubType name="Пылесосы">
+			<ProductSubType name="Напольные"/>
+			<ProductSubType name="Вертикальные"/>
+			<ProductSubType name="Роботы-пылесосы"/>
+			<ProductSubType name="Ручные"/>
+			<ProductSubType name="Строительные"/>
+			<ProductSubType name="Пароочистители"/>
+		</GoodsSubType>
+	</ProductType>
+	<ProductType name="Стиральные и сушильные машины">
+		<GoodsSubType name="Стиральные машины"/>
+	</ProductType>
+	<ProductType name="Утюги"/>
+	<ProductType name="Швейное оборудование">
+		<GoodsSubType name="Швейные машины">
+			<Brand file="forhome/shvejnye_mashiny.xml" rename="true"/>
+		</GoodsSubType>
+		<GoodsSubType name="Вышивальные машины"/>
+		<GoodsSubType name="Вязальные машины"/>
+		<GoodsSubType name="Запчасти, аксессуары и фурнитура" oldNames="Запчасти, акессуары и фурнитура"/>
+		<GoodsSubType name="Машины для работы с кожей и тканью"/>
+		<GoodsSubType name="Прялки и ткацкие станки"/>
+	</ProductType>
+</root>

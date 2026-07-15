@@ -147,6 +147,7 @@ class LandingPubComponent extends LandingBaseComponent
 				'ua' => '/features/sites.php',
 				'by' => '/features/sites.php',
 				'kz' => '/features/sites.php',
+				'uz' => '/features/sites.php',
 				'en' => '/tools/websites/'
 			],
 			'crm' => [
@@ -154,6 +155,7 @@ class LandingPubComponent extends LandingBaseComponent
 				'ua' => '/features/',
 				'by' => '/features/',
 				'kz' => '/features/',
+				'uz' => '/features/',
 				'en' => '/tools/crm/'
 			]
 		];
@@ -1280,16 +1282,9 @@ class LandingPubComponent extends LandingBaseComponent
 					);
 				if ($query)
 				{
-					$isUtf = defined('BX_UTF') && BX_UTF === true;
 					if (strpos($outputContent, '<?') !== false)
 					{
 						return $outputContent;
-					}
-					if (!$isUtf)
-					{
-						[$outputContent, $query] = \Bitrix\Main\Text\Encoding::convertEncoding(
-							[$outputContent, $query], SITE_CHARSET, 'UTF-8'
-						);
 					}
 					$phrases = explode(' ', $query);
 					\trimArr($phrases, true);
@@ -1311,12 +1306,6 @@ class LandingPubComponent extends LandingBaseComponent
 							);
 							$outputContent = str_replace($outer, $outerNew, $outputContent);
 						}
-					}
-					if (!$isUtf)
-					{
-						$outputContent = \Bitrix\Main\Text\Encoding::convertEncoding(
-							$outputContent, 'UTF-8', SITE_CHARSET
-						);
 					}
 				}
 
@@ -1452,6 +1441,7 @@ class LandingPubComponent extends LandingBaseComponent
 					'FROM_USER_ID' => $fromUserId,
 					'NOTIFY_TYPE' => IM_NOTIFY_FROM,
 					'NOTIFY_MODULE' => 'landing',
+					'NOTIFY_EVENT' => 'admin_notification',
 					'NOTIFY_TAG' => 'LANDING|NOTIFY_ADMIN|' . $userId . '|' . $fromUserId . '|V3',
 					'NOTIFY_MESSAGE' => $this->getMessageType('LANDING_CMP_ASK_ACCESS_KNOWLEDGE', [
 						'#LINK1#' => '<a href="' . $url . '">',

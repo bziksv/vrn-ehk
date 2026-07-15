@@ -4,6 +4,8 @@ namespace Bitrix\Bizproc\Workflow\Template\Entity;
 
 use Bitrix\Bizproc\Workflow\Template\Tpl;
 use Bitrix\Main;
+use Bitrix\Main\Web\Json;
+use Bitrix\Bizproc\Api\Enum\Template\WorkflowTemplateType;
 
 /**
  * Class WorkflowTemplateTable
@@ -48,6 +50,7 @@ class WorkflowTemplateTable extends Main\Entity\DataManager
 			'ID' => [
 				'data_type' => 'integer',
 				'primary' => true,
+				'autocomplete' => true,
 			],
 			'MODULE_ID' => [
 				'data_type' => 'string',
@@ -128,6 +131,16 @@ class WorkflowTemplateTable extends Main\Entity\DataManager
 				'data_type' => 'integer',
 				'default_value' => 10,
 			],
+			'TYPE' => [
+				'data_type' => 'enum',
+				'values' => array_column(WorkflowTemplateType::cases(), 'value'),
+				'default_value' => 'default',
+			],
+			new \Bitrix\Main\ORM\Fields\Relations\OneToMany(
+				'TEMPLATE_SETTINGS',
+				\Bitrix\Bizproc\Workflow\Template\WorkflowTemplateSettingsTable::class,
+				'TEMPLATE'
+			)
 		];
 	}
 
@@ -189,12 +202,6 @@ class WorkflowTemplateTable extends Main\Entity\DataManager
 		return array_column($rows, 'ID');
 	}
 
-	/** @inheritdoc */
-	public static function update($primary, array $data)
-	{
-		throw new Main\NotImplementedException("Use CBPTemplateLoader class.");
-	}
-
 	private static function shouldUseCompression(): bool
 	{
 		static $useCompression;
@@ -204,5 +211,25 @@ class WorkflowTemplateTable extends Main\Entity\DataManager
 		}
 
 		return $useCompression;
+	}
+
+	public static function encodeJson($value)
+	{
+		if (empty($value))
+		{
+			return null;
+		}
+
+		return Json::encode($value, 0);
+	}
+
+	public static function decodeJson($value)
+	{
+		if (!empty($value))
+		{
+			return Json::decode($value);
+		}
+
+		return $value;
 	}
 }

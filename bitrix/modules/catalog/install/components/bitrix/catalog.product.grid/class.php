@@ -15,11 +15,9 @@ use Bitrix\Catalog\ProductTable;
 use Bitrix\Catalog\StoreProductTable;
 use Bitrix\Catalog\Url\AdminPage\CatalogBuilder;
 use Bitrix\Catalog\Url\ShopBuilder;
-use Bitrix\Crm\Order\Import\Instagram;
 use Bitrix\Iblock;
 use Bitrix\Iblock\Grid\Column\ElementPropertyProvider;
 use Bitrix\Iblock\Grid\RowType;
-use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
 use Bitrix\Main\Grid\Export\ExcelExporter;
 use Bitrix\Main\Grid\Settings;
@@ -452,15 +450,6 @@ class CatalogProductGridComponent extends \CBitrixComponent
 		return $this->accessController->check(ActionDictionary::ACTION_PRICE_EDIT);
 	}
 
-	protected function allowInstagramImport(): bool
-	{
-		return
-			Loader::includeModule('crm')
-			&& Instagram::isAvailable()
-			&& $this->accessController->check(ActionDictionary::ACTION_CATALOG_IMPORT_EXECUTION)
-		;
-	}
-
 	protected function allowExcelExport(): bool
 	{
 		return $this->accessController->check(ActionDictionary::ACTION_CATALOG_EXPORT_EXECUTION);
@@ -609,6 +598,11 @@ class CatalogProductGridComponent extends \CBitrixComponent
 			$this->grid->getFilter(),
 			[
 				'GRID_ID' => $this->grid->getId(),
+				'USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP' => \Bitrix\Main\ModuleManager::isModuleInstalled('ui'),
+				'ENABLE_FIELDS_SEARCH' => 'Y',
+				'CONFIG' => [
+					'popupWidth' => 800,
+				],
 			]
 		);
 		\Bitrix\UI\Toolbar\Facade\Toolbar::addFilter($options);
@@ -713,6 +707,11 @@ class CatalogProductGridComponent extends \CBitrixComponent
 	{
 		$additional = [
 			'NAV_STRING' => $this->productNavString,
+			'USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP' => \Bitrix\Main\ModuleManager::isModuleInstalled('ui'),
+			'ENABLE_FIELDS_SEARCH' => 'Y',
+			'CONFIG' => [
+				'popupWidth' => 800,
+			],
 		];
 		$this->arResult = [
 			'GRID' => \Bitrix\Main\Grid\Component\ComponentParams::get($this->grid, $additional),
@@ -1491,15 +1490,6 @@ class CatalogProductGridComponent extends \CBitrixComponent
 				{
 					$menuItems = $this->getCreateButtonMenuItemsForOldCard();
 				}
-			}
-
-			if ($this->allowInstagramImport())
-			{
-				$menuItems[] = [
-					'text' => Loc::getMessage('CATALOG_PRODUCT_GRID_CMP_TOOLBAR_BUTTONS_IMPORT_INSTAGRAM_TEXT'),
-					'title' => Loc::getMessage('CATALOG_PRODUCT_GRID_CMP_TOOLBAR_BUTTONS_IMPORT_INSTAGRAM_TITLE'),
-					'href' => Option::get('crm', 'path_to_order_import_instagram'),
-				];
 			}
 
 			if (empty($menuItems))

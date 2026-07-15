@@ -2,16 +2,18 @@
 
 namespace Bitrix\Catalog\RestView;
 
-use Bitrix\Main\Engine\Response\Converter;
-use Bitrix\Main\Error;
-use Bitrix\Main\ORM\Fields\ScalarField;
-use Bitrix\Main\Result;
-use Bitrix\Main\Type\Date;
-use Bitrix\Main\Type\DateTime;
 use Bitrix\Catalog;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Iblock;
 use Bitrix\Iblock\PropertyTable;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Engine\Response\Converter;
+use Bitrix\Main\Error;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Fields\ScalarField;
+use Bitrix\Main\Result;
+use Bitrix\Main\Type\Date;
+use Bitrix\Main\Type\DateTime;
 use Bitrix\Rest\Integration\View\Attributes;
 use Bitrix\Rest\Integration\View\Base;
 use Bitrix\Rest\Integration\View\DataType;
@@ -26,7 +28,7 @@ final class Product extends Base
 	 * @return array
 	 * return fields all type product
 	 */
-	public function getFields()
+	public function getFields(): array
 	{
 		$this->loadFieldNames();
 
@@ -40,22 +42,11 @@ final class Product extends Base
 	 */
 	protected function prepareFieldAttributs($info, $attributs): array
 	{
-		$r = parent::prepareFieldAttributs($info, $attributs);
-
-		$r['NAME'] = $info['NAME'];
-		if ($info['TYPE'] === DataType::TYPE_PRODUCT_PROPERTY)
-		{
-			$r['IS_DYNAMIC'] = true;
-			$r['IS_MULTIPLE'] = in_array(Attributes::MULTIPLE, $attributs, true);
-			$r['PROPERTY_TYPE'] = $info['PROPERTY_TYPE'];
-			$r['USER_TYPE'] = $info['USER_TYPE'];
-			if (isset($info['VALUES']))
-			{
-				$r['VALUES'] = $info['VALUES'];
-			}
-		}
-
-		return $r;
+		return EntityFieldType::prepareProductField(
+			parent::prepareFieldAttributs($info, $attributs),
+			$info,
+			$attributs
+		);
 	}
 
 	/**
@@ -90,9 +81,11 @@ final class Product extends Base
 			],
 			'DATE_ACTIVE_FROM' => [
 				'TYPE' => DataType::TYPE_DATETIME,
+				'CANONICAL_NAME' => 'ACTIVE_FROM',
 			],
 			'DATE_ACTIVE_TO' => [
 				'TYPE' => DataType::TYPE_DATETIME,
+				'CANONICAL_NAME' => 'ACTIVE_TO',
 			],
 			'NAME' => [
 				'TYPE' => DataType::TYPE_STRING,
@@ -133,6 +126,9 @@ final class Product extends Base
 			],
 			'IBLOCK_SECTION_ID' => [
 				'TYPE' => DataType::TYPE_INT,
+			],
+			'IBLOCK_SECTION' => [
+				'TYPE' => DataType::TYPE_LIST,
 			],
 			'XML_ID' => [
 				'TYPE' => DataType::TYPE_STRING,
@@ -205,22 +201,31 @@ final class Product extends Base
 					continue;
 				}
 
-				$info = [
-					'TYPE' => DataType::TYPE_PRODUCT_PROPERTY,
-					'PROPERTY_TYPE' => $property['PROPERTY_TYPE'],
-					'USER_TYPE' => $property['USER_TYPE'],
-					'ATTRIBUTES' => [Attributes::DYNAMIC],
-					'NAME' => $property['NAME'],
+				$attributes = [
+					Attributes::DYNAMIC,
 				];
-
 				if ($property['MULTIPLE'] === 'Y')
 				{
-					$info['ATTRIBUTES'][] = Attributes::MULTIPLE;
+					$attributes[] = Attributes::MULTIPLE;
+					$attributes[] = Attributes::DISABLED_ORDER;
 				}
 				if ($property['IS_REQUIRED'] === 'Y')
 				{
-					$info['ATTRIBUTES'][] = Attributes::REQUIRED;
+					$attributes[] = Attributes::REQUIRED;
 				}
+				if ($property['PROPERTY_TYPE'] === PropertyTable::TYPE_FILE)
+				{
+					$attributes[] = Attributes::SELECT_ONLY;
+				}
+
+				$info = [
+					'TYPE' => EntityFieldType::PRODUCT_PROPERTY,
+					'PROPERTY_TYPE' => $property['PROPERTY_TYPE'],
+					'USER_TYPE' => $property['USER_TYPE'],
+					'ATTRIBUTES' => array_values(array_unique($attributes)),
+					'NAME' => $property['NAME'],
+				];
+				unset($attributes);
 
 				if (
 					$property['PROPERTY_TYPE'] === PropertyTable::TYPE_LIST
@@ -243,7 +248,7 @@ final class Product extends Base
 							'cache' => $cache,
 						]);
 						$info['BOOLEAN_VALUE_YES'] = [
-							'ID' => $variant['ID'],
+							'ID' => (int)$variant['ID'],
 							'VALUE' => $variant['VALUE'],
 						];
 					}
@@ -269,10 +274,11 @@ final class Product extends Base
 			unset($property, $iterator);
 
 			$fieldsInfo['PROPERTY_*'] = [
-				'TYPE' => DataType::TYPE_PRODUCT_PROPERTY,
+				'TYPE' => EntityFieldType::PRODUCT_PROPERTY,
 				'ATTRIBUTES' => [
 					Attributes::READONLY,
 					Attributes::DYNAMIC,
+					Attributes::SELECT_ONLY,
 				],
 			];
 
@@ -319,6 +325,32 @@ final class Product extends Base
 
 	public function isAllowedProductTypeByIBlockId($productTypeId, $iblockId): Result
 	{
+		$result = $this->getCatalogDescription((int)$iblockId);
+		if (!$result->isSuccess())
+		{
+			return $result;
+		}
+
+		$iblockData = $result->getData();
+
+		$allowedTypes = self::getProductTypes($iblockData['CATALOG_TYPE']);
+
+		if (!isset($allowedTypes[$productTypeId]))
+		{
+			$result->addError(new Error('productType is not allowed for this catalog'));
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Returns catalog description, if exists.
+	 *
+	 * @param int $iblockId
+	 * @return Result
+	 */
+	public function getCatalogDescription(int $iblockId): Result
+	{
 		$result = new Result();
 
 		$iblockData = \CCatalogSku::GetInfoByIBlock($iblockId);
@@ -328,12 +360,7 @@ final class Product extends Base
 		}
 		else
 		{
-			$allowedTypes = self::getProductTypes($iblockData['CATALOG_TYPE']);
-
-			if (!isset($allowedTypes[$productTypeId]))
-			{
-				$result->addError(new Error('productType is not allowed for this catalog'));
-			}
+			$result->setData($iblockData);
 		}
 
 		return $result;
@@ -493,31 +520,15 @@ final class Product extends Base
 	 */
 	private function getFieldsCatalogProductByType(int $id): array
 	{
-		switch ($id)
+		return match ($id)
 		{
-			case ProductTable::TYPE_SERVICE:
-				$r = $this->getFieldsCatalogProductByTypeService();
-				break;
-			case ProductTable::TYPE_PRODUCT:
-				$r = $this->getFieldsCatalogProductByTypeProduct();
-				break;
-			case ProductTable::TYPE_SET:
-				$r = $this->getFieldsCatalogProductByTypeSet();
-				break;
-			case ProductTable::TYPE_SKU:
-			case ProductTable::TYPE_EMPTY_SKU:
-				$r = $this->getFieldsCatalogProductByTypeSKU();
-				break;
-			case ProductTable::TYPE_OFFER:
-			case ProductTable::TYPE_FREE_OFFER:
-				$r = $this->getFieldsCatalogProductByTypeOffer();
-				break;
-			default:
-				$r = [];
-				break;
-		}
-
-		return $r;
+			ProductTable::TYPE_SERVICE => $this->getFieldsCatalogProductByTypeService(),
+			ProductTable::TYPE_PRODUCT => $this->getFieldsCatalogProductByTypeProduct(),
+			ProductTable::TYPE_SET => $this->getFieldsCatalogProductByTypeSet(),
+			ProductTable::TYPE_SKU, ProductTable::TYPE_EMPTY_SKU => $this->getFieldsCatalogProductByTypeSKU(),
+			ProductTable::TYPE_OFFER, ProductTable::TYPE_FREE_OFFER => $this->getFieldsCatalogProductByTypeOffer(),
+			default => [],
+		};
 	}
 
 	/**
@@ -527,6 +538,15 @@ final class Product extends Base
 	{
 		$fieldList = [
 			'AVAILABLE' => [
+				'TYPE' => DataType::TYPE_CHAR,
+			],
+			'MEASURE' => [
+				'TYPE' => DataType::TYPE_INT,
+			],
+			'VAT_ID' => [
+				'TYPE' => DataType::TYPE_INT,
+			],
+			'VAT_INCLUDED' => [
 				'TYPE' => DataType::TYPE_CHAR,
 			],
 		];
@@ -594,6 +614,21 @@ final class Product extends Base
 			'HEIGHT' => [
 				'TYPE' => DataType::TYPE_FLOAT,
 			],
+			'BARCODE_MULTI' => [
+				'TYPE' => DataType::TYPE_CHAR,
+			],
+			'RECUR_SCHEME_LENGTH' => [
+				'TYPE' => DataType::TYPE_INT,
+			],
+			'RECUR_SCHEME_TYPE' => [
+				'TYPE' => DataType::TYPE_CHAR,
+			],
+			'TRIAL_PRICE_ID' => [
+				'TYPE' => DataType::TYPE_INT,
+			],
+			'WITHOUT_ORDER' => [
+				'TYPE' => DataType::TYPE_CHAR,
+			],
 		];
 
 		return $this->fillFieldNames($fieldList);
@@ -612,6 +647,49 @@ final class Product extends Base
 				],
 			],
 		];
+
+		if (Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y')
+		{
+			$fieldListCatalogTabWithOffers = [
+				'PURCHASING_PRICE' => [
+					'TYPE' => DataType::TYPE_STRING,
+				],
+				'PURCHASING_CURRENCY' => [
+					'TYPE' => DataType::TYPE_STRING,
+				],
+				'VAT_ID' => [
+					'TYPE' => DataType::TYPE_INT,
+				],
+				'VAT_INCLUDED' => [
+					'TYPE' => DataType::TYPE_CHAR,
+				],
+				'QUANTITY' => [
+					'TYPE' => DataType::TYPE_FLOAT,
+				],
+				'MEASURE' => [
+					'TYPE' => DataType::TYPE_INT,
+				],
+				'CAN_BUY_ZERO' => [
+					'TYPE' => DataType::TYPE_CHAR,
+				],
+				'SUBSCRIBE' => [
+					'TYPE' => DataType::TYPE_CHAR,
+				],
+				'WEIGHT' => [
+					'TYPE' => DataType::TYPE_FLOAT,
+				],
+				'LENGTH' => [
+					'TYPE' => DataType::TYPE_FLOAT,
+				],
+				'WIDTH' => [
+					'TYPE' => DataType::TYPE_FLOAT,
+				],
+				'HEIGHT' => [
+					'TYPE' => DataType::TYPE_FLOAT,
+				],
+			];
+			$fieldList = array_merge($fieldList, $fieldListCatalogTabWithOffers);
+		}
 
 		return $this->fillFieldNames($fieldList);
 	}
@@ -762,42 +840,30 @@ final class Product extends Base
 	private static function getProductTypes($catalogType): array
 	{
 		//TODO: remove after create \Bitrix\Catalog\Model\CatalogIblock
-		switch ($catalogType)
+		return match ($catalogType)
 		{
-			case \CCatalogSku::TYPE_CATALOG:
-				$result = [
-					ProductTable::TYPE_SERVICE => true,
-					ProductTable::TYPE_PRODUCT => true,
-					ProductTable::TYPE_SET => true,
-				];
-				break;
-			case \CCatalogSku::TYPE_OFFERS:
-				$result = [
-					ProductTable::TYPE_OFFER => true,
-					ProductTable::TYPE_FREE_OFFER => true,
-				];
-				break;
-			case \CCatalogSku::TYPE_FULL:
-				$result = [
-					ProductTable::TYPE_SERVICE => true,
-					ProductTable::TYPE_PRODUCT => true,
-					ProductTable::TYPE_SET => true,
-					ProductTable::TYPE_SKU => true,
-					ProductTable::TYPE_EMPTY_SKU => true,
-				];
-				break;
-			case \CCatalogSku::TYPE_PRODUCT:
-				$result = [
-					ProductTable::TYPE_SKU => true,
-					ProductTable::TYPE_EMPTY_SKU => true,
-				];
-				break;
-			default:
-				$result = [];
-				break;
-		}
-
-		return $result;
+			\CCatalogSku::TYPE_CATALOG => [
+				ProductTable::TYPE_SERVICE => true,
+				ProductTable::TYPE_PRODUCT => true,
+				ProductTable::TYPE_SET => true,
+			],
+			\CCatalogSku::TYPE_OFFERS => [
+				ProductTable::TYPE_OFFER => true,
+				ProductTable::TYPE_FREE_OFFER => true,
+			],
+			\CCatalogSku::TYPE_FULL => [
+				ProductTable::TYPE_SERVICE => true,
+				ProductTable::TYPE_PRODUCT => true,
+				ProductTable::TYPE_SET => true,
+				ProductTable::TYPE_SKU => true,
+				ProductTable::TYPE_EMPTY_SKU => true,
+			],
+			\CCatalogSku::TYPE_PRODUCT => [
+				ProductTable::TYPE_SKU => true,
+				ProductTable::TYPE_EMPTY_SKU => true,
+			],
+			default => [],
+		};
 	}
 
 	/**
@@ -853,13 +919,28 @@ final class Product extends Base
 	{
 		// param - IBLOCK_ID is reqired in filter
 		$iblockId = (int)($fields['IBLOCK_ID'] ?? 0);
+		$productType = (int)($fields['TYPE'] ?? 0);
 
 		$propertyValues = $this->getFieldsIBlockPropertyValuesByFilter(['IBLOCK_ID' => $iblockId]);
-		$fieldsInfo = array_merge(
-			$this->getFields(),
-			($propertyValues->isSuccess() ? $propertyValues->getData() : [])
-		);
-		unset($propertyValues);
+		$product = $this->getFieldsCatalogProductByFilter(['IBLOCK_ID' => $iblockId, 'PRODUCT_TYPE' => $productType]);
+
+		if ($product->isSuccess())
+		{
+			$fieldsInfo = array_merge(
+				$this->getFieldsIBlockElement(),
+				($propertyValues->isSuccess() ? $propertyValues->getData() : []),
+				$this->getFieldsCatalogProductCommonFields(),
+				$product->getData()
+			);
+		}
+		else
+		{
+			$fieldsInfo = array_merge(
+				$this->getFields(),
+				($propertyValues->isSuccess() ? $propertyValues->getData() : [])
+			);
+		}
+		unset($product, $propertyValues);
 
 		return parent::internalizeFieldsAdd($fields, $fieldsInfo);
 	}
@@ -868,13 +949,28 @@ final class Product extends Base
 	{
 		// param - IBLOCK_ID is reqired in filter
 		$iblockId = (int)($fields['IBLOCK_ID'] ?? 0);
+		$productType = (int)($fields['TYPE'] ?? 0);
 
 		$propertyValues = $this->getFieldsIBlockPropertyValuesByFilter(['IBLOCK_ID' => $iblockId]);
-		$fieldsInfo = array_merge(
-			$this->getFields(),
-			($propertyValues->isSuccess() ? $propertyValues->getData() : [])
-		);
-		unset($propertyValues);
+		$product = $this->getFieldsCatalogProductByFilter(['IBLOCK_ID' => $iblockId, 'PRODUCT_TYPE' => $productType]);
+
+		if ($product->isSuccess())
+		{
+			$fieldsInfo = array_merge(
+				$this->getFieldsIBlockElement(),
+				($propertyValues->isSuccess() ? $propertyValues->getData() : []),
+				$this->getFieldsCatalogProductCommonFields(),
+				$product->getData()
+			);
+		}
+		else
+		{
+			$fieldsInfo = array_merge(
+				$this->getFields(),
+				($propertyValues->isSuccess() ? $propertyValues->getData() : [])
+			);
+		}
+		unset($product, $propertyValues);
 
 		return parent::internalizeFieldsUpdate($fields, $fieldsInfo);
 	}
@@ -928,62 +1024,13 @@ final class Product extends Base
 		return $r;
 	}
 
-	protected function internalizeDateProductPropertyValue($value): Result
-	{
-		//API does not accept DataTime objects, so the ISO format is transformed into a format for a filter.
-
-		$r = new Result();
-
-		$date = $this->internalizeDate($value);
-
-		if ($date instanceof Date)
-		{
-			$value = $date->format('Y-m-d');
-		}
-		else
-		{
-			$r->addError(new Error('Wrong type data'));
-		}
-
-		if ($r->isSuccess())
-		{
-			$r->setData([$value]);
-		}
-
-		return $r;
-	}
-
-	protected function internalizeDateTimeProductPropertyValue($value): Result
-	{
-		//API does not accept DataTime objects, so the ISO format is transformed into a format for a filter.
-
-		$r = new Result();
-
-		$date = $this->internalizeDateTime($value);
-		if ($date instanceof DateTime)
-		{
-			$value = $date->format('Y-m-d H:i:s');
-		}
-		else
-		{
-			$r->addError(new Error('Wrong type datetime'));
-		}
-
-		if ($r->isSuccess())
-		{
-			$r->setData([$value]);
-		}
-
-		return $r;
-	}
-
 	protected function internalizeExtendedTypeValue($value, $info): Result
 	{
 		$r = new Result();
 
 		$type = $info['TYPE'] ?? '';
 
-		if ($type === DataType::TYPE_PRODUCT_PROPERTY)
+		if ($type === EntityFieldType::PRODUCT_PROPERTY)
 		{
 			$propertyType = $info['PROPERTY_TYPE'] ?? '';
 			$userType = $info['USER_TYPE'] ?? '';
@@ -995,37 +1042,42 @@ final class Product extends Base
 
 			if ($r->isSuccess())
 			{
-				$value = $isMultiple ? $value : [$value];
+				if (!$isMultiple && !is_array($value))
+				{
+					$value = [$value];
+				}
+				if (!is_array($value))
+				{
+					$value = [$value];
+				}
+				if (empty($userType) && isset($value['VALUE']))
+				{
+					$value = [$value];
+				}
 
 				if ($propertyType === PropertyTable::TYPE_STRING && $userType === PropertyTable::USER_TYPE_DATE)
 				{
-					array_walk($value, function(&$item) use ($r)
+					$internalResult = $this->internalizeUserTypeDateValueList($info, $value);
+					if ($internalResult->isSuccess())
 					{
-						$date = $this->internalizeDateProductPropertyValue($item['VALUE']);
-						if ($date->isSuccess())
-						{
-							$item['VALUE'] = $date->getData()[0];
-						}
-						else
-						{
-							$r->addErrors($date->getErrors());
-						}
-					});
+						$value = $internalResult->getData();
+					}
+					else
+					{
+						$r->addErrors($internalResult->getErrors());
+					}
 				}
 				elseif ($propertyType === PropertyTable::TYPE_STRING && $userType === PropertyTable::USER_TYPE_DATETIME)
 				{
-					array_walk($value, function(&$item) use ($r)
+					$internalResult = $this->internalizeUserTypeDateTimeValueList($info, $value);
+					if ($internalResult->isSuccess())
 					{
-						$date = $this->internalizeDateTimeProductPropertyValue($item['VALUE']);
-						if ($date->isSuccess())
-						{
-							$item['VALUE'] = $date->getData()[0];
-						}
-						else
-						{
-							$r->addErrors($date->getErrors());
-						}
-					});
+						$value = $internalResult->getData();
+					}
+					else
+					{
+						$r->addErrors($internalResult->getErrors());
+					}
 				}
 				elseif ($propertyType === PropertyTable::TYPE_FILE && empty($userType))
 				{
@@ -1044,14 +1096,14 @@ final class Product extends Base
 				}
 				elseif ($this->isPropertyBoolean($info))
 				{
-					$booleanValue = $value[0]['VALUE'];
-					if ($booleanValue === self::BOOLEAN_VALUE_YES)
+					$internalResult = $this->internalizeUserTypeBoolenValueList($info, $value);
+					if ($internalResult->isSuccess())
 					{
-						$value[0]['VALUE'] = $info['BOOLEAN_VALUE_YES']['ID'];
+						$value = $internalResult->getData();
 					}
-					elseif ($booleanValue === self::BOOLEAN_VALUE_NO)
+					else
 					{
-						$value[0]['VALUE'] = null;
+						$r->addErrors($internalResult->getErrors());
 					}
 				}
 				//elseif ($propertyType === 'S' && $userType === 'HTML'){}
@@ -1287,7 +1339,16 @@ final class Product extends Base
 
 	protected function externalizeFileValue($name, $value, $fields): array
 	{
-		$productId = ($fields['ID'] ?? 0);
+		$productId = null;
+		if (isset($fields['PRODUCT_ID']))
+		{
+			$productId = $fields['PRODUCT_ID'];
+		}
+		elseif (isset($fields['ID']))
+		{
+			$productId = $fields['ID'];
+		}
+		$productId = (int)$productId;
 
 		$data = [
 			'fields' => [
@@ -1317,7 +1378,7 @@ final class Product extends Base
 		$info = $fieldsInfo[$name] ?? [];
 		$type = $info['TYPE'] ?? '';
 
-		if ($type === DataType::TYPE_PRODUCT_PROPERTY)
+		if ($type === EntityFieldType::PRODUCT_PROPERTY)
 		{
 			$attrs = $info['ATTRIBUTES'] ?? [];
 			$isMultiple = in_array(Attributes::MULTIPLE, $attrs, true);
@@ -1366,14 +1427,17 @@ final class Product extends Base
 			}
 			elseif ($this->isPropertyBoolean($info))
 			{
-				if ($value)
+				$preparedValue = [
+					0 => self::BOOLEAN_VALUE_NO,
+				];
+				if (($value[0]['VALUE'] ?? null) !== null)
 				{
-					$value = self::BOOLEAN_VALUE_YES;
+					$preparedValue[0] = self::BOOLEAN_VALUE_YES;
 				}
-				else
-				{
-					$value = self::BOOLEAN_VALUE_NO;
-				}
+				$value = $preparedValue;
+				unset(
+					$preparedValue,
+				);
 			}
 
 			$value = $isMultiple? $value: $value[0];
@@ -1401,6 +1465,7 @@ final class Product extends Base
 
 		$this->loadEntityFieldNames(Iblock\ElementTable::getMap());
 		$this->loadEntityFieldNames(Catalog\ProductTable::getMap());
+		$this->loadAdditionalFieldNames();
 	}
 
 	/**
@@ -1409,7 +1474,7 @@ final class Product extends Base
 	 * @param array $fieldList
 	 * @return void
 	 */
-	private function loadEntityFieldNames(array $fieldList)
+	private function loadEntityFieldNames(array $fieldList): void
 	{
 		/** @var \Bitrix\Main\ORM\Fields\Field $field */
 		foreach ($fieldList as $field)
@@ -1422,6 +1487,11 @@ final class Product extends Base
 				$this->productFieldNames[$name] = $title ?: $name;
 			}
 		}
+	}
+
+	private function loadAdditionalFieldNames(): void
+	{
+		$this->productFieldNames['IBLOCK_SECTION'] = Loc::getMessage('RESTVIEW_PRODUCT_FIELD_NAME_IBLOCK_SECTION');
 	}
 
 	/**
@@ -1490,5 +1560,192 @@ final class Product extends Base
 			}
 		}
 		return true;
+	}
+
+	public function getIblockPropertyCanonicalNames(array $filter): array
+	{
+		$result = [];
+		$propertyResult = $this->getFieldsIBlockPropertyValuesByFilter($filter);
+		if (!$propertyResult->isSuccess())
+		{
+			return [];
+		}
+
+		foreach ($propertyResult->getData() as $propertyName => $property)
+		{
+			if (!isset($property['CANONICAL_NAME']))
+			{
+				continue;
+			}
+			$result[$propertyName] = $property['CANONICAL_NAME'];
+		}
+
+		return $result;
+	}
+
+	private function getResultWithFilterError(string $type): Result
+	{
+		$result = new Result();
+
+		$result->addError(new Error('Wrong filter type ' . $type));
+
+		return $result;
+	}
+
+	private function gerResultWithDataError(string $type): Result
+	{
+		$result = new Result();
+
+		$result->addError(new Error('Wrong type ' . $type));
+
+		return $result;
+	}
+
+	private function internalizeUserTypeDateValueList(array $field, array $valueList): Result
+	{
+		$preparedValues = [];
+
+		foreach ($valueList as $rawValue)
+		{
+			$complex = is_array($rawValue);
+			$value = $this->internalizeUserTypeDateValue($rawValue);
+			if ($value === null)
+			{
+				return
+					$this->isFilterOperation($field)
+						? $this->getResultWithFilterError($field['USER_TYPE'])
+						: $this->gerResultWithDataError($field['USER_TYPE'])
+				;
+			}
+			if ($complex)
+			{
+				$rawValue['VALUE'] = $value;
+			}
+			else
+			{
+				$rawValue = $value;
+			}
+			$preparedValues[] = $rawValue;
+		}
+
+		$result = new Result();
+		$result->setData($preparedValues);
+
+		return $result;
+	}
+
+	private function internalizeUserTypeDateValue(mixed $value): ?string
+	{
+		$rawValue = ($value['VALUE'] ?? $value);
+		if (!is_scalar($rawValue))
+		{
+			return null;
+		}
+		$date = $this->internalizeDate($rawValue);
+		if ($date instanceof Date)
+		{
+			return $date->format('Y-m-d');
+		}
+
+		return null;
+	}
+
+	private function internalizeUserTypeDateTimeValueList(array $field, array $valueList): Result
+	{
+		$preparedValues = [];
+
+		foreach ($valueList as $rawValue)
+		{
+			$complex = is_array($rawValue);
+			$value = $this->internalizeUserTypeDateTimeValue($rawValue);
+			if ($value === null)
+			{
+				return
+					$this->isFilterOperation($field)
+						? $this->getResultWithFilterError($field['USER_TYPE'])
+						: $this->gerResultWithDataError($field['USER_TYPE'])
+					;
+			}
+			if ($complex)
+			{
+				$rawValue['VALUE'] = $value;
+			}
+			else
+			{
+				$rawValue = $value;
+			}
+			$preparedValues[] = $rawValue;
+		}
+
+		$result = new Result();
+		$result->setData($preparedValues);
+
+		return $result;
+	}
+
+	private function internalizeUserTypeDateTimeValue(mixed $value): ?string
+	{
+		$rawValue = ($value['VALUE'] ?? $value);
+		if (!is_scalar($rawValue))
+		{
+			return null;
+		}
+		$date = $this->internalizeDateTime($rawValue);
+		if ($date instanceof DateTime)
+		{
+			return $date->format('Y-m-d H:i:s');
+		}
+
+		return null;
+	}
+
+	private function internalizeUserTypeBoolenValueList(array $field, array $valueList): Result
+	{
+		$preparedValues = [];
+
+		foreach ($valueList as $rawValue)
+		{
+			$complex = is_array($rawValue);
+			$value = $this->internalizeUserTypeBooleanValue($field, $rawValue);
+			if ($value === null)
+			{
+				return
+					$this->isFilterOperation($field)
+						? $this->getResultWithFilterError($field['USER_TYPE'])
+						: $this->gerResultWithDataError($field['USER_TYPE'])
+					;
+			}
+			if ($complex)
+			{
+				$rawValue['VALUE'] = $value;
+			}
+			else
+			{
+				$rawValue = $value;
+			}
+			$preparedValues[] = $rawValue;
+		}
+
+		$result = new Result();
+		$result->setData($preparedValues);
+
+		return $result;
+	}
+
+	private function internalizeUserTypeBooleanValue(array $field, mixed $value): int|false|null
+	{
+		$rawValue = ($value['VALUE'] ?? $value);
+		if (!is_scalar($rawValue))
+		{
+			return null;
+		}
+		if ($rawValue === self::BOOLEAN_VALUE_YES)
+		{
+			return $field['BOOLEAN_VALUE_YES']['ID'];
+		}
+		else
+		{
+			return false;
+		}
 	}
 }

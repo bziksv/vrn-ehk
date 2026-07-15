@@ -1,9 +1,10 @@
-import { Tag, Loc, Dom, Type } from 'main.core';
+import { Dom, Loc, Tag, Type } from 'main.core';
+import 'ui.hint';
 import './style.css';
 
 export type Metadata = {
 	[key: string]: {
-		get content(): HTMLElement | HTMLElement[];
+		get content(): HTMLElement;
 		title: string;
 		beforeCompletion?: () => Promise<boolean>;
 	};
@@ -26,6 +27,11 @@ export type WizardOptions = {
 		className?: string;
 		title?: string;
 		onComplete?: Function;
+	};
+	cancel?: {
+		title?: string;
+		className?: string;
+		onCancel?: () => void;
 	};
 	swapButtons: boolean;
 };
@@ -59,34 +65,68 @@ export class Wizard
 			'ui-btn-round',
 			'sign-wizard__footer_button',
 		];
-		const { back = {}, next = {}, complete = {}, swapButtons = false } = this.#options ?? {};
-		const { title: completeTitle, onComplete } = complete;
-		const backClassName = (back.className ?? '').split(' ');
-		const nextClassName = (next.className ?? '').split(' ');
-		const completeClassName = (complete.className ?? '').split(' ');
+
+		const {
+			back = {},
+			next = {},
+			complete = {},
+			cancel = {},
+			swapButtons = false,
+		} = this.#options ?? {};
+
+		const { title: completeTitle, onComplete, className: completeClassName } = complete;
+		const { title: cancelTitle, onCancel, className: cancelClassName } = cancel;
+
+		const backClassList = (back.className ?? '').split(' ');
+		const nextClassList = (next.className ?? '').split(' ');
+		const completeClassList = (completeClassName ?? '').split(' ');
+		const cancelClassList = (cancelClassName ?? '').split(' ');
+
 		const backButton = {
 			id: 'back',
 			title: Loc.getMessage('SIGN_WIZARD_FOOTER_BUTTON_BACK'),
 			method: () => this.#onPrevStep(),
-			buttonClassList: [...classList, ...backClassName]
+			buttonClassList: [...classList, ...backClassList],
 		};
+		const cancelButton = {
+			id: 'cancel',
+			title: cancelTitle ?? Loc.getMessage('SIGN_WIZARD_FOOTER_BUTTON_CANCEL'),
+			method: async () => {
+				const canceled = await this.#tryCompleteStep('cancel');
+				if (canceled && onCancel)
+				{
+					onCancel();
+				}
+			},
+			buttonClassList: [...classList, ...cancelClassList],
+		};
+
 		const buttons = [
 			{
 				id: 'next',
 				title: Loc.getMessage('SIGN_WIZARD_FOOTER_BUTTON_NEXT'),
 				method: () => this.#onNextStep(),
-				buttonClassList: [...classList, ...nextClassName]
+				buttonClassList: [...classList, ...nextClassList],
 			},
 			{
 				id: 'complete',
 				title: completeTitle ?? Loc.getMessage('SIGN_WIZARD_FOOTER_BUTTON_COMPLETE'),
 				method: async () => {
 					const completed = await this.#tryCompleteStep('complete');
-					completed && onComplete?.();
+					if (completed && onComplete)
+					{
+						onComplete();
+					}
 				},
-				buttonClassList: [...classList, ...completeClassName]
+				buttonClassList: [...classList, ...completeClassList],
 			},
 		];
+
+		if (Object.keys(cancel).length > 0)
+		{
+			buttons.push(cancelButton);
+		}
+
 		if (swapButtons)
 		{
 			buttons.push(backButton);
@@ -101,7 +141,7 @@ export class Wizard
 				title,
 				method,
 				buttonClassList = classList,
-				id
+				id,
 			} = button;
 
 			const node = Tag.render`
@@ -145,6 +185,12 @@ export class Wizard
 	{
 		const stepName = this.#order[this.#stepIndex];
 		const { beforeCompletion } = this.#metadata[stepName] ?? {};
+
+		if (buttonId === 'cancel')
+		{
+			return true;
+		}
+
 		this.toggleBtnLoadingState(buttonId, true);
 		const shouldComplete = await beforeCompletion?.() ?? true;
 		this.toggleBtnLoadingState(buttonId, false);
@@ -162,25 +208,35 @@ export class Wizard
 		}
 	}
 
-	#renderButtonTitle(backButton: HTMLElement, nextButton: HTMLElement)
+	#getButtonsTitle(): { [key: string]: string; }
 	{
 		const { back = {}, next = {} } = this.#options ?? {};
 		const stepName = this.#order[this.#stepIndex];
 		const backTitle = back.titles?.[stepName] ?? Loc.getMessage('SIGN_WIZARD_FOOTER_BUTTON_BACK');
 		const nextTitle = next.titles?.[stepName] ?? Loc.getMessage('SIGN_WIZARD_FOOTER_BUTTON_NEXT');
-		backButton.textContent = backTitle;
-		nextButton.textContent = nextTitle;
+
+		return {
+			backTitle,
+			nextTitle,
+		};
 	}
 
 	#renderNavigationButtons()
 	{
-		const { back: backButton, next: nextButton, complete: completeButton } = this.#navigationButtons;
+		const {
+			back: backButton,
+			next: nextButton,
+			complete: completeButton,
+			cancel: cancelButton,
+		} = this.#navigationButtons;
 		const isFirstStep = this.#stepIndex === 0;
 		const isLastStep = this.#stepIndex + 1 === this.#order.length;
 		Dom.removeClass(backButton, '--hide');
 		Dom.removeClass(nextButton, '--hide');
 		Dom.addClass(completeButton, '--hide');
-		this.#renderButtonTitle(backButton, nextButton);
+		const { nextTitle, backTitle } = this.#getButtonsTitle(backButton, nextButton);
+		backButton.textContent = backTitle;
+		nextButton.textContent = nextTitle;
 		if (isFirstStep)
 		{
 			Dom.addClass(backButton, '--hide');
@@ -190,6 +246,18 @@ export class Wizard
 		{
 			Dom.addClass(nextButton, '--hide');
 			Dom.removeClass(completeButton, '--hide');
+		}
+
+		if (cancelButton)
+		{
+			if (isFirstStep)
+			{
+				Dom.removeClass(cancelButton, '--hide');
+			}
+			else
+			{
+				Dom.addClass(cancelButton, '--hide');
+			}
 		}
 	}
 
@@ -206,10 +274,23 @@ export class Wizard
 	#renderStep()
 	{
 		const stepName = this.#order[this.#stepIndex];
-		const { content } = this.#metadata[stepName] ?? {};
+		const stepMetaData = this.#metadata[stepName];
+		const { content, events: stepEvents } = stepMetaData ?? {};
 		if (!content)
 		{
 			return;
+		}
+
+		if (Type.isFunction(stepEvents?.onBeforeRenderStep))
+		{
+			try
+			{
+				stepEvents.onBeforeRenderStep();
+			}
+			catch (e)
+			{
+				console.error('Error onBeforeRenderStep', e);
+			}
 		}
 
 		Dom.clean(this.#stepNode);

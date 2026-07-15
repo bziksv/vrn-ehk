@@ -1,0 +1,42 @@
+<root>
+	<Type name="Прогулочные коляски">
+		<NumberOfChildren name="Один"/>
+		<NumberOfChildren name="Двойня"/>
+		<NumberOfChildren name="Тройня"/>
+		<TypeOfStroller name="1 в 1"/>
+		<TypeOfStroller name="2 в 1"/>
+		<TypeOfStroller name="3 в 1"/>
+		<TypeOfFoldingStroller name="Не складывается"/>
+		<TypeOfFoldingStroller name="Книжка"/>
+		<TypeOfFoldingStroller name="Трость"/>
+		<TypeOfFoldingStroller name="3D"/>
+		<Features name="Реверсивный блок" multiple="true"/>
+		<Features name="Перекидная ручка"/>
+		<Features name="Нет"/>
+	</Type>
+	<Type name="Коляски-люльки">
+		<NumberOfChildren name="Один"/>
+		<NumberOfChildren name="Двойня"/>
+		<NumberOfChildren name="Тройня"/>
+		<TypeOfStroller name="1 в 1"/>
+		<TypeOfStroller name="2 в 1"/>
+		<TypeOfStroller name="3 в 1"/>
+	</Type>
+	<Type name="Коляски-трости">
+		<NumberOfChildren name="Один"/>
+		<NumberOfChildren name="Двойня"/>
+		<NumberOfChildren name="Тройня"/>
+		<TypeOfStroller name="1 в 1"/>
+		<TypeOfStroller name="2 в 1"/>
+		<TypeOfStroller name="3 в 1"/>
+	</Type>
+	<Type name="Коляски-санки">
+		<NumberOfChildren name="Один"/>
+		<NumberOfChildren name="Двойня"/>
+		<NumberOfChildren name="Тройня"/>
+		<TypeOfStroller name="1 в 1"/>
+		<TypeOfStroller name="2 в 1"/>
+		<TypeOfStroller name="3 в 1"/>
+	</Type>
+	<Type name="Аксессуары и комплектующие"/>
+</root>

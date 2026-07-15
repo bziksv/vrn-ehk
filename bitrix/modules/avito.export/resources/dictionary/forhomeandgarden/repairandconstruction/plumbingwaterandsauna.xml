@@ -1,0 +1,295 @@
+<PlumbingWaterAndSauna>
+	<GoodsSubType name="Смесители и комплектующие">
+		<ProductType name="Смесители"/>
+		<ProductType name="Комплектующие"/>
+	</GoodsSubType>
+	<GoodsSubType name="Кухонные мойки и комплектующие">
+		<ProductType name="Кухонные мойки"/>
+		<ProductType name="Комплектующие"/>
+	</GoodsSubType>
+	<GoodsSubType name="Раковины, умывальники, пьедесталы">
+		<ProductType name="Раковины"/>
+		<ProductType name="Умывальники"/>
+		<ProductType name="Комплектующие"/>
+	</GoodsSubType>
+	<GoodsSubType name="Ванны и комплектующие">
+		<ProductType name="Ванны">
+			<BathMaterial name="Акрил"/>
+			<BathMaterial name="Чугун"/>
+			<BathMaterial name="Сталь"/>
+			<BathMaterial name="Искусственный камень"/>
+			<BathMaterial name="Другой"/>
+			<BathShape name="Прямоугольная"/>
+			<BathShape name="Угловая"/>
+			<BathShape name="Овальная"/>
+			<BathJacuzzi name="Да"/>
+			<BathJacuzzi name="Нет"/>
+			<BathWidth variable="text"/>
+			<BathLength variable="text"/>
+		</ProductType>
+		<ProductType name="Шторки и перегородки"/>
+		<ProductType name="Экраны"/>
+		<ProductType name="Комплектующие"/>
+	</GoodsSubType>
+	<GoodsSubType name="Душевые системы и лейки">
+		<ProductType name="Лейки, душевые панели, стойки и гарнитуры"/>
+		<ProductType name="Комплектующие"/>
+	</GoodsSubType>
+	<GoodsSubType name="Душевые кабины и ограждения">
+		<ProductType name="Душевые уголки, перегородки и двери">
+			<ShowerEnclosureType name="Уголок">
+				<ShowerEnclosureLength variable="text"/>
+			</ShowerEnclosureType>
+			<ShowerEnclosureType name="Ограждение"/>
+			<ShowerEnclosureType name="Шторка для ванны"/>
+			<ShowerEnclosureType name="Дверь"/>
+			<ShowerEnclosureGlassType name="Прозрачное стекло"/>
+			<ShowerEnclosureGlassType name="Матовое стекло"/>
+			<ShowerEnclosureGlassType name="Рифлёное стекло"/>
+			<ShowerEnclosureGlassType name="Пластиковое стекло"/>
+			<ShowerEnclosureDoorType name="Раздвижные"/>
+			<ShowerEnclosureDoorType name="Распашные"/>
+			<ShowerEnclosureDoorType name="Складные"/>
+			<ShowerEnclosureDoorType name="Без дверей"/>
+			<ShowerEnclosureWidth variable="text"/>
+			<ShowerEnclosureHeight variable="text"/>
+		</ProductType>
+		<ProductType name="Душевые поддоны"/>
+		<ProductType name="Душевые кабины и боксы">
+			<ShowerTrayType name="Низкий"/>
+			<ShowerTrayType name="Средний"/>
+			<ShowerTrayType name="Высокий"/>
+			<ShowerTrayType name="Ванна"/>
+			<ShowerTrayType name="Без поддона"/>
+			<ShowerTrayShape name="Четверть круга"/>
+			<ShowerTrayShape name="Прямоугольник"/>
+			<ShowerTrayShape name="Квадрат"/>
+			<ShowerTrayShape name="Нестандартная"/>
+		</ProductType>
+		<ProductType name="Комплектующие"/>
+	</GoodsSubType>
+	<GoodsSubType name="Унитазы, писсуары, биде, инсталляции">
+		<ProductType name="Унитазы и бачки">
+			<Kit name="Унитаз">
+				<ToiletInstallationType name="Подвесной"/>
+				<ToiletInstallationType name="Напольный"/>
+				<ToiletRing name="Безободковый"/>
+				<ToiletRing name="С ободком"/>
+			</Kit>
+			<Kit name="Унитаз с бачком">
+				<ToiletInstallationType name="Подвесной"/>
+				<ToiletInstallationType name="Напольный"/>
+				<ToiletRing name="Безободковый"/>
+				<ToiletRing name="С ободком"/>
+			</Kit>
+			<Kit name="Бачок"/>
+			<Color name="Бежевый"/>
+			<Color name="Белый"/>
+			<Color name="Бирюзовый"/>
+			<Color name="Бордовый"/>
+			<Color name="Голубой"/>
+			<Color name="Желтый"/>
+			<Color name="Зеленый"/>
+			<Color name="Золотой"/>
+			<Color name="Коричневый"/>
+			<Color name="Красный"/>
+			<Color name="Оранжевый"/>
+			<Color name="Розовый"/>
+			<Color name="Серебристый"/>
+			<Color name="Серый"/>
+			<Color name="Синий"/>
+			<Color name="Фиолетовый"/>
+			<Color name="Черный"/>
+			<Color name="Разноцветный"/>
+		</ProductType>
+		<ProductType name="Инсталляции">
+			<InstallationFunction name="Для биде"/>
+			<InstallationFunction name="Для напольного унитаза"/>
+			<InstallationFunction name="Для писсуара"/>
+			<InstallationFunction name="Для подвесного унитаза"/>
+			<InstallationKit name="Инсталляция"/>
+			<InstallationKit name="Кнопка для смыва"/>
+			<InstallationKit name="Комплект инсталляция с унитазом"/>
+			<InstallationKit name="Монтажный комплект для инсталляции"/>
+		</ProductType>
+		<ProductType name="Писсуары"/>
+		<ProductType name="Биде"/>
+		<ProductType name="Комплектующие"/>
+	</GoodsSubType>
+	<GoodsSubType name="Полотенцесушители и комплектующие">
+		<ProductType name="Полотенцесушители"/>
+		<ProductType name="Комплектующие"/>
+	</GoodsSubType>
+	<GoodsSubType name="Водоснабжение и канализация">
+		<ProductType name="Арматура и автоматика" oldNames="Запорная и регулирующая арматура и автоматика">
+			<PlumbingSubType name="Клапаны">
+				<ValveType name="Запорный"/>
+				<ValveType name="Балансировочный и регулирующий"/>
+				<ValveType name="Обратный"/>
+				<ValveType name="Электромагнитный"/>
+				<ValveType name="Термостатический"/>
+				<ValveType name="Предохранительный"/>
+				<Diameter file="plumbingwaterandsauna/armatura_diameter.xml"/>
+			</PlumbingSubType>
+			<PlumbingSubType name="Краны шаровые">
+				<Diameter file="plumbingwaterandsauna/armatura_diameter.xml"/>
+			</PlumbingSubType>
+			<PlumbingSubType name="Задвижки">
+				<Diameter file="plumbingwaterandsauna/armatura_diameter.xml"/>
+			</PlumbingSubType>
+			<PlumbingSubType name="Автоматика"/>
+			<PlumbingSubType name="Дисковые затворы">
+				<Diameter file="plumbingwaterandsauna/armatura_diameter.xml"/>
+			</PlumbingSubType>
+			<PlumbingSubType name="Вентили">
+				<Diameter file="plumbingwaterandsauna/armatura_diameter.xml"/>
+			</PlumbingSubType>
+			<Brand file="plumbingwaterandsauna/brend_armatura.xml" rename="true"/>
+		</ProductType>
+		<ProductType name="Насосы" oldNames="Насосы и гидроаккумуляторы">
+			<DeviceType name="Инъекционный"/>
+			<DeviceType name="Мотопомпа"/>
+			<DeviceType name="Дренажный">
+				<InstallationType name="Поверхностный"/>
+				<InstallationType name="Погружной"/>
+			</DeviceType>
+			<DeviceType name="Скважинный">
+				<InstallationType name="Поверхностный"/>
+				<InstallationType name="Погружной"/>
+			</DeviceType>
+			<DeviceType name="Циркуляционный"/>
+			<DeviceType name="Насосная станция"/>
+			<DeviceType name="Канализационный">
+				<InstallationType name="Поверхностный"/>
+				<InstallationType name="Погружной"/>
+			</DeviceType>
+			<DeviceType name="Повысительный"/>
+			<DeviceType name="Фекальный">
+				<InstallationType name="Поверхностный"/>
+				<InstallationType name="Погружной"/>
+			</DeviceType>
+			<DeviceType name="Комплектующие"/>
+			<DeviceType name="Другой"/>
+			<Brand file="tools/brendy_nasosov.xml" rename="true"/>
+		</ProductType>
+		<ProductType name="Водоочистка и фильтры" oldNames="Фильтры и системы очистки воды"/>
+		<ProductType name="Баки, ёмкости, гидроаккумуляторы" oldNames="Баки и ёмкости">
+			<PlumbingSubType name="Баки и ёмкости">
+				<Volume variable="text"/>
+				<InstallationType name="Вертикальная"/>
+				<InstallationType name="Горизонтальная"/>
+				<InstallationType name="Настенная"/>
+			</PlumbingSubType>
+			<PlumbingSubType name="Гидроаккумуляторы">
+				<Volume variable="text"/>
+				<InstallationType name="Вертикальная"/>
+				<InstallationType name="Горизонтальная"/>
+				<InstallationType name="Настенная"/>
+			</PlumbingSubType>
+			<PlumbingSubType name="Комплектующие"/>
+		</ProductType>
+		<ProductType name="Трубы и фитинги" oldNames="Водопроводные трубы и фитинги"/>
+		<ProductType name="Септики и биостанции" oldNames="Септики">
+			<Brand file="plumbingwaterandsauna/brend_septiki.xml" rename="true"/>
+			<Capacity variable="text"/>
+			<PlumbingSubType name="Биостанция"/>
+			<PlumbingSubType name="Септик"/>
+		</ProductType>
+		<ProductType name="Коллекторы и смесительные узлы" oldNames="Коллекторы для систем водоснабжения и отопления"/>
+		<ProductType name="Водонагреватели">
+			<PlumbingSubType name="Накопительный"/>
+			<PlumbingSubType name="Проточный"/>
+			<PlumbingSubType name="Проточно-накопительный"/>
+			<Brand file="plumbingwaterandsauna/brend_vodonagrevatelej.xml" rename="true"/>
+			<HeatingType name="Электрический"/>
+			<HeatingType name="Косвенный"/>
+			<HeatingType name="Комбинированный"/>
+			<HeatingType name="Газовый"/>
+			<Volume variable="text"/>
+		</ProductType>
+		<ProductType name="Другое"/>
+	</GoodsSubType>
+	<GoodsSubType name="Мебель для ванной">
+		<ProductType name="Тумбы"/>
+		<ProductType name="Зеркала"/>
+		<ProductType name="Шкафы и комоды"/>
+		<ProductType name="Стеллажи, стойки, этажерки и полки"/>
+		<ProductType name="Освещение"/>
+		<ProductType name="Столешницы под раковину"/>
+		<ProductType name="Гарнитуры"/>
+		<ProductType name="Комплектующие"/>
+		<ProductType name="Другое"/>
+	</GoodsSubType>
+	<GoodsSubType name="Аксессуары для ванной">
+		<BathroomAccessoriestype name="Полки, держатели, стаканы"/>
+		<BathroomAccessoriestype name="Шторки, коврики"/>
+		<BathroomAccessoriestype name="Крючки, вешалки"/>
+		<BathroomAccessoriestype name="Мыльницы, дозаторы"/>
+		<BathroomAccessoriestype name="Ёршики"/>
+		<BathroomAccessoriestype name="Другое"/>
+	</GoodsSubType>
+	<GoodsSubType name="Товары для бани и сауны, бассейны" oldNames="Товары для бани и сауны|Бассейны">
+		<ProductType name="Купели, чаны, бочки">
+			<BathingTankType name="Купель"/>
+			<BathingTankType name="Бочка"/>
+			<BathingTankType name="Чан"/>
+			<BathingTankHeating name="Да"/>
+			<BathingTankHeating name="Нет"/>
+			<MaterialType name="Лиственница"/>
+			<MaterialType name="Кедр"/>
+			<MaterialType name="Дуб"/>
+			<MaterialType name="Сосна"/>
+			<MaterialType name="Ель"/>
+			<MaterialType name="Пластик"/>
+			<MaterialType name="Металл"/>
+			<MaterialType name="Другой"/>
+		</ProductType>
+		<ProductType name="Аксессуары для бани"/>
+		<ProductType name="Бассейны и комплектующие">
+			<ProductSubType name="Бассейны">
+				<Brand file="plumbingwaterandsauna/brend_bassejnov.xml" rename="true"/>
+				<DesignType name="Каркасная"/>
+				<DesignType name="Надувная"/>
+				<DesignType name="Жёсткая"/>
+				<ItemsIncluded name="Есть">
+					<Kit name="Горка" multiple="true"/>
+					<Kit name="Водонагреватель"/>
+					<Kit name="Ремкомплект"/>
+					<Kit name="Хлорогенератор"/>
+					<Kit name="Картридж"/>
+					<Kit name="Фильтр-насос"/>
+					<Kit name="Пылесос"/>
+					<Kit name="Дозатор"/>
+					<Kit name="Тент"/>
+					<Kit name="Скиммер"/>
+					<Kit name="Подстилка"/>
+					<Kit name="Набор для чистки"/>
+					<Kit name="Лестница"/>
+					<Kit name="Волейбольная сетка"/>
+				</ItemsIncluded>
+				<ItemsIncluded name="Нет"/>
+			</ProductSubType>
+			<ProductSubType name="Оборудование и аксессуары">
+				<ComponentsType name="Вкладыш ПВХ"/>
+				<ComponentsType name="Дозатор"/>
+				<ComponentsType name="Клапан"/>
+				<ComponentsType name="Кран"/>
+				<ComponentsType name="Лестница"/>
+				<ComponentsType name="Павильон"/>
+				<ComponentsType name="Плёнка"/>
+				<ComponentsType name="Подсветка"/>
+				<ComponentsType name="Пылесос"/>
+				<ComponentsType name="Скиммер"/>
+				<ComponentsType name="Сматывающее устройство"/>
+				<ComponentsType name="Тент"/>
+				<ComponentsType name="Чаша"/>
+				<ComponentsType name="Набор для чистки"/>
+				<Brand file="plumbingwaterandsauna/brend_oborudovaniya_i_aksessuarov_bassejnov.xml" rename="true"/>
+			</ProductSubType>
+			<ProductSubType name="Водонагреватели, фильтры и насосы"/>
+			<ProductSubType name="Химия для бассейнов"/>
+		</ProductType>
+		<ProductType name="Другое"/>
+	</GoodsSubType>
+	<GoodsSubType name="Другое"/>
+</PlumbingWaterAndSauna>

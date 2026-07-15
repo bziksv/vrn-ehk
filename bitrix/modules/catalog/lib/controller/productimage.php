@@ -3,13 +3,9 @@
 namespace Bitrix\Catalog\Controller;
 
 use Bitrix\Catalog\Access\ActionDictionary;
-use Bitrix\Catalog\ProductTable;
-use Bitrix\Catalog\v2\BaseEntity;
-use Bitrix\Catalog\v2\Image\BaseImage;
-use Bitrix\Catalog\v2\Image\DetailImage;
-use Bitrix\Catalog\v2\Image\MorePhotoImage;
-use Bitrix\Catalog\v2\Image\PreviewImage;
-use Bitrix\Catalog\v2\IoC\ServiceContainer;
+use Bitrix\Iblock\PropertyTable;
+use Bitrix\Main\Application;
+use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
 use Bitrix\Main\FileTable;
@@ -18,6 +14,8 @@ use Bitrix\Main\Result;
 
 final class ProductImage extends Controller
 {
+	use CheckExists; // default implementation of existence check
+
 	//region Actions
 	/**
 	 * REST method catalog.productImage.getFiles
@@ -30,7 +28,7 @@ final class ProductImage extends Controller
 	 */
 	public function getFieldsAction(): array
 	{
-		return ['PRODUCT_IMAGE' => $this->getViewFields()];
+		return [$this->getServiceItemName() => $this->getViewFields()];
 	}
 
 	/**
@@ -47,6 +45,7 @@ final class ProductImage extends Controller
 		if ($productId <= 0)
 		{
 			$this->addError(new Error('Empty productID'));
+
 			return null;
 		}
 
@@ -54,20 +53,51 @@ final class ProductImage extends Controller
 		if (!$product)
 		{
 			$this->addError(new Error('Product was not found'));
+
 			return null;
 		}
-
 
 		$r = $this->checkPermissionProductRead($product);
 		if (!$r->isSuccess())
 		{
 			$this->addErrors($r->getErrors());
+
 			return null;
 		}
 
-		$result = [];
-		foreach ($product->getImageCollection() as $image)
+		$imageIds = [];
+		if ($product['PREVIEW_PICTURE'])
 		{
+			$imageIds[] = $product['PREVIEW_PICTURE'];
+		}
+		if ($product['DETAIL_PICTURE'])
+		{
+			$imageIds[] = $product['DETAIL_PICTURE'];
+		}
+		if ($this->getMorePhotoPropertyId((int)$product['IBLOCK_ID']))
+		{
+			$imageIds = [...$imageIds, ...$this->getMorePhotoPropertyValues($product)];
+		}
+
+		$result = [];
+		$fileTableResult = FileTable::getList(['filter' => ['=ID' => $imageIds]]);
+		while ($image = $fileTableResult->fetch())
+		{
+			if ($product['PREVIEW_PICTURE'] === $image['ID'])
+			{
+				$type = 'PREVIEW_PICTURE';
+			}
+			elseif ($product['DETAIL_PICTURE'] === $image['ID'])
+			{
+				$type = 'DETAIL_PICTURE';
+			}
+			else
+			{
+				$type = 'MORE_PHOTO';
+			}
+			$image['TYPE'] = $type;
+			$image['PRODUCT_ID'] = $product['ID'];
+
 			$result[] = $this->prepareFileStructure($image, $restServer, $select);
 		}
 
@@ -93,6 +123,7 @@ final class ProductImage extends Controller
 		if (!$product)
 		{
 			$this->addError(new Error('Product was not found'));
+
 			return null;
 		}
 
@@ -100,20 +131,19 @@ final class ProductImage extends Controller
 		if (!$r->isSuccess())
 		{
 			$this->addErrors($r->getErrors());
+
 			return null;
 		}
 
-		$r = $this->hasImage($id, $product);
-		if (!$r->isSuccess())
+		$image = $this->getImageById($id, $product);
+		if (!$image)
 		{
-			$this->addErrors($r->getErrors());
+			$this->addError($this->getErrorEntityNotExists());
+
 			return null;
 		}
 
-		/** @var BaseImage $image */
-		$image = $product->getImageCollection()->findById($id);
-
-		return ['PRODUCT_IMAGE' => $this->prepareFileStructure($image, $restServer)];
+		return [$this->getServiceItemName() => $this->prepareFileStructure($image, $restServer)];
 	}
 
 	/**
@@ -160,57 +190,81 @@ final class ProductImage extends Controller
 			return null;
 		}
 
-		if ($fields['TYPE'] === DetailImage::CODE)
+		if ($fields['TYPE'] === 'DETAIL_PICTURE' || $fields['TYPE'] === 'PREVIEW_PICTURE')
 		{
-			$product->getImageCollection()->getDetailImage()->setFileStructure($fileData);
-		}
-		elseif ($fields['TYPE'] === PreviewImage::CODE)
-		{
-			$product->getImageCollection()->getPreviewImage()->setFileStructure($fileData);
+			$updateFields = [$fields['TYPE'] => $fileData];
 		}
 		else
 		{
-			if (!$product->getPropertyCollection()->findByCode(MorePhotoImage::CODE))
+			$fields['TYPE'] = 'MORE_PHOTO';
+			$morePhotoProperty = $this->getMorePhotoProperty((int)$product['IBLOCK_ID']);
+			if (!$morePhotoProperty->isSuccess())
 			{
-				$this->addError(
-					new Error(
-						"Image product property does not exists. Create" . MorePhotoImage::CODE . " property"
-					)
-				);
+				$this->addErrors($morePhotoProperty->getErrors());
 
 				return null;
 			}
 
-			$product->getImageCollection()->addValue($fileData);
+			$updateFields = [
+				'n0' => [
+					'VALUE' => $fileData,
+				],
+			];
 		}
 
-		$r = $product->save();
-		if (!$r->isSuccess())
+		$connection = Application::getConnection();
+		$connection->startTransaction();
+		try
 		{
-			$this->addErrors($r->getErrors());
+			if ($fields['TYPE'] === 'DETAIL_PICTURE' || $fields['TYPE'] === 'PREVIEW_PICTURE')
+			{
+				$error = $this->updateProductImage((int)$product['ID'], $updateFields);
+			}
+			else
+			{
+				$error = $this->updateProductMorePhoto((int)$product['ID'], (int)$product['IBLOCK_ID'], $updateFields);
+			}
 		}
+		catch (SqlQueryException)
+		{
+			$error = 'Internal error adding product image. Try adding again.';
+		}
+		if ($error !== '')
+		{
+			$connection->rollbackTransaction();
+			$this->addError(new Error($error));
 
-		if ($fields['TYPE'] === DetailImage::CODE)
-		{
-			$image = $product->getImageCollection()->getDetailImage();
+			return null;
 		}
-		elseif ($fields['TYPE'] === PreviewImage::CODE)
+		$connection->commitTransaction();
+
+		if ($fields['TYPE'] === 'DETAIL_PICTURE' || $fields['TYPE'] === 'PREVIEW_PICTURE')
 		{
-			$image = $product->getImageCollection()->getPreviewImage();
+			$product = $this->getProduct((int)$fields['PRODUCT_ID'], [$fields['TYPE']]);
+			$imageId = $product[$fields['TYPE']];
 		}
 		else
 		{
-			$morePhotos = $product->getImageCollection()->getMorePhotos();
-			$image = end($morePhotos);
-			if (!$image)
+			$morePhotoIds = $this->getMorePhotoPropertyValues($product);
+			if (!$morePhotoIds)
 			{
 				$this->addError(new Error('Empty image.'));
 
 				return null;
 			}
+			$imageId = end($morePhotoIds);
 		}
+		$image = FileTable::getRowById($imageId);
+		if (!$image)
+		{
+			$this->addError($this->getErrorEntityNotExists());
 
-		return ['PRODUCT_IMAGE' => $this->prepareFileStructure($image, $restServer)];
+			return null;
+		}
+		$image['TYPE'] = $fields['TYPE'];
+		$image['PRODUCT_ID'] = $fields['PRODUCT_ID'];
+
+		return [$this->getServiceItemName() => $this->prepareFileStructure($image, $restServer)];
 	}
 
 	/**
@@ -223,10 +277,18 @@ final class ProductImage extends Controller
 	 */
 	public function deleteAction(int $id, int $productId): ?bool
 	{
+		if (!$this->exists($id))
+		{
+			$this->addError($this->getErrorEntityNotExists());
+
+			return null;
+		}
+
 		$product = $this->getProduct($productId);
 		if (!$product)
 		{
 			$this->addError(new Error('Product was not found'));
+
 			return null;
 		}
 
@@ -234,35 +296,62 @@ final class ProductImage extends Controller
 		if (!$r->isSuccess())
 		{
 			$this->addErrors($r->getErrors());
+
 			return null;
 		}
 
-		$r = $this->hasImage($id, $product);
-		if (!$r->isSuccess())
+		if ($id === (int)$product['PREVIEW_PICTURE'])
 		{
-			$this->addErrors($r->getErrors());
-			return null;
+			$updateFields = ['PREVIEW_PICTURE' => \CIBlock::makeFileArray(null, true)];
 		}
-
-		$product
-			->getImageCollection()
-			->findById($id)
-			->remove()
-		;
-
-		$r = $product->save();
-		if (!$r->isSuccess())
+		elseif ($id === (int)$product['DETAIL_PICTURE'])
 		{
-			$this->addErrors($r->getErrors());
+			$updateFields = ['DETAIL_PICTURE' => \CIBlock::makeFileArray(null, true)];
+		}
+		else
+		{
+			$morePhotoPropertyValueId = $this->getMorePhotoPropertyValueId($product, $id);
+			if (!$morePhotoPropertyValueId)
+			{
+				$this->addError($this->getErrorEntityNotExists());
+
+				return null;
+			}
+			$updateFields = [$morePhotoPropertyValueId => \CIBlock::makeFileArray(null, true)];
+		}
+
+		$connection = Application::getConnection();
+		$connection->startTransaction();
+		try
+		{
+			if ($id === (int)$product['PREVIEW_PICTURE'] || $id === (int)$product['DETAIL_PICTURE'])
+			{
+				$error = $this->updateProductImage((int)$product['ID'], $updateFields);
+			}
+			else
+			{
+				$error = $this->updateProductMorePhoto((int)$product['ID'], (int)$product['IBLOCK_ID'], $updateFields);
+			}
+		}
+		catch (SqlQueryException)
+		{
+			$error = 'Internal error deleting product image. Try deleting again.';
+		}
+		if ($error !== '')
+		{
+			$connection->rollbackTransaction();
+			$this->addError(new Error($error));
+
 			return null;
 		}
+		$connection->commitTransaction();
 
 		return true;
 	}
 	//endregion
 
 	private function prepareFileStructure(
-		BaseImage $baseImage,
+		array $image,
 		\CRestServer $restServer = null,
 		array $selectedFields = null
 	): array
@@ -277,35 +366,35 @@ final class ProductImage extends Controller
 		{
 			if ($name === 'ID')
 			{
-				$result[$name] = $baseImage->getField('ID');
+				$result[$name] = (int)$image['ID'];
 			}
 			if ($name === 'NAME')
 			{
-				$result[$name] = $baseImage->getField('FILE_NAME');
+				$result[$name] = $image['FILE_NAME'];
 			}
 			elseif ($name === 'DETAIL_URL')
 			{
-				$result[$name] = $baseImage->getSource();
+				$result[$name] = \CFile::getFileSRC($image);
 			}
 			elseif ($name === 'DOWNLOAD_URL')
 			{
 				$result[$name] =
 					$restServer
-						? \CRestUtil::getDownloadUrl(['id' => $baseImage->getId()], $restServer)
-						: $baseImage->getSource()
+						? \CRestUtil::getDownloadUrl(['id' => $image['ID']], $restServer)
+						: \CFile::getFileSRC($image)
 				;
 			}
 			elseif ($name === 'CREATE_TIME')
 			{
-				$result[$name] = $baseImage->getField('TIMESTAMP_X');
+				$result[$name] = $image['TIMESTAMP_X'];
 			}
 			elseif ($name === 'PRODUCT_ID')
 			{
-				$result[$name] = $baseImage->getParent()->getId();
+				$result[$name] = (int)$image['PRODUCT_ID'];
 			}
 			elseif ($name === 'TYPE')
 			{
-				$result[$name] = $baseImage->getCode();
+				$result[$name] = $image['TYPE'];
 			}
 		}
 
@@ -317,46 +406,190 @@ final class ProductImage extends Controller
 		return new FileTable();
 	}
 
-	private function getProduct(int $productId): ?BaseEntity
+	private function getProduct(int $productId, ?array $select = null): ?array
 	{
-		$product = ServiceContainer::getRepositoryFacade()->loadProduct($productId);
-		if ($product)
-		{
-			return $product;
-		}
-
-		return ServiceContainer::getRepositoryFacade()->loadVariation($productId);
+		return \Bitrix\Iblock\ElementTable::getRow([
+			'select' => $select ?: ['ID', 'IBLOCK_ID', 'PREVIEW_PICTURE', 'DETAIL_PICTURE'],
+			'filter' => ['=ID' => $productId],
+		]);
 	}
 
-	private function hasImage(int $id, BaseEntity $product): Result
+	private function getImageById(int $id, array $product): ?array
 	{
-		$r = $this->exists($id);
-		if (!$r->isSuccess())
+		if ((int)$product['PREVIEW_PICTURE'] === $id)
 		{
-			return $r;
+			$type = 'PREVIEW_PICTURE';
+		}
+		elseif ((int)$product['DETAIL_PICTURE'] === $id)
+		{
+			$type = 'DETAIL_PICTURE';
+		}
+		else
+		{
+			$morePhotoIds = $this->getMorePhotoPropertyValues($product);
+			if (!in_array($id, $morePhotoIds))
+			{
+				return null;
+			}
+
+			$type = 'MORE_PHOTO';
 		}
 
-		$image = $product->getImageCollection()->findById($id);
+		$image = FileTable::getRowById($id);
 		if (!$image)
 		{
-			$r->addError(new Error('Image does not exist'));
+			return null;
 		}
 
-		return $r;
+		$image['TYPE'] = $type;
+		$image['PRODUCT_ID'] = $product['ID'];
+
+		return $image;
 	}
 
-	protected function exists($id)
+	private function getMorePhotoPropertyValueId(array $product, int $value): ?int
 	{
-		$r = new Result();
-		if (!isset($this->get($id)['ID']))
+		$morePhotoPropertyId = $this->getMorePhotoPropertyId((int)$product['IBLOCK_ID']);
+		if (!$morePhotoPropertyId)
 		{
-			$r->addError(new Error('Image does not exist'));
+			return null;
 		}
 
-		return $r;
+		$propertyValuesResult = $this->getPropertyValues($product, $morePhotoPropertyId, true);
+		$morePhotoPropertyIds = $propertyValuesResult[$morePhotoPropertyId];
+		if (!$morePhotoPropertyIds)
+		{
+			return null;
+		}
+
+		$valueIndex = array_search($value, $morePhotoPropertyIds);
+		if ($valueIndex === false)
+		{
+			return null;
+		}
+
+		return (int)$propertyValuesResult['PROPERTY_VALUE_ID'][$morePhotoPropertyId][$valueIndex] ?? null;
 	}
 
-	private function checkPermissionProductRead(BaseEntity $product): Result
+	private function getMorePhotoPropertyValues(array $product): array
+	{
+		$morePhotoPropertyId = $this->getMorePhotoPropertyId((int)$product['IBLOCK_ID']);
+		if (!$morePhotoPropertyId)
+		{
+			return [];
+		}
+		$propertyValuesResult = $this->getPropertyValues($product, $morePhotoPropertyId);
+
+		return $propertyValuesResult[$morePhotoPropertyId] ?? [];
+	}
+
+	private function getPropertyValues(array $product, int $propertyId, bool $extMode = false): array
+	{
+		return \CIBlockElement::getPropertyValues(
+			$product['IBLOCK_ID'],
+			[
+				'ID' => $product['ID'],
+				'IBLOCK_ID' => $product['IBLOCK_ID'],
+			],
+			$extMode,
+			[
+				'ID' => $propertyId,
+			],
+		)->Fetch() ?: [];
+	}
+
+	private function getMorePhotoPropertyId(int $iblockId): ?int
+	{
+		return PropertyTable::getRow([
+			'select' => ['ID'],
+			'filter' => [
+				'=IBLOCK_ID' => $iblockId,
+				'=CODE' => 'MORE_PHOTO',
+				'=ACTIVE' => 'Y',
+				'=PROPERTY_TYPE' => PropertyTable::TYPE_FILE,
+			],
+			'cache' => [
+				'ttl' => 86400,
+			],
+		])['ID'] ?? null;
+	}
+
+	private function getMorePhotoProperty(int $iblockId): Result
+	{
+		$result = new Result();
+		$row = PropertyTable::getRow([
+			'select' => [
+				'ID',
+				'ACTIVE',
+				'PROPERTY_TYPE',
+			],
+			'filter' => [
+				'=IBLOCK_ID' => $iblockId,
+				'=CODE' => 'MORE_PHOTO',
+			],
+			'cache' => [
+				'ttl' => 86400,
+			],
+		]);
+
+		if (!$row)
+		{
+			$result->addError(new Error(
+				'Image product property does not exists. Create MORE_PHOTO property'
+			));
+
+			return $result;
+		}
+
+		if ($row['ACTIVE'] !== 'Y')
+		{
+			$result->addError(new Error(
+				'Image product property does not active. Activate MORE_PHOTO property'
+			));
+
+			return $result;
+		}
+
+		if ($row['PROPERTY_TYPE'] !== PropertyTable::TYPE_FILE)
+		{
+			$result->addError(new Error(
+				'Image product property is of the wrong type'
+			));
+
+			return $result;
+		}
+
+		$result->setData(['ID' => (int)$row['ID']]);
+
+		return $result;
+	}
+
+	private function updateProductImage(int $productId, array $updateFields): string
+	{
+		$iblockElement = new \CIBlockElement();
+		$iblockElement->update($productId, $updateFields);
+
+		return $iblockElement->getLastError();
+	}
+
+	private function updateProductMorePhoto(int $productId, int $iblockId, array $updateFields): string
+	{
+		\CIBlockElement::SetPropertyValues(
+			$productId,
+			$iblockId,
+			$updateFields,
+			'MORE_PHOTO',
+		);
+		$exception = self::getApplication()->GetException();
+		if ($exception)
+		{
+			return $exception->GetString();
+		}
+
+		return '';
+	}
+
+	private function checkPermissionProductRead(array $product): Result
 	{
 		$r = $this->checkReadPermissionEntity();
 		if (!$r->isSuccess())
@@ -364,10 +597,10 @@ final class ProductImage extends Controller
 			return $r;
 		}
 
-		return $this->checkPermissionProduct($product, self::IBLOCK_ELEMENT_READ, 200040300010);
+		return $this->checkPermissionProduct($product, self::IBLOCK_ELEMENT_READ, $this->getErrorCodeReadAccessDenied());
 	}
 
-	private function checkPermissionProductWrite(BaseEntity $product): Result
+	private function checkPermissionProductWrite(array $product): Result
 	{
 		$r = $this->checkModifyPermissionEntity();
 		if (!$r->isSuccess())
@@ -375,13 +608,13 @@ final class ProductImage extends Controller
 			return $r;
 		}
 
-		return $this->checkPermissionProduct($product, self::IBLOCK_ELEMENT_EDIT, 200040300020);
+		return $this->checkPermissionProduct($product, self::IBLOCK_ELEMENT_EDIT, $this->getErrorCodeModifyAccessDenied());
 	}
 
-	private function checkPermissionProduct(BaseEntity $product, string $permission, int $errorCode): Result
+	private function checkPermissionProduct(array $product, string $permission, int $errorCode): Result
 	{
 		$r = new Result();
-		if(!\CIBlockElementRights::UserHasRightTo($product->getIblockId(), $product->getId(), $permission))
+		if(!\CIBlockElementRights::UserHasRightTo($product['IBLOCK_ID'], $product['ID'], $permission))
 		{
 			$r->addError(new Error('Access Denied', $errorCode));
 		}
@@ -395,7 +628,7 @@ final class ProductImage extends Controller
 
 		if (!$this->accessController->check(ActionDictionary::ACTION_CATALOG_VIEW))
 		{
-			$r->addError(new Error('Access Denied', 200040300020));
+			$r->addError($this->getErrorModifyAccessDenied());
 		}
 
 		return $r;
@@ -410,7 +643,7 @@ final class ProductImage extends Controller
 			&& !$this->accessController->check(ActionDictionary::ACTION_CATALOG_VIEW)
 		)
 		{
-			$r->addError(new Error('Access Denied', 200040300010));
+			$r->addError($this->getErrorReadAccessDenied());
 		}
 
 		return $r;

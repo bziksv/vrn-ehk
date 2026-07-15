@@ -1,11 +1,13 @@
-import { Type } from 'main.core';
+import { Type, Text } from 'main.core';
 import { LabelColor } from 'ui.label';
 
 import { Utils } from 'im.v2.lib.utils';
-import { ImModelSidebarTaskItem } from 'im.v2.model';
-import { ChatAvatar, AvatarSize } from 'im.v2.component.elements';
+import { ChatAvatar, AvatarSize } from 'im.v2.component.elements.avatar';
+import { highlightText } from 'im.v2.lib.text-highlighter';
 
 import './css/task-item.css';
+
+import type { ImModelSidebarTaskItem } from 'im.v2.model';
 
 // @vue/component
 export const TaskItem = {
@@ -20,9 +22,13 @@ export const TaskItem = {
 			type: String,
 			required: true,
 		},
+		searchQuery: {
+			type: String,
+			default: '',
+		},
 	},
 	emits: ['contextMenuClick'],
-	data() {
+	data(): { showContextButton: boolean } {
 		return {
 			showContextButton: false,
 		};
@@ -36,7 +42,12 @@ export const TaskItem = {
 		},
 		taskTitle(): string
 		{
-			return this.taskItem.task.title;
+			if (this.searchQuery.length === 0)
+			{
+				return Text.encode(this.taskItem.task.title);
+			}
+
+			return highlightText(Text.encode(this.taskItem.task.title), this.searchQuery);
 		},
 		taskAuthorDialogId(): string
 		{
@@ -97,9 +108,7 @@ export const TaskItem = {
 			@mouseleave="showContextButton = false"
 		>
 			<div class="bx-im-sidebar-task-item__content" @click="onTaskClick">
-				<div class="bx-im-sidebar-task-item__header-text" :title="taskTitle">
-					{{ taskTitle }}
-				</div>
+				<div class="bx-im-sidebar-task-item__header-text" :title="taskTitle" v-html="taskTitle"></div>
 				<div class="bx-im-sidebar-task-item__detail-container">
 					<ChatAvatar 
 						:size="AvatarSize.XS"

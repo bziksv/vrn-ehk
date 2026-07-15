@@ -12,6 +12,7 @@ export const ChatType = Object.freeze({
 	sonetGroup: 'sonetGroup',
 	calendar: 'calendar',
 	tasks: 'tasks',
+	taskComments: 'tasksTask',
 	thread: 'thread',
 	mail: 'mail',
 	lines: 'lines',
@@ -20,6 +21,7 @@ export const ChatType = Object.freeze({
 	openChannel: 'openChannel',
 	generalChannel: 'generalChannel',
 	comment: 'comment',
+	collab: 'collab',
 });
 
 export const DialogScrollThreshold = Object.freeze({

@@ -25,8 +25,14 @@ export type FormatterFormatOptions = {
 	data?: FormatterData,
 };
 
+export interface FormatterElement
+{
+	appendChild(): void
+}
+
 const formattersSymbol: Symbol = Symbol('formatters');
 const onUnknownSymbol: Symbol = Symbol('onUnknown');
+const dataSymbol: Symbol = Symbol('data');
 
 /**
  * @memberOf BX.UI.BBCode
@@ -35,6 +41,7 @@ export class Formatter
 {
 	[formattersSymbol]: Map<any, any> = new Map();
 	[onUnknownSymbol]: (UnknownNodeCallbackOptions) => NodeFormatter | null = null;
+	[dataSymbol]: FormatterData | null = null;
 
 	constructor(options: FormatterOptions = {})
 	{
@@ -47,6 +54,11 @@ export class Formatter
 		{
 			this.setOnUnknown(options.onUnknown);
 		}
+	}
+
+	isElement(source): boolean
+	{
+		return Type.isObject(source) && Type.isFunction(source.appendChild);
 	}
 
 	static prepareSourceNode(source: BBCodeNode | string): BBCodeNode | null
@@ -62,6 +74,16 @@ export class Formatter
 		}
 
 		return null;
+	}
+
+	setData(data: FormatterData)
+	{
+		this[dataSymbol] = data;
+	}
+
+	getData(): FormatterData
+	{
+		return this[dataSymbol];
 	}
 
 	setNodeFormatters(formatters: Array<NodeFormatter>)
@@ -88,34 +110,7 @@ export class Formatter
 
 	getDefaultUnknownNodeCallback(): (UnknownNodeCallbackOptions) => NodeFormatter | null
 	{
-		return () => {
-			return new NodeFormatter({
-				name: 'unknown',
-				before({ node }: BeforeConvertCallbackOptions): BBCodeFragmentNode {
-					const scheme: BBCodeScheme = node.getScheme();
-
-					if (node.isVoid())
-					{
-						return scheme.createFragment({
-							children: [
-								scheme.createText(node.getOpeningTag()),
-							],
-						});
-					}
-
-					return scheme.createFragment({
-						children: [
-							scheme.createText(node.getOpeningTag()),
-							...node.getChildren(),
-							scheme.createText(node.getClosingTag()),
-						],
-					});
-				},
-				convert(): DocumentFragment {
-					return document.createDocumentFragment();
-				},
-			});
-		};
+		throw new TypeError('Must be implemented in subclass');
 	}
 
 	setOnUnknown(callback: (UnknownNodeCallbackOptions) => NodeFormatter | null)
@@ -152,6 +147,11 @@ export class Formatter
 		return this.runOnUnknown({ node, formatter: this });
 	}
 
+	getNodeFormatters(): Array<NodeFormatter>
+	{
+		return this[formattersSymbol];
+	}
+
 	format(options: FormatterFormatOptions): DocumentFragment | HTMLElement | Text | null
 	{
 		if (!Type.isPlainObject(options))
@@ -164,6 +164,8 @@ export class Formatter
 		{
 			throw new TypeError('options.data is not a object');
 		}
+
+		this.setData(data);
 
 		const sourceNode: ?BBCodeNode = Formatter.prepareSourceNode(source);
 		if (Type.isNull(sourceNode))
@@ -204,7 +206,7 @@ export class Formatter
 
 		preparedNode.getChildren().forEach((childNode: BBCodeNode) => {
 			const childElement: ?HTMLElement = this.format({ source: childNode, data });
-			if (Type.isDomNode(childElement))
+			if (childElement !== null)
 			{
 				const convertedChildElement: ?HTMLElement = nodeFormatter.runForChild({
 					node: childNode,
@@ -212,7 +214,8 @@ export class Formatter
 					formatter: this,
 					data,
 				});
-				if (Type.isDomNode(convertedChildElement))
+
+				if (convertedChildElement !== null && this.isElement(convertedElement))
 				{
 					convertedElement.appendChild(convertedChildElement);
 				}

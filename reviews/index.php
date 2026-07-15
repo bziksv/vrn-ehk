@@ -1,5 +1,7 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
+$APPLICATION->SetPageProperty("description", "Читайте настоящие отзывы о качестве кованых изделий ЭХК. Оставьте свой опыт работы с нами! Партнеры и розничные клиенты делятся впечатлениями.");
+$APPLICATION->SetPageProperty("title", "Отзывы о ЭХК | Реальные мнения покупателей ковки | Оставить отзыв");
 $APPLICATION->SetTitle("Отзывы");
 ?><?$APPLICATION->IncludeComponent(
 	"bitrix:news.list", 

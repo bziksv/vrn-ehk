@@ -350,7 +350,7 @@ class Catalog
 		$products = array();
 
 		$result = \CSaleBasket::getList(
-			array(), $arFilter = array('ORDER_ID' => $orderId), false, false,
+			array(), array('ORDER_ID' => $orderId), false, false,
 			array('PRODUCT_ID', 'RECOMMENDATION', 'QUANTITY', 'PRICE', 'CURRENCY', 'MODULE')
 		);
 
@@ -432,10 +432,7 @@ class Catalog
 
 	public static function isOn()
 	{
-		return SiteSpeed::isOn()
-			&& Option::get("main", "gather_catalog_stat", "Y") === "Y"
-			&& !Application::getInstance()->getLicense()->isDemoKey()
-		;
+		return false;
 	}
 
 	public static function getProductIdsByOfferIds($offerIds)

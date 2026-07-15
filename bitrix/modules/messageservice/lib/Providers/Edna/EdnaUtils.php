@@ -180,15 +180,18 @@ abstract class EdnaUtils implements EdnaRu
 		$result = new Result();
 		foreach ($apiData as $cascade)
 		{
-			if ($cascade['status'] !== 'ACTIVE' || $cascade['stagesCount'] > 1)
+			if (is_array($cascade))
 			{
-				continue;
-			}
-			if ($subjectComparator($cascade['stages'][0]['subject'], $subject))
-			{
-				$result->setData(['cascadeId' => $cascade['id']]);
+				if ($cascade['status'] !== 'ACTIVE' || $cascade['stagesCount'] > 1)
+				{
+					continue;
+				}
+				if ($subjectComparator($cascade['stages'][0]['subject'], $subject))
+				{
+					$result->setData(['cascadeId' => $cascade['id']]);
 
-				return $result;
+					return $result;
+				}
 			}
 		}
 
@@ -231,7 +234,7 @@ abstract class EdnaUtils implements EdnaRu
 						'SENDER_ID' => $this->providerId,
 						'EXTERNAL_ID' => $channel['subjectId'],
 						'TYPE' => $channelType,
-						'NAME' => $channel['name'],
+						'NAME' => $channel['name'] ?? '',
 						'ADDITIONAL_PARAMS' => [
 							'channelAttribute' => $channel['channelAttribute'] ?? ''
 						],
@@ -297,5 +300,11 @@ abstract class EdnaUtils implements EdnaRu
 		}
 
 		return $result;
+	}
+
+	public function clearCache(string $key): void
+	{
+		$cacheManager = new Providers\CacheManager($this->providerId);
+		$cacheManager->deleteValue($key);
 	}
 }

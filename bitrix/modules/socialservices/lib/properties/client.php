@@ -16,7 +16,7 @@ Loc::loadMessages(__FILE__);
 
 class Client
 {
-	const SERVICE_HOST = 'https://properties.bitrix.info';
+	const SERVICE_HOST = 'https://properties.bitrix24.tech';
 	const REST_URI = '/rest/';
 	const REGISTER_URI = '/oauth/register/';
 	const SCOPE = 'ps';
@@ -225,10 +225,6 @@ class Client
 		if(!is_array($additionalParams))
 		{
 			$additionalParams = array();
-		}
-		else
-		{
-			$additionalParams = Encoding::convertEncodingArray($additionalParams, LANG_CHARSET, "utf-8");
 		}
 
 		$additionalParams['client_id'] = $this->accessSettings['client_id'];

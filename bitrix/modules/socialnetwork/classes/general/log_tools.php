@@ -1,6 +1,7 @@
 <?php
 
 use Bitrix\Main\Text\Emoji;
+use Bitrix\Socialnetwork\Integration\Extranet\User;
 use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Socialnetwork\Helper\Mention;
 use Bitrix\Main\ModuleManager;
@@ -543,7 +544,8 @@ class CSocNetLogTools
 			)
 			{
 				$arCreatedBy["IS_EXTRANET"] = "Y";
-				$suffix = (SITE_TEMPLATE_ID !== "bitrix24" ? GetMessage("SONET_LOG_EXTRANET_SUFFIX") : "");
+				$arCreatedBy["IS_COLLAB"] = User::isCollaber((int)$arFields["USER_ID"]) ? "Y" : "N";
+				$suffix = (SITE_TEMPLATE_ID !== "bitrix24" && SITE_TEMPLATE_ID !== 'air' ? GetMessage("SONET_LOG_EXTRANET_SUFFIX") : "");
 			}
 			else
 			{
@@ -623,7 +625,7 @@ class CSocNetLogTools
 			}
 		}
 		elseif (
-			$arFields["ENTITY_TYPE"] == SONET_SUBSCRIBE_ENTITY_GROUP
+			($arFields["ENTITY_TYPE"] ?? null) == SONET_SUBSCRIBE_ENTITY_GROUP
 			&& intval($arFields["ENTITY_ID"]) > 0
 		)
 		{
@@ -643,10 +645,7 @@ class CSocNetLogTools
 			}
 			else
 			{
-				$url = CComponentEngine::MakePathFromTemplate(
-					$arParams["PATH_TO_GROUP"] ?? null,
-					array("group_id" => $arFields["ENTITY_ID"])
-				);
+				$url = \Bitrix\Socialnetwork\Site\GroupUrl::get((int)$arFields["ENTITY_ID"]);
 
 				$arSocNetAllowedSubscribeEntityTypesDesc = CSocNetAllowed::GetAllowedEntityTypesDesc();
 				$arEntity["FORMATTED"]["TYPE_NAME"] = $arSocNetAllowedSubscribeEntityTypesDesc[$arFields["ENTITY_TYPE"]]["TITLE_ENTITY"];
@@ -1535,7 +1534,7 @@ class CSocNetLogTools
 				static $parserLog = false;
 				if (!$parserLog)
 				{
-					$parserLog = new logTextParser(false, $arParams["PATH_TO_SMILE"]);
+					$parserLog = new logTextParser(false, ($arParams["PATH_TO_SMILE"] ?? null));
 				}
 				$arResult["EVENT_FORMATTED"]["SHORT_MESSAGE"] = $parserLog->html_cut(
 					$parserLog->convert(
@@ -4891,11 +4890,7 @@ class CSocNetLogTools
 								$workgroupFields["NAME"]
 								: htmlspecialcharsback($workgroupFields["NAME"])
 							),
-							"URL" => str_replace(
-								"#group_id#",
-								$workgroupFields["ID"],
-								$arParams["PATH_TO_GROUP"] ?? ''
-							),
+							"URL" => \Bitrix\Socialnetwork\Site\GroupUrl::get((int)$workgroupFields["ID"]),
 							"IS_EXTRANET" => (
 								is_array($GLOBALS["arExtranetGroupID"] ?? null)
 								&& in_array($workgroupFields["ID"], $GLOBALS["arExtranetGroupID"])
@@ -5352,13 +5347,16 @@ class CSocNetLogTools
 	{
 		$arSiteData = array();
 
+		$extranetSiteId = \Bitrix\Socialnetwork\Site\Site::getInstance()->getExtranetSiteId();
+
 		$rsSite = CSite::GetList("sort", "desc", Array("ACTIVE" => "Y"));
 		while ($arSite = $rsSite->Fetch())
 		{
+			$userPage = $arSite['ID'] === $extranetSiteId ? 'contacts/personal/' : 'company/personal/';
 			$serverName = htmlspecialcharsEx($arSite["SERVER_NAME"]);
 			$arSiteData[$arSite["ID"]] = array(
 				"GROUPS_PATH" => COption::GetOptionString("socialnetwork", "workgroups_page", $arSite["DIR"]."workgroups/", $arSite["ID"]),
-				"USER_PATH" => COption::GetOptionString("socialnetwork", "user_page", $arSite["DIR"]."company/personal/", $arSite["ID"]),
+				"USER_PATH" => COption::GetOptionString("socialnetwork", "user_page", $arSite["DIR"] . $userPage, $arSite["ID"]),
 				"SERVER_NAME" => (
 					$serverName <> ''
 						? $serverName
@@ -6493,12 +6491,12 @@ class logTextParser extends CTextParser
 		return trim($text);
 	}
 
-	function convert_anchor_tag($url, $text, $pref="")
+	function convert_anchor_tag($url, $text, $attributes = [])
 	{
 		if ($this->allow["LOG_ANCHOR"] === "N")
 			return "[URL]".$text."[/URL]";
 		else
-			return parent::convert_anchor_tag($url, $text, $pref);
+			return parent::convert_anchor_tag($url, $text, $attributes);
 	}
 
 	function convert_image_tag($url = "", $params = "")
@@ -6898,7 +6896,7 @@ class CSocNetLogComponent
 				else
 				{
 					$arSubStructure = CIntranetUtils::getSubStructure($siteRootDepartmentId);
-					$arSiteDepartmentId = array_keys($arSubStructure["DATA"]);
+					$arSiteDepartmentId = array_keys($arSubStructure["DATA"] ?? []);
 
 					foreach($arDepartmentId as $userDepartmentId)
 					{

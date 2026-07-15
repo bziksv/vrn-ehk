@@ -7,7 +7,7 @@
 		&& typeof this.BX.Vue3.Vuex !== 'undefined'
 	)
 	{
-		var currentVersion = '4.0.2';
+		var currentVersion = '4.1.0';
 
 		if (this.BX.Vue3.Vuex.version !== currentVersion)
 		{
@@ -338,9 +338,6 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	      return defaultValue;
 	    }
 	    const nameParts = name.toString().split('.');
-	    if (nameParts.length === 1) {
-	      return this.variables[nameParts[0]];
-	    }
 	    let result;
 	    let variables = Object.assign({}, this.variables);
 	    for (let i = 0; i < nameParts.length; i++) {
@@ -1032,12 +1029,111 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	  }
 	}
 
+	/* eslint-disable no-param-reassign */
+	class BuilderEntityModel$$1 extends BuilderModel$$1 {
+	  constructor() {
+	    super();
+
+	    // eslint-disable-next-line no-constructor-return
+	    return new Proxy(this, {
+	      get: (target, property) => {
+	        if (property in BuilderEntityModel$$1.defaultModel) {
+	          return () => {
+	            var _target$property;
+	            return {
+	              ...BuilderEntityModel$$1.defaultModel[property](target),
+	              ...((_target$property = target[property]) == null ? void 0 : _target$property.call(target))
+	            };
+	          };
+	        }
+	        return target[property];
+	      }
+	    });
+	  }
+	}
+	BuilderEntityModel$$1.defaultModel = {
+	  getState: () => ({
+	    collection: {}
+	  }),
+	  getGetters: () => ({
+	    getAll: state => Object.values(state.collection),
+	    getIds: state => Object.values(state.collection).map(({
+	      id
+	    }) => id),
+	    getById: state => id => state.collection[id],
+	    getByIds: (state, {
+	      getAll
+	    }) => ids => {
+	      return getAll.filter(item => ids.includes(item.id));
+	    }
+	  }),
+	  getActions: () => ({
+	    insert: (store, item) => {
+	      store.commit('insert', item);
+	    },
+	    insertMany: (store, items) => {
+	      items.forEach(item => store.commit('insert', item));
+	    },
+	    upsert: (store, item) => {
+	      store.commit('upsert', item);
+	    },
+	    upsertMany: (store, items) => {
+	      items.forEach(item => store.commit('upsert', item));
+	    },
+	    update: (store, payload) => {
+	      store.commit('update', payload);
+	    },
+	    delete: (store, id) => {
+	      store.commit('delete', id);
+	    },
+	    deleteMany: (store, ids) => {
+	      ids.forEach(id => store.commit('delete', id));
+	    }
+	  }),
+	  getMutations: target => ({
+	    insert: (state, item) => {
+	      if (item) {
+	        var _state$collection, _item$id, _state$collection$_it;
+	        (_state$collection$_it = (_state$collection = state.collection)[_item$id = item.id]) != null ? _state$collection$_it : _state$collection[_item$id] = {
+	          ...(target.getElementState == null ? void 0 : target.getElementState()),
+	          ...item
+	        };
+	      }
+	    },
+	    upsert: (state, item) => {
+	      if (item) {
+	        var _state$collection2, _item$id2, _state$collection2$_i;
+	        (_state$collection2$_i = (_state$collection2 = state.collection)[_item$id2 = item.id]) != null ? _state$collection2$_i : _state$collection2[_item$id2] = target.getElementState == null ? void 0 : target.getElementState();
+	        state.collection[item.id] = {
+	          ...state.collection[item.id],
+	          ...item
+	        };
+	      }
+	    },
+	    update: (state, {
+	      id,
+	      fields
+	    }) => {
+	      var _fields$id;
+	      const updatedItem = {
+	        ...state.collection[id],
+	        ...fields
+	      };
+	      delete state.collection[id];
+	      state.collection[(_fields$id = fields.id) != null ? _fields$id : id] = updatedItem;
+	    },
+	    delete: (state, id) => {
+	      delete state.collection[id];
+	    }
+	  })
+	};
+
 	/*!
-	 * vuex v4.0.2
-	 * (c) 2021 Evan You
+	 * vuex v4.1.0
+	 * (c) 2022 Evan You
 	 * @license MIT
 	 *
-	 * @source: https://unpkg.com/vuex@4.0.2/dist/vuex.esm-browser.js
+	 * @source: https://unpkg.com/vuex@4.1.0/dist/vuex.esm-browser.js
 	 */
 	function getDevtoolsGlobalHook() {
 	  return getTarget().__VUE_DEVTOOLS_GLOBAL_HOOK__;
@@ -1166,6 +1262,7 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	}
 	function resetStoreState(store, state, hot) {
 	  var oldState = store._state;
+	  var oldScope = store._scope;
 
 	  // bind store public getters
 	  store.getters = {};
@@ -1173,24 +1270,36 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	  store._makeLocalGettersCache = Object.create(null);
 	  var wrappedGetters = store._wrappedGetters;
 	  var computedObj = {};
-	  forEachValue(wrappedGetters, function (fn, key) {
-	    // use computed to leverage its lazy-caching mechanism
-	    // direct inline function use will lead to closure preserving oldState.
-	    // using partial to return function with only arguments preserved in closure environment.
-	    computedObj[key] = partial(fn, store);
-	    Object.defineProperty(store.getters, key, {
-	      // TODO: use `computed` when it's possible. at the moment we can't due to
-	      // https://github.com/vuejs/vuex/pull/1883
-	      get: function () {
+	  var computedCache = {};
+
+	  // create a new effect scope and create computed object inside it to avoid
+	  // getters (computed) getting destroyed on component unmount.
+	  var scope = ui_vue3.effectScope(true);
+	  scope.run(function () {
+	    forEachValue(wrappedGetters, function (fn, key) {
+	      // use computed to leverage its lazy-caching mechanism
+	      // direct inline function use will lead to closure preserving oldState.
+	      // using partial to return function with only arguments preserved in closure environment.
+	      computedObj[key] = partial(fn, store);
+	      computedCache[key] = ui_vue3.computed(function () {
 	        return computedObj[key]();
-	      },
-	      enumerable: true // for local getters
+	      });
+	      Object.defineProperty(store.getters, key, {
+	        get: function () {
+	          return computedCache[key].value;
+	        },
+	        enumerable: true // for local getters
+	      });
 	    });
 	  });
 
 	  store._state = ui_vue3.reactive({
 	    data: state
 	  });
+
+	  // register the newly created effect scope to the store so that we can
+	  // dispose the effects when this method runs again in the future.
+	  store._scope = scope;
 
 	  // enable strict mode for new state
 	  if (store.strict) {
@@ -1204,6 +1313,11 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	        oldState.data = null;
 	      });
 	    }
+	  }
+
+	  // dispose previously registered effect scope if there is one.
+	  if (oldScope) {
+	    oldScope.stop();
 	  }
 	}
 	function installModule(store, rootState, path, module, hot) {
@@ -1886,6 +2000,11 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	  this._modulesNamespaceMap = Object.create(null);
 	  this._subscribers = [];
 	  this._makeLocalGettersCache = Object.create(null);
+
+	  // EffectScope instance. when registering new getters, we wrap them inside
+	  // EffectScope so that getters (computed) would not be destroyed on
+	  // component unmount.
+	  this._scope = null;
 	  this._devtools = devtools;
 
 	  // bind commit and dispatch to self
@@ -2420,7 +2539,7 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	}
 	// origin-end
 
-	const version = '4.0.2';
+	const version = '4.1.0';
 
 	exports.Builder = Builder$$1;
 	exports.BuilderModel = BuilderModel$$1;
@@ -2436,8 +2555,9 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	exports.storeKey = storeKey;
 	exports.useStore = useStore;
 	exports.version = version;
+	exports.BuilderEntityModel = BuilderEntityModel$$1;
 
-}((this.BX.Vue3.Vuex = this.BX.Vue3.Vuex || {}),BX.Dexie3,BX,BX,BX.Vue3));
+}((this.BX.Vue3.Vuex = this.BX.Vue3.Vuex || {}),BX.DexieExport,BX,BX,BX.Vue3));
 
 
 

@@ -24,9 +24,9 @@ use Bitrix\Main,
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_ChatIndex_Query query()
- * @method static EO_ChatIndex_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ChatIndex_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_ChatIndex_Result getById($id)
- * @method static EO_ChatIndex_Result getList(array $parameters = array())
+ * @method static EO_ChatIndex_Result getList(array $parameters = [])
  * @method static EO_ChatIndex_Entity getEntity()
  * @method static \Bitrix\Im\Model\EO_ChatIndex createObject($setDefaultValues = true)
  * @method static \Bitrix\Im\Model\EO_ChatIndex_Collection createCollection()
@@ -174,11 +174,29 @@ class ChatIndexTable extends Main\Entity\DataManager
 
 		if ($update[0] !== '')
 		{
-			Application::getConnection()->query(
-				"UPDATE " . static::getTableName() . " SET " . $update[0] . " WHERE " . $primaryField . " = " . $id
-			);
+			$sql = "UPDATE " . static::getTableName() . " SET " . $update[0] . " WHERE " . $primaryField . " = " . $id;
+			self::safeUpdateIndex($sql);
 		}
 
 		return $result;
+	}
+
+	private static function safeUpdateIndex(string $sql): void
+	{
+		try
+		{
+			Application::getConnection()->query($sql);
+		}
+		catch (Main\DB\SqlQueryException $exception)
+		{
+			if (str_starts_with($exception->getMessage(), "Mysql query error: (1022) Can't write;"))
+			{
+				Application::getConnection()->query($sql);
+
+				return;
+			}
+
+			throw $exception;
+		}
 	}
 }

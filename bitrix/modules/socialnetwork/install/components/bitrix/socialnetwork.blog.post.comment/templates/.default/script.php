@@ -69,9 +69,9 @@ $formParams = [
 	],
 	"UPLOAD_FILE" => !empty($arResult["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_FILE"])
 		? false
-		: $arResult["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_DOC"]
+		: ($arResult["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_DOC"] ?? null)
 	,
-	"UPLOAD_WEBDAV_ELEMENT" => $arResult["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_FILE"],
+	"UPLOAD_WEBDAV_ELEMENT" => $arResult["COMMENT_PROPERTIES"]["DATA"]["UF_BLOG_COMMENT_FILE"] ?? null,
 	"UPLOAD_FILE_PARAMS" => ["width" => 400, "height" => 400],
 	"FILES" => [
 		"VALUE" => [],
@@ -109,7 +109,7 @@ $formParams = [
 		)
 	],
 	"DISABLE_LOCAL_EDIT" => $arParams["bPublicPage"],
-	"SELECTOR_VERSION" => $arResult["SELECTOR_VERSION"],
+	"SELECTOR_VERSION" => $arResult["SELECTOR_VERSION"] ?? null,
 	"DISABLE_CREATING_FILE_BY_CLOUD" => $arParams["bPublicPage"],
 	'MENTION_ENTITIES' => [
 		[
@@ -252,11 +252,7 @@ BX.ready(function(){
 
 	window["SBPC"] = {
 		form : BX('<?=$formParams["FORM_ID"]?>'),
-		actionUrl : '<?=(
-			$arParams["SEF"] === "Y"
-				? '/bitrix/urlrewrite.php?SEF_APPLICATION_CUR_PAGE_URL='.str_replace("%23", "#", urlencode($arResult["urlToPost"]))
-				: CUtil::JSEscape($arResult["urlToPost"])
-		)?>',
+		actionUrl : '<?= CUtil::JSEscape($arResult["urlToPost"]) ?>',
 		editorId : '<?=$formParams["LHE"]["id"]?>',
 
 		jsMPFName : 'PlEditor<?=$formParams["FORM_ID"]?>'

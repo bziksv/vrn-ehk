@@ -5,9 +5,13 @@ namespace Bitrix\Calendar\Core\Section;
 use Bitrix\Calendar\Core\Base\Date;
 use Bitrix\Calendar\Core\Base\EntityInterface;
 use Bitrix\Calendar\Core\Role\Role;
+use Bitrix\Calendar\Sync\Google\Dictionary;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Security\Random;
 use Bitrix\Main\Text\Emoji;
+use Bitrix\Main\Type\Contract\Arrayable;
 
-class Section implements EntityInterface
+class Section implements EntityInterface, Arrayable
 {
 	public const LOCAL_EXTERNAL_TYPE = 'local';
 
@@ -91,6 +95,13 @@ class Section implements EntityInterface
 	protected ?string $davExchangeMod = null;
 	protected ?string $calDavCal = null;
 	protected ?string $calDavMod = null;
+
+	protected ?bool $isCollab = false;
+
+	public static function generateXmlId(int $id, string $type): string
+	{
+		return md5($type. '_'. $id. '_'. Random::getString(8));
+	}
 
 	/**
 	 * @param int $id
@@ -367,6 +378,11 @@ class Section implements EntityInterface
 		return $this->owner;
 	}
 
+	public function getOwnerId(): ?int
+	{
+		return $this->owner?->getId();
+	}
+
 	/**
 	 * @return Date|null
 	 */
@@ -453,6 +469,27 @@ class Section implements EntityInterface
 	}
 
 	/**
+	 * Returns the section name for external vendors (Google, iCloud, Office 365, etc.)
+	 *
+	 * @return string
+	 */
+	public function getExternalName(): string
+	{
+		$name = $this->name ?: (string)$this->id;
+
+		if ($this->externalType === self::LOCAL_EXTERNAL_TYPE)
+		{
+			IncludeModuleLangFile(
+				$_SERVER['DOCUMENT_ROOT'] . BX_ROOT . '/modules/calendar/classes/general/calendar.php'
+			);
+
+			return Loc::getMessage('EC_CALENDAR_BITRIX24_NAME') . ' ' . $name;
+		}
+
+		return $name;
+	}
+
+	/**
 	 * @return SectionSyncDataCollection
 	 */
 	public function getSyncDataCollection(): SectionSyncDataCollection
@@ -536,5 +573,49 @@ class Section implements EntityInterface
 	public function isNew(): bool
 	{
 		return $this->id === null;
+	}
+
+	public function setIsCollab(?bool $isCollab): Section
+	{
+		$this->isCollab = (bool)$isCollab;
+
+		return $this;
+	}
+
+	public function isCollab(): bool
+	{
+		return $this->isCollab;
+	}
+
+	public function isVirtual(): bool
+	{
+		return in_array(
+			$this->externalType,
+			[
+				Dictionary::ACCESS_ROLE_TO_EXTERNAL_TYPE['reader'],
+				Dictionary::ACCESS_ROLE_TO_EXTERNAL_TYPE['freeBusyOrder'],
+			],
+			true
+		);
+	}
+
+	public function toArray(): array
+	{
+		return [
+			'ID' => $this->id,
+			'NAME' => $this->name,
+			'COLOR' => $this->color,
+			'DESCRIPTION' => $this->description,
+			'GAPI_CALENDAR_ID' => $this->googleId,
+			'CAL_DAV_MOD' => $this->syncToken,
+			'CAL_DAV_CON' => $this->calDavConnectionId,
+			'EXTERNAL_TYPE' => $this->externalType,
+			'CAL_TYPE' => $this->type,
+			'ACTIVE' => $this->isActive,
+			'XML_ID' => $this->xmlId,
+			'OWNER_ID' => $this->getOwnerId(),
+			'CREATED_BY' => $this->creator?->getId(),
+			'IS_COLLAB' => $this->isCollab,
+		];
 	}
 }

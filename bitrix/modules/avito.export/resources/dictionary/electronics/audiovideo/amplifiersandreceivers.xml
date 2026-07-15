@@ -1,0 +1,21 @@
+<root>
+	<ProductType name="Аксессуары"/>
+	<ProductType name="Ресиверы">
+		<Brand file="resivery.xml" rename="true"/>
+		<SubProductType name="AV-ресивер"/>
+		<SubProductType name="Стереоресивер"/>
+		<SubProductType name="AV-процессор"/>
+	</ProductType>
+	<ProductType name="ТВ приставки"/>
+	<ProductType name="Усилители">
+		<Brand file="usiliteli.xml" rename="true"/>
+		<SubProductType name="Интегральный усилитель"/>
+		<SubProductType name="Предусилитель"/>
+		<SubProductType name="Усилитель мощности"/>
+		<SubProductType name="Усилитель для наушников"/>
+		<SubProductType name="Ламповый усилитель"/>
+		<SubProductType name="Фонокорректор"/>
+		<SubProductType name="Цифро-аналоговый преобразователь"/>
+		<SubProductType name="Сетевой аудиоплеер"/>
+	</ProductType>
+</root>

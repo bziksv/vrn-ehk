@@ -1,0 +1,5748 @@
+<Snegouborshiki>
+	<brend name="A-iPower">
+		<model name="AS463">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="AS567">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="AS567F">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="AS617LE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="AS719LE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="AL-KO">
+		<model name="SnowLine 46 E">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SnowLine 560 II">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SnowLine 620E II">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SnowLine 700 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SnowLine 760 TE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SnowLine ST 4048 EnergyFlex">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="APEK-AS">
+		<model name="9507 ME Pro Line">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="ASILAK">
+		<model name="SBG-761">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Aceline">
+		<model name="STE15">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Aiken">
+		<model name="MST 500 EM">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="MST651Q-E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Alaska">
+		<model name="KCD 26-F">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Alpina">
+		<model name="AS 56 P">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="AS 62 P">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Alteco">
+		<model name="SBG 318">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 722">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 722 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 724 Pro">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 930">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Ariens">
+		<model name="ST 24 Compact">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Armada">
+		<model name="SB 1170 Pro">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB6556">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB8062 Pro">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="BEST BRO">
+		<model name="1 xs5 snow">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Baumaster">
+		<model name="STE-3431X">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Biotorg">
+		<model name="Q1-JY-1300">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Biyoti">
+		<model name="BYT-SN01">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Bojet">
+		<model name="ESS-33">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="EST-46">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Bort">
+		<model name="BSF-30">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="BSF-40">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="BoxBot">
+		<model name="ES 150">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ES 230">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GS 700">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Brait">
+		<model name="BBS6048W">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="BCS-400">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="BR-1172ELTWS-6">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="BR-1172ELWS-4">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="BR-1176ELWS-6">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="BR-3046W">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="BR-7056W">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="BR-7061ELK">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="BR-756">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="BR-756S">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="BR-7856W">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="BR-7861ELW-6">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="BR-7861EW">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="BR-7861EWS-4">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="BST-1300Y">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="BST-2200Y">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="BST-2200YA">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="BST-2200YBL">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="CS-300">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СБ-7856">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СБ7861">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СБ7861Е">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Briggs&amp;Stratton">
+		<model name="BM924E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Caiman">
+		<model name="Go 22CE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Valto 24CVE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Valto 24S Red">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Valto 28SI">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Valto 30CVE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Valto-24C">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Valto-24S">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Valto-28S">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Carver">
+		<model name="STE 1333">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STE 2146">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STE 2346">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STE 2346L">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG 5556">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG 7056EL">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG 7056W">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG 7056WEL">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG 7061R">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG 756">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG-3045">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG-3045 3.0НР">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG-6556">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG-6556 EL">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Champion">
+		<model name="ST 656">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST1074BS">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST1170BS">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST1170E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST1171E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST1376E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST246">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST553">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST556">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST655">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST655BS">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST656">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST656BS">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST661">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST661BS">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST662E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST761BS">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST761E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST762E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST855BS">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST861">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST861BS">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST861E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST977BS">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STE 1650">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STE1650">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STT1170E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STT1171E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STT761E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Craftsman">
+		<model name="88455">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="88830">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="88957">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Crosser">
+		<model name="CR-SN-2">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Cub Cadet">
+		<model name="524 SWE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="526 HD SWE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="528 HD SWE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="530 HD SWE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="933 SWE Pro">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="945 SWE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Pro 528 HD SWE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="XS2 61 SWE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="XS3 66 SWE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="XS3 71 SWE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="XS3 76 SWE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="DDE">
+		<model name="ST 1370 L">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 1476 L">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST1176LE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST1176LET">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST1387L">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST1387LET">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST3546">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST5556L">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST6555">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST6556">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST6556L">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST6560L">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST6561">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST6561L">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST6561LE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST6562">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST6562L">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST6563">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST7066">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST7066E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST7066LE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST7067">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST7071E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST8064L-145E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST9070L">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST9070LE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST9071LE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST9072ET">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STE 220">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STE140">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STE160">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STE180">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STE220">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="DEKADO">
+		<model name="ST560">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST610E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST760E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Daewoo">
+		<model name="DAST 1080">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 1370">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 1590">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 17110">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 224">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 227">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 2500E">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 2600E">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 3000E">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 3021Li SET">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 330">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 3321Li SET">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 3521Li SET">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 4042Li">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 427">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 427 EFI">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 430">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 430 EFI">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 5040Li">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 5542LiSET">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 6060">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 6560">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 7565">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 8060">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 8065">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 8565">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 8570">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST 9070">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DAST7055">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="S 6060">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="S 6560">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="S 7560">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="S 7565">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SE 2700">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="DeWORKS">
+		<model name="S 1590">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="S 6060">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="S 6560">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="S 7565">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="S 8065">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="S 8565">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SE 2500">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Dedra">
+		<model name="DED6983">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Deko">
+		<model name="ST1500">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST21">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST2300">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST2500R">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST2600">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST40V">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Delta">
+		<model name="СУМ-5,5">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Denzel">
+		<model name="ESB-460">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ESB-460-0">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="EST-51Li">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GSB-53">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB 1100 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB 460">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB 460 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB 560">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB 560 LP">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB 650 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBL 711D PRO">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBL 711DT PRO">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBM 610">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBM 610DT PRO">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBM 610S PRO">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SWB-600">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="DimAreg">
+		<model name="AGD687">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="ETALON">
+		<model name="STG 1170 EZ Plus">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="EVOline">
+		<model name="SBE 330">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBE 460 L">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 460">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 560">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 560 BE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 560 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 610 BE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 610 HE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 620 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 660 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 660 TE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 680 BE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 690 BE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 690 HE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 690 TBE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 690 THE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 700 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 700 TE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 760 BE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 760 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 760 HE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 760 TBE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 760 TE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 760 THE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SBG 760 The Hydro">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Efco">
+		<model name="Artik 56">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Artik 62 ELD">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Elitech">
+		<model name="HD ST 0656U2">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HD ST 1476LE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 0656">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 0656U2">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 0762LE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 1271CLE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 1271LE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМ 0756ЛЭ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМ 0761С">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМ 0761СЛЭ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМ 0971СЛЭ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМ 12Э">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМ 12ЭГ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМ 14Э">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМ 2Е">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМ 5">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМ 6">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМ 6У2">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМЭ 100 (E1609.021.00)">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМЭ 150 (E1609.022.00)">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМЭ 2">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМЭ 2000 (E1609.018.00)">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМЭ 2200 (E1609.019.00)">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Enifield">
+		<model name="555">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="EN 5562">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="EN 756E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="EN 760E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="EN 9061E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Ergomax">
+		<model name="EST 3311">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="EST-3211">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Etaltech">
+		<model name="STG 6562 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Eurosystems">
+		<model name="ES 1115 DET">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ES 1115 ME">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ES 511 M">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ES 611 M">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ES 611 M Plus">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ES 721 ME">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ES 821 ME">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Expert">
+		<model name="Irbis 555">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="FIRMAN">
+		<model name="FS-5,5-520">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Favourite">
+		<model name="EST 2500/500">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="OBS 21/4SP">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SP 1500/30T">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="FengBao">
+		<model name="2АКБ">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Fest">
+		<model name="СУ56-6НД">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СУ57-6НД">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="FinePower">
+		<model name="SRMB30 OneBase20">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SRME4618">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SRMP6119L">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Flaizer">
+		<model name="90E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Forward">
+		<model name="FST-65/220">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="FST-70Е">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Forza">
+		<model name="AC-F-6,5">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="AC-F-6,5EV">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="AC-F-700EV">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="AC-F-900ET">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="CO651QE">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Fuxtec">
+		<model name="FX-SF1196">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="FX-SF210">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="GardenPro">
+		<model name="KCM22B">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="KCM24D-F">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Geos">
+		<model name="Arctic Line 760 TE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SnowLine 620 B II">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SnowLine 620 E II">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Getink">
+		<model name="GS567">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GS617L">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GS617LE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GS668L">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GS668LE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Gigant">
+		<model name="SP-01">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SP-02">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SP-03">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SP-2300-460ES">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Green Machine">
+		<model name="GM921301">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GM921701">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Green Power">
+		<model name="LP-7807B">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="GreenWorks">
+		<model name="G40SS30">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="G80SS30">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD40SB">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD40SS">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD40SS2">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD40SS30">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD40SSK2">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD40SSK4">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD40SSK5">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD40ST">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD40STK5">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD40STK6">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD60PST">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD60PSTK4">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD60PSTK5">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD60SS">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD60SS2">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD60SSK5">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD60ST">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD60STK4">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD60STK6">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD80SB">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD80SBK4">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD82ST">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD82ST56">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD82ST56K8">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD82STK22">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GD82STK5">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GES10">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GES13">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GES40">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GES8">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GES80">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SN2300">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Grost">
+		<model name="SB21M">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB24D">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB24DT">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB24M">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Grunmoos">
+		<model name="GDK388-01">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="HND">
+		<model name="ST 56 XWR">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 61 PSW">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 61 PW">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 61 XWR">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 71 JWR">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 71 XST">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 76 XST">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 76 XSW">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Habert">
+		<model name="HB1542MS PRO">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HB930MS Pro">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HBM22B">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HBM24-F">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HBM24D">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HBM24DT">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HBM28D">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Haitec">
+		<model name="HT-ASF128">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HT-ASF130">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HT-ASF150">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HT-ESF130">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HT-ESF140">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HT-ESF145">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HT-ESF150">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HT-ESF160">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HT-SF21254">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HT-SF21261ES">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HT-SF22071ES">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Hammer">
+		<model name="Snowbull 2000E">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Snowbull 5600">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Snowbull 6100">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Hanskonner">
+		<model name="HSTG7661EBS">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HSTG7661EL">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HSTG7661ELT">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Herz">
+		<model name="SB-13EGS">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB-15EGS">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB-7L">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB-7US">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Hiper">
+		<model name="HST530/510Z">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HST610/510A">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Home Garden">
+		<model name="PH 220 EL">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PHG 51">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PHG 72E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Honda">
+		<model name="HS 622 ET">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HS 650 GE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HS 750 EA">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HS55">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HSL 2511 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HSM 1180 IE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HSM1380iETD">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HSM1390iETDR">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HSS 655 ET1">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HSS 655 ETD1">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HSS 655 EW1">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HSS 655 K1 ET">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HSS 760A ET">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HSS 760A ETD">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HSS 970A ETD">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HSS1380AETD">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HSS1380iETD">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="S100A">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Husqvarna">
+		<model name="1130 STE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="5524ST">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="8024STE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 131">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 151">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 227">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 268EPT">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 424T">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 427T">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 430T">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST124">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST151">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST224">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST227P">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST230P">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST261E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST268EP">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST276EP">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST327PT">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST330PT">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Huter">
+		<model name="SGC 1000E">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 11000CD">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 20-2Li">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 2000E">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 2300E">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 2500EL">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 3000">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 4-1V">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 4-YS">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 4.1M">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 40-Li">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 4000">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 4000B">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 4000E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 4000L">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 4100">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 4100L">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 4100LX">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 4100W">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 46/20E">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 4800">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 4800B">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 4800E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 4800EX">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 5500B">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 5500X">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 56/42-4/2">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 56/54-5/2B">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 6,5">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 6,8">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 6-1X">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 6-YS">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 600">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 6000">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 6000CD">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 7,0">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 7-56/42">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 7-56/54">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 7/56">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 7/56 EF">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 8,0">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 8000">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 8100">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC 8100C">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SGC M40-5642">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Hyundai">
+		<model name="HS 6170E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HS7070E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HS7680E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="S 1170">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="S 1176">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="S 400">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="S 500">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="S 5555">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="S 5556">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="S 6165-T">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="S 6561">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="S 7065">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="S 7066">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="S 7713-T">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="IKRA">
+		<model name="MOGATEC IEST 1500">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Mogatec ESF 6020">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="KASKAD">
+		<model name="SB 772EL">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="KATANA">
+		<model name="KS-56">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="KS-56E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="KS-62">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="KS-62E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="KC Mechanical">
+		<model name="SF16356Z">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="KRANZ">
+		<model name="KR613 KR-16-1122">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Kama">
+		<model name="СУ56-6НД">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СУ57-6НД">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СУ57-6ЭНД">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СУ57-6ЭНДФ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Kansas">
+		<model name="Snow Cat 551Q">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Snow Cat 651QE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Karcher">
+		<model name="STH 953">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Kettama">
+		<model name="110 B Basic">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="150 S Superior">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="250 Pro">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="300 Pro">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="60 B Basic">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="80 B Basic">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="80 S Superior">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="90 B Basic">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="90 S Superior">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ECO 101B">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ECO 1300">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ECO 1600">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ECO 2000">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ECO 2500">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="HD KTA300">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="KTA50-GZM">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="KTA60-B">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="KTA60-G">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Luxe KTA80-C">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Snow Master X7">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Kobashi">
+		<model name="ST 25">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Krotof">
+		<model name="4602E">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="DB7559DC">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="KC1176F">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="KC346S">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="KC653R GP">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="KC660RE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="KC766F">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="KC971F">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="LUX-TOOLS">
+		<model name="E-SF-1800/45 A">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="LUX 163">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Linstor">
+		<model name="МС-1170ГЭ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="МС-1170Э">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="МС-656">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="MANCRAFT">
+		<model name="DK388-01">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="MASTER">
+		<model name="СМБ-6.5/620">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="MODENGO">
+		<model name="D0030">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="MTD">
+		<model name="31A-3CAD700">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="611D">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="E 640 F">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="E 660 G">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="E740F">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="M 53">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="M 56">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="M 61">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ME 61">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ME 66">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Optima ME 66">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Optima ME 66 T">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Optima ME 76">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 380 D">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="MTX">
+		<model name="ST 560">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 610">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STK 620">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STK 620EL">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="MURRAY">
+		<model name="6.5 TP MINI 21">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Mac Allister">
+		<model name="MST2000">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="MasterYard">
+		<model name="ML 7522">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ML 7522B">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ML 8024B">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ML11524BE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="MV 11528BE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="MV 11528RE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="MV 23528 RET">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="MV 26530 RET">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="MV 8522 RE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="MV 8524 RE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="MV 9024 BE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="MX 11528 BE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="MX 6522">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="MX 7522R">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="MX 8022B">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="MX 8522R">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="MaxCut">
+		<model name="MC 51">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="MC 52E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="MC 53">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="MaxPiler">
+		<model name="MCST20-250">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="MST-3000">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="MST-4050">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="MST-4050B">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="MST-4850B">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="MST-4850C">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="MST-5250B">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="MSTE-1200">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="MSTE-2000">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="McCulloch">
+		<model name="PM105">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PM55">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PM85">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST61">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST76EP">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Monferme">
+		<model name="26077M">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="26087M">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="NAC">
+		<model name="GST55">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="NEWJEL">
+		<model name="NJ40201">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="NOMAD">
+		<model name="KCST1329ES(D)">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="N1172ES">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Nikkey">
+		<model name="СМБ 7.0 А">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Nortool">
+		<model name="ST 571 EL">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Number one">
+		<model name="C-361">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Oasis">
+		<model name="SM-7">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SM-7/11/61K">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SM-7/11S/72K Pro">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SM-7/56K">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SM-7/61K">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SM-7/61K Pro">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SM-7/72K Pro">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SM-7S Pro">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SM772K Pro">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="PROFI">
+		<model name="P6560ET">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМБ-7.0/610/520RA">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМБ-9,0/710/520EFP">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Park">
+		<model name="T-1300-41">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Partner">
+		<model name="SB240">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Partner For Garden">
+		<model name="SS 28">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SS 30">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 40">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 50T">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Parton">
+		<model name="PA10529ES">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PA1330ES">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PA1330ESS">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PA6527ES">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Patriot">
+		<model name="Home Garden PHG 63">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="LS 601">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PE 1001UES">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PE 1002 UES">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PE 1003 UES">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PRO 550">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PRO 7 KX">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 1500 E">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 1600 E">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 161">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 2300 E">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 2450 E">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 301">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 601">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 601 L">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 602 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 603">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 603 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 603 H">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 603 LED">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 650DDE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 661 DDE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 700">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 707">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 707 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 707 T">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 710 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 731">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 751 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 781 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 791 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 901">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 911">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 917">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="PS 921 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Pro 1100 ED">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Pro 1150 ED">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Pro 1401 ED">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Pro 650">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Pro 655 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Pro 658 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Pro 750">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Pro 755 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Pro 777 S">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Pro 785E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Pro 800 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Pro 951 ED">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Pro 981 ED">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Арктика СБ 57">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Сибирь 110 CE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Сибирь 110 CET">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Сибирь 110 Е">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Сибирь 110 ЕT">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Сибирь 113 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Сибирь 130 CET">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Сибирь 130 ЕТ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Сибирь 57">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Сибирь 60">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Сибирь 62">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Сибирь 65 Е">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Сибирь 67 CЕ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Сибирь 67 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Сибирь 67 Е">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Сибирь 68 CE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Сибирь 68 Е">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Сибирь 85 ЕТ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Сибирь 997 ЕКХ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Сибирь 999 EKX">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Сибирь 999 KX">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Pioneer">
+		<model name="EST-1300">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="EST-1600">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Poulan Pro">
+		<model name="PR1030ES">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Prorab">
+		<model name="EST 1801">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="EST 1811">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GST 60 S">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GST 65 EL">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GST 65 S">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GST61-S">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GST71-ES">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GST71-S">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GT 72 ELT">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="RedVerg">
+		<model name="RD-23028">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-240-65">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-25065E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-26090E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-27013E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-370-13TE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-ESB35/1600">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-ESB45/2000">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-ESB45/2000L">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-SB107/15DW-E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-SB18-300BL/U">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-SB36-460BL/U">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-SB53/950BS">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-SB56/7">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-SB56/7E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-SB56/7EB">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-SB56/7EW">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-SB56/7W">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-SB56/8R">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-SB60/950BS-E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-SB61/9TE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-SB62/7">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-SB62/7E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-SB66/1450BS-E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-SB66/9E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-SB71/1150BS-E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-SB71/1450BS-E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-SB71/9E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-SB76/13E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-SBS87/15TBH">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RD-ST65E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Rein">
+		<model name="STR 551 Q">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Ryobi">
+		<model name="RST36B51">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="RY18ST25A-0">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Saturn">
+		<model name="7816">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Senix">
+		<model name="STE18-M-EU">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STX2-L-EU SET">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STX2-M-EU SET">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STX2-M1-EU SET">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Simplicity">
+		<model name="755 M">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Snapper">
+		<model name="SN822E EU">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SNH1226E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SNH1528SE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SNL824R">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SNL924R">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SNM1227SE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SNM924E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SS7522E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Snirrex">
+		<model name="SLC 6553EF">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SLC 6553FM">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SLC 6556FM">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Snow Fox">
+		<model name="SF87457L">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="StarWind">
+		<model name="EST-1600">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="EST-2000">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="EST-2000L">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GST-2246">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GST-4356">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GST-4356L">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Steher">
+		<model name="GST-756">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GST-756E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GST-762">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GST-762E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GST-772E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Sterwins">
+		<model name="DB7551DB">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Steviman">
+		<model name="SX-56">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SX-61">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SX-61 Max">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SX-72">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SX-7560">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SX-7610">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Stiga">
+		<model name="ST 1131 E">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 1145 E">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 1151 E">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 300e Kit">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 3146 P">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 3255 P">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 4262 P">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 4262 PB">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 4851 AE">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 5262 P">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 5262 PB">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 5266 P">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 5266 P Trac">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 5266 PB">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 5266 PB Pro Trac">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 5266 PB Track">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 6276 PB">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 7276 PH">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST 8051 AE">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST4262P">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Snow Blizzard">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Snow Flake">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Snow Fox">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Snow Power 1650">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Snow Power New">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Sturm!">
+		<model name="STG5234">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG5455">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG5455E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG5655V">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG5665">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG5665E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG5765">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG5765E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG5765EL">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG5775ER">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG5775R">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG5965">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG70111T">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG7413E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG7453">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG7461">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG7461EL">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG7656R">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG7661">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG7661EL">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG7661ELR">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG7661R">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG7672ELR">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="SunGarden">
+		<model name="ST 45">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG 40">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="STG 55 S">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ToRnado 2460 TB">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ToRnado 2460 TE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="TOOLYARD">
+		<model name="21V 6Ah">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Texas">
+		<model name="Combi 800B">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Combi 800TG">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Combi 800TGE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST6560W1E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Snow Buster 450">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Tielburger">
+		<model name="TK17">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="TK18">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="TK36">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Tor">
+		<model name="ST-1020">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST-560">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST-710">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Toro">
+		<model name="38302">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="38597">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="38820">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="38826">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Total Tools">
+		<model name="СБ-7Р">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СБ-7РГ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Union">
+		<model name="UT55">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Uwer">
+		<model name="ST 5556 P">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Valkor">
+		<model name="VR-1270E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Verton">
+		<model name="SB-1161LTE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB-1170LE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB-1170LTE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB-1576LE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB-1576LTE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB-656">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB-661">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB-756">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB-756LE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB-761">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB-761LE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB-761LTE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB-761MLE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="SB-961LTE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Victa">
+		<model name="VS55800">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Villager">
+		<model name="VST 120">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="VST 50">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="VST 70">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Villartec">
+		<model name="WA 4030">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WA 4051">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WA6261 Set">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WB 5556">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WB 5561">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WB 7056">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WB 9066E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WB1070E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WB1176E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WB1387E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WB1387ET">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WB1510E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WB5556">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WB5561E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WB6966E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WB7066E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WB9061ET">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WB9071E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Volnos">
+		<model name="VOL-710">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Weima">
+		<model name="WWS0722A-J">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WWS0724A/E-J-SP-06">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WWS0928B/E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WXS0722A-SP-04">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Wolf-Garten">
+		<model name="Ambition SF 66 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Ambition SF 76 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Expert 6690 HD">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Expert-Bis 561E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Select SF 53">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Select SF 56">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Select SF 61">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Select SF 61 E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="WorkMaster">
+		<model name="WST 1650">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WST 5556 B">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WST-6556YE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WST-6562Y">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WST-6562YE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Worx">
+		<model name="WG450E">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WG471E">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="WG471E.9">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="YAMAHA">
+		<model name="YS-1390AR">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="YS1070T">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="YSM870">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="YT-875">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="YURAT">
+		<model name="YSP-617L">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Yanase">
+		<model name="8-9G">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Yanis">
+		<model name="Blizzard M24DL">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Blizzard ME24DL">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Grizzly SPE30DHL">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Yeti PE26DHL">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Yarbo">
+		<model name="Core">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Snow Blower">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Yard Fox">
+		<model name="BASIC 33E">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="BASIC 6152E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Basic 5633E">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Basic 5640H">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Optima 6151E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Optima 6654E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Pro 6654ET">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Pro 7154E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Pro 7654E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Yard Machines">
+		<model name="63 BD">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Yard-Man">
+		<model name="YM 5350 S">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="YM 6680 DE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="YM 8413 DE">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="ZimAni">
+		<model name="Pro 66 Track">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST124">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST324DLE Pro">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST330DLE PRO">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Zitrek">
+		<model name="ST1300">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST2000">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST3000">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST4601">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST5605L">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST5605LS">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ST6706LS">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="АЛЬКОР">
+		<model name="МСБ-7,0-560-520">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="МСБ-7,0/560/520Ф">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="МСБ-7,0/610/520Ф">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="МСБ-7,0/610/520ЭПФ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="МСБ-9,0/710/520ЭПФ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="ВАРТЕХ">
+		<model name="СБ-740">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Варяг">
+		<model name="СБ 1570-15Э">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СБ 756-13Э">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СБ 861-14Э">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СБ-651">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СЭ-2400">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Интерскол">
+		<model name="СМБ-46/3">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМБ-550">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМБ-56/7">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМБ-56/7Ф">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМБ-61/7ЭФ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМБ-650">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМБ-650Э">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Калибр">
+		<model name="СНБЭ-1700">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СНУБ-11.0/70 ЕГ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СНУБ-11.0/70Е">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СНУБ-11.0/72ЕД">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СНУБ-11.0/76Е">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СНУБ-2.2/46">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СНУБ-6.5/56">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СНУБ-6.5/60">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СНУБ-6.5/61">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СНУБ-6.5/61EФ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СНУБ-6.5/62 Е II">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СНУБ-6.5/620ЕПФ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СНУБ-6.5/62ЕД">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СНУБ-6/53">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СНУБ-8/71ЕПФ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СНУБ-9.0/62ЕД">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Кратон">
+		<model name="GSB-11,0SV-EL">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GSB-3,2">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GSB-6,5S-M">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GSB-6,5SEL-M">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GSB-6,5SV-EL">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GSB-6.5">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GSB-9,0V-E">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="GST-6,5SV-EL">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Лесник">
+		<model name="PSP256-2">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Лидер">
+		<model name="СМБ-6.5/570">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМБ-6.5/620">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМБ-6.5/660">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМБ-7.0/530/400 00-00024703">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Мобил К">
+		<model name="C65LC170FS">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="CA34 Комфорт">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="CA46 Комфорт">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="С55 Комфорт">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="С60 Комфорт">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="С65 Б6,5 Про">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="С65 Б8 Про Loncin">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="С65 Б8Е Про">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="С65 Комфорт">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="С65 Премиум">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="С65 Про">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="С70 Премиум">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="С75 Премиум">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СЕ46 Комфорт">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Нева">
+		<model name="KC930MS">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="KCM24D">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="KCM24D-F">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ЛК1-ZS">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Парма">
+		<model name="МС-1300Э">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="МС-2100Э">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="МС-2300Э">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="МС-2300ЭФ">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="МСБ-01-756">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="МСБ-01-761 ЭФ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="МСБ-02-756">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="МСБ-02-761ЭФ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="МСБ-03-761">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="МСБ-03-761ЭФ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Печенег">
+		<model name="СМП-7.0А">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Профер">
+		<model name="410">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Ресанта">
+		<model name="СБ 4000">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СБ 4100">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СБ 4100ПФ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СБ 4800Б">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СБ 4800ПЭ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СБ 6000Э">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СБ 8100Э">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СБ СМ 4.1">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СБ СМ 4.8">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СЭ 2500Ф">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Ручной"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Ресурс">
+		<model name="рбс-65а">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Рысь">
+		<model name="СМ 7A">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМ 7В">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМ 7Э">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Сибртех">
+		<model name="ЭСБ-2000">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="ЭСБ-46Li">
+			<tip_snegouborshika name="Аккумуляторный">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Союз">
+		<model name="СУС-65">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СУС-65Э">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Ставмаш">
+		<model name="СН-7">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Тарпан">
+		<model name="КСМ-21">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="КСМ-24">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Тарпан-21">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="Тарпан-24">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Хопер">
+		<model name="МС-65">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Целина">
+		<model name="СМ-626Э">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМ-7011Э">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Энергомаш">
+		<model name="СУ-65Э">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СУ-70">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+	<brend name="Энергопром">
+		<model name="СМБ-5.5/570">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМБ-Т6.5/570PLUS">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМБ-Т6.5/570ЭФ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМБ-Т9/620ЭФ">
+			<tip_snegouborshika name="Бензиновый">
+				<tip_peredvizheniya name="Гусеничный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+		<model name="СМЭ-20/2200">
+			<tip_snegouborshika name="Электрический">
+				<tip_peredvizheniya name="Колесный"></tip_peredvizheniya>
+			</tip_snegouborshika>
+		</model>
+	</brend>
+</Snegouborshiki>

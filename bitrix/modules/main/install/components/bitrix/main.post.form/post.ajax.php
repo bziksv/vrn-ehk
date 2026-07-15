@@ -20,6 +20,14 @@ if (!empty($siteId))
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
 
+global $USER;
+
+if (!$USER->IsAuthorized())
+{
+	echo Json::encode(Array('ERROR' => 'ACCESS_ERROR'));
+	CMain::FinalActions();
+}
+
 if (
 	!CModule::IncludeModule("socialnetwork")
 	|| IsModuleInstalled("b24network")
@@ -29,8 +37,20 @@ if (
 	CMain::FinalActions();
 }
 
+if (!\Bitrix\Socialnetwork\ComponentHelper::getModuleUsed())
+{
+	echo Json::encode(Array('ERROR' => 'ACCESS_ERROR'));
+	CMain::FinalActions();
+}
+
 if (check_bitrix_sessid())
 {
+	if (CModule::IncludeModule('extranet') && !CExtranet::IsIntranetUser())
+	{
+		echo Json::encode(Array('ERROR' => 'EXTRANET_USER'));
+		CMain::FinalActions();
+	}
+
 	if (
 		isset($_POST["nt"])
 		&& !empty($_POST["nt"])
@@ -155,7 +175,7 @@ if (check_bitrix_sessid())
 						"(%2\$s LIKE '%%" . $word . "%%')"
 					);
 				}
-				$sortWeight = new \Bitrix\Main\Entity\ExpressionField('SORT_WEIGHT', $sortExpr, ['NAME', 'EMAIL']);
+				$sortWeight = new \Bitrix\Main\ORM\Fields\ExpressionField('SORT_WEIGHT', $sortExpr, ['NAME', 'EMAIL']);
 				$queryFilter = [
 					[
 						'LOGIC' => 'OR',

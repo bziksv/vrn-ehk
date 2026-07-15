@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ConcreteGradeValues>
+	<ConcreteGrade>м15 / в1</ConcreteGrade>
+	<ConcreteGrade>м25 / в2</ConcreteGrade>
+	<ConcreteGrade>м35 / в2,5</ConcreteGrade>
+	<ConcreteGrade>м50 / в3,5</ConcreteGrade>
+	<ConcreteGrade>м75 / в5</ConcreteGrade>
+	<ConcreteGrade>м100 / в7,5</ConcreteGrade>
+	<ConcreteGrade>м150 / в10</ConcreteGrade>
+	<ConcreteGrade>м150 / в12,5</ConcreteGrade>
+	<ConcreteGrade>м200 / в15</ConcreteGrade>
+	<ConcreteGrade>м250 / в20</ConcreteGrade>
+	<ConcreteGrade>м300 / в22,5</ConcreteGrade>
+	<ConcreteGrade>м350 / в25</ConcreteGrade>
+	<ConcreteGrade>м350 / в27,5</ConcreteGrade>
+	<ConcreteGrade>м400 / в30</ConcreteGrade>
+	<ConcreteGrade>м450 / в35</ConcreteGrade>
+	<ConcreteGrade>м500 / в40</ConcreteGrade>
+	<ConcreteGrade>м550 / в40</ConcreteGrade>
+	<ConcreteGrade>м600 / в45</ConcreteGrade>
+	<ConcreteGrade>м600 / в50</ConcreteGrade>
+	<ConcreteGrade>м650 / в50</ConcreteGrade>
+	<ConcreteGrade>м700 / в50</ConcreteGrade>
+	<ConcreteGrade>м700 / в55</ConcreteGrade>
+	<ConcreteGrade>м750 / в55</ConcreteGrade>
+	<ConcreteGrade>м800 / в60</ConcreteGrade>
+	<ConcreteGrade>м850 / в65</ConcreteGrade>
+	<ConcreteGrade>м900 / в65</ConcreteGrade>
+	<ConcreteGrade>м900 / в70</ConcreteGrade>
+	<ConcreteGrade>м950 / в75</ConcreteGrade>
+	<ConcreteGrade>м1000 / в75</ConcreteGrade>
+	<ConcreteGrade>м1000 / в80</ConcreteGrade>
+</ConcreteGradeValues>

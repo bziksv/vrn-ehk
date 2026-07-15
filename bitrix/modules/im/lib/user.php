@@ -3,6 +3,7 @@ namespace Bitrix\Im;
 
 use Bitrix\Im\Model\StatusTable;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Type\DateTime;
 
 Loc::loadMessages(__FILE__);
 
@@ -330,16 +331,6 @@ class User
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getTzOffset()
-	{
-		$fields = $this->getFields();
-
-		return $fields? $fields['tz_offset']: '';
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isOnline()
@@ -478,33 +469,20 @@ class User
 		$jsonOption = $options['JSON'] ?? null;
 		$skipOnlineOption = $options['SKIP_ONLINE'] ?? null;
 
-		$result = [
-			'ID' => $this->getId(),
-			'ACTIVE' => $this->isActive(),
-			'NAME' => $this->getFullName(false),
-			'FIRST_NAME' => $this->getName(false),
-			'LAST_NAME' => $this->getLastName(false),
-			'WORK_POSITION' => $this->getWorkPosition(false),
-			'COLOR' => $this->getColor(),
-			'AVATAR' => $this->getAvatar(),
-			'GENDER' => $this->getGender(),
-			'BIRTHDAY' => (string)$this->getBirthday(),
-			'EXTRANET' => $this->isExtranet(),
-			'NETWORK' => $this->isNetwork(),
-			'BOT' => $this->isBot(),
-			'CONNECTOR' => $this->isConnector(),
-			'EXTERNAL_AUTH_ID' => $this->getExternalAuthId(),
-			'STATUS' => $this->getStatus(),
-			'IDLE' => $skipOnlineOption === 'Y' ? false: $this->getIdle(),
-			'LAST_ACTIVITY_DATE' => $skipOnlineOption === 'Y' ? false: $this->getLastActivityDate(),
-			'MOBILE_LAST_DATE' => $skipOnlineOption === 'Y' ? false: $this->getMobileLastDate(),
-			'ABSENT' => $this->isAbsent(),
-			'DEPARTMENTS' => $this->getDepartments(),
-			'PHONES' => $this->getPhones(),
-		];
-		if ($hrPhotoOption)
+		$result = \Bitrix\Im\V2\Entity\User\User::getInstance($this->userId)
+			->getArray(['WITHOUT_ONLINE' => $skipOnlineOption === 'Y'])
+		;
+
+		foreach ($result as $key => $value)
 		{
-			$result['AVATAR_HR'] = $this->getAvatarHr();
+			if (
+				in_array($key, ['LAST_ACTIVITY_DATE', 'MOBILE_LAST_DATE', 'DESKTOP_LAST_DATE', 'ABSENT'])
+				&& is_string($value)
+				&& DateTime::isCorrect($value, \DateTimeInterface::RFC3339)
+			)
+			{
+				$result[$key] = (new DateTime($value, \DateTimeInterface::RFC3339));
+			}
 		}
 
 		//TODO: Live chat, open lines
@@ -524,21 +502,27 @@ class User
 
 		if ($jsonOption)
 		{
-			foreach ($result as $key => $value)
-			{
-				if ($value instanceof \Bitrix\Main\Type\DateTime)
-				{
-					$result[$key] = date('c', $value->getTimestamp());
-				}
-				else if (is_string($value) && is_string($key) && in_array($key, ['AVATAR', 'AVATAR_HR']) && is_string($value) && $value && mb_strpos($value, 'http') !== 0)
-				{
-					$result[$key] = \Bitrix\Im\Common::getPublicDomain().$value;
-				}
-			}
-			$result = array_change_key_case($result, CASE_LOWER);
+			$result = self::formatLegacyJson($result);
 		}
 
 		return $result;
+	}
+
+	public static function formatLegacyJson(array $result): array
+	{
+		foreach ($result as $key => $value)
+		{
+			if ($value instanceof \Bitrix\Main\Type\DateTime)
+			{
+				$result[$key] = date('c', $value->getTimestamp());
+			}
+			else if (is_string($value) && is_string($key) && in_array($key, ['AVATAR', 'AVATAR_HR']) && is_string($value) && $value && mb_strpos($value, 'http') !== 0)
+			{
+				$result[$key] = \Bitrix\Im\Common::getPublicDomain().$value;
+			}
+		}
+
+		return array_change_key_case($result, CASE_LOWER);
 	}
 
 	/**
@@ -773,13 +757,13 @@ class User
 		}
 
 		$filter = $ormParams['filter'];
-		$filter['ACTIVE'] = 'Y';
+		$filter['=ACTIVE'] = 'Y';
 
 		$intranetInstalled = \Bitrix\Main\Loader::includeModule('intranet');
 		$voximplantInstalled = \Bitrix\Main\Loader::includeModule('voximplant');
 
 		$select = array(
-			"ID", "LAST_NAME", "NAME", "LOGIN", "PERSONAL_PHOTO", "SECOND_NAME", "PERSONAL_BIRTHDAY", "WORK_POSITION", "PERSONAL_GENDER", "EXTERNAL_AUTH_ID", "WORK_PHONE", "PERSONAL_PHONE", "PERSONAL_MOBILE", "TIME_ZONE_OFFSET", "ACTIVE", "LAST_ACTIVITY_DATE",
+			"ID", "LAST_NAME", "NAME", "LOGIN", "PERSONAL_PHOTO", "SECOND_NAME", "PERSONAL_BIRTHDAY", "WORK_POSITION", "PERSONAL_GENDER", "EXTERNAL_AUTH_ID", "WORK_PHONE", "PERSONAL_PHONE", "PERSONAL_MOBILE", "ACTIVE", "LAST_ACTIVITY_DATE",
 			"COLOR" => "ST.COLOR", "STATUS" =>	"ST.STATUS", "IDLE" => "ST.IDLE", "MOBILE_LAST_DATE" => "ST.MOBILE_LAST_DATE",
 		);
 		if($intranetInstalled)

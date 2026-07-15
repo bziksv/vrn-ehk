@@ -340,9 +340,9 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 		$resourseList = Internals\ResourceTable::getList(
 			array(
 				"filter" => array(
-					"PARENT_TYPE" => $userField['ENTITY_ID'],
-					"PARENT_ID" => $userField['ENTITY_VALUE_ID'],
-					"UF_ID" => $userField['ID']
+					"=PARENT_TYPE" => $userField['ENTITY_ID'],
+					"=PARENT_ID" => $userField['ENTITY_VALUE_ID'],
+					"=UF_ID" => $userField['ID'],
 				)
 			)
 		);
@@ -1018,7 +1018,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 			$result[$type['XML_ID']] = $type;
 		}
 
-		if (!$result[self::RESOURCE_CALENDAR_TYPE])
+		if (empty($result[self::RESOURCE_CALENDAR_TYPE] ?? null))
 		{
 			Internals\TypeTable::add([
 				'XML_ID' => self::RESOURCE_CALENDAR_TYPE,

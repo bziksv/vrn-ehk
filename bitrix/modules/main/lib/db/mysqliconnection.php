@@ -53,9 +53,9 @@ class MysqliConnection extends MysqlCommonConnection
 			$port = intval(substr($host, $pos + 1));
 			$host = substr($host, 0, $pos);
 		}
-		if (($this->options & self::PERSISTENT) != 0)
+		if ($this->isPersistent())
 		{
-			$host = "p:".$host;
+			$host = "p:" . $host;
 		}
 
 		$connection = \mysqli_init();
@@ -84,8 +84,8 @@ class MysqliConnection extends MysqlCommonConnection
 		if (!$success)
 		{
 			throw new ConnectionException(
-				'Mysql connect error ['.$this->host.']',
-				sprintf('(%s) %s', $connection->connect_errno, $connection->connect_error)
+				'Mysql connect error [' . $this->host . ']',
+				"({$connection->connect_errno}) {$connection->connect_error}"
 			);
 		}
 
@@ -146,7 +146,7 @@ class MysqliConnection extends MysqlCommonConnection
 
 		if (!$result)
 		{
-			throw new SqlQueryException('Mysql query error', $this->getErrorMessage(), $sql);
+			throw $this->createQueryException($this->getErrorCode(), $this->getErrorMessage(), $sql);
 		}
 
 		return $result;
@@ -193,7 +193,7 @@ class MysqliConnection extends MysqlCommonConnection
 			$this->version = $ar[0];
 		}
 
-		return array($this->version, null);
+		return [$this->version, null];
 	}
 
 	/**
@@ -201,7 +201,15 @@ class MysqliConnection extends MysqlCommonConnection
 	 */
 	public function getErrorMessage()
 	{
-		return sprintf("(%s) %s", $this->resource->errno, $this->resource->error);
+		return "({$this->getErrorCode()}) {$this->resource->error}";
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getErrorCode()
+	{
+		return $this->resource->errno;
 	}
 
 	/**

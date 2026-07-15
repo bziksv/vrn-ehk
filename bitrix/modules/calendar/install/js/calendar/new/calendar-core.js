@@ -12,7 +12,11 @@
 
 		if (this.util.isFilterEnabled() && config.filterId)
 		{
-			this.search = new BX.Calendar.Search(config.filterId, config.counters);
+			const filter = BX.Main.filterManager.getById(config.filterId);
+			if (filter)
+			{
+				this.search = new BX.Calendar.Search(config.filterId, filter);
+			}
 		}
 
 		if (config.settings && config.weekStart)
@@ -26,14 +30,14 @@
 		this.collapsedLabelMessage = config.collapsedLabelMessage || BX.message('EC_COLLAPSED_MESSAGE');
 		this.viewOption = 'view' + (this.entityType ? '_' + this.entityType : '');
 
-		// TODO: replace it with sectionManager
-		// this.sectionController = new window.BXEventCalendar.SectionController(this, data, config);
 		BX.Calendar.Util.setCalendarContext(this);
 
 		this.sectionManager = new BX.Calendar.SectionManager(data, config);
 		this.entryManager = new BX.Calendar.EntryManager(data, config);
 		this.roomsManager = new BX.Calendar.RoomsManager(data, config);
 		this.categoryManager = new BX.Calendar.CategoryManager(data, config);
+		// CollabManager uses it extension settings if no data.collabs presented
+		this.collabManager = new BX.Calendar.CollabManager(data, config);
 		if (BX.Calendar.Controls && BX.Calendar.Controls.Location)
 		{
 			BX.Calendar.Controls.Location.setLocationList(additionalParams.locationList);
@@ -45,10 +49,10 @@
 		BX.Calendar.Util.setUserSettings(config.userSettings);
 		BX.Calendar.Util.setOptions(config.settings);
 		BX.Calendar.Util.setAccessNames(config.accessNames);
-		BX.Calendar.Util.setEventWithEmailGuestAmount(config.countEventWithEmailGuestAmount);
-		BX.Calendar.Util.setEventWithEmailGuestLimit(config.eventWithEmailGuestLimit);
+		BX.Calendar.Util.setEventWithEmailGuestEnabled(config.eventWithEmailGuestEnabled);
+		BX.Calendar.Util.setProjectFeatureEnabled(config.projectFeatureEnabled);
+		BX.Calendar.Util.setIsBitrix24Template(config.isBitrix24Template);
 
-		BX.Calendar.Util.setDayOfWeekMonthFormat(config.dayOfWeekMonthFormat);
 		BX.Calendar.Util.setDayMonthFormat(config.dayMonthFormat);
 		BX.Calendar.Util.setLongDateFormat(config.longDateFormat);
 
@@ -68,6 +72,9 @@
 		this.ownerUser = config.ownerUser || false;
 		this.viewRangeDate = new Date();
 		this.keyHandlerEnabled = true;
+		this.isCollabUser = config.isCollabUser || false;
+		this.isCollabCalendar = config.isCollabCalendar || false;
+		this.isCollabFeatureEnabled = config.isCollabFeatureEnabled || false;
 
 		// build basic DOM structure
 		this.build();
@@ -115,7 +122,7 @@
 
 				this.dragDrop = new window.BXEventCalendar.DragDrop(this);
 
-				if (this.util.isFilterEnabled() && !this.search.isFilterEmpty())
+				if (this.util.isFilterEnabled() && this.search && !this.search.isFilterEmpty())
 				{
 					this.currentViewName = 'list';
 				}
@@ -133,23 +140,17 @@
 				}
 
 				// Search & counters
-				if (this.util.isFilterEnabled())
+				if (this.util.isFilterEnabled() && this.search)
 				{
 					if (!this.search.isFilterEmpty())
 					{
 						this.search.applyFilter();
 					}
 
-					if (this.search && this.util.getCounters())
+					if (this.getCountersByCalendarContext())
 					{
 						this.buildCountersControl();
 					}
-				}
-
-				// Top button container
-				if (!this.isExternalMode() && !this.isLocationViewDisabled())
-				{
-					this.buildTopButtons();
 				}
 
 				this.mainCont.appendChild(this.viewsCont);
@@ -193,6 +194,8 @@
 					this.syncInterface = new BX.Calendar.Sync.Manager.Manager({
 						wrapper: document.getElementById(this.id + '-sync-container'),
 						syncInfo: this.util.config.syncInfo,
+						payAttentionToNewSharingFeature: this.payAttentionToNewSharingFeature,
+						useAirDesign: this.util.config.useAirDesign,
 						userId: this.currentUser.id,
 						syncLinks: this.util.config.syncLinks,
 						isSetSyncGoogleSettings: this.util.config.isSetSyncGoogleSettings,
@@ -204,23 +207,34 @@
 					});
 
 					this.syncInterface.showSyncButton();
+				}
 
+				if (this.util.userIsOwner() && !this.isCollabUser || this.isCollabCalendar)
+				{
 					this.sharingInterface = new BX.Calendar.Sharing.Interface({
-						buttonWrap: document.querySelector('#' + this.id + '-sharing-container'),
+						buttonWrap: document.querySelector(`#${this.id}-sharing-container`),
 						userInfo: {
 							id: this.currentUser.id,
 							name: this.currentUser.name,
 							avatar: this.currentUser.avatar,
+							isCollabUser: this.isCollabUser,
 						},
 						payAttentionToNewFeature: this.payAttentionToNewSharingFeature,
 						sharingFeatureLimit: !this.sharingFeatureLimitEnable,
 						sharingSettingsCollapsed: this.sharingSettingsCollapsed,
 						sortJointLinksByFrequentUse: this.sortJointLinksByFrequentUse,
+						calendarContext: {
+							sharingObjectType: this.util.config.type,
+							sharingObjectId: this.util.config.ownerId,
+						},
 					});
 
 					if (BX.Calendar.Util.checkSharingFeatureEnabled())
 					{
-						this.sharingInterface.showSharingButton();
+						this.util.config.type === 'group'
+							? this.sharingInterface.showGroupSharingButton()
+							: this.sharingInterface.showSharingButton()
+						;
 					}
 				}
 
@@ -262,8 +276,8 @@
 				{
 					if (event instanceof BX.Event.BaseEvent)
 					{
-						var data = event.getData();
-						if (BX.Type.isObjectLike(data.counters) && this.counters && this.util.getCounters())
+						const data = event.getData();
+						if (BX.Type.isObjectLike(data.counters) && this.counters && this.getCountersByCalendarContext())
 						{
 							this.counters.setCountersValue(data.counters);
 						}
@@ -278,10 +292,10 @@
 					}
 				}.bind(this));
 
-				BX.Event.EventEmitter.subscribe('BX.Calendar.CompactEventForm:doRefresh', function(event)
-				{
-					this.refreshDebounce();
-				}.bind(this));
+				BX.Event.EventEmitter.subscribe(
+					'BX.Calendar.CompactEventForm:doRefresh',
+					() => this.refreshDebounce(),
+				);
 
 				if (this.isLocationViewDisabled())
 				{
@@ -480,11 +494,11 @@
 			if (this.lineViewSelectorWrap)
 			{
 				this.lineViewSelector = new BX.Calendar.Controls.LineViewSelector({
-					views: views,
+					views,
+					currentViewMode,
+					target: this.lineViewSelectorWrap,
 					currentView: this.getView(),
-					currentViewMode: currentViewMode,
 				});
-				this.lineViewSelectorWrap.appendChild(this.lineViewSelector.getOuterWrap());
 
 				this.lineViewSelector.subscribe('onChange', function(event)
 				{
@@ -523,12 +537,12 @@
 			this.lockViewContainer.appendChild(BX.create('DIV', {
 				props: { className: 'calendar-view-locker-button' },
 				html: '<a href="javascript:void(0)" '
-					+ 'onclick="top.BX.UI.InfoHelper.show(\'limit_office_calendar_location\');" '
+					+ 'onclick="top.BX.UI.FeaturePromotersRegistry.getPromoter({ featureId: \'calendar_location\' }).show()" '
 					+ 'class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-round">'
 					+ BX.message('EC_LOCATION_VIEW_UNLOCK_FEATURE')
 					+ '</a>',
 			}));
-			top.BX.UI.InfoHelper.show('limit_office_calendar_location');
+			top.BX.UI.FeaturePromotersRegistry.getPromoter({ featureId: 'calendar_location' }).show();
 		},
 
 		setView: function(view, params)
@@ -918,201 +932,16 @@
 
 		buildCountersControl: function()
 		{
-			this.countersCont = BX(this.id + '-counter-container');
+			this.countersCont = BX(`${this.id}-counter-container`);
 
 			this.counters = new BX.Calendar.Counters({
 				search: this.search,
 				countersWrap: this.countersCont,
-				counters: this.util.getCounters(),
-				userId: this.currentUser.id
+				counters: this.getCountersByCalendarContext(),
+				userId: this.currentUser.id,
 			});
 
 			this.counters.init();
-		},
-
-		buildTopButtons: function()
-		{
-			if (this.util.type === 'location')
-			{
-				this.buildingTopButtonsRooms();
-			}
-			else
-			{
-				this.buildingTopButtonsCalendar();
-			}
-		},
-
-		buildingTopButtonsCalendar: function()
-		{
-			this.buttonsCont = BX(this.id + '-buttons-container');
-			if (this.buttonsCont)
-			{
-				this.sectionButton = this.buttonsCont.appendChild(BX.create('button', {
-					props: { className: 'ui-btn ui-btn-light-border ui-btn-themes', type: 'button' },
-					text: BX.message('EC_SECTION_BUTTON'),
-				}));
-
-				BX.Event.bind(this.sectionButton, 'click', function()
-				{
-					this.getSectionInterface()
-						.then(function(SectionInterface)
-						{
-							if (!this.sectionInterface)
-							{
-								this.sectionInterface = new SectionInterface(
-									{
-										calendarContext: this,
-										readonly: this.util.readOnlyMode(),
-										sectionManager: this.sectionManager,
-									},
-								);
-							}
-							this.sectionInterface.show();
-						}.bind(this));
-				}.bind(this));
-
-				if (this.util.userIsOwner() || this.util.config.TYPE_ACCESS)
-				{
-					this.settingsButton = this.buttonsCont.appendChild(BX.create(
-						'button',
-						{
-							props: {
-								className: 'ui-btn ui-btn-icon-setting ui-btn-light-border ui-btn-themes',
-							},
-						},
-					));
-
-					BX.Event.bind(this.settingsButton, 'click', function()
-					{
-						this.getSettingsInterface()
-							.then(function(SettingsInterface)
-							{
-								if (!this.settingsInterface)
-								{
-									this.settingsInterface = new SettingsInterface(
-										{
-											calendarContext: this,
-											showPersonalSettings: this.util.userIsOwner(),
-											showGeneralSettings: !!(this.util.config.perm && this.util.config.perm.access),
-											settings: this.util.config.settings,
-										},
-									);
-								}
-								this.settingsInterface.show();
-							}.bind(this));
-					}.bind(this));
-				}
-
-				const addButtonWrap = BX(this.id + '-add-button-container');
-				if (!this.util.readOnlyMode() && BX.Type.isDomNode(addButtonWrap))
-				{
-					addButtonWrap.appendChild(new BX.Calendar.Controls.AddButton({
-						addEntry: () => {
-							BX.Calendar.EntryManager.openEditSlider({
-								calendarContext: this,
-								type: this.util.type,
-								isLocationCalendar: false,
-								locationAccess: this.util.config.locationAccess,
-								ownerId: this.util.ownerId,
-								userId: parseInt(this.currentUser.id),
-							});
-						},
-						addTask: this.showTasks ?
-							() => {
-								const editTaskPath = BX.Uri.addParam(this.util.getEditTaskPath(), {
-									ta_sec: 'calendar',
-									ta_el: 'create_button',
-								});
-
-								BX.SidePanel.Instance.open(editTaskPath, { loader: 'task-new-loader' });
-							}
-							: null,
-					}).getWrap());
-				}
-			}
-		},
-
-		buildingTopButtonsRooms: function()
-		{
-			this.buttonsCont = BX(this.id + '-buttons-container');
-			if (this.buttonsCont)
-			{
-				this.roomsButton = this.buttonsCont.appendChild(BX.create('button', {
-					props: { className: 'ui-btn ui-btn-light-border ui-btn-themes', type: 'button' },
-					text: BX.message('EC_SECTION_ROOMS_LIST'),
-				}));
-				BX.Event.bind(this.roomsButton, 'click', function()
-				{
-					this.getRoomsInterface()
-						.then(function(RoomsInterface)
-						{
-							if (!this.roomsInterface)
-							{
-								this.roomsInterface = new RoomsInterface(
-									{
-										calendarContext: this,
-										readonly: this.util.readOnlyMode(),
-										roomsManager: this.roomsManager,
-										categoryManager: this.categoryManager,
-									},
-								);
-							}
-
-							this.roomsInterface.show();
-						}.bind(this));
-				}.bind(this));
-				if (this.util.userIsOwner() || this.util.config.TYPE_ACCESS)
-				{
-					this.settingsButton = this.buttonsCont.appendChild(BX.create(
-						'button',
-						{
-							props: {
-								className: 'ui-btn ui-btn-icon-setting ui-btn-light-border ui-btn-themes',
-							},
-						},
-					));
-
-					BX.Event.bind(this.settingsButton, 'click', function()
-					{
-						this.getSettingsInterface()
-							.then(function(SettingsInterface)
-							{
-								if (!this.settingsInterface)
-								{
-									this.settingsInterface = new SettingsInterface(
-										{
-											calendarContext: this,
-											showPersonalSettings: this.util.userIsOwner(),
-											showGeneralSettings: false,
-											showAccessControll: true,
-											settings: this.util.config.settings,
-										},
-									);
-								}
-								this.settingsInterface.show();
-							}.bind(this));
-					}.bind(this));
-				}
-
-				const addButtonWrap = BX(this.id + '-add-button-container');
-				if (this.util.type === 'location' && BX.Type.isDomNode(addButtonWrap))
-				{
-					addButtonWrap.appendChild(new BX.Calendar.Rooms.ReserveButton({
-						addEntry: () => {
-							BX.Calendar.EntryManager.openEditSlider({
-								calendarContext: this,
-								roomsManager: this.roomsManager,
-								categoryManager: this.categoryManager,
-								type: 'user',
-								isLocationCalendar: true,
-								locationAccess: this.util.config.locationAccess,
-								ownerId: this.util.ownerId,
-								userId: parseInt(this.currentUser.id),
-							});
-						},
-					}).getWrap());
-				}
-			}
 		},
 
 		refresh: function()
@@ -1124,6 +953,7 @@
 		{
 			if (BX.Calendar.Util.documentIsDisplayingNow())
 			{
+				this.needForReload = false;
 				this.entryController.clearLoadIndexCache();
 				this.refresh();
 			}
@@ -1144,18 +974,26 @@
 			{
 				this.pullEventList.forEach((value, valueAgain, set) =>
 				{
-					if (this.entryManager
-						&& ['edit_event', 'delete_event', 'set_meeting_status',
-						'task_remove', 'task_add', 'task_update',
-					].includes(value.command))
+					if (
+						this.entryManager
+						&& [
+							'edit_event',
+							'delete_event',
+							'set_meeting_status',
+							'task_remove',
+							'task_add',
+							'task_update',
+						].includes(value.command)
+					)
 					{
 						this.entryManager.handlePullChanges(value);
 						this.reloadDebounce();
 					}
 
-					if (this.sectionManager
-						&& ['edit_section', 'delete_section', 'change_section_subscription']
-						.includes(value.command))
+					if (
+						this.sectionManager
+						&& ['edit_section', 'delete_section', 'change_section_subscription'].includes(value.command)
+					)
 					{
 						this.sectionManager.reloadDataDebounce();
 						if (this.sectionInterface)
@@ -1164,9 +1002,9 @@
 						}
 					}
 
-					if (this.syncInterface
-						&& ['refresh_sync_status', 'refresh_sync_status', 'delete_sync_connection']
-							.includes(value.command)
+					if (
+						this.syncInterface
+						&& ['refresh_sync_status', 'refresh_sync_status', 'delete_sync_connection'].includes(value.command)
 					)
 					{
 						// TODO: refresh whole sync interface
@@ -1246,7 +1084,7 @@
 			{
 				const data = {
 					command: event.getData()[0],
-					...event.getData()[1]
+					...event.getData()[1],
 				};
 
 				if (BX.Calendar.Util.documentIsDisplayingNow())
@@ -1337,121 +1175,30 @@
 			return parseInt(this.util.userId);
 		},
 
-		getSectionInterface: function()
-		{
-			return new Promise(function(reslve)
-			{
-				var bx = BX.Calendar.Util.getBX();
-				if (bx.Calendar.SectionInterface)
-				{
-					reslve(bx.Calendar.SectionInterface);
-				}
-				else
-				{
-					var extensionName = 'calendar.sectioninterface';
-					bx.Runtime.loadExtension(extensionName)
-						.then(function(exports)
-							{
-								if (bx.Calendar.SectionInterface)
-								{
-									reslve(bx.Calendar.SectionInterface);
-								}
-								else
-								{
-									console.error('Extension ' + extensionName + ' not found');
-								}
-							},
-						);
-				}
-
-			}.bind(this));
-		},
-
-		getSettingsInterface: function()
-		{
-			return new Promise(function(reslve)
-			{
-				var bx = BX.Calendar.Util.getBX();
-				if (bx.Calendar.SettingsInterface)
-				{
-					reslve(bx.Calendar.SettingsInterface);
-				}
-				else
-				{
-					var extensionName = 'calendar.settingsinterface';
-					bx.Runtime.loadExtension(extensionName)
-						.then(function(exports)
-							{
-								if (bx.Calendar.SettingsInterface)
-								{
-									reslve(bx.Calendar.SettingsInterface);
-								}
-								else
-								{
-									console.error('Extension ' + extensionName + ' not found');
-								}
-							},
-						);
-				}
-
-			}.bind(this));
-		},
-
-		getRoomsInterface: function()
-		{
-			return new Promise(function(resolve)
-			{
-				var bx = BX.Calendar.Util.getBX();
-				if (bx.Calendar.Rooms.RoomsInterface)
-				{
-					resolve(bx.Calendar.Rooms.RoomsInterface);
-				}
-				else
-				{
-					var extensionName = 'calendar.rooms';
-					bx.Runtime.loadExtension(extensionName)
-						.then(function(exports)
-							{
-								if (bx.Calendar.Rooms.RoomsInterface)
-								{
-									resolve(bx.Calendar.Rooms.RoomsInterface);
-								}
-								else
-								{
-									console.error('Extension ' + extensionName + ' not found');
-								}
-							},
-						);
-				}
-
-			}.bind(this));
-		},
-
-		updateCounters: function()
+		updateCounters()
 		{
 			return new Promise(
-				function(resolve)
-				{
+				(resolve) => {
 					BX.ajax.runAction('calendar.api.calendarajax.updateCounters', {
-						data: {},
-					}).then(function(response)
-						{
+						data: { type: this.getCalendarType(), ownerId: this.util.ownerId },
+					}).then(
+						(response) => {
 							if (
 								BX.Type.isObjectLike(response.data.counters)
 								&& this.counters
-								&& this.util.getCounters()
+								&& this.getCountersByCalendarContext()
 							)
 							{
 								this.counters.setCountersValue(response.data.counters);
 							}
 							resolve();
-						}.bind(this),
-						function(response)
-						{
+						},
+						(response) => {
 							BX.Calendar.Util.displayError(response.errors);
 							resolve(response);
-						}.bind(this));
-				}.bind(this),
+						},
+					);
+				},
 			);
 		},
 
@@ -1470,6 +1217,42 @@
 		{
 			return !this.util.config.locationFeatureEnabled
 				&& this.util.config.type === 'location';
+		},
+
+		getCountersByCalendarContext()
+		{
+			const counters = this.util.getCounters();
+
+			if (!counters)
+			{
+				return null;
+			}
+
+			const counterNameByContext = this.getCountersNameByContext();
+
+			if (!counterNameByContext)
+			{
+				return null;
+			}
+
+			const neededCounter = counters[counterNameByContext];
+
+			return neededCounter ? { [counterNameByContext]: neededCounter } : null;
+		},
+
+		getCountersNameByContext()
+		{
+			if (this.getCalendarType() === 'user')
+			{
+				return BX.Calendar.Counters.TYPE_INVITATION;
+			}
+
+			if (this.getCalendarType() === 'group')
+			{
+				return BX.Calendar.Counters.getCounterNameByGroupId(this.util.ownerId);
+			}
+
+			return null;
 		},
 	};
 

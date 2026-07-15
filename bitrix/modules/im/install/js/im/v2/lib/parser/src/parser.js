@@ -15,7 +15,8 @@ import { ParserMention } from './functions/mention';
 import { ParserCommon } from './functions/common';
 import { ParserIcon } from './functions/icon';
 import { ParserDisk } from './functions/disk';
-import { ParserRecursionPrevention } from './utils/recursion-prevention';
+import { ParserDate } from './functions/date';
+import { NestedTagHandler } from './utils/nested-tag-handler';
 import { ParserUtils } from './utils/utils';
 
 import { getCore, getLogger } from './utils/core-proxy';
@@ -35,13 +36,14 @@ export const Parser = {
 	decodeMessage(message: ImModelMessage): string
 	{
 		const messageFiles = getCore().store.getters['messages/getMessageFiles'](message.id);
+		const contextDialogId = ParserUtils.getDialogIdByChatId(message.chatId);
 
 		return this.decode({
 			text: message.text,
 			attach: message.attach,
 			files: messageFiles,
-			replaces: message.replaces,
 			showIconIfEmptyText: false,
+			contextDialogId,
 		});
 	},
 
@@ -50,7 +52,6 @@ export const Parser = {
 		return this.decode({
 			text: notification.text,
 			attach: notification.params.attach ?? false,
-			replaces: notification.replaces,
 			showIconIfEmptyText: false,
 			showImageFromLink: false,
 			urlTarget: DesktopApi.isDesktop() ? '_blank' : '_self',
@@ -99,6 +100,7 @@ export const Parser = {
 			removeLinks = false,
 			showIconIfEmptyText = true,
 			showImageFromLink = true,
+			contextDialogId = '',
 			urlTarget = '_blank',
 		} = config;
 
@@ -127,12 +129,13 @@ export const Parser = {
 		text = ParserCommon.decodeNewLine(text);
 		text = ParserCommon.decodeTabulation(text);
 
-		text = ParserRecursionPrevention.cutPutTag(text);
-		text = ParserRecursionPrevention.cutSendTag(text);
-		text = ParserRecursionPrevention.cutCodeTag(text);
+		text = NestedTagHandler.cutPutTag(text);
+		text = NestedTagHandler.cutSendTag(text);
+		text = NestedTagHandler.cutCodeTag(text);
 
 		text = ParserSmile.decodeSmile(text);
 		text = ParserSlashCommand.decode(text);
+		text = ParserImage.decodeImageBbCode(text, { contextDialogId });
 		text = ParserUrl.decode(text, { urlTarget, removeLinks });
 		text = ParserFont.decode(text);
 		text = ParserLines.decode(text);
@@ -144,25 +147,25 @@ export const Parser = {
 			text = ParserImage.decodeLink(text);
 		}
 		text = ParserDisk.decode(text);
-		text = ParserAction.decodeDate(text);
+		text = ParserDate.decode(text);
 
 		text = ParserQuote.decodeArrowQuote(text);
-		text = ParserQuote.decodeQuote(text);
+		text = ParserQuote.decodeQuote(text, { contextDialogId });
 
-		text = ParserRecursionPrevention.recoverSendTag(text);
+		text = NestedTagHandler.recoverSendTag(text);
 		text = ParserAction.decodeSend(text);
 
-		text = ParserRecursionPrevention.recoverPutTag(text);
+		text = NestedTagHandler.recoverPutTag(text);
 		text = ParserAction.decodePut(text);
 
-		text = ParserRecursionPrevention.recoverCodeTag(text);
+		text = NestedTagHandler.recoverCodeTag(text);
 		text = ParserQuote.decodeCode(text);
 
-		text = ParserRecursionPrevention.recoverRecursionTag(text);
+		text = NestedTagHandler.recoverRecursionTag(text);
 
 		text = ParserCommon.removeDuplicateTags(text);
 
-		ParserRecursionPrevention.clean();
+		NestedTagHandler.clean();
 
 		return text;
 	},
@@ -264,7 +267,9 @@ export const Parser = {
 		text = ParserUrl.purify(text);
 		text = ParserImage.purifyLink(text);
 		text = ParserImage.purifyIcon(text);
+		text = ParserImage.purifyImageBbCode(text);
 		text = ParserDisk.purify(text);
+		text = ParserDate.purify(text);
 		text = ParserCommon.purifyNewLine(text);
 		text = ParserIcon.addIconToShortText({ text, attach, files });
 
@@ -347,7 +352,7 @@ export const Parser = {
 			files = false;
 		}
 
-		const message = getCore().store.getters['recent/getMessage'](recentMessage.dialogId);
+		const message = getCore().store.getters['messages/getById'](recentMessage.messageId);
 
 		let attach = false;
 		if (

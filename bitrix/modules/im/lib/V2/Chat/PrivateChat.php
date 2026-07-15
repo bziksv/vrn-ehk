@@ -2,45 +2,52 @@
 
 namespace Bitrix\Im\V2\Chat;
 
+use Bitrix\Im\Model\RelationTable;
+use Bitrix\Im\Model\RecentTable;
 use Bitrix\Im\User;
 use Bitrix\Im\Recent;
 use Bitrix\Im\Notify;
-use Bitrix\Im\V2\Bot\BotService;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Entity\User\NullUser;
+use Bitrix\Im\V2\Entity\User\UserBot;
 use Bitrix\Im\V2\Entity\User\UserPopupItem;
-use Bitrix\Im\V2\Link\Url\UrlService;
 use Bitrix\Im\V2\Message;
-use Bitrix\Im\V2\Message\Params;
-use Bitrix\Im\V2\Message\MessageError;
-use Bitrix\Im\V2\Message\ReadService;
-use Bitrix\Im\V2\Message\Send\MentionService;
 use Bitrix\Im\V2\Message\Send\PushService;
 use Bitrix\Im\V2\Message\Send\SendingConfig;
-use Bitrix\Im\V2\Message\Send\SendingService;
 use Bitrix\Im\V2\MessageCollection;
-use Bitrix\Im\V2\Relation;
+use Bitrix\Im\V2\Relation\AddUsersConfig;
 use Bitrix\Im\V2\Rest\PopupData;
-use Bitrix\Im\V2\Rest\PopupDataAggregatable;
 use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Service\Context;
 use Bitrix\Im\V2\Service\Locator;
+use Bitrix\ImBot\Bot\Network;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Pull\Event;
+use Bitrix\Im\V2\Chat\Add\AddResult;
 
-class PrivateChat extends Chat implements PopupDataAggregatable
+class PrivateChat extends Chat
 {
 	protected const EXTRANET_CAN_SEE_HISTORY = true;
+	protected array $dialogIdCache = [];
 
 	protected function getDefaultType(): string
 	{
 		return self::IM_TYPE_PRIVATE;
 	}
 
-	protected function checkAccessWithoutCaching(int $userId): bool
+	public function setDialogId(string $dialogId): self
 	{
-		return $this->getCompanion($userId)->hasAccess($userId);
+		parent::setDialogId($dialogId);
+		$this->dialogIdCache[$this->getContext()->getUserId()] = $dialogId;
+
+		return $this;
+	}
+
+	protected function checkAccessInternal(int $userId): Result
+	{
+		return $this->getCompanion($userId)->checkAccess($userId);
 	}
 
 	/**
@@ -77,16 +84,25 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 		return $this;
 	}
 
-	public function getDialogId(): ?string
+	public function getDefaultManageMessagesAutoDelete(): string
 	{
-		if ($this->dialogId || !$this->getChatId())
+		return Chat::MANAGE_RIGHTS_MEMBER;
+	}
+
+	public function getDialogId(?int $contextUserId = null): ?string
+	{
+		$userId = $contextUserId ?? $this->getContext()->getUserId();
+		if (!isset($this->dialogIdCache[$userId]))
 		{
-			return $this->dialogId;
+			$this->dialogIdCache[$userId] = $this->getCompanion($contextUserId)->getId();
 		}
 
-		$this->dialogId = $this->getCompanion()->getId();
+		return $this->dialogIdCache[$userId];
+	}
 
-		return $this->dialogId;
+	public function hasDialogId(): bool
+	{
+		return $this->dialogId !== null;
 	}
 
 	public function getDialogContextId(): ?string
@@ -99,71 +115,84 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 		return 0;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getOpponentId(): int
+	public function getMultidialogData(): array
 	{
-		/** @var Relation $relation */
-		$opponentUserId = 0;
-		foreach ($this->getRelations() as $relation)
+		if (!Loader::includeModule('imbot'))
 		{
-			if (
-				User::getInstance($relation->getUserId())->isActive()
-				&& $this->getAuthorId() != $relation->getUserId()
-			)
-			{
-				$opponentUserId = $relation->getUserId();
-				break;
-			}
+			return [];
 		}
 
-		return $opponentUserId;
-	}
-
-	/**
-	 * @param Message $message
-	 * @return void
-	 */
-	public function riseInRecent(Message $message): void
-	{
-		/** @var Relation $relation */
-		$opponentUserId = 0;
-		foreach ($this->getRelations() as $relation)
-		{
-			if (
-				User::getInstance($relation->getUserId())->isActive()
-				&& $message->getAuthorId() != $relation->getUserId()
-			)
-			{
-				$opponentUserId = $relation->getUserId();
-				break;
-			}
-		}
+		$bot = null;
 
 		foreach ($this->getRelations() as $relation)
 		{
-			if (!User::getInstance($relation->getUserId())->isActive())
+			$user = $relation->getUser();
+
+			if (!$user instanceof UserBot)
 			{
 				continue;
 			}
 
-			\CIMContactList::SetRecent([
-				'ENTITY_ID' => $relation->getUserId() == $opponentUserId ? $message->getAuthorId() : $opponentUserId,
-				'MESSAGE_ID' => $message->getMessageId(),
-				'CHAT_TYPE' => self::IM_TYPE_PRIVATE,
-				'CHAT_ID' => $relation->getChatId(),
-				'RELATION_ID' => $relation->getId(),
-				'USER_ID' => $relation->getUserId(),
-			]);
+			$botType = $user->getBotData()->toRestFormat()['type'] ?? null;
+			if ($botType === 'support24' || $botType === 'network')
+			{
+				$bot = $user;
+			}
 		}
+
+		if (!$bot)
+		{
+			return [];
+		}
+
+		$otherUser = $this->getCompanion($bot->getId());
+
+		return Network::getBotAsMultidialog($bot->getId(), $otherUser->getId());
+	}
+
+	public function filterUsersToMentionAnchor(array $userIds): array
+	{
+		$companionId = $this->getCompanionId();
+		if (in_array($companionId, $userIds, true))
+		{
+			return [$companionId => $companionId];
+		}
+
+		return [];
+	}
+
+	protected function prepareMessage(Message $message): void
+	{
+		parent::prepareMessage($message);
+
+		if (!$message->getAuthorId())
+		{
+			$message->setAuthorId($this->getContext()->getUserId());
+		}
+
+		$message
+			->setNotifyModule('im')
+			->setNotifyEvent($message->isSystem() ? Notify::EVENT_PRIVATE_SYSTEM : Notify::EVENT_PRIVATE)
+		;
+	}
+
+	protected function onBeforeMessageSend(Message $message, SendingConfig $config): Result
+	{
+		$result = parent::onBeforeMessageSend($message, $config);
+
+		if (!$message->getAuthorId())
+		{
+			return $result->addError(new Message\MessageError(Message\MessageError::WRONG_SENDER));
+		}
+
+		return $result;
 	}
 
 	public function getCompanion(?int $userId = null): \Bitrix\Im\V2\Entity\User\User
 	{
 		$userId = $userId ?? $this->getContext()->getUserId();
 
-		$relations = $this->getRelations(['LIMIT' => 2]);
+		$relations = $this->getRelations();
 
 		if (!$relations->hasUser($userId, $this->getChatId()))
 		{
@@ -181,6 +210,43 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 		return new NullUser();
 	}
 
+	public function getCompanionId(?int $userId = null): ?int
+	{
+		return $this->getCompanion($userId)->getId();
+	}
+
+	protected function getUsersToAddToRecent(): array
+	{
+		// We always return both users because the merge strategy is used for private chats.
+		return $this->getRelations()->getUserIds();
+	}
+
+	protected function updateRecentItems(Message $message): void
+	{
+		// We do not update recent items because the merge strategy is chosen for private chats.
+		return;
+	}
+
+	protected function getFieldsForRecent(int $userId, Message $message): array
+	{
+		$fields = parent::getFieldsForRecent($userId, $message);
+		if (empty($fields))
+		{
+			return [];
+		}
+		$fields['ITEM_ID'] = $this->getCompanion($userId)->getId();
+
+		return $fields;
+	}
+
+	protected function insertRecent(array $fields): void
+	{
+		foreach ($fields as $item)
+		{
+			RecentTable::merge($item, $item, ['USER_ID', 'ITEM_TYPE', 'ITEM_ID']);
+		}
+	}
+
 	public function getDisplayedTitle(): ?string
 	{
 		return Loc::getMessage(
@@ -193,15 +259,15 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 		);
 	}
 
-	public function addUsers(array $userIds, array $managerIds = [], ?bool $hideHistory = null, bool $withMessage = true, bool $skipRecent = false, Relation\Reason $reason = Relation\Reason::DEFAULT): Chat
+	public function addUsers(array $userIds, AddUsersConfig $config = new AddUsersConfig()): Chat
 	{
 		return $this;
 	}
 
 	public function sendPushUpdateMessage(Message $message): void
 	{
-		$pushFormat = new Message\PushFormat();
-		$push = $pushFormat->formatMessageUpdate($message);
+		$pushFormat = new Message\PushFormat($message);
+		$push = $pushFormat->formatMessageUpdate();
 		$authorId = $message->getAuthorId();
 		$opponentId = $this->getCompanion($authorId)->getId();
 
@@ -216,9 +282,18 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 		Event::add($authorId, $push);
 	}
 
+	protected function getPushService(\Bitrix\Im\V2\Message $message, SendingConfig $config): PushService
+	{
+		return new Message\Send\Push\PrivatePushService($message, $config);
+	}
+
 	protected function sendPushReadSelf(MessageCollection $messages, int $lastId, int $counter): void
 	{
 		$companionId = $this->getDialogId();
+
+		$selfRelation = $this->getSelfRelation();
+		$muted = isset($selfRelation) ? $selfRelation->getNotifyBlock() : false;
+
 		\Bitrix\Pull\Event::add($this->getContext()->getUserId(), [
 			'module_id' => 'im',
 			'command' => 'readMessage',
@@ -230,9 +305,11 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 				'userId' => (int)$companionId,
 				'lastId' => $lastId,
 				'counter' => $counter,
-				'muted' => false,
+				'muted' => $muted ?? false,
 				'unread' => Recent::isUnread($this->getContext()->getUserId(), $this->getType(), $this->getDialogId() ?? ''),
 				'viewedMessages' => $messages->getIds(),
+				'counterType' => $this->getCounterType()->value,
+				'recentConfig' => $this->getRecentConfig()->toPullFormat(),
 			],
 			'extra' => \Bitrix\Im\Common::getPullExtra()
 		]);
@@ -278,241 +355,6 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 				'BY_EVENT' => $byEvent
 			)));
 		}
-	}
-
-	/**
-	 * Provides message sending process.
-	 *
-	 * @param Message|string|array $message
-	 * @param SendingConfig|array|null $sendingConfig
-	 * @return Result
-	 */
-	public function sendMessage($message, $sendingConfig = null): Result
-	{
-		$result = new Result;
-
-		if (!$this->getChatId())
-		{
-			return $result->addError(new ChatError(ChatError::WRONG_TARGET_CHAT));
-		}
-
-		if (is_string($message))
-		{
-			$message = (new Message)->setMessage($message);
-		}
-		elseif (!$message instanceof Message)
-		{
-			$message = new Message($message);
-		}
-
-		$message
-			->setRegistry($this->messageRegistry)
-			->setContext($this->context)
-			->setChatId($this->getChatId())
-		;
-
-		if (!$message->getNotifyModule())
-		{
-			$message->setNotifyModule('im');
-		}
-		if ($message->isSystem())
-		{
-			$message->setNotifyEvent(Notify::EVENT_PRIVATE_SYSTEM);
-		}
-		else
-		{
-			$message->setNotifyEvent(Notify::EVENT_PRIVATE);
-		}
-
-		// config for sending process
-		if ($sendingConfig instanceof SendingConfig)
-		{
-			$sendingServiceConfig = $sendingConfig;
-		}
-		else
-		{
-			$sendingServiceConfig = new SendingConfig();
-			if (is_array($sendingConfig))
-			{
-				$sendingServiceConfig->fill($sendingConfig);
-			}
-		}
-		// sending process
-		$sendService = new SendingService($sendingServiceConfig);
-		$sendService->setContext($this->context);
-
-		// check duplication by UUID
-		if (
-			!$message->isSystem()
-			&& $message->getUuid()
-		)
-		{
-			$checkUuidResult = $sendService->checkDuplicateByUuid($message);
-			if (!$checkUuidResult->isSuccess())
-			{
-				return $result->addErrors($checkUuidResult->getErrors());
-			}
-			$data = $checkUuidResult->getResult();
-			if (!empty($data['messageId']))
-			{
-				return $result->setResult($checkUuidResult->getResult());
-			}
-		}
-
-		// author from current context
-		if (
-			!$message->getAuthorId()
-			&& !$message->isSystem()
-		)
-		{
-			$message->setAuthorId($this->getContext()->getUserId());
-			if (!$message->getAuthorId())
-			{
-				return $result->addError(new ChatError(ChatError::WRONG_SENDER));
-			}
-		}
-
-		// Extranet cannot send system
-		if (
-			$message->isSystem()
-			&& $message->getAuthorId()
-			&& User::getInstance($message->getAuthorId())->isExtranet()
-		)
-		{
-			$message->markAsSystem(false);
-		}
-
-		// permissions
-		if (
-			!$sendingServiceConfig->skipUserCheck()
-			&& !$sendingServiceConfig->convertMode()
-			&& !$message->isSystem()
-		)
-		{
-			if (!$this->hasAccess($message->getAuthorId()))
-			{
-				return $result->addError(new ChatError(ChatError::ACCESS_DENIED));
-			}
-		}
-
-		// fire event `im:OnBeforeChatMessageAdd` before message send
-		$eventResult = $sendService->fireEventBeforeMessageSend($this, $message);
-		if (!$eventResult->isSuccess())
-		{
-			// cancel sending by event
-			return $result->addErrors($eventResult->getErrors());
-		}
-
-		// check for empty message
-		if (
-			!$message->getMessage()
-			&& !$message->hasFiles()
-			&& !$message->getParams()->isSet(Params::ATTACH)
-		)
-		{
-			return $result->addError(new MessageError(MessageError::EMPTY_MESSAGE));
-		}
-
-		// Replacements / DateLink
-		if ($sendingServiceConfig->generateUrlPreview())
-		{
-			$message->parseDates();
-		}
-
-		// Emoji
-		$message->checkEmoji();
-
-
-		// BB codes with disk files
-		$message->uploadFileFromText();
-
-		// Format attached files
-		$message->formatFilesMessageOut();
-
-		// Save + Save Params
-		$saveResult = $message->save();
-		if (!$saveResult->isSuccess())
-		{
-			return $result->addErrors($saveResult->getErrors());
-		}
-
-		// Unread
-		$readService = new ReadService($message->getAuthorId());
-		$readService->markMessageUnread($message, $this->getRelations());
-
-		// Chat message counter
-		$this
-			->setLastMessageId($message->getMessageId())
-			->incrementMessageCount()
-			->save()
-		;
-
-		// Recent
-		if ($sendingServiceConfig->addRecent())
-		{
-			$readService->markRecentUnread($message);
-		}
-
-		// Counters
-		$counters = [];
-		if ($sendingServiceConfig->sendPush())
-		{
-			$counters = $readService->getCountersForUsers($message, $this->getRelations());
-		}
-
-		// fire event `im:OnAfterMessagesAdd`
-		$sendService->fireEventAfterMessageSend($this, $message);
-
-		// Recent
-		if (
-			$sendingServiceConfig->addRecent()
-			&& !$sendingServiceConfig->skipAuthorAddRecent()// Do not add author into recent list in case of self message chat.
-		)
-		{
-			$this->riseInRecent($message);
-		}
-
-		// Rich
-		if ($sendingServiceConfig->generateUrlPreview())
-		{
-			// generate preview or set bg job
-			$message->generateUrlPreview();
-		}
-
-		if ($this->getParentMessageId())
-		{
-			$this->updateParentMessageCount();
-		}
-
-		// send Push
-		if ($sendingServiceConfig->sendPush())
-		{
-			$pushService = new PushService($sendingServiceConfig);
-			$pushService->sendPushPrivateChat($this, $message, $counters);
-		}
-
-		// Mentions
-		if (!$message->isSystem())
-		{
-			$mentionService = new MentionService($sendingServiceConfig);
-			$mentionService->setContext($this->context);
-			$mentionService->sendMentions($this, $message);
-		}
-
-		// Run message command
-		$botService = new BotService($sendingServiceConfig);
-		$botService->setContext($this->context);
-		$botService->runMessageCommand($this, $message);
-
-		// Links
-		(new UrlService())->saveUrlsFromMessage($message);
-
-		// search
-		$message->updateSearchIndex();
-
-		$result->setResult(['messageId' => $message->getMessageId()]);
-
-		return $result;
 	}
 
 	/**
@@ -602,9 +444,9 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 		return $result;
 	}
 
-	public function add(array $params, ?Context $context = null): Result
+	public function add(array $params, ?Context $context = null): AddResult
 	{
-		$result = new Result;
+		$result = new AddResult();
 
 		$paramsResult = $this->prepareParams($params);
 		if (!$paramsResult->isSuccess())
@@ -628,11 +470,9 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 		if ($chatResult->isSuccess() && $chatResult->hasResult())
 		{
 			$chatParams = $chatResult->getResult();
+			$this->load($chatParams);
 
-			return $result->setResult([
-				'CHAT_ID' => (int)$chatParams['ID'],
-				'CHAT' => self::load($chatParams),
-			]);
+			return $result->setChat($this);
 		}
 
 		$chat = new static($params);
@@ -647,13 +487,11 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 			'CHAT_ID' => $chat->getChatId(),
 			'MESSAGE_TYPE' => \IM_MESSAGE_PRIVATE,
 			'USER_ID' => $params['FROM_USER_ID'],
-			'STATUS' => \IM_STATUS_READ,
 		]);
 		\Bitrix\Im\Model\RelationTable::add([
 			'CHAT_ID' => $chat->getChatId(),
 			'MESSAGE_TYPE' => \IM_MESSAGE_PRIVATE,
 			'USER_ID' => $params['TO_USER_ID'],
-			'STATUS' => \IM_STATUS_READ,
 		]);
 
 		$botJoinFields = [
@@ -685,10 +523,7 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 
 		$chat->isFilledNonCachedData = false;
 
-		return $result->setResult([
-			'CHAT_ID' => $chat->getChatId(),
-			'CHAT' => $chat,
-		]);
+		return $result->setChat($chat);
 	}
 
 	protected function prepareParams(array $params = []): Result
@@ -735,8 +570,37 @@ class PrivateChat extends Chat implements PopupDataAggregatable
 
 	public function getPopupData(array $excludedList = []): PopupData
 	{
-		$userIds = [$this->getContext()->getUserId(), $this->getCompanion()->getId()];
+		$userId = $this->getContext()->getUserId();
 
-		return new PopupData([new UserPopupItem($userIds)], $excludedList);
+		return parent::getPopupData($excludedList)
+			->add(new UserPopupItem([$userId, $this->getCompanion()->getId()]))
+			->add(new Chat\MessagesAutoDelete\MessagesAutoDeleteConfigs([$this->getChatId()]))
+			->add($this->getCallToken())
+		;
+	}
+
+	public static function getDialogIds(array $chatIds, int $contextUserId): array
+	{
+		$dialogIds = [];
+
+		if (empty($chatIds))
+		{
+			return [];
+		}
+
+		$result = RelationTable::query()
+			->setSelect(['CHAT_ID', 'USER_ID'])
+			->whereIn('CHAT_ID', $chatIds)
+			->where('MESSAGE_TYPE', Chat::IM_TYPE_PRIVATE)
+			->whereNot('USER_ID', $contextUserId)
+			->fetchAll()
+		;
+
+		foreach ($result as $row)
+		{
+			$dialogIds[(int)$row['CHAT_ID']] = $row['USER_ID'];
+		}
+
+		return $dialogIds;
 	}
 }

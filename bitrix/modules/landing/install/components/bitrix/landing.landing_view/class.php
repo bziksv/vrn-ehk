@@ -4,20 +4,25 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use \Bitrix\Landing\Folder;
-use \Bitrix\Landing\Manager;
-use \Bitrix\Landing\Site;
-use \Bitrix\Landing\Landing;
-use \Bitrix\Landing\Site\Type;
-use \Bitrix\Landing\Syspage;
-use \Bitrix\Landing\Hook;
-use \Bitrix\Landing\Rights;
-use \Bitrix\Landing\TemplateRef;
-use \Bitrix\Main\Event;
-use \Bitrix\Main\EventManager;
-use \Bitrix\Main\ModuleManager;
-use \Bitrix\Landing\Source\Selector;
-use \Bitrix\Landing\PublicAction\Demos;
+use Bitrix\Landing\Copilot;
+use Bitrix\Landing\Folder;
+use Bitrix\Landing\Manager;
+use Bitrix\Landing\Site;
+use Bitrix\Landing\Landing;
+use Bitrix\Landing\Site\Type;
+use Bitrix\Landing\Syspage;
+use Bitrix\Landing\Hook;
+use Bitrix\Landing\Rights;
+use Bitrix\Landing\TemplateRef;
+use Bitrix\Landing\Source\Selector;
+use Bitrix\Landing\PublicAction\Demos;
+use Bitrix\Landing\Metrika;
+use Bitrix\Main\Event;
+use Bitrix\Main\EventManager;
+use Bitrix\Main\Loader;
+use Bitrix\Main\ModuleManager;
+use Bitrix\Intranet;
+
 
 \CBitrixComponent::includeComponentClass('bitrix:landing.base');
 
@@ -167,7 +172,7 @@ class LandingViewComponent extends LandingBaseComponent
 	 */
 	protected function getTopPanelConfig(Landing $landing, array $site, array $rights)
 	{
-		$uiInstalled = \Bitrix\Main\Loader::includeModule('ui');
+		$uiInstalled = Loader::includeModule('ui');
 		return [
 			'type' => $this->arParams['TYPE'],
 			'id' => $landing->getId(),
@@ -218,7 +223,11 @@ class LandingViewComponent extends LandingBaseComponent
 			'helpCodes' => [
 				'form_general' => \Bitrix\Landing\Help::getHelpData('FORM_GENERAL', 'ru'),
 				'widget_general' => \Bitrix\Landing\Help::getHelpData('WIDGET_GENERAL', 'ru')
-			]
+			],
+			'feedback' => [
+				'forms' => (new Bitrix\UI\Form\FormProvider)->getPartnerFormList(),
+				'portalUri' => (new Bitrix\UI\Form\UrlProvider)->getPartnerPortalUrl()
+			],
 		];
 	}
 
@@ -299,7 +308,12 @@ class LandingViewComponent extends LandingBaseComponent
 				));
 				\localRedirect($uriSave->getUri(), true);
 			}
-			if ($landing->publication())
+			$metrikaParams = new Metrika\FieldsDto(
+				type: Metrika\Types::template,
+				subSection: 'from_editor',
+				element: 'manual',
+			);
+			if ($landing->publication(null, $metrikaParams))
 			{
 				$publicIds[$id] = true;
 				// current landing is not area
@@ -657,24 +671,25 @@ class LandingViewComponent extends LandingBaseComponent
 				$options['ai_image_available'] = $arResult['AI_IMAGE_AVAILABLE'];
 				$options['ai_image_active'] = $arResult['AI_IMAGE_ACTIVE'];
 				$options['ai_unactive_info_code'] = $arResult['AI_UNACTIVE_INFO_CODE'];
+				$options['google_images_available'] = Manager::isB24();
 				$options['allow_minisites'] = \Bitrix\Landing\Restriction\Form::isMinisitesAllowed();
 				$options['folder_id'] = $landing->getFolderId();
 				$options['version'] = Manager::getVersion();
 				$options['default_section'] = $this->getCurrentBlockSection($type);
 				$options['specialType'] = $this->arResult['SPECIAL_TYPE'];
-				$options['tplCode'] = $meta['TPL_CODE'] ?: null;
-				$options['params'] = (array)$params['PARAMS'];
-				$options['params']['type'] = $params['TYPE'];
-				$options['params']['draftMode'] = $params['DRAFT_MODE'] == 'Y';
-				$options['params']['sef_url']['design_block'] = $arResult['TOP_PANEL_CONFIG']['urls']['designBlock'];
 				if (
-					$options['specialType'] === Type::PSEUDO_SCOPE_CODE_FORMS &&
-					\Bitrix\Main\Loader::includeModule('crm')
+					$options['specialType'] === Type::PSEUDO_SCOPE_CODE_FORMS
+					&& Loader::includeModule('crm')
 				)
 				{
 					$formId = $this->getFormIdByLandingId($landing->getId());
 					$options['formEditorData'] = $formId ? $this->getCrmFormEditorData($formId) : [];
 				}
+				$options['tplCode'] = $meta['TPL_CODE'] ?: null;
+				$options['params'] = (array)$params['PARAMS'];
+				$options['params']['type'] = $params['TYPE'];
+				$options['params']['draftMode'] = $params['DRAFT_MODE'] == 'Y';
+				$options['params']['sef_url']['design_block'] = $arResult['TOP_PANEL_CONFIG']['urls']['designBlock'];
 				if ($options['params']['draftMode'])
 				{
 					$options['params']['editor'] = [
@@ -827,21 +842,21 @@ class LandingViewComponent extends LandingBaseComponent
 						'name' => $page['TITLE']
 					);
 				}
-				if ($mainPageId = $this->arResult['SITE']['LANDING_ID_INDEX'])
+				if ($indexPageId = $this->arResult['SITE']['LANDING_ID_INDEX'])
 				{
 					$res = Landing::getList([
 						'select' => [
 							'TITLE'
 						],
 						'filter' => [
-							'ID' => $mainPageId,
+							'ID' => $indexPageId,
 							'CHECK_PERMISSIONS' => 'N'
 						]
 				 	]);
 					if ($row = $res->fetch())
 					{
 						$options['syspages']['mainpage'] = array(
-							'landing_id' => $mainPageId,
+							'landing_id' => $indexPageId,
 							'name' => $row['TITLE']
 						);
 					}
@@ -854,72 +869,12 @@ class LandingViewComponent extends LandingBaseComponent
 						$options['params']['type'] = 'STORE';
 					}
 				}
-				if (\Bitrix\Main\Loader::includeModule('bitrix24'))
+				if (Loader::includeModule('bitrix24'))
 				{
 					$options['license'] = \CBitrix24::getLicenseType();
 				}
-				// unset blocks not for this type
-				foreach ($options['blocks'] as $sectionCode => &$section)
-				{
-					if (isset($section['type']) && $section['type'])
-					{
-						$section['type'] = array_map('strtoupper', (array)$section['type']);
-						if (in_array('PAGE', $section['type']))
-						{
-							$section['type'][] = 'SMN';
-						}
-						if (!in_array($options['params']['type'], $section['type']))
-						{
-							unset($options['blocks'][$sectionCode]);
-							continue;
-						}
-					}
-					foreach ($section['items'] as $code => &$block)
-					{
-						if (!empty($block['type']))
-						{
-							$block['type'] = array_map('strtoupper', (array)$block['type']);
-							if (in_array('PAGE', $block['type']))
-							{
-								$block['type'][] = 'SMN';
-							}
-						}
-						if (
-							!empty($block['type'])
-							&& !in_array($type, $block['type'], true)
-							&& ($b24 || in_array('NULL', $block['type'], true))
-						)
-						{
-							unset($section['items'][$code]);
-						}
-						if (
-							($block['type'] ?? null) === 'store' &&
-							!$isStore
-						)
-						{
-							unset($section['items'][$code]);
-						}
-						if (
-							($block['version'] ?? null) &&
-							version_compare($options['version'], $block['version']) < 0
-						)
-						{
-							$block['requires_updates'] = true;
-						}
-						else
-						{
-							$block['requires_updates'] = false;
-						}
-						if (!empty($block['only_for_license']) && $block['only_for_license'] !== $options['license'])
-						{
-							unset($section['items'][$code]);
-						}
-					}
-					unset($block);
-				}
-				unset($section);
 				// redefine options
-				if (\Bitrix\Main\Loader::includeModule('rest'))
+				if (Loader::includeModule('rest'))
 				{
 					// add placements
 					$res = \Bitrix\Rest\PlacementTable::getList(array(
@@ -1112,6 +1067,18 @@ class LandingViewComponent extends LandingBaseComponent
 				'IFRAME' => 'Y'
 			]);
 		}
+		if (isset($_GET['site_generated']))
+		{
+			$urls['landingFrame']->addParams([
+				 'site_generated' => $_GET['site_generated']
+			]);
+		}
+		if (isset($_GET['newLanding']) && $_GET['newLanding'] === 'Y')
+		{
+			$urls['landingFrame']->addParams([
+				'newLanding' => 'Y'
+			]);
+		}
 
 		return $urls;
 	}
@@ -1208,6 +1175,7 @@ class LandingViewComponent extends LandingBaseComponent
 
 			// ai
 			$this->arResult['AI_TEXT_AVAILABLE'] = \Bitrix\Landing\Connector\Ai::isTextAvailable();
+			$this->arResult['AI_CHAT_ID'] = (new Copilot\Connector\Chat\Chat())->getChatForSite($this->arParams['SITE_ID']);
 			$this->arResult['COPILOT_AVAILABLE'] = \Bitrix\Landing\Connector\Ai::isCopilotAvailable();
 			$this->arResult['AI_TEXT_ACTIVE'] = \Bitrix\Landing\Connector\Ai::isTextActive();
 			$this->arResult['AI_IMAGE_AVAILABLE'] = \Bitrix\Landing\Connector\Ai::isImageAvailable();
@@ -1220,6 +1188,39 @@ class LandingViewComponent extends LandingBaseComponent
 			$this->arResult['FAKE_PUBLICATION'] = !$this->arResult['AUTO_PUBLICATION_ENABLED']
 			                                      || ($this->arParams['DRAFT_MODE'] === 'Y')
 			                                      || $landing->fakePublication();
+
+			if (Loader::includeModule('ai'))
+			{
+				// force chatbot registration
+				/**
+				 * @var Copilot\Connector\Chat\ChangeBlockChatBot $chatbot
+				 */
+				$chatbot = Copilot\Connector\Chat\Chat::getChangeBlockChatBot();
+				if (
+					$chatbot
+					&& isset($this->arResult['AI_CHAT_ID'])
+					&& $this->arResult['AI_CHAT_ID'] > 0
+				)
+				{
+					$chatbot->sendWelcomeMessage(
+						new Copilot\Connector\Chat\ChatBotMessageDto($this->arResult['AI_CHAT_ID'])
+					);
+					$chatbot->applyToChat($this->arResult['AI_CHAT_ID']);
+				}
+			}
+
+			if (
+				Loader::includeModule('intranet')
+				&& $this->arParams['TYPE'] === Site\Type::SCOPE_CODE_MAINPAGE
+			)
+			{
+				$publisher = new Intranet\MainPage\Publisher();
+				$this->arResult['MAINPAGE_IS_PUBLIC'] =	$publisher->isPublished();
+				$this->arResult['AI_TEXT_AVAILABLE'] = false;
+				$this->arResult['COPILOT_AVAILABLE'] = false;
+				$this->arResult['AI_IMAGE_AVAILABLE'] = false;
+			}
+
 			if (
 				$this->arParams['TYPE'] === 'STORE'
 				&& \Bitrix\Main\Loader::includeModule('catalog')
@@ -1252,7 +1253,7 @@ class LandingViewComponent extends LandingBaseComponent
 				// tmp fix for checking crm rights
 				if ($this->arResult['SPECIAL_TYPE'] === \Bitrix\Landing\Site\Type::PSEUDO_SCOPE_CODE_FORMS)
 				{
-					if (\Bitrix\Main\Loader::includeModule('crm'))
+					if (Loader::includeModule('crm'))
 					{
 						if (!\Bitrix\Crm\WebForm\Manager::checkWritePermission())
 						{
@@ -1342,26 +1343,45 @@ class LandingViewComponent extends LandingBaseComponent
 				);
 
 				// params for analytics
+				$category =
+					$this->arResult['SPECIAL_TYPE'] === Site\Type::PSEUDO_SCOPE_CODE_FORMS
+						? Metrika\Categories::CrmForms
+						: Metrika\Categories::getBySiteType($this->arParams['TYPE'])
+				;
+				$metrika = new Metrika\Metrika(
+					$category,
+					Metrika\Events::openMarket,
+				);
+				$metrikaStyle = clone $metrika;
+
 				$urlAddParams = [];
 				if ($this->arResult['SPECIAL_TYPE'])
 				{
 					$urlAddParams['specType'] = $this->arResult['SPECIAL_TYPE'];
 				}
-				$urlAddParams['context_section'] = 'page_view';
-				$urlAddParams['context_element'] = 'create_page_link';
-				$this->arParams['PAGE_URL_LANDING_ADD'] = $this->getUrlAdd(false, $urlAddParams);
+				$urlAddParamsStyle = $urlAddParams;
 
-				$urlAddParams['replaceLid'] = $this->arParams['LANDING_ID'];
-				$urlAddParams['context_section'] = 'block_style';
-				$urlAddParams['context_element'] = 'create_template_button';
-				$this->arParams['PAGE_URL_LANDING_REPLACE_FROM_STYLE'] = $this->getUrlAdd(
+				$this->arParams['PAGE_URL_LANDING_ADD'] =
+					$metrika
+						->setSection(Metrika\Sections::page)
+						->setSubSection('from_pages_navigator')
+						->parametrizeUri($this->getUrlAdd(false, $urlAddParams))
+				;
+
+				$urlAddParamsStyle['replaceLid'] = $this->arParams['LANDING_ID'];
+				$urlAddStyle = $this->getUrlAdd(
 					false,
-					$urlAddParams,
+					$urlAddParamsStyle,
 					Manager::getMarketCollectionId('form_minisite')
 				);
+				$this->arParams['PAGE_URL_LANDING_REPLACE_FROM_STYLE'] =
+					$metrikaStyle
+						->setSection(Metrika\Sections::blockStyle)
+						->setElement('create_template_button')
+						->parametrizeUri($urlAddStyle)
+				;
 
-
-				if (\Bitrix\Main\Loader::includeModule('bitrix24'))
+				if (Loader::includeModule('bitrix24'))
 				{
 					$this->arResult['LICENSE'] = \CBitrix24::getLicenseType();
 				}
@@ -1404,7 +1424,7 @@ class LandingViewComponent extends LandingBaseComponent
 
 	private static function isFormVerified(int $formId): bool
 	{
-		if (\Bitrix\Main\Loader::includeModule('bitrix24'))
+		if (Loader::includeModule('bitrix24'))
 		{
 			$validatedLicenseType = [
 				'project',
@@ -1427,7 +1447,7 @@ class LandingViewComponent extends LandingBaseComponent
 	{
 		static $formId = null;
 
-		if ($formId === null && \Bitrix\Main\Loader::includeModule('crm'))
+		if ($formId === null && Loader::includeModule('crm'))
 		{
 			$res = \Bitrix\Crm\WebForm\Internals\LandingTable::getList([
 				'select' => [

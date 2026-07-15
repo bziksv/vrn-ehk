@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Main\Loader;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowInstanceTable;
+use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Localization\Loc;
 
 if (!Loader::includeModule('bizproc'))
@@ -53,6 +54,20 @@ class BizprocWorkflowInstances extends \CBitrixComponent
 
 	public function onPrepareComponentParams($params)
 	{
+		$typeFilter = $this->request->get('type');
+
+		if ($typeFilter)
+		{
+			$uri = new \Bitrix\Main\Web\Uri($this->request->getRequestUri());
+			$uri->deleteParams(['type']);
+			$uri->addParams([
+				'TYPE' => $typeFilter,
+				'apply_filter' => 'Y',
+			]);
+
+			LocalRedirect($uri->getLocator());
+		}
+
 		if (empty($params['NAME_TEMPLATE']))
 		{
 			$params['NAME_TEMPLATE'] = COption::GetOptionString(
@@ -222,6 +237,42 @@ class BizprocWorkflowInstances extends \CBitrixComponent
 					],
 				],
 			];
+
+			if (
+				class_exists(\Bitrix\Crm\Integration\UI\EntitySelector\CrmEntityProvider::class)
+				&& Loader::includeModule('crm')
+			)
+			{
+				$result[] = [
+					'id' => 'WS_DOCUMENT_ID',
+					'name' => Loc::getMessage('BPWI_WS_DOCUMENT_ID'),
+					'type' => 'entity_selector',
+					'default' => true,
+					'params' => [
+						'multiple' => 'N',
+						'dialogOptions' => [
+							'context' => self::GRID_ID,
+							'entities' => [
+								[
+									'id' => 'crm_entity',
+									'dynamicLoad' => true,
+									'dynamicSearch' => true,
+									'options' => [
+										'filterByAutomationOrBizproc' => true,
+									],
+								],
+							],
+							'multiple' => 'N',
+							'dropdownMode' => true,
+							'hideOnSelect' => true,
+							'hideOnDeselect' => false,
+							'clearSearchOnSelect' => true,
+							'showAvatars' => false,
+							'compactView' => true,
+						],
+					],
+				];
+			}
 		}
 
 		return $result;
@@ -333,8 +384,7 @@ class BizprocWorkflowInstances extends \CBitrixComponent
 				}
 				elseif ($value === 'is_locked')
 				{
-					global $DB;
-					$filter['<OWNED_UNTIL'] = date($DB->DateFormatToPHP(FORMAT_DATETIME), $this->getLockedTime());
+					$filter['<OWNED_UNTIL'] = \Bitrix\Main\Type\DateTime::createFromTimestamp($this->getLockedTime());
 				}
 
 				continue;
@@ -535,20 +585,14 @@ class BizprocWorkflowInstances extends \CBitrixComponent
 
 	private function getGridFilter(): array
 	{
-		$typeFilter = $this->request->get('type');
 		$filterOptions = new \Bitrix\Main\UI\Filter\Options(static::GRID_ID . '_filter');
-		$gridFilter = $filterOptions->getFilter();
-
-		if ($typeFilter && empty($gridFilter['TYPE'])) //compatible
-		{
-			$gridFilter['TYPE'] = $typeFilter;
-		}
+		$gridFilter = $filterOptions->getFilter($this->getFilter());
 
 		$filter = $this->prepareFilter($gridFilter);
 
 		if (!$this->isAdmin())
 		{
-			$filter['=' . $this->getFieldName('WS_STARTED_BY')] = \Bitrix\Main\Engine\CurrentUser::get()->getId();
+			$filter['=' . $this->getFieldName('WS_STARTED_BY')] = CurrentUser::get()->getId();
 		}
 
 		return $filter;
@@ -630,6 +674,22 @@ class BizprocWorkflowInstances extends \CBitrixComponent
 			];
 		}
 
+		if ($this->isAdmin() || $this->canUserDoOperation($data, CBPCanUserOperateOperation::ViewWorkflow))
+		{
+			$actions[] = [
+				'TEXT' => Loc::getMessage('BPWI_LOG_LABEL'),
+				'ONCLICK' => "BX.Bizproc.Component.WorkflowInstances.Instance.logItem('{$data['ID']}');",
+			];
+		}
+
+		if ($this->isAdmin() || $this->canUserDoOperation($data, CBPCanUserOperateOperation::StartWorkflow))
+		{
+			$actions[] = [
+				'TEXT' => Loc::getMessage('BPWI_TERMINATE_LABEL'),
+				'ONCLICK' => "BX.Bizproc.Component.WorkflowInstances.Instance.terminateItem('{$data['ID']}');",
+			];
+		}
+
 		if ($this->isAdmin())
 		{
 			$actions[] = [
@@ -639,6 +699,21 @@ class BizprocWorkflowInstances extends \CBitrixComponent
 		}
 
 		return $actions;
+	}
+
+	private function canUserDoOperation(array $data, int $operation): bool
+	{
+		$complexDocumentId = [$data['WS_MODULE_ID'], $data['WS_ENTITY'], $data['WS_DOCUMENT_ID']];
+
+		return CBPDocument::CanUserOperateDocument(
+			$operation,
+			(int)CurrentUser::get()->getId(),
+			$complexDocumentId,
+			[
+				'WorkflowId' => $data['ID'],
+				'UserGroups' => CurrentUser::get()->getUserGroups(),
+			]
+		);
 	}
 
 	public static function getModuleName($moduleId, $entity = null)

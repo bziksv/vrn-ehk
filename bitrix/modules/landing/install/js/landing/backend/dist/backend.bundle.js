@@ -89,7 +89,9 @@ this.BX = this.BX || {};
 	          // eslint-disable-next-line
 	          BX.Landing.UI.Panel.StatusPanel.getInstance().update();
 	        }
-	        BX.onCustomEvent(BX.Landing.PageObject.getRootWindow(), 'BX.Landing.Backend:action', [_action, data]);
+	        if (typeof BX.Landing.PageObject !== 'undefined') {
+	          BX.onCustomEvent(BX.Landing.PageObject.getRootWindow(), 'BX.Landing.Backend:action', [_action, data]);
+	        }
 
 	        /*if (!response.result) {
 	        	BX.Landing.ErrorManager.getInstance().add({
@@ -137,7 +139,9 @@ this.BX = this.BX || {};
 	      }).then(function (response) {
 	        // eslint-disable-next-line
 	        BX.Landing.UI.Panel.StatusPanel.getInstance().update();
-	        BX.onCustomEvent(BX.Landing.PageObject.getRootWindow(), 'BX.Landing.Backend:batch', [action, data]);
+	        if (typeof BX.Landing.PageObject !== 'undefined') {
+	          BX.onCustomEvent(BX.Landing.PageObject.getRootWindow(), 'BX.Landing.Backend:batch', [action, data]);
+	        }
 
 	        /*if (!response.result) {
 	        	BX.Landing.ErrorManager.getInstance().add({

@@ -4,23 +4,29 @@ namespace Bitrix\Im\V2\Entity\File;
 
 use Bitrix\Disk\File;
 use Bitrix\Disk\Driver;
+use Bitrix\Disk\Folder;
 use Bitrix\Disk\Internals\FileTable;
-use Bitrix\Disk\Storage;
 use Bitrix\Im\Model\EO_FileTemporary;
 use Bitrix\Im\Model\EO_FileTemporary_Collection;
 use Bitrix\Im\V2\Entity\EntityCollection;
 use Bitrix\Im\V2\Entity\User\UserPopupItem;
+use Bitrix\Im\V2\Registry;
 use Bitrix\Im\V2\Rest\PopupData;
 use Bitrix\Im\V2\Result;
+use Bitrix\Im\V2\TariffLimit\DateFilterable;
+use Bitrix\Im\V2\TariffLimit\FilterResult;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ORM\Query\Query;
+use Bitrix\Main\Type\DateTime;
 
 /**
- * @implements \IteratorAggregate<int,FileItem>
+ * @extends Registry<FileItem>
  * @method FileItem offsetGet($key)
  */
-class FileCollection extends EntityCollection
+class FileCollection extends EntityCollection implements DateFilterable
 {
+	protected static array $preloadDiskFiles = [];
+
 	/**
 	 * @param int[]|File[]|null $diskFiles
 	 * @param int|null $chatId
@@ -55,29 +61,132 @@ class FileCollection extends EntityCollection
 			return new static();
 		}
 
-		$diskFiles = File::getModelList([
-			'filter' => Query::filter()->whereIn('ID', $diskFilesIds)->where('TYPE', FileTable::TYPE)
-		]);
+		[$preloadDiskFiles, $filesToLoad] = static::getPreloadDiskFile($diskFilesIds);
+		$diskFiles = [];
 
-		return new static($diskFiles, $chatId);
+		if (!empty($filesToLoad))
+		{
+			$diskFiles = File::getModelList([
+				'filter' => Query::filter()->whereIn('ID', $filesToLoad)->where('TYPE', FileTable::TYPE),
+				'with' => ['PREVIEW'],
+			]);
+		}
+
+		return new static(array_merge($diskFiles, $preloadDiskFiles), $chatId);
 	}
 
-	public function getCopies(?Storage $storage = null): self
+	public function getDiskFiles(): array
 	{
-		$userId = $this->getContext()->getUserId();
-		$storage = $storage ?? Driver::getInstance()->getStorageByUserId($userId);
+		$diskFiles = [];
+
+		foreach ($this as $file)
+		{
+			$diskFile = $file->getDiskFile();
+			if ($diskFile)
+			{
+				$diskFiles[$diskFile->getId()] = $diskFile;
+			}
+		}
+
+		return $diskFiles;
+	}
+
+	public function getMessageOut(): array
+	{
+		$result = [];
+
+		foreach ($this as $file)
+		{
+			$messageOut = $file->getMessageOut();
+			if ($messageOut)
+			{
+				$result[] = $messageOut;
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param Folder $folder
+	 * @return Result<FileCollection>
+	 */
+	public function copyTo(Folder $folder): Result
+	{
+		$result = new Result();
 		$copies = new static();
 
 		foreach ($this as $fileEntity)
 		{
-			$copy = $fileEntity->getCopy($storage);
-			if ($copy !== null)
+			$copy = $fileEntity->copyTo($folder)->getResult();
+			if (isset($copy))
 			{
 				$copies[] = $copy;
 			}
 		}
 
-		return $copies;
+		if ($copies->count() > 0)
+		{
+			$result->setResult($copies);
+		}
+		else
+		{
+			$result->addError(new FileError(FileError::COPY_ERROR));
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @return Result<FileCollection>
+	 */
+	public function copyToOwnSavedFiles(): Result
+	{
+		$result = $this->getOwnStorageFolderByType(FolderType::SavedFiles);
+		if (!$result->hasResult())
+		{
+			return $result;
+		}
+
+		return $this->copyTo($result->getResult());
+	}
+
+	/**
+	 * @return Result<FileCollection>
+	 */
+	public function copyToOwnUploadedFiles(): Result
+	{
+		$result = $this->getOwnStorageFolderByType(FolderType::UploadedFiles);
+		if (!$result->hasResult())
+		{
+			return $result;
+		}
+
+		return $this->copyTo($result->getResult());
+	}
+
+	/**
+	 * @param FolderType $folderType
+	 * @return Result<Folder>
+	 */
+	private function getOwnStorageFolderByType(FolderType $folderType): Result
+	{
+		$result = new Result();
+
+		$userId = $this->getContext()->getUserId();
+		$storage = Driver::getInstance()->getStorageByUserId($userId);
+		if (!isset($storage))
+		{
+			return $result->addError(new FileError(FileError::STORAGE_NOT_FOUND));
+		}
+
+		$folder = $storage->getSpecificFolderByCode($folderType->value);
+		if (!isset($folder))
+		{
+			return $result->addError(new FileError(FileError::FOLDER_NOT_FOUND));
+		}
+
+		return $result->setResult($folder);
 	}
 
 	public function addToTmp(string $source): Result
@@ -111,10 +220,66 @@ class FileCollection extends EntityCollection
 		return $resultData;
 	}
 
+	/**
+	 * @param File[] $diskFiles
+	 * @return void
+	 */
+	public static function addDiskFilesToPreload(array $diskFiles): void
+	{
+		foreach ($diskFiles as $diskFile)
+		{
+			if ($diskFile instanceof File)
+			{
+				static::$preloadDiskFiles[$diskFile->getId()] = $diskFile;
+			}
+		}
+	}
+
+	protected static function getPreloadDiskFile(array $diskFileIds): array
+	{
+		$preloadDiskFiles = [];
+		$filesToLoad = [];
+
+		foreach ($diskFileIds as $diskFileId)
+		{
+			if (isset(self::$preloadDiskFiles[$diskFileId]))
+			{
+				$preloadDiskFiles[] = self::$preloadDiskFiles[$diskFileId];
+			}
+			else
+			{
+				$filesToLoad[] = $diskFileId;
+			}
+		}
+
+		return [$preloadDiskFiles, $filesToLoad];
+	}
+
 	public function getPopupData(array $excludedList = []): PopupData
 	{
 		$data = new PopupData([new UserPopupItem()], $excludedList);
 
 		return parent::getPopupData($excludedList)->merge($data);
+	}
+
+	public function filterByDate(DateTime $date): FilterResult
+	{
+		$filtered = $this->filter(
+			static fn (FileItem $file) => $file->getDiskFile()?->getCreateTime()?->getTimestamp() > $date->getTimestamp()
+		);
+
+		return (new FilterResult())->setResult($filtered)->setFiltered($this->count() !== $filtered->count());
+	}
+
+	public function getRelatedChatId(): ?int
+	{
+		return $this->getAny()?->getChatId();
+	}
+
+	public function toRestFormat(array $option = []): array
+	{
+		ParamCollection::loadByFileIds($this->getIds());
+
+		return parent::toRestFormat($option);
 	}
 }

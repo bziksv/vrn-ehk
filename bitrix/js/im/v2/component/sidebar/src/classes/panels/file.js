@@ -1,4 +1,6 @@
-import { RestMethod } from 'im.v2.const';
+import { Type } from 'main.core';
+
+import { RestMethod, SidebarFileGroups } from 'im.v2.const';
 import { UserManager } from 'im.v2.lib.user';
 import { Core } from 'im.v2.application.core';
 
@@ -9,12 +11,20 @@ import type { Store } from 'ui.vue3.vuex';
 import type { JsonObject } from 'main.core';
 import type { RestClient } from 'rest.client';
 
+type QueryParams = {
+	CHAT_ID: number,
+	GROUP: string,
+	LIMIT: number,
+	LAST_ID?: number,
+}
+
 const REQUEST_ITEMS_LIMIT = 50;
 
 export class File
 {
 	store: Store;
 	dialogId: string;
+	chatId: number;
 	userManager: UserManager;
 	restClient: RestClient;
 
@@ -46,88 +56,103 @@ export class File
 		};
 	}
 
-	updateModels(resultData): Promise
+	updateModels(resultData, group: string = ''): Promise
 	{
-		const { list, users, files } = resultData;
+		const { list, users, files, tariffRestrictions = {} } = resultData;
+
+		const isHistoryLimitExceeded = Boolean(tariffRestrictions.isHistoryLimitExceeded);
+		const historyLimitPromise = this.store.dispatch('sidebar/files/setHistoryLimitExceeded', {
+			chatId: this.chatId,
+			isHistoryLimitExceeded,
+		});
+
+		if (group && !Type.isArrayFilled(list))
+		{
+			return this.store.dispatch('sidebar/files/setHasNextPage', {
+				chatId: this.chatId,
+				group,
+				hasNextPage: false,
+			});
+		}
 
 		const addUsersPromise = this.userManager.setUsersToModel(users);
 		const setFilesPromise = this.store.dispatch('files/set', files);
 
-		const sortedList = {};
+		const sortedGroups = {};
 		list.forEach((file) => {
-			if (!sortedList[file.subType])
+			const fileGroup = file.group ?? SidebarFileGroups.fileUnsorted;
+			if (!sortedGroups[fileGroup])
 			{
-				sortedList[file.subType] = [];
+				sortedGroups[fileGroup] = [];
 			}
-			sortedList[file.subType].push(file);
+			sortedGroups[fileGroup].push(file);
 		});
 
 		const setSidebarFilesPromises = [];
-		Object.keys(sortedList).forEach((subType) => {
-			const listByType = sortedList[subType];
+		Object.entries(sortedGroups).forEach(([groupName, listByGroup]) => {
 			setSidebarFilesPromises.push(
 				this.store.dispatch('sidebar/files/set', {
 					chatId: this.chatId,
-					files: listByType,
-					subType,
+					files: listByGroup,
+					group: groupName,
 				}),
 				this.store.dispatch('sidebar/files/setHasNextPage', {
 					chatId: this.chatId,
-					subType,
-					hasNextPage: listByType.length === REQUEST_ITEMS_LIMIT,
+					group: groupName,
+					hasNextPage: listByGroup.length === REQUEST_ITEMS_LIMIT,
 				}),
 				this.store.dispatch('sidebar/files/setLastId', {
 					chatId: this.chatId,
-					subType,
-					lastId: getLastElementId(listByType),
+					group: groupName,
+					lastId: getLastElementId(listByGroup),
 				}),
 			);
 		});
 
 		return Promise.all([
-			setFilesPromise, addUsersPromise, ...setSidebarFilesPromises,
+			setFilesPromise, addUsersPromise, historyLimitPromise, ...setSidebarFilesPromises,
 		]);
 	}
 
-	loadFirstPage(subType): Promise
+	loadFirstPage(group: string): Promise
 	{
-		return this.loadFirstPageBySubType(subType);
+		return this.loadFirstPageByGroup(group);
 	}
 
-	loadNextPage(subType): Promise
+	loadNextPage(group: string): Promise
 	{
-		return this.loadNextPageBySubType(subType);
+		return this.loadNextPageByGroup(group);
 	}
 
-	loadFirstPageBySubType(subType: string): Promise
+	loadFirstPageByGroup(group: string): Promise
 	{
-		const filesCount = this.getFilesCountFromModel(subType);
+		const filesCount = this.getFilesCountFromModel(group);
 		if (filesCount > REQUEST_ITEMS_LIMIT)
 		{
 			return Promise.resolve();
 		}
 
-		const queryParams = this.getQueryParams(subType);
+		const queryParams = this.getQueryParams(group);
 
 		return this.requestPage(queryParams);
 	}
 
-	loadNextPageBySubType(subType: string): Promise
+	loadNextPageByGroup(group: string): Promise
 	{
-		const queryParams = this.getQueryParams(subType);
+		const queryParams = this.getQueryParams(group);
 
 		return this.requestPage(queryParams);
 	}
 
-	getQueryParams(subType: string): Object
+	getQueryParams(group: string): QueryParams
 	{
 		const queryParams = {
 			CHAT_ID: this.chatId,
-			SUBTYPE: subType,
+			GROUP: group,
 			LIMIT: REQUEST_ITEMS_LIMIT,
 		};
 
-		const lastId = this.store.getters['sidebar/files/getLastId'](this.chatId, subType);
+		const lastId = this.store.getters['sidebar/files/getLastId'](this.chatId, group);
 		if (lastId > 0)
 		{
 			queryParams.LAST_ID = lastId;
@@ -136,17 +161,17 @@ export class File
 		return queryParams;
 	}
 
-	requestPage(queryParams): Promise
+	requestPage(queryParams: QueryParams): Promise
 	{
 		return this.restClient.callMethod(RestMethod.imChatFileGet, queryParams).then((response) => {
-			return this.updateModels(response.data());
+			return this.updateModels(response.data(), queryParams.GROUP);
 		}).catch((error) => {
 			console.error('SidebarInfo: imChatFileGet: page request error', error);
 		});
 	}
 
-	getFilesCountFromModel(subType): number
+	getFilesCountFromModel(group): number
 	{
-		return this.store.getters['sidebar/files/getSize'](this.chatId, subType);
+		return this.store.getters['sidebar/files/getSize'](this.chatId, group);
 	}
 }

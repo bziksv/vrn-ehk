@@ -39,12 +39,14 @@ CUtil::InitJSCore([ 'fx', 'ui.cnt']);
 $controlId = htmlspecialcharsbx($arParams["divId"]);
 
 ?><div class="feed-add-post" id="div<?=$controlId?>" <?=($arParams["LHE"]["lazyLoad"] ? ' style="display:none;"' : '')?>>
+	<?php if ($arParams['isDnDEnabled']): ?>
 	<div class="feed-add-post-dnd-notice">
 		<div class="feed-add-post-dnd-inner">
 			<span class="feed-add-post-dnd-icon"></span>
 			<span class="feed-add-post-dnd-text"><?=GetMessage("MPF_DRAG_ATTACHMENTS")?></span>
 		</div>
 	</div>
+	<?php endif; ?>
 	<div class="feed-add-post-form feed-add-post-edit-form">
 		<?= $arParams["~HTML_BEFORE_TEXTAREA"] ?? ''?>
 		<div class="feed-add-post-text">
@@ -77,6 +79,7 @@ BX.ready(function()
 			'lazyLoad' => !!$arParams["LHE"]['lazyLoad'],
 			'urlPreviewId' => $arParams['urlPreviewId'] ?? '',
 			'parsers' => $arParams["PARSER"],
+			'isDnDEnabled' => $arParams['isDnDEnabled'],
 			'tasksLimitExceeded' => !!$arResult['tasksLimitExceeded'],
 		]); ?>,
 		<?= Json::encode(
@@ -253,8 +256,9 @@ $visibleButtons = include(__DIR__.'/lhe.php');
 			)?>',
 			tagNodeId: 'entity-selector-<?=CUtil::JSescape($arParams["divId"])?>',
 			inputNodeId: 'entity-selector-data-<?=CUtil::JSescape($arParams["divId"])?>',
-			preselectedItems: <?= Json::encode($arResult['DESTINATION']['ENTITIES_PRESELECTED']) ?>,
+			preselectedItems: <?= CUtil::PhpToJSObject($arResult['DESTINATION']['ENTITIES_PRESELECTED']) ?>,
 			allowSearchEmailUsers: <?=($arResult['ALLOW_EMAIL_INVITATION'] ? 'true' : 'false')?>,
+			collabers: false,
 			allowToAll: <?=($arResult['ALLOW_TO_ALL'] ? 'true' : 'false')?>,
 			messages: {
 				allUsersTitle: '<?= CUtil::JSescape(ModuleManager::isModuleInstalled('intranet') ? Loc::getMessage('MPF_DESTINATION_3') : Loc::getMessage('MPF_DESTINATION_4')) ?>',

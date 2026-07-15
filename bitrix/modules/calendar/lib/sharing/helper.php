@@ -5,8 +5,7 @@ namespace Bitrix\Calendar\Sharing;
 use Bitrix\Bitrix24\Form\AbuseZoneMap;
 use Bitrix\Calendar\Core\Base\Date;
 use Bitrix\Calendar\Core\Base\DateTimeZone;
-use Bitrix\Calendar\Core\Event\Tools\Dictionary;
-use Bitrix\Calendar\Internals\EventTable;
+use Bitrix\Calendar\Integration\SocialNetwork\GroupService;
 use Bitrix\Main\Web\Uri;
 use Bitrix\UI\Form\FeedbackForm;
 use Bitrix\Main;
@@ -29,50 +28,23 @@ class Helper
 	public const ICS = 'ics';
 	public const CANCEL = 'cancel';
 	public const CONFERENCE = 'videoconference';
+	public const OPENED = 'opened';
 	public const OWNER_CREATED = 'ownerCreated';
 	public const ACTION_ICS = '?'.self::ACTION.'='.self::ICS;
 	public const ACTION_CANCEL = '?'.self::ACTION.'='.self::CANCEL;
 	public const ACTION_CONFERENCE = '?'.self::ACTION.'='.self::CONFERENCE;
+	public const ACTION_OPENED = '?'.self::ACTION.'='.self::OPENED;
 
 	protected const ABUSE_SENDER_PAGE = 'page';
 	protected const ABUSE_SENDER_EMAIL = 'email';
 
+	private static array $shortUrl = [];
+
 	/**
-	 * returns true if user didn't view sharing tour in calendar, false otherwise
 	 * @return ?string
 	 */
 	public static function payAttentionToNewSharingFeature(): ?string
 	{
-		$now = time();
-		$defaultValue = 'unset';
-		$optionValue = CUserOptions::getOption(
-			'calendar',
-			self::PAY_ATTENTION_TO_NEW_SHARING_JOINT_FEATURE_OPTION_NAME,
-			$defaultValue
-		);
-
-		if ($optionValue === $defaultValue)
-		{
-			CUserOptions::setOption(
-				'calendar',
-				self::PAY_ATTENTION_TO_NEW_SHARING_JOINT_FEATURE_OPTION_NAME,
-				$now
-			);
-
-			return null;
-		}
-
-		if ($optionValue === 'N')
-		{
-			return null;
-		}
-
-		$timestamp = (int)$optionValue;
-		if ($timestamp && ($now > $timestamp + self::WEEK_TIMESTAMP))
-		{
-			return self::PAY_ATTENTION_TO_NEW_FEATURE_JOINT;
-		}
-
 		return null;
 	}
 
@@ -87,7 +59,7 @@ class Helper
 		$optionValue = CUserOptions::getOption(
 			'calendar',
 			self::PAY_ATTENTION_TO_NEW_SHARING_JOINT_FEATURE_OPTION_NAME,
-			$defaultValue
+			$defaultValue,
 		);
 
 		if ($optionValue === $defaultValue)
@@ -98,7 +70,7 @@ class Helper
 		CUserOptions::setOption(
 			'calendar',
 			self::PAY_ATTENTION_TO_NEW_SHARING_JOINT_FEATURE_OPTION_NAME,
-			$value
+			$value,
 		);
 	}
 
@@ -133,7 +105,14 @@ class Helper
 	 */
 	public static function getShortUrl(string $url): string
 	{
-		return \CCalendar::GetServerPath() . \CBXShortUri::getShortUri($url);
+		if (isset(self::$shortUrl[$url]))
+		{
+			return self::$shortUrl[$url];
+		}
+
+		self::$shortUrl[$url] = \CCalendar::GetServerPath() . \CBXShortUri::getShortUri($url);
+
+		return self::$shortUrl[$url];
 	}
 
 	/**
@@ -159,10 +138,16 @@ class Helper
 	 */
 	public static function getOwnerInfo(int $id): array
 	{
-		$user = CUser::GetByID($id)->Fetch();
-		$arFileTmp = CFile::ResizeImageGet(
-			$user["PERSONAL_PHOTO"],
-			array('width' => 512, 'height' => 512),
+		return self::getUserInfo($id);
+	}
+
+	public static function getUserInfo(int $userId): array
+	{
+		$user = CUser::getById($userId)->fetch();
+
+		$personalPhoto = CFile::resizeImageGet(
+			$user['PERSONAL_PHOTO'],
+			['width' => 512, 'height' => 512],
 			BX_RESIZE_IMAGE_EXACT,
 			false,
 			false,
@@ -173,9 +158,31 @@ class Helper
 			'id' => $user['ID'],
 			'name' => $user['NAME'],
 			'lastName' => $user['LAST_NAME'],
-			'photo' => $arFileTmp['src'] ?? null,
+			'photo' => $personalPhoto['src'] ?? null,
 			'gender' => $user['PERSONAL_GENDER'] ?? null,
 		];
+	}
+
+	public static function getGroupOwnerInfo(int $groupId): array
+	{
+		$group = GroupService::getInstance()->getGroup($groupId);
+		$groupInfo = (new Sharing\Link\Member\Group($group))->toArray();
+
+		return [
+			'id' => $groupInfo['id'],
+			'name' => $groupInfo['name'],
+			'lastName' => null,
+			'photo' => $groupInfo['avatar'],
+			'gender' => null,
+		];
+	}
+
+	public static function getLinkOwnerInfo(array $link): array
+	{
+		return match ($link['type']) {
+			Sharing\Link\Helper::GROUP_SHARING_TYPE => self::getGroupOwnerInfo($link['groupId']),
+			default => self::getOwnerInfo($link['userId']),
+		};
 	}
 
 	/**

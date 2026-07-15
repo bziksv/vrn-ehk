@@ -1,0 +1,129 @@
+<root>
+	<VehicleType name="ВМХ" oldNames="BMX">
+		<Gender name="Мужской"/>
+		<Gender name="Женский"/>
+		<Brand file="bicycles/brands.xml" rename="true"/>
+		<WheelDiameter name="29"/>
+		<WheelDiameter name="28"/>
+		<WheelDiameter name="27.5"/>
+		<WheelDiameter name="26"/>
+		<WheelDiameter name="24"/>
+		<WheelDiameter name="20"/>
+		<WheelDiameter name="16"/>
+		<WheelDiameter name="12"/>
+		<WheelDiameter name="&lt;12"/>
+	</VehicleType>
+	<VehicleType name="Городские">
+		<Gender name="Мужской"/>
+		<Gender name="Женский"/>
+		<Brand file="bicycles/brands.xml" rename="true"/>
+		<WheelDiameter name="29"/>
+		<WheelDiameter name="28"/>
+		<WheelDiameter name="27.5"/>
+		<WheelDiameter name="26"/>
+		<WheelDiameter name="24"/>
+		<WheelDiameter name="20"/>
+		<WheelDiameter name="16"/>
+		<WheelDiameter name="12"/>
+		<WheelDiameter name="&lt;12"/>
+		<Folding name="Да"/>
+		<Folding name="Нет"/>
+	</VehicleType>
+	<VehicleType name="Шоссейные" oldNames="Дорожные">
+		<Gender name="Мужской"/>
+		<Gender name="Женский"/>
+		<Brand file="bicycles/brands.xml" rename="true"/>
+		<WheelDiameter name="29"/>
+		<WheelDiameter name="28"/>
+		<WheelDiameter name="27.5"/>
+		<WheelDiameter name="26"/>
+		<WheelDiameter name="24"/>
+		<WheelDiameter name="20"/>
+		<WheelDiameter name="16"/>
+		<WheelDiameter name="12"/>
+		<WheelDiameter name="&lt;12"/>
+		<FrameMaterial name="Алюминий"/>
+		<FrameMaterial name="Алюминий+Карбон"/>
+		<FrameMaterial name="Карбон"/>
+		<FrameMaterial name="Сталь"/>
+		<FrameMaterial name="Хром-молибден"/>
+		<FrameMaterial name="Магниевый сплав"/>
+		<FrameMaterial name="Другой"/>
+	</VehicleType>
+	<VehicleType name="Детские">
+		<Gender name="Для мальчиков"/>
+		<Gender name="Для девочек"/>
+		<Brand file="bicycles/brands.xml" rename="true"/>
+		<WheelDiameter name="29"/>
+		<WheelDiameter name="28"/>
+		<WheelDiameter name="27.5"/>
+		<WheelDiameter name="26"/>
+		<WheelDiameter name="24"/>
+		<WheelDiameter name="20"/>
+		<WheelDiameter name="16"/>
+		<WheelDiameter name="12"/>
+		<WheelDiameter name="&lt;12"/>
+		<NumberOfWheels name="Двухколёсный"/>
+		<NumberOfWheels name="Трёхколёсный"/>
+		<NumberOfWheels name="Четырёхколёсный"/>
+	</VehicleType>
+	<VehicleType name="Горные">
+		<Gender name="Мужской"/>
+		<Gender name="Женский"/>
+		<Brand file="bicycles/brands.xml" rename="true"/>
+		<WheelDiameter name="29"/>
+		<WheelDiameter name="28"/>
+		<WheelDiameter name="27.5"/>
+		<WheelDiameter name="26"/>
+		<WheelDiameter name="24"/>
+		<WheelDiameter name="20"/>
+		<WheelDiameter name="16"/>
+		<WheelDiameter name="12"/>
+		<WheelDiameter name="&lt;12"/>
+		<FrameType name="Хардтейл"/>
+		<FrameType name="Двухподвес"/>
+		<FrameType name="Ригид"/>
+		<FrameType name="Другой"/>
+	</VehicleType>
+	<VehicleType name="Запчасти и аксессуары">
+		<ProductType name="Автобагажники для велосипеда"/>
+		<ProductType name="Багажники"/>
+		<ProductType name="Велокомпьютеры"/>
+		<ProductType name="Вилки"/>
+		<ProductType name="Детские велокресла"/>
+		<ProductType name="Держатели телефонов"/>
+		<ProductType name="Замки"/>
+		<ProductType name="Звонки"/>
+		<ProductType name="Защитная экипировка"/>
+		<ProductType name="Защита пера велорамы"/>
+		<ProductType name="Защита переключателей"/>
+		<ProductType name="Зеркала"/>
+		<ProductType name="Инструменты"/>
+		<ProductType name="Колёса"/>
+		<ProductType name="Корзины"/>
+		<ProductType name="Крылья"/>
+		<ProductType name="Маски и очки"/>
+		<ProductType name="Насосы"/>
+		<ProductType name="Обувь"/>
+		<ProductType name="Одежда"/>
+		<ProductType name="Переключение"/>
+		<ProductType name="Педали"/>
+		<ProductType name="Перчатки"/>
+		<ProductType name="Подставки, кронштейны"/>
+		<ProductType name="Рамы"/>
+		<ProductType name="Ремкомплекты"/>
+		<ProductType name="Рули и выносы"/>
+		<ProductType name="Рюкзаки и сумки"/>
+		<ProductType name="Светоотражатели, светодиоды"/>
+		<ProductType name="Смазки и очистители"/>
+		<ProductType name="Сёдла и штыри"/>
+		<ProductType name="Тормоза и колодки"/>
+		<ProductType name="Трансмиссия"/>
+		<ProductType name="Чехлы"/>
+		<ProductType name="Шлемы"/>
+		<ProductType name="Фляги"/>
+		<ProductType name="Флягодержатели"/>
+		<ProductType name="Фонари"/>
+		<ProductType name="Другое"/>
+	</VehicleType>
+</root>

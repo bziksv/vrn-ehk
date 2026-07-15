@@ -6,10 +6,10 @@ this.BX.UI = this.BX.UI || {};
 
 	class BBCodeEncoder {
 	  encodeText(source) {
-	    return String(source).replaceAll('&', '&amp;').replaceAll('[', '&#91;').replaceAll(']', '&#93;').replaceAll('\'', '&#39;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+	    return String(source).replaceAll('[', '&#91;').replaceAll(']', '&#93;');
 	  }
 	  decodeText(source) {
-	    return String(source).replaceAll('&#91;', '[').replaceAll('&#93;', ']').replaceAll('&#39;', '\'').replaceAll('&quot;', '"').replaceAll('&lt;', '<').replaceAll('&gt;', '>').replaceAll('&amp;', '&');
+	    return String(source).replaceAll('&#91;', '[').replaceAll('&#93;', ']');
 	  }
 	  encodeAttribute(source) {
 	    return this.encodeText(source);

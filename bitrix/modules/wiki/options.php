@@ -1,12 +1,14 @@
-<?
-##############################################
-# Bitrix: SiteManager                        #
-# Copyright (c) 2002-2012 Bitrix             #
-# https://www.bitrixsoft.com                 #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+<?php
+
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage wiki
+ * @copyright 2001-2025 Bitrix
+ */
 
 use \Bitrix\Main\Localization\Loc;
+
 Loc::loadMessages(__FILE__);
 Loc::loadMessages($_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/main/options.php');
 
@@ -49,7 +51,7 @@ if($MOD_RIGHT>='R'):
 
 if($MOD_RIGHT>='Y' || $USER->IsAdmin()):
 
-	if ($REQUEST_METHOD=='GET' && $RestoreDefaults <> '' && check_bitrix_sessid())
+	if ($_SERVER['REQUEST_METHOD']=='GET' && $RestoreDefaults <> '' && check_bitrix_sessid())
 	{
 		COption::RemoveOption($module_id);
 		$z = CGroup::GetList('id', 'asc', array('ACTIVE' => 'Y', 'ADMIN' => 'N'));
@@ -57,7 +59,7 @@ if($MOD_RIGHT>='Y' || $USER->IsAdmin()):
 			$APPLICATION->DelGroupRight($module_id, array($zr['ID']));
 	}
 
-	if($REQUEST_METHOD=='POST' && $Update <> '' && check_bitrix_sessid())
+	if($_SERVER['REQUEST_METHOD']=='POST' && $Update <> '' && check_bitrix_sessid())
 	{
 		$arOptions = $arAllOptions;
 		if(IsModuleInstalled('forum'))

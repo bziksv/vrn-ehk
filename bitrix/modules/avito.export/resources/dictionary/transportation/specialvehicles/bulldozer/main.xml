@@ -1,0 +1,18 @@
+<root>
+	<Condition name="Новое"/>
+	<Condition name="Б/у">
+		<EngineHours variable="text"/>
+	</Condition>
+	<Condition name="На запчасти">
+		<EngineHours variable="text"/>
+	</Condition>
+	<TechnicalPassport name="В наличии"/>
+	<TechnicalPassport name="Дубликат"/>
+	<TechnicalPassport name="Нет"/>
+	<VIN variable="text"/>
+	<PowerKW variable="text"/>
+	<BulldozerOperatingWeight variable="text"/>
+	<BulldozerMaxDepth variable="text"/>
+	<BulldozerMaxPullingForce variable="text"/>
+	<CuttingEdgeWidth variable="text"/>
+</root>

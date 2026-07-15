@@ -2,6 +2,8 @@
 
 namespace Bitrix\Calendar\Sync\Managers;
 
+use Bitrix\Calendar\Internals\Counter\CounterService;
+use Bitrix\Calendar\Internals\Counter\Event\EventDictionary;
 use Bitrix\Calendar\Sync\Connection\Connection;
 use Bitrix\Calendar\Sync\Dictionary;
 use Bitrix\Calendar\Sync\Entities\SyncSectionMap;
@@ -10,9 +12,10 @@ use Bitrix\Calendar\Sync\Factories\FactoriesCollection;
 use Bitrix\Calendar\Sync\Factories\FactoryBase;
 use Bitrix\Calendar\Core;
 use Bitrix\Calendar\Sync\Factories\SyncSectionFactory;
-use Bitrix\Calendar\Sync\Icloud;
 use Bitrix\Calendar\Sync\Google;
 use Bitrix\Calendar\Sync\Office365;
+use Bitrix\Calendar\Synchronization\Infrastructure\Agent;
+use Bitrix\Calendar\Synchronization\Public\Service\SynchronizationFeature;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Loader;
@@ -26,7 +29,6 @@ use Bitrix\Main\SystemException;
 class DataExchangeManager
 {
 	private const COUNT_CONNECTIONS_FOR_REGULAR_SYNC = 10;
-	protected SyncSectionFactory $syncSectionFactory;
 	private FactoriesCollection $factories;
 
 	/**
@@ -42,6 +44,8 @@ class DataExchangeManager
 	 * @return void
 	 * @throws Core\Base\BaseException
 	 * @throws ObjectNotFoundException
+	 *
+	 * @deprecated Use \Bitrix\Calendar\Synchronization\Internal\Service\ConnectionManager::markFailedConnectionAsDeleted
 	 */
 	public static function markDeletedFailedConnection(Connection $connection): void
 	{
@@ -116,7 +120,6 @@ class DataExchangeManager
 
 	/**
 	 * @return string
-	 *
 	 * @throws ArgumentException
 	 * @throws LoaderException
 	 * @throws ObjectPropertyException
@@ -129,6 +132,7 @@ class DataExchangeManager
 			return "\\Bitrix\\Calendar\\Sync\\Managers\\DataExchangeManager::importAgent();";
 		}
 
+		$userIds = [];
 		$connections = self::getConnections();
 		/** @var Connection $connection */
 		while ($connection = $connections->fetch())
@@ -136,6 +140,29 @@ class DataExchangeManager
 			if ($connection->getOwner() === null)
 			{
 				self::markDeletedFailedConnection($connection);
+				continue;
+			}
+
+			$ownerId = $connection->getOwner()->getId();
+			if ($ownerId)
+			{
+				$userIds[] = $ownerId;
+			}
+
+			SynchronizationFeature::setUserId($ownerId);
+
+			if (SynchronizationFeature::isOn())
+			{
+				if ($connection->getAccountType() === Google\Factory::SERVICE_NAME)
+				{
+					Agent\Vendor\Google\SynchronizationAgent::synchronizeConnectionFully($connection);
+				}
+
+				if ($connection->getAccountType() === Office365\Factory::SERVICE_NAME)
+				{
+					Agent\Vendor\Office365\SynchronizationAgent::synchronizeConnectionFully($connection);
+				}
+
 				continue;
 			}
 
@@ -154,10 +181,12 @@ class DataExchangeManager
 					->importSections()
 					->importEvents()
 					->updateConnection($factory->getConnection())
-					->clearCache();
+					->clearCache()
+				;
 			}
 			catch (RemoteAccountException $e)
 			{
+				// Only for Office 365
 				self::markDeletedFailedConnection($connection);
 			}
 			catch (\Exception $e)
@@ -165,6 +194,8 @@ class DataExchangeManager
 				$connection->setSyncStatus(Dictionary::SYNC_STATUS['failed']);
 			}
 		}
+
+		CounterService::addEvent(EventDictionary::SYNC_CHANGED, ['user_ids' => $userIds]);
 
 		return "\\Bitrix\\Calendar\\Sync\\Managers\\DataExchangeManager::importAgent();";
 	}

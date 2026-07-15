@@ -1,0 +1,29 @@
+<root>
+	<ProductType name="Лестницы" oldNames="Лестница">
+		<StairsType name="Межэтажная"/>
+		<StairsType name="Чердачная"/>
+		<StairsType name="Приставная"/>
+		<StairsMaterial name="Дерево">
+			<WoodType name="Сосна"/>
+			<WoodType name="Дуб"/>
+			<WoodType name="Лиственница"/>
+			<WoodType name="Ясень"/>
+			<WoodType name="Ель"/>
+			<WoodType name="Бук"/>
+			<WoodType name="Другое"/>
+		</StairsMaterial>
+		<StairsMaterial name="Металл"/>
+		<StairsMaterial name="Камень"/>
+		<StairsMaterial name="Другой"/>
+		<OutsideUsage name="Да"/>
+		<OutsideUsage name="Нет"/>
+	</ProductType>
+	<ProductType name="Ступени" oldNames="Ступень"/>
+	<ProductType name="Перила и ограждения" oldNames="Перила"/>
+	<ProductType name="Комплектующие">
+		<ComponentsType name="Столбы и балясины"/>
+		<ComponentsType name="Тетива"/>
+		<ComponentsType name="Площадки"/>
+		<ComponentsType name="Поручни"/>
+	</ProductType>
+</root>

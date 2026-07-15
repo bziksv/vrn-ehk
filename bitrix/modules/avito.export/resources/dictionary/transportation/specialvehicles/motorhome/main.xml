@@ -1,0 +1,15 @@
+<root>
+	<Condition name="Новое"/>
+	<Condition name="Б/у">
+		<Kilometrage variable="text"/>
+	</Condition>
+	<Condition name="На запчасти">
+		<Kilometrage variable="text"/>
+	</Condition>
+	<TechnicalPassport name="В наличии"/>
+	<TechnicalPassport name="Дубликат"/>
+	<TechnicalPassport name="Нет"/>
+	<VIN variable="text"/>
+	<Power variable="text"/>
+	<EngineCapacity variable="text"/>
+</root>

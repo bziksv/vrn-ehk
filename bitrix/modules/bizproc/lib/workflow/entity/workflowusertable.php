@@ -2,6 +2,7 @@
 
 namespace Bitrix\Bizproc\Workflow\Entity;
 
+use Bitrix\Bizproc\Workflow\Task\TaskSearchContentTable;
 use Bitrix\Main\Application;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Fields\IntegerField;
@@ -78,6 +79,17 @@ class WorkflowUserTable extends DataManager
 				Join::on('this.WORKFLOW_ID', 'ref.WORKFLOW_ID')
 					->whereColumn('this.USER_ID', 'ref.USER_ID')
 			)),
+			(new Reference('WORKFLOW_STATE',
+				WorkflowStateTable::class,
+				Join::on('this.WORKFLOW_ID', 'ref.ID')
+			)),
+			(new Reference(
+				'SEARCH_CONTENT',
+				TaskSearchContentTable::class,
+				Join::on('this.WORKFLOW_ID', 'ref.WORKFLOW_ID')
+			))
+				->configureJoinType(Join::TYPE_INNER)
+			,
 		];
 	}
 
@@ -216,6 +228,7 @@ class WorkflowUserTable extends DataManager
 			]);
 		}
 
+		WorkflowUserCommentTable::deleteUsersByWorkflow($deleted, $workflowId);
 		WorkflowPush::pushDeleted($workflowId, $deleted);
 	}
 
@@ -317,6 +330,27 @@ class WorkflowUserTable extends DataManager
 		self::deleteOnSync($workflowId, $stored);
 
 		return array_keys($stored);
+	}
+
+	public static function onDocumentDelete(array $docId): void
+	{
+		$stateIds = WorkflowStateTable::getIdsByDocument($docId, 1000);
+
+		if (!$stateIds)
+		{
+			return;
+		}
+
+		$connection = Application::getConnection();
+		$sqlHelper = $connection->getSqlHelper();
+		$tableName = $sqlHelper->forSql(static::getTableName());
+		$sqlQuery = sprintf(
+			'DELETE from %s WHERE WORKFLOW_ID IN(%s)',
+			$tableName,
+			implode(',', array_map(fn($id) => "'{$id}'", $stateIds))
+		);
+
+		$connection->queryExecute($sqlQuery);
 	}
 
 	public static function convertUserProcesses(int $userId): void

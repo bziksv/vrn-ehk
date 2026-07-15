@@ -35,6 +35,7 @@ $special_text = CIBlockElement::GetList(
 );
 $special_text = $special_text->GetNext();
 $special_text = $special_text["PREVIEW_TEXT"];
+
 ?>
 <div class="catalog_detail" id="<?=$arItemIDs['ID'];?>">
 	<div class="image_col">
@@ -284,10 +285,10 @@ $special_text = $special_text["PREVIEW_TEXT"];
 				</div>
 
 				<div class="quantity">
-					<? if($arResult["CATALOG_WEIGHT"]): ?>
-						<span class="label">Вес: <?=$arResult["CATALOG_WEIGHT"]?> гр.</span><br/>
+					<? if ($arResult["PRODUCT"]["WEIGHT"]): ?>
+						<span class="label">Вес: <?=number_format($arResult["PRODUCT"]["WEIGHT"], 0, '.', ' ')?> гр.</span><br/>
 					<? endif; ?>
-					<span class="label">В наличии: <?=$arResult["CATALOG_QUANTITY"]?> <?=$arResult['CATALOG_MEASURE_NAME']?>.</span>
+					<span class="label">В наличии: <?=$arResult["CATALOG_QUANTITY"]?> <?=$arResult['CATALOG_MEASURE_NAME']?></span>
 				</div>
 
 			<?}?>

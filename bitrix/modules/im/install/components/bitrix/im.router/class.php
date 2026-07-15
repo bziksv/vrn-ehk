@@ -1,12 +1,13 @@
-<?
+<?php
+
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
-use Bitrix\Main\Type\DateTime;
-use Bitrix\Main\Type\Date,
-	\Bitrix\Main\HttpApplication;
+use Bitrix\Im\V2\Service\Locator;
 
 if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
+{
 	die();
+}
 
 Loc::loadMessages(__FILE__);
 
@@ -22,6 +23,11 @@ class ImRouterComponent extends \CBitrixComponent
 	private function showFullscreenChat()
 	{
 		$this->includeComponentTemplate();
+	}
+
+	private function showAirTemplate(): void
+	{
+		$this->setTemplateName('air');
 	}
 
 	private function showBlankPage()
@@ -47,20 +53,18 @@ class ImRouterComponent extends \CBitrixComponent
 		return true;
 	}
 
-	private function showJitsiConf()
-	{
-		$this->arResult['ALIAS'] = $this->aliasData['ALIAS'];
-		$this->arResult['CHAT_ID'] = $this->aliasData['ENTITY_ID'];
-
-		$this->setTemplateName("jitsiconf");
-		$this->includeComponentTemplate();
-
-		return true;
-	}
-
 	private function showCall()
 	{
 		define('SKIP_TEMPLATE_AUTH_ERROR', true);
+
+		if (!defined('NO_AGENT_CHECK'))
+		{
+			define('NO_AGENT_CHECK', true);
+		}
+		if (!defined('DisableEventsCheck'))
+		{
+			define('DisableEventsCheck', true);
+		}
 
 		if (Loader::includeModule('ui'))
 		{
@@ -109,11 +113,6 @@ class ImRouterComponent extends \CBitrixComponent
 			{
 				$this->showLiveChat();
 			}
-			//wrong alias
-			else if ($this->aliasData['ENTITY_TYPE'] === \Bitrix\Im\Alias::ENTITY_TYPE_JITSICONF)
-			{
-				$this->showJitsiConf();
-			}
 			else if (isset($videoconfFlag) && !$this->aliasData)
 			{
 				$this->showNonExistentCall();
@@ -135,6 +134,10 @@ class ImRouterComponent extends \CBitrixComponent
 		else
 		{
 			global $USER;
+			if ($this->isChatEmbeddedOnPage())
+			{
+				$this->showAirTemplate();
+			}
 			if ($USER->IsAuthorized() && !\Bitrix\Im\User::getInstance()->isConnector())
 			{
 				$this->checkNetworkLines();
@@ -195,5 +198,10 @@ class ImRouterComponent extends \CBitrixComponent
 		{
 			ShowError($error);
 		}
+	}
+
+	private function isChatEmbeddedOnPage(): bool
+	{
+		return Locator::getMessenger()->getApplication()->shouldHideQuickAccess();
 	}
 }

@@ -1,0 +1,37 @@
+<ConstructionMixtures>
+	<MixesType name="Бетон">
+		<ConcreteGrade file="constructionmixtures/concretegrade.xml"/>
+	</MixesType>
+	<MixesType name="Штукатурка"></MixesType>
+	<MixesType name="Грунтовка"></MixesType>
+	<MixesType name="Смеси для пола"></MixesType>
+	<MixesType name="Шпаклёвка"></MixesType>
+	<MixesType name="Цемент, пескобетон">
+		<ProductKind name="Цемент"/>
+		<ProductKind name="Пескобетон"/>
+		<ConcreteGrade name="м100"/>
+		<ConcreteGrade name="м150"/>
+		<ConcreteGrade name="м200"/>
+		<ConcreteGrade name="м300"/>
+		<ConcreteGrade name="м400"/>
+		<ConcreteGrade name="м500"/>
+		<ConcreteGrade name="м600"/>
+		<ConcreteGrade name="м700"/>
+		<ConcreteGrade name="м800"/>
+		<ConcreteGrade name="м900"/>
+		<PackagingType name="В мешках">
+			<Weight name="3 кг"/>
+			<Weight name="5 кг"/>
+			<Weight name="25 кг"/>
+			<Weight name="30 кг"/>
+			<Weight name="40 кг"/>
+			<Weight name="50 кг"/>
+		</PackagingType>
+		<PackagingType name="В биг-бегах"/>
+		<PackagingType name="Россыпью"/>
+	</MixesType>
+	<MixesType name="Кладочная смесь и монтажный клей"></MixesType>
+	<MixesType name="Затирки"></MixesType>
+	<MixesType name="Добавки для растворов"></MixesType>
+	<MixesType name="Другое"></MixesType>
+</ConstructionMixtures>

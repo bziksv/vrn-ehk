@@ -47,7 +47,7 @@ class GroupTable extends ORM\Data\DataManager
 	 *
 	 * @return string
 	 */
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_catalog_group';
 	}
@@ -57,7 +57,7 @@ class GroupTable extends ORM\Data\DataManager
 	 *
 	 * @return array
 	 */
-	public static function getMap()
+	public static function getMap(): array
 	{
 		return [
 			'ID' => new ORM\Fields\IntegerField(
@@ -274,6 +274,7 @@ class GroupTable extends ORM\Data\DataManager
 	{
 		$result = [];
 
+		$ids = [];
 		$iterator = self::getList([
 			'select' => [
 				'ID',
@@ -281,7 +282,6 @@ class GroupTable extends ORM\Data\DataManager
 				'BASE',
 				'SORT',
 				'XML_ID',
-				'NAME_LANG' =>'CURRENT_LANG.NAME',
 			],
 			'order' => [
 				'SORT' => 'ASC',
@@ -295,14 +295,46 @@ class GroupTable extends ORM\Data\DataManager
 		{
 			$row['ID'] = (int)$row['ID'];
 			$row['SORT'] = (int)$row['SORT'];
-			if ($row['NAME_LANG'] === '')
-			{
-				$row['NAME_LANG'] = null;
-			}
+			$row['NAME_LANG'] = null;
 
 			$result[$row['ID']] = $row;
+			$ids[] = $row['ID'];
 		}
 		unset($row, $groupIterator);
+		if (empty($result))
+		{
+			return $result;
+		}
+
+		foreach (array_chunk($ids, CATALOG_PAGE_SIZE) as $pageIds)
+		{
+			$langIterator = GroupLangTable::getList([
+				'select' => [
+					'CATALOG_GROUP_ID',
+					'NAME',
+				],
+				'filter' => [
+					'@CATALOG_GROUP_ID' => $pageIds,
+					'=LANG' => LANGUAGE_ID,
+				],
+				'cache' => [
+					'ttl' => 86400,
+				],
+			]);
+			while ($row = $langIterator->fetch())
+			{
+				$id = (int)$row['CATALOG_GROUP_ID'];
+				$result[$id]['NAME_LANG'] = $row['NAME'] === '' ? null : $row['NAME'];
+			}
+			unset(
+				$row,
+				$langIterator,
+			);
+		}
+		unset(
+			$pageIds,
+			$ids,
+		);
 
 		return $result;
 	}

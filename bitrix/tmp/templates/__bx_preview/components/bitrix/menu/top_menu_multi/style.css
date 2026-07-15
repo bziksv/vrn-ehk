@@ -1,0 +1,178 @@
+/**Top menu**/
+#horizontal-multilevel-menu,#horizontal-multilevel-menu ul
+{
+	margin:0; padding:0;
+	list-style:none;
+	/*font-size:90%*/
+}
+
+#horizontal-multilevel-menu
+{
+	margin: -10px 65px -10px 0;
+	float: left;
+}
+
+/*Links*/
+#horizontal-multilevel-menu a
+{
+	display:block;
+	padding:5px 10px;
+	/*padding:0.3em 0.8em;*/
+	text-decoration:none;
+	text-align:center;
+}
+
+#horizontal-multilevel-menu>li 
+{
+	float:left;
+	margin: 0px;
+	padding:10px 12px;
+	position: relative;
+}
+
+/*Root items*/
+#horizontal-multilevel-menu li a.root-item
+{
+	font-weight:bold;
+	padding: 0px;
+}
+
+/*Root menu selected*/
+#horizontal-multilevel-menu li a.root-item-selected
+{
+	padding: 0px;
+}
+
+/*Root items: hover*/
+#horizontal-multilevel-menu li:hover a.root-item, #horizontal-multilevel-menu li.jshover a.root-item
+{
+
+}
+
+/*Item-parents*/
+#horizontal-multilevel-menu a.parent
+{
+	background: url(images/arrow.gif) center right no-repeat;
+}
+
+/*Denied items*/
+#horizontal-multilevel-menu a.denied
+{
+	background: url(images/lock.gif) center right no-repeat;
+}
+
+/*Child-items: hover*/
+#horizontal-multilevel-menu li.is_parent:hover, #horizontal-multilevel-menu li.jshover
+{
+	 background: #fff; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,.45);
+}
+
+/*Child-items selected*/
+#horizontal-multilevel-menu li.item-selected
+{
+}
+
+/*Sub-menu box*/
+#horizontal-multilevel-menu li ul
+{
+	background: none repeat scroll 0 0 #fff;
+    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.45);
+    display: none;
+    height: auto;
+    left: 0;
+    position: absolute;
+    top: 35px;
+    width: 180px;
+    z-index: 500;
+    padding: 20px 20px 10px 20px;
+    border-radius: 5px;
+    float: none;
+}
+
+/*Sub-menu item box*/
+#horizontal-multilevel-menu li li 
+{
+	background: url('/bitrix/templates/main/images/top_pop_li.jpg') left 8px no-repeat transparent;
+	width:100%;
+	padding: 0px;
+	margin: 0 0 13px 0;
+	padding-left: 20px;
+	float: none !important;
+}
+#horizontal-multilevel-menu li li a{ padding: 0px; display: inline; }
+
+/*Item link*/
+#horizontal-multilevel-menu li ul a
+{
+	text-align:left;
+}
+
+/*Items text color & size */
+#horizontal-multilevel-menu li a,
+#horizontal-multilevel-menu li:hover li a,
+#horizontal-multilevel-menu li.jshover li a,
+#horizontal-multilevel-menu li:hover li:hover li a,
+#horizontal-multilevel-menu li.jshover li.jshover li a,
+#horizontal-multilevel-menu li:hover li:hover li:hover li a,
+#horizontal-multilevel-menu li.jshover li.jshover li.jshover li a,
+#horizontal-multilevel-menu li:hover li:hover li:hover li:hover li a,
+#horizontal-multilevel-menu li.jshover li.jshover li.jshover li.jshover li a,
+#horizontal-multilevel-menu li:hover li:hover li:hover li:hover li:hover li a,
+#horizontal-multilevel-menu li.jshover li.jshover li.jshover li.jshover li.jshover li a
+{
+	font-weight:bold;
+}
+
+/*Items text color & size: hover*/
+#horizontal-multilevel-menu li:hover li:hover a,
+#horizontal-multilevel-menu li.jshover li.jshover a,
+#horizontal-multilevel-menu li:hover li:hover li:hover a,
+#horizontal-multilevel-menu li.jshover li.jshover li.jshover a,
+#horizontal-multilevel-menu li:hover li:hover li:hover li:hover a,
+#horizontal-multilevel-menu li.jshover li.jshover li.jshover li.jshover a
+#horizontal-multilevel-menu li:hover li:hover li:hover li:hover li:hover a,
+#horizontal-multilevel-menu li.jshover li.jshover li.jshover li.jshover li.jshover a
+#horizontal-multilevel-menu li:hover li:hover li:hover li:hover li:hover li:hover a,
+#horizontal-multilevel-menu li.jshover li.jshover li.jshover li.jshover li.jshover li.jshover a
+{
+}
+
+#horizontal-multilevel-menu li ul ul
+{
+	margin:-27px 0 0 132px;
+	/*margin:-1.93em 0 0 11.6em;*/
+}
+
+#horizontal-multilevel-menu li:hover ul ul,
+#horizontal-multilevel-menu li.jshover ul ul,
+#horizontal-multilevel-menu li:hover ul ul ul,
+#horizontal-multilevel-menu li.jshover ul ul ul,
+#horizontal-multilevel-menu li:hover ul ul ul ul,
+#horizontal-multilevel-menu li.jshover ul ul ul ul,
+#horizontal-multilevel-menu li:hover ul ul ul ul ul,
+#horizontal-multilevel-menu li.jshover ul ul ul ul ul
+{
+	/*top:-999em;*/
+	display:none;
+}
+
+#horizontal-multilevel-menu li:hover ul,
+#horizontal-multilevel-menu li.jshover ul,
+#horizontal-multilevel-menu li li:hover ul,
+#horizontal-multilevel-menu li li.jshover ul,
+#horizontal-multilevel-menu li li li:hover ul,
+#horizontal-multilevel-menu li li li.jshover ul,
+#horizontal-multilevel-menu li li li li:hover ul,
+#horizontal-multilevel-menu li li li li.jshover ul,
+#horizontal-multilevel-menu li li li li li:hover ul,
+#horizontal-multilevel-menu li li li li li.jshover ul
+{
+	/*z-index:1000;
+	top:auto;*/
+	display:block;
+}
+
+div.menu-clear-left
+{
+	clear:left;
+}

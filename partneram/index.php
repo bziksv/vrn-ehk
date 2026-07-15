@@ -1,5 +1,7 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
+$APPLICATION->SetPageProperty("description", "Оптовые поставки элементов ковки для производителей: ворота, заборы, лестницы из нашего «конструктора». Скидки до 10% + бесплатная доставка по ЦЧР. Увеличьте маржинальность с ЭХК!");
+$APPLICATION->SetPageProperty("title", "Партнерская программа ЭХК | Скидки до 10% на элементы ковки");
 $APPLICATION->SetTitle("Партнерам");
 ?><h2 align="center">ПРИГЛАШАЕМ К ВЗАИМОВЫГОДНОМУ СОТРУДНИЧЕСТВУ! </h2>
 <p align="center">

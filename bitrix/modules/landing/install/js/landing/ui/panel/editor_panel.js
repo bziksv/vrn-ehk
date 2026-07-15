@@ -176,7 +176,11 @@
 		}));
 
 		var rights = BX.Landing.Env.getInstance().getOptions().rights;
-		if (rights && rights.includes('edit'))
+		if (
+			rights
+			&& rights.includes('edit')
+			&& BX.Landing.Env.getInstance().getType() !== 'MAINPAGE'
+		)
 		{
 			editor.addButton(new BX.Landing.UI.Button.CreatePage("createPage", {
 				html: "<span class=\"landing-ui-icon-editor-new-page\"></span>",
@@ -450,11 +454,7 @@
 			hideButtons
 		)
 		{
-			if (!isTable)
-			{
-				this.showBaseButtons();
-			}
-			else
+			if (isTable)
 			{
 				if (hideButtons)
 				{
@@ -472,6 +472,10 @@
 				{
 					this.hideAllBaseButtons();
 				}
+			}
+			else
+			{
+				this.showBaseButtons();
 			}
 
 			this.currentElement = element;
@@ -492,6 +496,7 @@
 			{
 				this.additionalButtons = additionalButtons;
 				this.additionalButtons.forEach(function(button) {
+					button.layout.hidden = false;
 					if (button.insertAfter)
 					{
 						var prevSibling = this.layout.querySelector("[data-id=\""+button.insertAfter+"\"]");

@@ -236,7 +236,12 @@ if($diskEnabled)
 
 	if (\Bitrix\Main\Config\Option::get('disk', 'documents_enabled', 'N') === 'Y')
 	{
+		$arDefaultUrlTemplates404["user_disk_all"] = "user/#user_id#/disk/all/";
 		$arDefaultUrlTemplates404["user_disk_documents"] = "user/#user_id#/disk/documents/";
+	}
+	if (\Bitrix\Main\Config\Option::get('disk', 'boards_enabled', 'N') === 'Y')
+	{
+		$arDefaultUrlTemplates404["user_disk_boards"] = "user/#user_id#/disk/boards/";
 	}
 }
 
@@ -713,8 +718,6 @@ if (
 		}
 		unset($variable);
 	}
-
-	CSocNetLogComponent::redirectExtranetSite($arRedirectSite, $componentPage, $arVariables, $arDefaultUrlTemplates404, "user");
 }
 
 ComponentHelper::setComponentOption(
@@ -875,7 +878,7 @@ if(check_bitrix_sessid() || $_SERVER['REQUEST_METHOD'] === "PUT")
 
 			"PHOTO_GROUP_IBLOCK_ID" => false,
 			"PATH_TO_GROUP_PHOTO_ELEMENT" => "",
-			"PHOTO_USER_IBLOCK_ID" => $arParams["PHOTO_USER_IBLOCK_ID"],
+			"PHOTO_USER_IBLOCK_ID" => $arParams["PHOTO_USER_IBLOCK_ID"] ?? null,
 			"PATH_TO_USER_PHOTO_ELEMENT" => $arResult["PATH_TO_USER_PHOTO_ELEMENT"],
 			"PHOTO_FORUM_ID" => $arParams["PHOTO_FORUM_ID"],
 
@@ -1289,6 +1292,17 @@ elseif ($componentPage === "bizproc_task_list")
 {
 	$componentPage = "bizproc";
 }
+
+if ($componentPage === "bizproc_edit")
+{
+	//TODO: remove after bizproc 24.500.0 is released
+	$bpVersion = \Bitrix\Main\ModuleManager::getVersion('bizproc');
+	if ($bpVersion && version_compare($bpVersion, '24.500.0') >= 0)
+	{
+		$componentPage = 'bizproc_workflow';
+	}
+}
+
 /********************************************************************
 				/Business-process
 ********************************************************************/

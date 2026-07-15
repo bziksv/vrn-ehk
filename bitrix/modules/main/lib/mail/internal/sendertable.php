@@ -2,11 +2,11 @@
 
 namespace Bitrix\Main\Mail\Internal;
 
-use Bitrix\Main\Entity;
 use Bitrix\Main\Config;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Security;
 use Bitrix\Main\ORM\Fields;
+use Bitrix\Main\ORM\Data\DataManager;
 
 /**
  * Class SenderTable
@@ -25,9 +25,8 @@ use Bitrix\Main\ORM\Fields;
  * @method static \Bitrix\Main\Mail\Internal\Sender wakeUpObject($row)
  * @method static \Bitrix\Main\Mail\Internal\EO_Sender_Collection wakeUpCollection($rows)
  */
-class SenderTable extends Entity\DataManager
+class SenderTable extends DataManager
 {
-
 	public static function getTableName()
 	{
 		return 'b_main_mail_sender';
@@ -41,7 +40,6 @@ class SenderTable extends Entity\DataManager
 
 		return $result;
 	}
-
 
 	public static function getObjectClass()
 	{
@@ -81,7 +79,7 @@ class SenderTable extends Entity\DataManager
 
 			(new Fields\ArrayField("OPTIONS"))
 				->configureSerializationPhp()
-				->configureRequired(true)
+				->configureRequired(false)
 				->configureTitle(Loc::getMessage("main_mail_sender_options_title"))
 				->addSaveDataModifier(function($value)
 					{
@@ -163,5 +161,4 @@ class SenderTable extends Entity\DataManager
 				->configureNullable(),
 		];
 	}
-
 }

@@ -7,7 +7,7 @@ $APPLICATION->SetTitle("Поиск");
 	array(
 		"RESTART" => "Y",
 		"NO_WORD_LOGIC" => "Y",
-		"CHECK_DATES" => "Y",
+		"CHECK_DATES" => "N",
 		"USE_TITLE_RANK" => "Y",
 		"DEFAULT_SORT" => "rank",
 		"FILTER_NAME" => "",
@@ -22,9 +22,9 @@ $APPLICATION->SetTitle("Поиск");
 			0 => "21",
 		),
 		"arrFILTER_iblock_info" => array(
-			0 => "10",
-			1 => "2",
-			2 => "3",
+			0 => "2",
+			1 => "3",
+			2 => "10",
 		),
 		"SHOW_WHERE" => "N",
 		"SHOW_WHEN" => "N",
@@ -49,7 +49,8 @@ $APPLICATION->SetTitle("Поиск");
 		"AJAX_OPTION_ADDITIONAL" => "",
 		"SHOW_RATING" => "",
 		"RATING_TYPE" => "",
-		"PATH_TO_USER_PROFILE" => ""
+		"PATH_TO_USER_PROFILE" => "",
+		"COMPONENT_TEMPLATE" => "common"
 	),
 	false
 );?><br><?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>

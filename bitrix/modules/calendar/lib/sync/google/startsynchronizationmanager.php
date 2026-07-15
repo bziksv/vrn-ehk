@@ -8,12 +8,13 @@ use Bitrix\Calendar\Core\Mappers;
 use Bitrix\Calendar\Core\Role\Helper;
 use Bitrix\Calendar\Core\Role\Role;
 use Bitrix\Calendar\Core\Role\User;
+use Bitrix\Calendar\Integration\Pull\PushCommand;
 use Bitrix\Calendar\Sync\Managers\NotificationManager;
-use Bitrix\Calendar\Sync\Util\FlagRegistry;
 use Bitrix\Calendar\Sync\Util\HandleStatusTrait;
 use Bitrix\Calendar\Sync\Connection\Connection;
 use Bitrix\Calendar\Sync\Factories\SyncSectionFactory;
 use Bitrix\Calendar\Sync\Handlers\MasterPushHandler;
+use Bitrix\Calendar\Sync\Managers;
 use Bitrix\Calendar\Sync\Managers\OutgoingManager;
 use Bitrix\Calendar\Sync\Managers\StartSynchronization;
 use Bitrix\Calendar\Sync\Managers\VendorDataExchangeManager;
@@ -59,6 +60,10 @@ class StartSynchronizationManager implements StartSynchronization
 	 * @throws ArgumentException
 	 * @throws ObjectPropertyException
 	 * @throws SystemException
+	 *
+	 * Calls from
+	 * \Bitrix\Calendar\Controller\SyncAjax::createGoogleConnectionAction
+	 * \Bitrix\CalendarMobile\Controller\Sync::createGoogleConnectionAction
 	 */
 	public function synchronize(): array
 	{
@@ -71,9 +76,9 @@ class StartSynchronizationManager implements StartSynchronization
 		$pusher = static function ($result) use ($owner)
 		{
 			Util::addPullEvent(
-				'process_sync_connection',
+				PushCommand::ProcessSyncConnection,
 				$owner->getId(),
-				(array) $result
+				(array)$result
 			);
 
 			if ($result['stage'] === 'export_finished')
@@ -142,6 +147,10 @@ class StartSynchronizationManager implements StartSynchronization
 	 */
 	public function createConnection(Mappers\Connection $mapper): Connection
 	{
+		$connectionManager = new Managers\ConnectionManager();
+		$connections = $connectionManager->getConnectionsData($this->user, [Factory::SERVICE_NAME]);
+		$connectionManager->deactivateConnections($connections);
+
 		$connection = (new Builders\BuilderConnectionFromExternalData($this->user))->build();
 		$factory = new Factory($connection);
 		/** @var Result $nameResult */

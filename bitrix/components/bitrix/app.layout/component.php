@@ -224,10 +224,18 @@ if(
 
 		$filter['=APP_ID'] = $arApp['ID'];
 		$filter['=PLACEMENT'] = $arParams['PLACEMENT'];
-		$filter['=USER_ID'] = [
-			PlacementTable::DEFAULT_USER_ID_VALUE,
-			$USER->GetID(),
-		];
+
+		if ($USER instanceof \CUser)
+		{
+			$filter['=USER_ID'] = [
+				PlacementTable::DEFAULT_USER_ID_VALUE,
+				$USER->GetID(),
+			];
+		}
+		else
+		{
+			$filter['=USER_ID'] = PlacementTable::DEFAULT_USER_ID_VALUE;
+		}
 
 		$res = PlacementTable::getList(
 			[
@@ -382,6 +390,7 @@ if(
 						);
 						if ($code !== '')
 						{
+							$arResult['HELPER_DATA']['CODE'] = $code;
 							$arResult['HELPER_DATA']['TEMPLATE_URL'] = \Bitrix\UI\InfoHelper::getUrl();
 							$arResult['HELPER_DATA']['URL'] = str_replace(
 								'/code/',
@@ -667,6 +676,7 @@ if(
 				$code = Access::getHelperCode(Access::ACTION_OPEN, Access::ENTITY_TYPE_APP, $arResult['APP_ID']);
 				if ($code !== '')
 				{
+					$arResult['HELPER_DATA']['CODE'] = $code;
 					$arResult['HELPER_DATA']['TEMPLATE_URL'] = \Bitrix\UI\InfoHelper::getUrl();
 					$arResult['HELPER_DATA']['URL'] = str_replace(
 						'/code/',
@@ -694,6 +704,7 @@ if(
 				);
 				if ($code !== '')
 				{
+					$arResult['HELPER_DATA']['CODE'] = $code;
 					$arResult['HELPER_DATA']['TEMPLATE_URL'] = \Bitrix\UI\InfoHelper::getUrl();
 					$arResult['HELPER_DATA']['URL'] = str_replace(
 						'/code/',

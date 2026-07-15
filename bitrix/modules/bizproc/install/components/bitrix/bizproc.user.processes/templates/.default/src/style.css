@@ -204,7 +204,7 @@ input.bx-bizproc-btn.bx-bizproc-btn-medium {
 }
 
 .bp-user-processes {
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	color: var(--ui-color-base-70);
 }
 
@@ -223,7 +223,8 @@ input.bx-bizproc-btn.bx-bizproc-btn-medium {
 }
 
 .bp-user-processes__description-box {
-
+	white-space: break-spaces;
+	overflow-wrap: anywhere;
 }
 
 .bp-user-processes__description {
@@ -263,7 +264,7 @@ input.bx-bizproc-btn.bx-bizproc-btn-medium {
 	font-weight: var(--ui-font-weight-bold);
 }
 
-[data-role="bizproc-counterpanel"] {
+.template-bitrix24:not(.template-air) .bp-user-processes-bizproc-counterpanel {
 	margin: 10px 0;
 	color: #fff;
 }
@@ -288,16 +289,14 @@ input.bx-bizproc-btn.bx-bizproc-btn-medium {
 
 .bp-status-panel {
 	min-height: 75px;
-	display: flex;
 	align-items: center;
 	min-width: 193px;
 }
 
 .bp-status-item {
-	display: flex;
 	align-items: center;
 	padding: 0 6px 0 12px;
-	height: 22px;
+	min-height: 22px;
 	/*border-radius: var(--ui-border-radius-3xl);*/
 	/*background-color: var(--ui-color-base-05);*/
 	box-sizing: border-box;
@@ -310,6 +309,7 @@ input.bx-bizproc-btn.bx-bizproc-btn-medium {
 
 .bp-status-name {
 	display: block;
+	height: 22px;
 	margin-right: 4px;
 	font-size: var(--ui-font-size-5xs);
 	font-weight: var(--ui-font-weight-bold);
@@ -407,4 +407,14 @@ input.bx-bizproc-btn.bx-bizproc-btn-medium {
 	min-width: 34px;
 	display: inline-block;
 	text-align: center;
+}
+
+.bizproc-file-not-found {
+	text-decoration: line-through;
+	cursor: not-allowed;
+}
+
+.main-grid-row .bp-description-cell {
+	white-space: break-spaces;
+	overflow-wrap: anywhere;
 }

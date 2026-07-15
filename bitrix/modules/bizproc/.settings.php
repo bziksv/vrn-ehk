@@ -25,9 +25,10 @@ return [
 			'bizproc.service.stateService' => [
 				'className' => '\\CBPStateService',
 			],
-			'bizproc.service.trackingService' => [
-				'className' => '\\CBPTrackingService',
-			],
+			/** @see autoload.php */
+			//'bizproc.service.trackingService' => [
+			//	'className' => '\\CBPTrackingService',
+			//],
 			'bizproc.service.taskService' => [
 				'className' => '\\CBPTaskService',
 			],
@@ -48,6 +49,17 @@ return [
 			],
 			'bizproc.debugger.service.analyticsService' => [
 				'className' => '\\Bitrix\\Bizproc\\Debugger\\Services\\AnalyticsService',
+			],
+			'bizproc.workflow.state.repository.mapper' => [
+				'className' => '\\Bitrix\\Bizproc\\Internal\\Repository\\Mapper\\WorkflowStateMapper',
+			],
+			'bizproc.workflow.state.repository' => [
+				'className' => '\\Bitrix\\Bizproc\\Internal\\Repository\\WorkflowStateRepository\\WorkflowStateRepository',
+				'constructorParams' => static function() {
+					return [
+						\Bitrix\Bizproc\Internal\Container::getWorkflowStatRepositoryMapper(),
+					];
+				},
 			],
 		]
 	],

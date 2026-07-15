@@ -1,3 +1,5 @@
+import { OpenLinesMessageComponent } from 'imopenlines.v2.const';
+
 export const MessageType = Object.freeze({
 	self: 'self',
 	opponent: 'opponent',
@@ -10,6 +12,7 @@ export const MessageComponent = Object.freeze({
 	smile: 'SmileMessage',
 	unsupported: 'UnsupportedMessage',
 	deleted: 'DeletedMessage',
+	error: 'ErrorMessage',
 	callInvite: 'CallInviteMessage',
 	zoomInvite: 'ZoomInviteMessage',
 	chatCreation: 'ChatCreationMessage',
@@ -30,6 +33,12 @@ export const MessageComponent = Object.freeze({
 	generalChatCreationMessage: 'GeneralChatCreationMessage',
 	generalChannelCreationMessage: 'GeneralChannelCreationMessage',
 	channelCreationMessage: 'ChannelCreationMessage',
+	callMessage: 'CallMessage',
+	voteMessage: 'VoteMessage',
+	taskChatCreationMessage: 'TaskChatCreationMessage',
+	convertToCollabMessage: 'ConvertToCollabMessage',
+	aiAssistantMessage: 'AiAssistantMessage',
+	...OpenLinesMessageComponent,
 });
 
 export const MessageMentionType = Object.freeze({
@@ -55,3 +64,11 @@ export const OwnMessageStatus = Object.freeze({
 
 export const FakeMessagePrefix = 'temp';
 export const FakeDraftMessagePrefix = 'temp-draft';
+
+export const AutoDeleteDelay = Object.freeze({
+	Off: 0,
+	Hour: 1,
+	Day: 24,
+	Week: 168,
+	Month: 720,
+});

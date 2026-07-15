@@ -32,9 +32,25 @@ $this->addExternalJs($templateFolder."/utils.js");
  * @property {number} counter Counter value
  * @property {boolean} locked Is locked
  */
+
+$context = $arParams["THEME"] === 'default' ? ' --ui-context-content-light' : '';
+
+$styles = '';
+
+if (!empty($arParams["THEME_VARS"]))
+{
+	$styles = ' style="';
+	foreach ($arParams["THEME_VARS"] as $var => $value)
+	{
+		$styles .= htmlspecialcharsbx($var) . ':' . htmlspecialcharsbx($value) . '";';
+	}
+
+	$styles .= '"';
+}
+
 ?>
 
-<div class="main-buttons<?=$arParams["THEME_ID"]?>">
+<div class="main-buttons main-buttons__scope ui-icon-set__scope<?=$arParams["THEME_ID"]?><?=$context?>"<?=$styles?>>
 	<div class="main-buttons-box">
 		<div class="main-buttons-inner-container" id="<?=$arResult["ID"]?>">
 		<? foreach ($arResult["ITEMS"] as $key => $arItem) :
@@ -281,7 +297,6 @@ $this->addExternalJs($templateFolder."/utils.js");
 		<? endif; ?>
 	</div>
 	</div>
-	<iframe height="100%" width="100%" id="maininterfacebuttons-tmp-frame-<?=$arResult["ID"]?>" name="maininterfacebuttonstmpframe-<?=$arResult["ID"]?>" style="position: absolute; z-index: -1; opacity: 0;"></iframe>
 </div>
 
 <script>

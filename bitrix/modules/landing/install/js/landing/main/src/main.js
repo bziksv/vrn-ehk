@@ -1,17 +1,17 @@
-import {Type, Dom, Cache, Tag, Text, Runtime} from 'main.core';
-import {EventEmitter} from 'main.core.events';
-import {Env} from 'landing.env';
-import {Loc} from 'landing.loc';
-import {Content} from 'landing.ui.panel.content';
-import {SaveBlock} from 'landing.ui.panel.saveblock';
-import {SliderHacks} from 'landing.sliderhacks';
-import {PageObject} from 'landing.pageobject';
+import { Type, Dom, Cache, Tag, Text, Runtime } from 'main.core';
+import { EventEmitter } from 'main.core.events';
+import { Env } from 'landing.env';
+import { Loc } from 'landing.loc';
+import { Content } from 'landing.ui.panel.content';
+import { SaveBlock } from 'landing.ui.panel.saveblock';
+import { SliderHacks } from 'landing.sliderhacks';
+import { PageObject } from 'landing.pageobject';
+import { Backend } from 'landing.backend';
+import { ExternalControls } from './external.controls';
 import hasBlock from './internal/has-block';
 import hasCreateButton from './internal/has-create-button';
 import onAnimationEnd from './internal/on-animation-end';
 import isEmpty from './internal/is-empty';
-import {ExternalControls} from './external.controls';
-import {Backend} from 'landing.backend';
 
 BX.Landing.getMode = () => 'edit';
 
@@ -33,6 +33,10 @@ export class Main extends EventEmitter
 	static createInstance(id: number)
 	{
 		const rootWindow = BX.Landing.PageObject.getRootWindow();
+		if (rootWindow.BX.Landing.Main.instance)
+		{
+			rootWindow.BX.Landing.Main.instance.clear();
+		}
 		rootWindow.BX.Landing.Main.instance = new BX.Landing.Main(id);
 	}
 
@@ -87,6 +91,29 @@ export class Main extends EventEmitter
 	}
 
 	/**
+	 * Maps site type to analytics category.
+	 *
+	 * @return {string}
+	 */
+	static getAnalyticsCategoryByType()
+	{
+		const siteType = BX.Landing.Env.getInstance().getType();
+
+		switch (siteType)
+		{
+			case 'STORE':
+				return 'shop';
+			case 'KNOWLEDGE':
+			case 'GROUP':
+				return 'kb';
+			case 'MAINPAGE':
+				return 'vibe';
+			default:
+				return 'site';
+		}
+	}
+
+	/**
 	 * Landing ID
 	 * @type {number}
 	 */
@@ -135,9 +162,14 @@ export class Main extends EventEmitter
 		}
 	}
 
+	clear(): void
+	{
+		BX.removeCustomEvent('Landing.Block:onAfterDelete', this.onBlockDelete);
+	}
+
 	isCrmFormPage(): boolean
 	{
-		return Env.getInstance().getOptions().specialType === 'crm_forms';
+		return Env.getInstance().getSpecialType() === 'crm_forms';
 	}
 
 	isDesignBlockMode()
@@ -175,6 +207,11 @@ export class Main extends EventEmitter
 
 			return blocksPanel;
 		});
+	}
+
+	getBlocksPanelContent(): Content
+	{
+		return this.getBlocksPanel().content;
 	}
 
 	hideBlocksPanel()
@@ -458,6 +495,11 @@ export class Main extends EventEmitter
 	 */
 	appendBlock(data, withoutAnimation)
 	{
+		if (!this.isAllowedAppendBlock(data))
+		{
+			return Tag.render``;
+		}
+
 		const block = Tag.render`${data.content}`;
 		block.id = `block${data.id}`;
 
@@ -474,6 +516,34 @@ export class Main extends EventEmitter
 		return block;
 	}
 
+	/**
+	 * Check if the block can be appended
+	 * @param {addBlockResponse} data
+	 * @returns {boolean} - Returns true if the block can be appended, otherwise false
+	 */
+	isAllowedAppendBlock(data)
+	{
+		const type = BX.Landing.Env.getInstance().getType().toLowerCase();
+		let allowedBlockTypes = data.manifest.block.type ?? [];
+		if (
+			type === 'mainpage'
+			|| allowedBlockTypes.includes('mainpage')
+		)
+		{
+			if (Type.isString(allowedBlockTypes))
+			{
+				allowedBlockTypes = [allowedBlockTypes];
+			}
+
+			if (!allowedBlockTypes.includes(type))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 
 	/**
 	 * Shows blocks list panel
@@ -484,6 +554,12 @@ export class Main extends EventEmitter
 	 */
 	showBlocksPanel(block, area, button, insertBefore)
 	{
+		BX.UI.Analytics.sendData({
+			tool: 'landing',
+			category: BX.Landing.Main.getAnalyticsCategoryByType(),
+			event: 'open_list',
+		});
+
 		this.currentBlock = block;
 		this.currentArea = area;
 		this.insertBefore = insertBefore;
@@ -565,8 +641,9 @@ export class Main extends EventEmitter
 			const hasItems = !isEmpty(blocks[categoryId].items);
 			const isPopular = categoryId === 'popular';
 			const isSeparator = blocks[categoryId].separator;
+			const isFavourite = categoryId === 'favourite';
 
-			if ((hasItems && !isPopular) || isSeparator)
+			if ((hasItems && !isPopular) || isSeparator || isFavourite)
 			{
 				panel.appendSidebarButton(
 					this.createBlockPanelSidebarButton(categoryId, blocks[categoryId]),
@@ -654,28 +731,6 @@ export class Main extends EventEmitter
 	showFeedbackForm()
 	{
 		this.showSliderFeedbackForm({target: 'blocksList'});
-	}
-
-
-	/**
-	 * Initialises feedback form
-	 */
-	// eslint-disable-next-line class-methods-use-this
-	initFeedbackForm()
-	{
-		const rootWindow = PageObject.getRootWindow();
-		((w, d, u, b) => {
-			w.Bitrix24FormObject = b; w[b] = w[b] || function() {
-				// eslint-disable-next-line prefer-rest-params
-				arguments[0].ref = u;
-				// eslint-disable-next-line prefer-rest-params
-				(w[b].forms = w[b].forms || []).push(arguments[0]);
-			};
-			if (w[b].forms) return;
-			const s = d.createElement('script');
-			const r = 1 * new Date(); s.async = 1; s.src = `${u}?${r}`;
-			const h = d.getElementsByTagName('script')[0]; h.parentNode.insertBefore(s, h);
-		})(rootWindow, rootWindow.document, 'https://product-feedback.bitrix24.com/bitrix/js/crm/form_loader.js', 'b24formFeedBack');
 	}
 
 
@@ -774,8 +829,19 @@ export class Main extends EventEmitter
 	 * Handles event on blocks list category change
 	 * @param {string} category - Category id
 	 */
-	onBlocksListCategoryChange(category)
+	async onBlocksListCategoryChange(category)
 	{
+		this.currentCategory = category;
+
+		if (this.currentCategory === 'favourite')
+		{
+			BX.UI.Analytics.sendData({
+				tool: 'landing',
+				category: BX.Landing.Main.getAnalyticsCategoryByType(),
+				event: 'click_on_favourite',
+			});
+		}
+
 		const templateCode = this.getTemplateCode();
 		this.getBlocksPanel().content.hidden = false;
 
@@ -785,6 +851,25 @@ export class Main extends EventEmitter
 		});
 
 		this.getBlocksPanel().content.innerHTML = '';
+
+		const loader = new BX.Loader({
+			target: this.getBlocksPanel().content,
+			size: 90,
+		});
+		loader.show();
+
+		try
+		{
+			this.favouriteBlocks = await BX.Landing.Backend.getInstance()
+				.action('Landing::getFavouriteBlocks');
+		}
+		catch (e)
+		{
+			console.warn('Failed to fetch favourite blocks', e);
+			this.favouriteBlocks = [];
+		}
+
+		loader.hide();
 
 		if (category === 'last')
 		{
@@ -797,7 +882,43 @@ export class Main extends EventEmitter
 
 			this.lastBlocks.forEach((blockKey) => {
 				const block = this.getBlockFromRepository(blockKey);
-				this.getBlocksPanel().appendCard(this.createBlockCard(blockKey, block));
+				if (block)
+				{
+					block.currentCategory = category;
+					this.getBlocksPanel().appendCard(this.createBlockCard(blockKey, block));
+				}
+			});
+
+			return;
+		}
+
+		if (category === 'favourite')
+		{
+			if (!this.favouriteBlocks)
+			{
+				this.favouriteBlocks = Object.keys(this.blocks.favourite.items);
+			}
+
+			const blockCards = [];
+			this.favouriteBlocks = [...new Set(this.favouriteBlocks)];
+			this.favouriteBlocks.forEach((blockKey) => {
+				const block = this.getBlockFromRepository(blockKey);
+				if (block)
+				{
+					block.currentCategory = category;
+					blockCards.push(this.createBlockCard(blockKey, block));
+				}
+			});
+
+			if (blockCards.length === 0)
+			{
+				Dom.append(this.createFavouriteCategoryEmptyState(), this.getBlocksPanelContent());
+
+				return;
+			}
+
+			blockCards.forEach((blockCard) => {
+				this.getBlocksPanel().appendCard(blockCard);
 			});
 
 			return;
@@ -811,6 +932,7 @@ export class Main extends EventEmitter
 				(blockTplCode && blockTplCode === templateCode)
 			)
 			{
+				block.currentCategory = category;
 				this.getBlocksPanel().appendCard(this.createBlockCard(blockKey, block));
 			}
 		});
@@ -837,7 +959,6 @@ export class Main extends EventEmitter
 			return blocks[category].items[code];
 		}
 	}
-
 
 	/**
 	 * Handles copy block event
@@ -921,7 +1042,7 @@ export class Main extends EventEmitter
 				},
 			};
 
-			BX.Landing.Backend.getInstance()
+			Backend.getInstance()
 				.batch(action, requestBody, {action})
 				.then((res) => {
 					this.currentBlock = block;
@@ -1007,7 +1128,6 @@ export class Main extends EventEmitter
 	onAddBlock(blockCode, restoreId, preventHistory: ?boolean  = false)
 	{
 		const id = Text.toNumber(restoreId);
-
 		this.hideBlocksPanel();
 
 		return this.showBlockLoader()
@@ -1027,6 +1147,7 @@ export class Main extends EventEmitter
 				void this.hideBlockLoader();
 				this.enableAddBlockButtons();
 				BX.onCustomEvent('BX.Landing.Block:onAfterAdd', res);
+
 				return p;
 			});
 	}
@@ -1119,6 +1240,11 @@ export class Main extends EventEmitter
 			});
 		}
 
+		if (BX.type.isObject(data.lang))
+		{
+			Loc.setMessage(data.lang);
+		}
+
 		let loadedScripts = 0;
 		const scriptsCount = (data.js.length + ext.SCRIPT.length + ext.STYLE.length + data.css.length);
 		let resPromise = null;
@@ -1172,9 +1298,19 @@ export class Main extends EventEmitter
 			resPromise = Promise.resolve(data);
 		}
 
-		return resPromise;
-	}
+		return resPromise.then(data => {
+			if (BX.type.isArray(data.assetStrings))
+			{
+				const head = document.head;
+				data.assetStrings.forEach(string => {
+					const element = Tag.render`${string}`;
+					Dom.insertAfter(element, head.lastChild);
+				});
+			}
 
+			return data;
+		});
+	}
 
 	/**
 	 * Executes block scripts
@@ -1237,6 +1373,7 @@ export class Main extends EventEmitter
 				CODE: blockCode,
 				AFTER_ID: this.currentBlock ? this.currentBlock.id : 0,
 				RETURN_CONTENT: 'Y',
+				CATEGORY: this.currentCategory,
 			};
 
 			if (!Type.isBoolean(preventHistory) || preventHistory === false)
@@ -1270,7 +1407,7 @@ export class Main extends EventEmitter
 					});
 			}
 
-			return BX.Landing.Backend.getInstance()
+			return Backend.getInstance()
 				.action('Block::getContent', {
 					block: restoreId,
 					lid,
@@ -1305,7 +1442,35 @@ export class Main extends EventEmitter
 			mode,
 			isNew: block.new === true,
 			onClick: this.onAddBlock.bind(this, blockKey),
+			currentCategory: block.currentCategory,
+			useFavouriteBadge: true,
+			isFavorite: Array.isArray(this.favouriteBlocks) && this.favouriteBlocks.includes(blockKey),
 		});
+	}
+
+	createFavouriteCategoryEmptyState()
+	{
+		return Tag.render`
+			<div class="landing-favourite-category-empty-state text-center">
+				<img 
+					class="landing-favourite-category-empty-state--image" 
+					src="/bitrix/images/landing/empty-favourite.png" 
+					style="margin-bottom: 14px;"
+				/>
+				<p 
+					class="landing-favourite-category-empty-state--title"
+					style="color: #333333; font-weight: 500; font-size: 19px; line-height: 26px; margin-bottom: 10px;"
+				>
+					${Loc.getMessage('LANDING_SECTION_FAVOURITE_EMPTY_STATE_TITLE')}
+				</p>
+				<p 
+					class="landing-favourite-category-empty-state--text"
+					style="color: #414A56; font-weight: 400; font-size: 16px; line-height: 21px; max-width: 340px; margin: auto;"
+				>
+					${Loc.getMessage('LANDING_SECTION_FAVOURITE_EMPTY_STATE_TEXT')}
+				</p>
+			</div>
+		`;
 	}
 
 
@@ -1333,7 +1498,6 @@ export class Main extends EventEmitter
 			Dom.addClass(main, 'landing-ui-overlay');
 		}
 	}
-
 
 	/**
 	 * Hides page overlay

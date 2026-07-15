@@ -1,6 +1,9 @@
 <?php
 namespace Bitrix\Im\Integration\Intranet;
 
+use Bitrix\Im\V2\Chat\GeneralChat;
+use Bitrix\Im\V2\Entity\User\UserCollaber;
+use Bitrix\Im\V2\Recent\Initializer;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\Localization\Loc;
@@ -54,26 +57,29 @@ class User
 			return false;
 		}
 
+		$users = self::filterEmployee($users);
+		if (empty($users))
+		{
+			return false;
+		}
+
 		$userForSend = [];
 		$result = \Bitrix\Intranet\UserTable::getList([
 			'filter' => [
 				'=ID' => $users
 			],
-			'select' => ['ID', 'USER_TYPE', 'EMAIL']
+			'select' => ['ID', 'EMAIL']
 
 		]);
 		while ($row = $result->fetch())
 		{
-			if ($row['USER_TYPE'] === 'employee')
-			{
-				$userForSend[] = [
-					'ID' => $row['ID'],
-					'INVITED' => [
-						'originator_id' => $originatorId,
-						'can_resend' => !empty($row['EMAIL'])
-					]
-				];
-			}
+			$userForSend[] = [
+				'ID' => $row['ID'],
+				'INVITED' => [
+					'originator_id' => $originatorId,
+					'can_resend' => !empty($row['EMAIL'])
+				]
+			];
 		}
 
 		if (empty($userForSend))
@@ -112,26 +118,29 @@ class User
 			return false;
 		}
 
+		$users = self::filterEmployee($users);
+		if (empty($users))
+		{
+			return false;
+		}
+
 		$userForSend = [];
 		$result = \Bitrix\Intranet\UserTable::getList([
 			'filter' => [
 				'=ID' => $users
 			],
-			'select' => ['ID', 'USER_TYPE', 'EMAIL']
+			'select' => ['ID', 'EMAIL']
 
 		]);
 		while ($row = $result->fetch())
 		{
-			if ($row['USER_TYPE'] === 'employee')
-			{
-				$userForSend[] = [
-					'ID' => $row['ID'],
-					'INVITED' => [
-						'originator_id' => $originatorId,
-						'can_resend' => !empty($row['EMAIL'])
-					]
-				];
-			}
+			$userForSend[] = [
+				'ID' => $row['ID'],
+				'INVITED' => [
+					'originator_id' => $originatorId,
+					'can_resend' => !empty($row['EMAIL'])
+				]
+			];
 		}
 
 		self::sendInviteEvent($userForSend);
@@ -240,13 +249,23 @@ class User
 			return true;
 		}
 
-		if (!self::isEmployee($userId))
+		$user = \Bitrix\Im\V2\Entity\User\User::getInstance($userId);
+
+		if (!self::isEmployee($userId) && !($user instanceof UserCollaber))
 		{
 			return false;
 		}
 
 		\CUser::SetLastActivityDate($userId);
+		$user->unsetOnlineData();
+		Initializer::onAfterUserAcceptInvite($userId);
 
+		if ($user instanceof UserCollaber)
+		{
+			return true;
+		}
+
+		self::addUserToGeneralChat($userData);
 		\CIMContactList::SetRecent(Array('ENTITY_ID' => $userId));
 
 		if (self::isCountOfUsersExceededForPersonalNotify())
@@ -304,6 +323,28 @@ class User
 		}
 
 		return true;
+	}
+
+	private static function  addUserToGeneralChat(array $userData): void
+	{
+		$userId = (int)$userData['ID'];
+		if (
+			$userData['ACTIVE'] !== 'Y'
+			|| in_array($userData['EXTERNAL_AUTH_ID'], \Bitrix\Main\UserTable::getExternalUserTypes(), true)
+			|| !self::isEmployee($userId)
+		)
+		{
+			return;
+		}
+
+		$generalChatId = GeneralChat::getGeneralChatId();
+		if (empty($generalChatId))
+		{
+			return;
+		}
+
+		$chatService = new \CIMChat(0);
+		$chatService->AddUser($generalChatId, [$userId], false, true);
 	}
 
 	private static function sendInviteEvent(array $users): bool
@@ -368,22 +409,40 @@ class User
 			return self::$isEmployee[$userId];
 		}
 
-		if (!\Bitrix\Main\Loader::includeModule('intranet'))
+		if (!\Bitrix\Main\Loader::includeModule('humanresources'))
 		{
 			return false;
 		}
 
-		$result = \Bitrix\Intranet\UserTable::getList([
-			'filter' => [
-				'=ID' => $userId
-			],
-			'select' => ['ID', 'USER_TYPE']
+		try
+		{
+			$isEmployee = \Bitrix\HumanResources\Service\Container::getUserService()->isEmployee($userId);
+		}
+		catch (\Exception $exception)
+		{
+			$isEmployee = false;
+		}
 
-		])->fetch();
-
-		self::$isEmployee[$userId] = $result['USER_TYPE'] === 'employee';
+		self::$isEmployee[$userId] = $isEmployee;
 
 		return self::$isEmployee[$userId];
+	}
+
+	private static function filterEmployee(array $userIds): array
+	{
+		if (!\Bitrix\Main\Loader::includeModule('humanresources'))
+		{
+			return [];
+		}
+
+		try
+		{
+			return \Bitrix\HumanResources\Service\Container::getUserService()->filterEmployees($userIds);
+		}
+		catch (\Exception $exception)
+		{
+			return [];
+		}
 	}
 
 	public static function getBirthdayForToday()
@@ -463,7 +522,7 @@ class User
 		$count = UserTable::query()
 			->setSelect(['ID'])
 			->where('ACTIVE', true)
-			->where('IS_REAL_USER', true)
+			->where('REAL_USER', 'expr', true)
 			->whereNotNull('LAST_LOGIN')
 			->setLimit(self::INVITE_MAX_USER_NOTIFY + 1)
 			->fetchCollection()
@@ -495,6 +554,3 @@ class User
 		$eventManager->unRegisterEventHandler('intranet', 'onUserAdminRights', 'im', self::class, 'onUserAdminRights');
 	}
 }
-
-
-

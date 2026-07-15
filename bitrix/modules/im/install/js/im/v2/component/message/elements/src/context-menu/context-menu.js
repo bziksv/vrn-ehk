@@ -20,9 +20,9 @@ export const ContextMenu = {
 			type: Object,
 			required: true,
 		},
-		menuIsActiveForId: {
-			type: [String, Number],
-			default: 0,
+		showContextMenu: {
+			type: Boolean,
+			default: true,
 		},
 	},
 	computed:
@@ -42,6 +42,14 @@ export const ContextMenu = {
 		{
 			return this.messageItem.error;
 		},
+		canShowContextMenu(): boolean
+		{
+			return this.showContextMenu && !this.messageHasError;
+		},
+		isBulkActionsMode(): boolean
+		{
+			return this.$store.getters['messages/select/isBulkActionsModeActive'](this.dialogId);
+		},
 	},
 	methods:
 	{
@@ -50,19 +58,22 @@ export const ContextMenu = {
 			EventEmitter.emit(EventType.dialog.onClickMessageContextMenu, {
 				message: this.message,
 				dialogId: this.dialogId,
+				bindElement: event.currentTarget,
 				event,
 			});
 		},
 	},
 	template: `
-		<div v-if="!messageHasError" class="bx-im-message-context-menu__container bx-im-message-context-menu__scope">
-			<button
-				:title="menuTitle"
-				@click="onMenuClick"
-				@contextmenu.prevent
-				:class="{'--active': menuIsActiveForId === message.id}"
-				class="bx-im-message-context-menu__button"
-			></button>
-		</div>
+		<template v-if="!isBulkActionsMode">
+			<div v-if="canShowContextMenu" class="bx-im-message-context-menu__container bx-im-message-context-menu__scope">
+				<button
+					:title="menuTitle"
+					@click="onMenuClick"
+					@contextmenu.prevent
+					class="bx-im-message-context-menu__button"
+				></button>
+			</div>
+			<div v-else class="bx-im-message-base__context-menu-placeholder"></div>
+		</template>
 	`,
 };

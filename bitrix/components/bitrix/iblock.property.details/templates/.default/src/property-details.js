@@ -256,7 +256,10 @@ export class PropertyDetails
 
 		const prepareControl = function(control) {
 			// skip `ui.forms` controls
-			if (control.classList.contains('ui-ctl-element'))
+			if (
+				control.classList.contains('ui-ctl-element')
+				|| control.classList.contains('ui-tag-selector-item')
+			)
 			{
 				return;
 			}
@@ -392,10 +395,11 @@ export class PropertyDetails
 					return false;
 				}
 
+				this.#getSlider().close();
+
 				top.BX.Event.EventEmitter.emit('IblockPropertyDetails:saved', [
 					response.data,
 				]);
-				this.#getSlider().close();
 
 				return true;
 			})
@@ -403,7 +407,7 @@ export class PropertyDetails
 				this.progress.stop();
 
 				this.errors.show(
-					response.errors,
+					response.errors || [],
 				);
 
 				return false;

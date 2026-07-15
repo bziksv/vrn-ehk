@@ -6,11 +6,16 @@
  * @copyright 2001-2023 Bitrix
  */
 
-use Bitrix\Main\Config\Option;
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Web\Uri;
-use Bitrix\Main\UrlPreview\UrlPreview;
 use Bitrix\Main\Application;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UrlPreview\UrlPreview;
+use Bitrix\Main\Web\Uri;
+use Bitrix\Socialnetwork\Collab\Url\UrlManager;
+use Bitrix\Socialnetwork\Integration\Im\Chat\Workgroup;
+use Bitrix\Socialnetwork\Item\Workgroup\Type;
+use Bitrix\Socialnetwork\Provider\GroupProvider;
 
 class CTextParser
 {
@@ -70,6 +75,29 @@ class CTextParser
 	public $pathToUser = '';
 	public $pathToUserEntityType = false;
 	public $pathToUserEntityId = false;
+	public $useTypography = false;
+	protected $tagClasses = [
+		'p' => 'ui-typography-paragraph',
+		'b' => 'ui-typography-text-bold',
+		'i' => 'ui-typography-text-italic',
+		'u' => 'ui-typography-text-underline',
+		's' => 'ui-typography-text-strikethrough',
+		'code' => 'ui-typography-code',
+		'quote' => 'ui-typography-quote',
+		'url' => 'ui-typography-link',
+		'image-container' => 'ui-typography-image-container',
+		'image' => 'ui-typography-image',
+		'ol' => 'ui-typography-ol',
+		'ul' => 'ui-typography-ul',
+		'li' => 'ui-typography-li',
+		'table' => 'ui-typography-table',
+		'td' => 'ui-typography-table-cell',
+		'tr' => 'ui-typography-table-row',
+		'th' => 'ui-typography-table-cell ui-typography-table-cell-header',
+		'mention' => 'ui-typography-mention',
+		'smiley' => 'ui-typography-smiley',
+		'hashtag' => 'ui-typography-hashtag',
+	];
 
 	protected $wordSeparator = "\\s.,;:!?\\#\\-\\*\\|\\[\\]\\(\\)\\{\\}";
 	protected $smilePatterns = null;
@@ -174,19 +202,22 @@ class CTextParser
 					'width' => intval($row['IMAGE_WIDTH']),
 					'height' => intval($row['IMAGE_HEIGHT']),
 					'descriptionDecode' => $row['DESCRIPTION_DECODE'] == 'Y',
-					'imageDefinition' => $row['IMAGE_DEFINITION'] ?: CSmile::IMAGE_SD
+					'imageDefinition' => $row['IMAGE_DEFINITION'] ?: CSmile::IMAGE_SD,
 				];
 			}
 		}
 		usort($this->smilePatterns, function($a, $b) { return (mb_strlen($a) > mb_strlen($b) ? -1 : 1); });
 	}
 
-	public function convertText($text)
+	// Added $attributes for links
+	public function convertText($text, $attributes = [])
 	{
 		if (!is_string($text) || $text == '')
 		{
 			return '';
 		}
+
+		$attributes = is_array($attributes) ? $attributes : [];
 
 		$text = preg_replace(["#([?&;])PHPSESSID=([0-9a-zA-Z]{32})#i", "/\\x{00A0}/u"], ["\\1PHPSESSID1=", " "], $text);
 
@@ -226,7 +257,7 @@ class CTextParser
 			$text = preg_replace_callback(
 				[
 					"#(\\[code(?:\\s+[^]]*]|]))(.+?)(\\[/code(?:\\s+[^]]*]|]))#isu",
-					"#(<code(?:\\s+[^>]*>|>))(.+?)(</code(?:\\s+[^>]*>|>))#isu"
+					"#(<code(?:\\s+[^>]*>|>))(.+?)(</code(?:\\s+[^>]*>|>))#isu",
 				],
 				[$this, 'convertCode'],
 				$text
@@ -244,7 +275,7 @@ class CTextParser
 				$text = preg_replace(
 					[
 						"#<a[^>]+href\\s*=\\s*(['\"])(.+?)(?:\\1)[^>]*>(.*?)</a[^>]*>#isu",
-						"#<a[^>]+href(\\s*=\\s*)([^'\">]+)>(.*?)</a[^>]*>#isu"
+						"#<a[^>]+href(\\s*=\\s*)([^'\">]+)>(.*?)</a[^>]*>#isu",
 					],
 					"[url=\\2]\\3[/url]", $text
 				);
@@ -405,7 +436,11 @@ class CTextParser
 			)+
 			)\\s*\\](.*?)\\[\\/url\\]/ixsu";
 
-			$text = preg_replace_callback($patt, [$this, 'preconvertAnchor'], $text);
+			$text = preg_replace_callback(
+				$patt,
+				fn($matches) => $this->preconvertAnchor($matches, $attributes['ANCHOR'] ?? []),
+				$text,
+			);
 
 			if (($this->allow['TEXT_ANCHOR'] ?? 'Y') == 'Y')
 			{
@@ -430,7 +465,11 @@ class CTextParser
 
 				$patt[] = "/(?<=^|[" . $this->wordSeparator . "])(?<!\\[nomodify\\]|<nomodify>)((((" . $schemes . "):\\/\\/)|www\\.)[._:a-z0-9@-].*?)(?=[\\s\"{}]|&quot;|\$)/isu";
 
-				$text = preg_replace_callback($patt, [$this, 'preconvertUrl'], $text);
+				$text = preg_replace_callback(
+					$patt,
+					fn($matches) => $this->preconvertUrl($matches, $attributes['TEXT_ANCHOR'] ?? []),
+					$text,
+				);
 			}
 		}
 		elseif (!empty($patt))
@@ -447,11 +486,11 @@ class CTextParser
 				$text = preg_replace(
 					[
 						"/\\[(cut|spoiler)(([^]])*)]/isu",
-						"/\\[\\/(cut|spoiler)]/isu"
+						"/\\[\\/(cut|spoiler)]/isu",
 					],
 					[
 						"\001\\2\002",
-						"\003"
+						"\003",
 					],
 					$text
 				);
@@ -465,12 +504,12 @@ class CTextParser
 					[
 						"/\001([^\002]+)\002/",
 						"/\001\002/",
-						"/\003/"
+						"/\003/",
 					],
 					[
 						"[spoiler\\1]",
 						"[spoiler]",
-						"[/spoiler]"
+						"[/spoiler]",
 					],
 					$text
 				);
@@ -531,6 +570,10 @@ class CTextParser
 				'TABLE' => 'N',
 				'ALIGN' => 'N',
 				'QUOTE' => 'N',
+
+				// TODO: change to N
+				// This option was added in 2016 as a default value for cases like this
+				// $textParser = new CTextParser(); $textParser->allow = [...];
 				'P' => 'Y',
 			],
 			$this->allow
@@ -582,8 +625,8 @@ class CTextParser
 					{
 						$text = preg_replace_callback(
 							$arUrlPatterns,
-							[$this, 'convertAnchor'],
-							$text
+							fn($matches) => $this->convertAnchor($matches, $attributes['ANCHOR'] ?? []),
+							$text,
 						);
 					}
 					else
@@ -595,10 +638,18 @@ class CTextParser
 					$replaced  = 0;
 					do
 					{
-						$text = preg_replace(
+						$text = preg_replace_callback(
 							"/\\[([busi])](.*?)\\[\\/(\\1)]/isu",
-							"<\\1>\\2</\\1>",
-						$text, -1, $replaced);
+							function($matches) {
+								$tag = strtolower($matches[1]);
+								$className = $this->useTypography ? ' class="' . $this->tagClasses[$tag] . '"' : '';
+
+								return "<$tag$className>" . $matches[2]. "</$tag>";
+							},
+							$text,
+							-1,
+							$replaced
+						);
 					}
 					while ($replaced > 0);
 					break;
@@ -606,14 +657,25 @@ class CTextParser
 					$replaced  = 0;
 					do
 					{
-						$text = preg_replace(
+						$text = preg_replace_callback(
 							"/\\[p](.*?)\\[\\/p](([ \r\t]*)\n?)/isu",
-							"<p>\\1</p>",
-						$text, -1, $replaced);
+							function($matches) {
+								$className = $this->useTypography ? ' class="' . $this->tagClasses['p'] . '"' : '';
+
+								return "<p$className>". self::trimLineBreaks($matches[1]) . '</p>';
+							},
+							$text,
+							-1,
+							$replaced
+						);
 					}
 					while ($replaced > 0);
 					break;
 				case 'LIST':
+					$olClassName = $this->useTypography ? ' class="' . $this->tagClasses['ol'] . '"' : '';
+					$ulClassName = $this->useTypography ? ' class="' . $this->tagClasses['ul'] . '"' : '';
+					$liClassName = $this->useTypography ? ' class="' . $this->tagClasses['li'] . '"' : '';
+
 					while (preg_match("/\\[list\\s*=\\s*([1a])\\s*](.+?)\\[\\/list]/isu", $text))
 					{
 						$text = preg_replace(
@@ -623,9 +685,9 @@ class CTextParser
 								"/\\[\\*]/u",
 							],
 							[
-								"<ol>\\2</ol>",
-								"<ol type=\"a\">\\2</ol>",
-								"<li>",
+								"<ol$olClassName>\\2</ol>",
+								"<ol type=\"a\"$olClassName>\\2</ol>",
+								"<li$liClassName>",
 							],
 							$text
 						);
@@ -638,8 +700,8 @@ class CTextParser
 								"/\\[\\*]/u",
 							],
 							[
-								"<ul>\\2</ul>",
-								"<li>",
+								"<ul$ulClassName>\\2</ul>",
+								"<li$liClassName>",
 							],
 							$text
 						);
@@ -690,16 +752,21 @@ class CTextParser
 							}
 						}
 
+						$tableClass = $this->useTypography ? $this->tagClasses['table'] : 'data-table';
 						$openTableTag = (
 							$this->bMobile
-								? "<div style=\"overflow-x: auto;\"><table class=\"data-table\">"
-								: "<table class=\"data-table\">"
+								? "<div style=\"overflow-x: auto;\"><table class=\"$tableClass\">"
+								: "<table class=\"$tableClass\">"
 							);
 							$closeTableTag = (
 							$this->bMobile
 								? '</table></div>'
 								: '</table>'
 						);
+
+						$trClass = $this->useTypography ? ' class="' . $this->tagClasses['tr'] . '"' : '';
+						$tdClass = $this->useTypography ? ' class="' . $this->tagClasses['td'] . '"' : '';
+						$thClass = $this->useTypography ? ' class="' . $this->tagClasses['th'] . '"' : '';
 
 						$text = preg_replace(
 							[
@@ -715,11 +782,11 @@ class CTextParser
 							[
 								$openTableTag,
 								$closeTableTag,
-								'<tr>',
+								"<tr$trClass>",
 								'</tr>',
-								'<td>',
+								"<td$tdClass>",
 								'</td>',
-								'<th>',
+								"<th$thClass>",
 								'</th>',
 							],
 							$text
@@ -727,6 +794,8 @@ class CTextParser
 					}
 					break;
 				case 'ALIGN':
+					$paragraph = "<p class=\"{$this->tagClasses['p']}\">\\1</p>";
+
 					$replaced  = 0;
 					do
 					{
@@ -738,10 +807,10 @@ class CTextParser
 								"/\\[justify](.*?)\\[\\/justify](([\\040\\r\\t]*)\\n?)/isu",
 							],
 							[
-								"<div align=\"left\">\\1</div>",
-								"<div align=\"right\">\\1</div>",
-								"<div align=\"center\">\\1</div>",
-								"<div align=\"justify\">\\1</div>",
+								$this->useTypography ? $paragraph : "<div align=\"left\">\\1</div>",
+								$this->useTypography ? $paragraph : "<div align=\"right\">\\1</div>",
+								$this->useTypography ? $paragraph : "<div align=\"center\">\\1</div>",
+								$this->useTypography ? $paragraph : "<div align=\"justify\">\\1</div>",
 							],
 							$text,
 							-1,
@@ -1304,7 +1373,7 @@ class CTextParser
 			. ' alt="' . $code . '"'
 			. ' style="' . ($width > 0 ? 'width:' . $width . 'px;' : '') . ($height > 0 ? 'height:' . $height . 'px;' : '') . '"'
 			. ' title="' . $description . '"'
-			. ' class="bx-smile" />';
+			. ' class="' . ($this->useTypography ? $this->tagClasses['smiley'] : 'bx-smile') . '" />';
 		$cacheKey = md5($html);
 		if (!isset($this->preg['cache'][$cacheKey]))
 		{
@@ -1330,8 +1399,9 @@ class CTextParser
 		);
 
 		$text = stripslashes($text);
+		$text = $this->useTypography ? self::trimLineBreaks($text) : "<pre>" . $text . "</pre>";
 
-		return $this->defended_tags($this->convert_open_tag('code') . "<pre>" . $text . "</pre>" . $this->convert_close_tag('code'));
+		return $this->defended_tags($this->convert_open_tag('code') . $text  . $this->convert_close_tag('code'));
 	}
 
 	public function convertQuote($matches)
@@ -1347,6 +1417,11 @@ class CTextParser
 		}
 
 		$text = str_replace("\\\"", "\"", $text);
+
+		if ($this->useTypography)
+		{
+			$text = self::trimLineBreaks($text);
+		}
 
 		return $this->convert_open_tag() . $text . $this->convert_close_tag();
 	}
@@ -1370,7 +1445,7 @@ class CTextParser
 			return "<dl><dt>" . ($title ?: Loc::getMessage("MAIN_TEXTPARSER_SPOILER")) . "</dt><dd>" . htmlspecialcharsbx($text) . "</dd></dl>";
 		}
 
-		return self::renderSpoiler($text, $title);
+		return self::renderSpoiler($text, $title, $this->useTypography);
 	}
 
 	function convert_cut_tag($text, $title = '')
@@ -1384,12 +1459,24 @@ class CTextParser
 		$title = ltrim($title, '=');
 		$title = trim($title);
 
-		return self::renderSpoiler($text, $title);
+		return self::renderSpoiler($text, $title, $this->useTypography);
 	}
 
-	public static function renderSpoiler($text, $title = '')
+	public static function renderSpoiler($text, $title = '', $useTypography = false)
 	{
 		$title = (empty($title) ? Loc::getMessage("MAIN_TEXTPARSER_HIDDEN_TEXT") : $title);
+
+		if ($useTypography)
+		{
+			return (
+				'<details class="ui-typography-spoiler ui-icon-set__scope">' .
+					'<summary class="ui-typography-spoiler-title">' . htmlspecialcharsbx($title) . '</summary>' .
+					'<div class="ui-typography-spoiler-content" data-spoiler-content="true">' .
+						self::trimLineBreaks($text) .
+					'</div>' .
+				'</details>'
+			);
+		}
 
 		ob_start();
 
@@ -1403,7 +1490,7 @@ class CTextParser
 			?></thead><?
 			?><tbody class="forum-spoiler" style="display:none;"><?
 				?><tr><?
-					?><td><?=$text?></td><?
+					?><td><?=self::trimLineBreaks($text)?></td><?
 				?></tr><?
 			?></tbody><?
 		?></table><?
@@ -1420,6 +1507,16 @@ class CTextParser
 		{
 			return "\n====" . $marker . "====\n";
 		}
+
+		if ($this->useTypography)
+		{
+			return (
+				$marker === 'quote'
+					? '<blockquote class="' . $this->tagClasses['quote'] . '">'
+					: '<code class="' . $this->tagClasses['code'] . '">'
+			);
+		}
+
 		return "<div class='" . $marker . "'><table class='" . $marker . "'><tr><td>";
 	}
 
@@ -1438,6 +1535,16 @@ class CTextParser
 		{
 			return "\n=============\n";
 		}
+
+		if ($this->useTypography)
+		{
+			return (
+				$marker === 'quote'
+					? '</blockquote>'
+					: '</code>'
+			);
+		}
+
 		return '</td></tr></table></div>';
 	}
 
@@ -1498,6 +1605,33 @@ class CTextParser
 		}
 
 		$serverName = htmlspecialcharsbx($this->serverName);
+		if ($this->useTypography)
+		{
+			$src = $serverName . $url;
+			if ($this->serverName == '' || preg_match("/^(http|https|ftp):\\/\\//iu", $url))
+			{
+				$src = $url;
+			}
+
+			$attrs = ' loading="lazy"';
+			if ($width > 0)
+			{
+				$attrs .= " width=\"" . $width . "\"";
+				if ($height > 0)
+				{
+					$attrs .= ' style="aspect-ratio: ' . ($width / $height) . '"';
+				}
+			}
+
+			$image = (
+				'<span class="' . $this->tagClasses['image-container'] . '">' .
+					'<img src="' . $src . '" class="' . $this->tagClasses['image'] . '"'. $attrs .'>' .
+				'</span>'
+			);
+
+			return $this->defended_tags($image);
+		}
+
 		$image = '<img src="' . $serverName . $url . '" border="0"' . $strPar . ' data-bx-image="' . $serverName . $url . '" data-bx-onload="Y" />';
 		if ($this->serverName == '' || preg_match("/^(http|https|ftp):\\/\\//iu", $url))
 		{
@@ -1558,6 +1692,11 @@ class CTextParser
 				return $text;
 			}
 			$value = intval($value > $count ? ($count - 1) : $value);
+			if (!isset($this->arFontSize[$value]))
+			{
+				return $text;
+			}
+
 			//compatibility with old percent values
 			$size = (is_numeric($this->arFontSize[$value])? $this->arFontSize[$value] . '%' : $this->arFontSize[$value]);
 			return '<span class="bx-font" style="font-size:' . $size . ';">' . $text . '</span>';
@@ -1625,32 +1764,20 @@ class CTextParser
 
 		if ($userId > 0)
 		{
-			$type = false;
+			$status = false;
 
 			if (isset($userTypeList[$userId]))
 			{
-				$type = $userTypeList[$userId];
+				$status = $userTypeList[$userId];
 			}
 			else
 			{
-				if (\Bitrix\Main\Loader::includeModule('intranet'))
+				if (Loader::includeModule('intranet'))
 				{
-					$res = \Bitrix\Intranet\UserTable::getList([
-						'filter' => [
-							'ID' => $userId
-						],
-						'select' => [
-							'USER_TYPE'
-						]
-					]);
-
-					if ($userFields = $res->fetch())
-					{
-						$type = $userFields['USER_TYPE'];
-					}
+					$status = \Bitrix\Intranet\Util::getUserStatus($userId);
 				}
 
-				$userTypeList[$userId] = $type;
+				$userTypeList[$userId] = $status;
 			}
 
 			$pathToUser = (
@@ -1664,7 +1791,7 @@ class CTextParser
 				$pathToUser = COption::GetOptionString('main', 'TOOLTIP_PATH_TO_USER', '', SITE_ID);
 			}
 
-			switch($type)
+			switch($status)
 			{
 				case 'extranet':
 					$classAdditional = ' blog-p-user-name-extranet';
@@ -1680,6 +1807,9 @@ class CTextParser
 						$pathToUser .= (!str_contains($pathToUser, '?') ? '?' : '&') . 'entityType=' . $this->pathToUserEntityType . '&entityId=' . intval($this->pathToUserEntityId);
 					}
 					break;
+				case 'collaber':
+					$classAdditional = ' blog-p-user-name-collaber';
+					break;
 				default:
 					$classAdditional = '';
 			}
@@ -1692,7 +1822,7 @@ class CTextParser
 			];
 
 			if (
-				$type === 'email'
+				$status === 'email'
 				&& !empty($this->pathToUserEntityType)
 				&& !empty($this->pathToUserEntityId)
 			)
@@ -1716,12 +1846,13 @@ class CTextParser
 		$userId = (!empty($fields['USER_ID']) ? $fields['USER_ID'] : '');
 		$userName = (!empty($fields['USER_NAME']) ? $fields['USER_NAME'] : '');
 
+		$className = $this->useTypography ? $this->tagClasses['mention'] : 'blog-p-user-name';
 		if (empty($userId))
 		{
-			return "<span class=\"blog-p-user-name\">{$userName}</span>";
+			return "<span class=\"{$className}\">{$userName}</span>";
 		}
 
-		return '<a class="blog-p-user-name' . $classAdditional . '"'
+		return '<a class="'. $className . $classAdditional . '"'
 			. ' href="' . CComponentEngine::MakePathFromTemplate($pathToUser, ["user_id" => $userId]) . '"'
 			. ' bx-tooltip-user-id="' . (!$this->bMobile ? $userId : '') . '"'
 			. (!empty($fields['TOOLTIP_PARAMS']) ? ' bx-tooltip-params="' . htmlspecialcharsbx($fields['TOOLTIP_PARAMS']) . '"' : '') . '>'
@@ -1732,7 +1863,6 @@ class CTextParser
 	{
 		static $projectTypeList = [];
 		static $extranetProjectIdList = null;
-		static $pathToProject = null;
 
 		$projectName = $matches[2];
 		$projectId = (int)$matches[1];
@@ -1746,7 +1876,7 @@ class CTextParser
 		{
 			if ($extranetProjectIdList === null)
 			{
-				$extranetSiteId = (\Bitrix\Main\Loader::includeModule('extranet') ? CExtranet::getExtranetSiteId() : '');
+				$extranetSiteId = (Loader::includeModule('extranet') ? CExtranet::getExtranetSiteId() : '');
 				if (!empty($extranetSiteId))
 				{
 					$res = \Bitrix\Socialnetwork\WorkgroupSiteTable::getList([
@@ -1771,24 +1901,23 @@ class CTextParser
 			}
 			else
 			{
-				if (!empty($extranetProjectIdList))
+				if (!empty($extranetProjectIdList) && in_array($projectId, $extranetProjectIdList, true))
 				{
-					$type = (in_array($projectId, $extranetProjectIdList, true) ? 'extranet' : false);
+					$type = $this->getExternalGroupType($projectId);
 				}
 
 				$projectTypeList[$projectId] = $type;
 			}
 
-			if ($pathToProject === null)
-			{
-				// then replace to \Bitrix\Socialnetwork\Helper\Path::get('group_path_template')
-				$pathToProject = Option::get('socialnetwork', 'group_path_template', SITE_DIR . 'workgroups/group/#group_id#/', SITE_ID);
-			}
+			$pathToProject = $this->getGroupPath($projectId, (array)$extranetProjectIdList);
 
 			switch ($type)
 			{
 				case 'extranet':
 					$classAdditional = ' blog-p-user-name-extranet';
+					break;
+				case 'collab':
+					$classAdditional = ' blog-p-user-name-collab';
 					break;
 				default:
 					$classAdditional = '';
@@ -1810,12 +1939,13 @@ class CTextParser
 		$projectId = (int)($fields['PROJECT_ID'] ?? 0);
 		$projectName = (string)($fields['PROJECT_NAME'] ?? '');
 
+		$className = $this->useTypography ? $this->tagClasses['mention'] : 'blog-p-user-name';
 		if ($projectId <= 0)
 		{
-			return "<span class=\"blog-p-user-name\">{$projectName}</span>";
+			return "<span class=\"{$className}\">{$projectName}</span>";
 		}
 
-		return '<a class="blog-p-user-name' . $classAdditional . '" href="' . CComponentEngine::MakePathFromTemplate($pathToProject, [ 'group_id' => $projectId ]) . '" >' . $projectName . '</a>';
+		return '<a class="' . $className . $classAdditional . '" href="' . CComponentEngine::MakePathFromTemplate($pathToProject, [ 'group_id' => $projectId ]) . '" >' . $projectName . '</a>';
 	}
 
 	public function convert_department(array $matches): string
@@ -1852,12 +1982,13 @@ class CTextParser
 		$departmentId = (int)($fields['DEPARTMENT_ID'] ?? 0);
 		$departmentName = (string)($fields['DEPARTMENT_NAME'] ?? '');
 
+		$className = $this->useTypography ? $this->tagClasses['mention'] : 'blog-p-user-name';
 		if ($departmentId <= 0)
 		{
-			return "<span class=\"blog-p-user-name\">{$departmentName}</span>";
+			return "<span class=\"{$className}\">{$departmentName}</span>";
 		}
 
-		return '<a class="blog-p-user-name" href="' . CComponentEngine::MakePathFromTemplate($pathToDepartment, [ 'ID' => $departmentId ]) . '" >' . $departmentName . '</a>';
+		return '<a class="' . $className . '" href="' . CComponentEngine::MakePathFromTemplate($pathToDepartment, [ 'ID' => $departmentId ]) . '" >' . $departmentName . '</a>';
 	}
 
 	public function getTagPattern()
@@ -1914,7 +2045,9 @@ class CTextParser
 		}
 
 		$res = htmlentities($tagText, (ENT_COMPAT | ENT_HTML401), SITE_CHARSET);
-		$res = '<span class="bx-inline-tag" bx-tag-value="' . $res . '">#' . $res . '</span>';
+
+		$className = $this->useTypography ? $this->tagClasses['hashtag'] : 'bx-inline-tag';
+		$res = '<span class="' . $className . '" bx-tag-value="' . $res . '">#' . $res . '</span>';
 
 		return $tag[1].$this->defended_tags($res);
 	}
@@ -1989,12 +2122,12 @@ class CTextParser
 		return $matches[1];
 	}
 
-	public function convertAnchor($matches)
+	public function convertAnchor($matches, $attributes = [])
 	{
-		return $this->convert_anchor_tag($matches[1], (!empty($matches[2]) ? $matches[2] : $matches[1]));
+		return $this->convert_anchor_tag($matches[1], (!empty($matches[2]) ? $matches[2] : $matches[1]), $attributes);
 	}
 
-	public function convert_anchor_tag($url, $text)
+	public function convert_anchor_tag($url, $text, $attributes = [])
 	{
 		$url = trim(str_replace(['[nomodify]', '[/nomodify]'], '', $url));
 		$text = trim(str_replace(['[nomodify]', '[/nomodify]'], '', $text));
@@ -2076,7 +2209,9 @@ class CTextParser
 
 			$noFollowAttribute = $this->parser_nofollow == 'Y'? ' rel="nofollow"': '';
 
-			$link = '<a href="' . $url . '" target="' . $this->link_target . '"' . $noFollowAttribute . '>' . $text . '</a>';
+			$className = $this->useTypography ? ' class="' . $this->tagClasses['url'] . '"' : '';
+
+			$link = '<a' . $className . ' href="' . $url . '" target="' . $this->link_target . '"' . $noFollowAttribute . $this->convertAttributes($attributes) . ' >' . $text . '</a>';
 
 			if ($noFollowAttribute)
 			{
@@ -2087,17 +2222,38 @@ class CTextParser
 		return $link . $postfix;
 	}
 
-	private function preconvertUrl($matches)
+	protected function convertAttributes($attributes)
 	{
-		return $this->pre_convert_anchor_tag($matches[0], $matches[0], '[url]' . $matches[0] . '[/url]');
+		$result = '';
+		if (!is_array($attributes))
+		{
+			return $result;
+		}
+
+		foreach ($attributes as $key => $value)
+		{
+			if (preg_match('#[^a-zA-Z\d-]#', $key))
+			{
+				continue;
+			}
+
+			$result .= ' ' . $key . '="' . htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($value)). '"';
+		}
+
+		return $result;
 	}
 
-	public function preconvertAnchor($matches)
+	private function preconvertUrl($matches, $attributes = [])
 	{
-		return $this->pre_convert_anchor_tag($matches[1], $matches[2] ?? '', $matches[0] ?? '');
+		return $this->pre_convert_anchor_tag($matches[0], $matches[0], '[url]' . $matches[0] . '[/url]', $attributes);
 	}
 
-	public function pre_convert_anchor_tag($url, $text = '', $str = '')
+	public function preconvertAnchor($matches, $attributes = [])
+	{
+		return $this->pre_convert_anchor_tag($matches[1], $matches[2] ?? '', $matches[0] ?? '', $attributes);
+	}
+
+	public function pre_convert_anchor_tag($url, $text = '', $str = '', $attributes = [])
 	{
 		if (stripos($str, '[url') !== 0)
 		{
@@ -2119,7 +2275,7 @@ class CTextParser
 		}
 		else
 		{
-			$tag = "<\x18#" . count($this->defended_urls) . ">";
+			$tag = "<\x18#" . count($this->defended_urls) . " " . $this->convertAttributes($attributes) . " " . ">";
 			$this->defended_urls[$url] = $tag;
 
 			return $tag;
@@ -2318,7 +2474,57 @@ class CTextParser
 
 	public static function TextParserHTMLToBBHack($text, $TextParser)
 	{
-		$TextParser->allow = [];
+		// Workaround for the wrong default value (see above 'TODO: change to N')
+		$TextParser->allow = [
+			'P' => 'N',
+		];
+
 		return true;
+	}
+
+	private static function trimLineBreaks(string $text): string
+	{
+		return preg_replace("/^\r?\n|\r?\n$/", '', $text);
+	}
+
+	private function getExternalGroupType(int $groupId): string
+	{
+		if (
+			!Loader::includeModule('socialnetwork')
+			|| !class_exists(GroupProvider::class)
+		)
+		{
+			return 'extranet';
+		}
+
+		return GroupProvider::getInstance()->getGroupType($groupId) === Type::Collab ? 'collab' : 'extranet';
+	}
+
+	private function getGroupPath(int $groupId, array $extranetGroupIds): string
+	{
+		$path = Option::get('socialnetwork', 'group_path_template', SITE_DIR . 'workgroups/group/#group_id#/', SITE_ID);
+
+		if (
+			!Loader::includeModule('socialnetwork')
+			|| !class_exists(UrlManager::class)
+		)
+		{
+			return $path;
+		}
+
+		if (!in_array($groupId, $extranetGroupIds, true))
+		{
+			return $path;
+		}
+
+		$type = GroupProvider::getInstance()->getGroupType($groupId);
+		if ($type !== Type::Collab)
+		{
+			return $path;
+		}
+
+		$chatId = Workgroup::getChatData(['group_id' => $groupId])[$groupId] ?? null;
+
+		return UrlManager::getCollabUrlById($groupId, ['chatId' => $chatId]);
 	}
 }

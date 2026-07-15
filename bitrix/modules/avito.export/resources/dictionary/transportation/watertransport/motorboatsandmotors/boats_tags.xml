@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MotorBoatsAndMotors>
+	<Type name="Лодка ПВХ (надувная)">
+		<MakeAndModel file="motornye_lodki.xml"/>
+		<Year file="boats_year.xml"/>
+		<FloorType name="Натяжное"/>
+		<FloorType name="Надувное, высокого давления"/>
+		<FloorType name="Надувное, низкого давления"/>
+		<FloorType name="Тоннель"/>
+		<FloorType name="Катамаран"/>
+		<FloorType name="Тримаран"/>
+		<FloorType name="Гидролыжа"/>
+		<FloorType name="Двухкорпусное"/>
+		<FloorType name="Алюминиевые пайолы"/>
+		<FloorType name="Фанерные пайолы"/>
+		<FloorType name="Стеклокомпозитные пайолы"/>
+		<FloorType name="Реечная слань"/>
+		<Length variable="int"/>
+		<Width variable="int"/>
+		<TransomHeight variable="int"/>
+		<Weight variable="int"/>
+		<SeatingCapacity variable="int"/>
+		<MaxPower variable="int"/>
+		<TrailerIncluded name="Нет"/>
+		<TrailerIncluded name="Да"/>
+		<EngineIncluded name="Нет"/>
+		<EngineIncluded name="Да">
+			<EngineType name="Бензин">
+				<Stroke name="2"/>
+				<Stroke name="4"/>
+			</EngineType>
+			<EngineType name="Дизель">
+				<Stroke name="2"/>
+				<Stroke name="4"/>
+			</EngineType>
+			<EngineType name="Электро"/>
+			<EngineType name="Болотоход">
+				<Stroke name="2"/>
+				<Stroke name="4"/>
+			</EngineType>
+			<EngineType name="Водомёт">
+				<Stroke name="2"/>
+				<Stroke name="4"/>
+			</EngineType>
+			<EngineMake file="engine_make.xml"/>
+			<EngineYear file="engine_year.xml"/>
+			<Power variable="int"/>
+			<ShaftLength variable="int"/>
+			<EngineWeight variable="int"/>
+			<Control name="Дистанционное"/>
+			<Control name="Румпельное"/>
+			<Control name="Румпельно-дистанционное"/>
+			<StartingSystem name="Ручной"/>
+			<StartingSystem name="Электростартер"/>
+			<StartingSystem name="Ручной и электростартер"/>
+		</EngineIncluded>
+	</Type>
+	<Type name="Лодка RIB (комбинированная)">
+		<MakeAndModel file="motornye_lodki.xml"/>
+		<Year file="boats_year.xml"/>
+		<FloorType name="Алюминиевое"/>
+		<FloorType name="Пластиковое"/>
+		<Length variable="int"/>
+		<Width variable="int"/>
+		<TransomHeight variable="int"/>
+		<Weight variable="int"/>
+		<SeatingCapacity variable="int"/>
+		<MaxPower variable="int"/>
+		<TrailerIncluded name="Нет"/>
+		<TrailerIncluded name="Да"/>
+		<EngineIncluded name="Нет"/>
+		<EngineIncluded name="Да">
+			<EngineType name="Бензин">
+				<Stroke name="2"/>
+				<Stroke name="4"/>
+			</EngineType>
+			<EngineType name="Дизель">
+				<Stroke name="2"/>
+				<Stroke name="4"/>
+			</EngineType>
+			<EngineType name="Электро"/>
+			<EngineType name="Болотоход">
+				<Stroke name="2"/>
+				<Stroke name="4"/>
+			</EngineType>
+			<EngineType name="Водомёт">
+				<Stroke name="2"/>
+				<Stroke name="4"/>
+			</EngineType>
+			<EngineMake file="engine_make.xml"/>
+			<EngineYear file="engine_year.xml"/>
+			<Power variable="int"/>
+			<ShaftLength variable="int"/>
+			<EngineWeight variable="int"/>
+			<Control name="Дистанционное"/>
+			<Control name="Румпельное"/>
+			<Control name="Румпельно-дистанционное"/>
+			<StartingSystem name="Ручной"/>
+			<StartingSystem name="Электростартер"/>
+			<StartingSystem name="Ручной и электростартер"/>
+		</EngineIncluded>
+	</Type>
+	<Type name="Лодка с жестким корпусом">
+		<MakeAndModel file="motornye_lodki.xml"/>
+		<Year file="boats_year.xml"/>
+		<Length variable="int"/>
+		<Width variable="int"/>
+		<TransomHeight variable="int"/>
+		<Weight variable="int"/>
+		<SeatingCapacity variable="int"/>
+		<MaxPower variable="int"/>
+		<Material name="Алюминий"/>
+		<Material name="Дюралюминий"/>
+		<Material name="Сталь"/>
+		<Material name="Пластик"/>
+		<Material name="Стеклопластик"/>
+		<Material name="Дерево"/>
+		<Material name="Кевлар"/>
+		<Material name="Алюминий и стеклопластик"/>
+		<Material name="Другое"/>
+		<TrailerIncluded name="Нет"/>
+		<TrailerIncluded name="Да"/>
+		<EngineIncluded name="Нет"/>
+		<EngineIncluded name="Да">
+			<EngineType name="Бензин">
+				<Stroke name="2"/>
+				<Stroke name="4"/>
+			</EngineType>
+			<EngineType name="Дизель">
+				<Stroke name="2"/>
+				<Stroke name="4"/>
+			</EngineType>
+			<EngineType name="Электро"/>
+			<EngineType name="Болотоход">
+				<Stroke name="2"/>
+				<Stroke name="4"/>
+			</EngineType>
+			<EngineType name="Водомёт">
+				<Stroke name="2"/>
+				<Stroke name="4"/>
+			</EngineType>
+			<EngineMake file="engine_make.xml"/>
+			<EngineYear file="engine_year.xml"/>
+			<Power variable="int"/>
+			<ShaftLength variable="int"/>
+			<EngineWeight variable="int"/>
+			<Control name="Дистанционное"/>
+			<Control name="Румпельное"/>
+			<Control name="Румпельно-дистанционное"/>
+			<StartingSystem name="Ручной"/>
+			<StartingSystem name="Электростартер"/>
+			<StartingSystem name="Ручной и электростартер"/>
+		</EngineIncluded>
+	</Type>
+	<Type name="Лодочный мотор">
+		<EngineType name="Бензин">
+			<Stroke name="2"/>
+			<Stroke name="4"/>
+		</EngineType>
+		<EngineType name="Дизель">
+			<Stroke name="2"/>
+			<Stroke name="4"/>
+		</EngineType>
+		<EngineType name="Электро"/>
+		<EngineType name="Болотоход">
+			<Stroke name="2"/>
+			<Stroke name="4"/>
+		</EngineType>
+		<EngineType name="Водомёт">
+			<Stroke name="2"/>
+			<Stroke name="4"/>
+		</EngineType>
+		<EngineMake file="engine_make.xml"/>
+		<EngineYear file="engine_year.xml"/>
+		<Power variable="int"/>
+		<ShaftLength variable="int"/>
+		<EngineWeight variable="int"/>
+		<Control name="Дистанционное"/>
+		<Control name="Румпельное"/>
+		<Control name="Румпельно-дистанционное"/>
+		<StartingSystem name="Ручной"/>
+		<StartingSystem name="Электростартер"/>
+		<StartingSystem name="Ручной и электростартер"/>
+	</Type>
+</MotorBoatsAndMotors>

@@ -35,6 +35,8 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Socialnetwork\Integration\UI\EntitySelector;
 use Bitrix\Intranet\Integration\Templates\Bitrix24\ThemePicker;
 use Bitrix\Socialnetwork\Helper;
+use Bitrix\Tasks\Util\Restriction\Bitrix24Restriction\Limit\ProjectLimit;
+use Bitrix\Tasks\Util\Restriction\Bitrix24Restriction\Limit\ScrumLimit;
 
 if (!Loader::includeModule("socialnetwork"))
 {
@@ -72,10 +74,27 @@ else
 		&& Loader::includeModule('extranet')
 		&& CExtranet::IsExtranetSite()
 	);
+
+	$arResult['isExtranetForGroupsEnabled'] = (bool)Option::get('socialnetwork', 'enable_extranet_for_groups', 0);
+
 	$arResult["isCurrentUserIntranet"] = (
 		!Loader::includeModule('extranet')
 		|| CExtranet::IsIntranetUser()
 	);
+
+	if ($arResult['isCurrentUserIntranet'])
+	{
+		$arResult['currentUserType'] = 'intranet';
+	}
+	elseif (\Bitrix\Socialnetwork\Integration\Extranet\User::isCollaber($arResult['currentUserId']))
+	{
+		$arResult['currentUserType'] = 'collaber';
+	}
+	else
+	{
+		$arResult['currentUserType'] = 'extranet';
+	}
+
 	$arResult['bitrix24Installed'] = ModuleManager::isModuleInstalled('bitrix24');
 
 	$arResult["messageTextDisabled"] = (
@@ -172,6 +191,10 @@ else
 
 
 	$arResult["CALLBACK"] = '';
+	$arResult["trialEnabled"] = [
+		'project' => false,
+		'scrum' => false,
+	];
 
 	if (($arResult['TAB'] ?? '') !== 'invite')
 	{
@@ -224,6 +247,10 @@ else
 					: $arResult['currentUserId']
 			);
 
+			$arResult['isExtranetGroup'] = Bitrix\Socialnetwork\Integration\Extranet\Group::isExtranetGroup($arParams['GROUP_ID'] ?? 0);
+
+			$leaveGroupTypeExtranet = $arResult['isExtranetGroup'] && !$arResult['isExtranetForGroupsEnabled'];
+
 			if (
 				!array_key_exists("TAB", $arResult)
 				|| $arResult['TAB'] === 'edit'
@@ -246,7 +273,7 @@ else
 						(int) ($arResult['POST']['IMAGE_ID'] ?? 0) !== (int) $_POST['GROUP_IMAGE_ID']
 						&& (
 							in_array($_POST['GROUP_IMAGE_ID'], \Bitrix\Main\UI\FileInputUtility::instance()->checkFiles('GROUP_IMAGE_ID', [ $_POST['GROUP_IMAGE_ID'] ]))
-							|| in_array((int)$_POST['GROUP_IMAGE_ID'], $_SESSION['workgroup_avatar_loader'], true)
+							|| in_array((int)$_POST['GROUP_IMAGE_ID'], $_SESSION['workgroup_avatar_loader'] ?? [], true)
 						)
 					)
 					{
@@ -279,7 +306,16 @@ else
 				$arResult["POST"]["SUBJECT_ID"] = $_POST["GROUP_SUBJECT_ID"] ?? null;
 				$arResult['POST']['VISIBLE'] = (($_POST['GROUP_VISIBLE'] ?? null) === 'Y' ? 'Y' : 'N');
 				$arResult['POST']['OPENED'] = (($_POST['GROUP_OPENED'] ?? null) === 'Y' ? 'Y' : 'N');
-				$arResult['POST']['IS_EXTRANET_GROUP'] = (($_POST['IS_EXTRANET_GROUP'] ?? null) === 'Y' ? 'Y' : 'N');
+
+				$makeGroupTypeExtranet =
+					($_POST['IS_EXTRANET_GROUP'] ?? '') === 'Y'
+					&& $arResult['isExtranetForGroupsEnabled']
+				;
+				if ($leaveGroupTypeExtranet || $makeGroupTypeExtranet)
+				{
+					$arResult['POST']['IS_EXTRANET_GROUP'] = 'Y';
+				}
+
 				$arResult['POST']['EXTRANET_INVITE_ACTION'] = (
 					isset($_POST['EXTRANET_INVITE_ACTION'])
 					&& $_POST['EXTRANET_INVITE_ACTION'] === 'add' ? 'add' : 'invite'
@@ -603,7 +639,7 @@ else
 			)
 			{
 				$arFields = array(
-					"NAME" => $_POST["GROUP_NAME"] ?? null,
+					"NAME" => trim($_POST["GROUP_NAME"] ?? ''),
 					"DESCRIPTION" => $_POST["GROUP_DESCRIPTION"] ?? null,
 					'VISIBLE' => (($_POST['GROUP_VISIBLE'] ?? null) === 'Y' ? 'Y' : 'N'),
 					'OPENED' => (($_POST['GROUP_OPENED'] ?? null) === 'Y' ? 'Y' : 'N'),
@@ -665,7 +701,15 @@ else
 						($_POST['IS_EXTRANET_GROUP'] ?? '') === 'Y'
 						&& Loader::includeModule('extranet')
 						&& !CExtranet::IsExtranetSite()
+						&& $arResult['isExtranetForGroupsEnabled']
 					)
+					{
+						$arFields["SITE_ID"][] = CExtranet::GetExtranetSiteID();
+						$arFields["VISIBLE"] = "N";
+						$arFields["OPENED"] = "N";
+					}
+
+					if ($leaveGroupTypeExtranet)
 					{
 						$arFields["SITE_ID"][] = CExtranet::GetExtranetSiteID();
 						$arFields["VISIBLE"] = "N";
@@ -717,7 +761,8 @@ else
 
 				$USER_FIELD_MANAGER->EditFormAddFields("SONET_GROUP", $arFields);
 
-				if (!empty($_POST["SCRUM_PROJECT"]))
+				$isScrumProject = !empty($_POST["SCRUM_PROJECT"]);
+				if ($isScrumProject)
 				{
 					if (preg_match('/^U(\d+)$/', $_POST["SCRUM_MASTER_CODE"], $match) && (int)$match[1] > 0)
 					{
@@ -774,6 +819,54 @@ else
 					else
 					{
 						$bFirstStepSuccess = true;
+
+						if (
+							$isScrumProject
+							&& Loader::includeModule('tasks')
+							&& !ScrumLimit::isFeatureEnabled()
+							&& ScrumLimit::canTurnOnTrial()
+						)
+						{
+							ScrumLimit::turnOnTrial();
+
+							$arResult["trialEnabled"]['scrum'] = true;
+						}
+						elseif (
+							Loader::includeModule('tasks')
+							&& !ProjectLimit::isFeatureEnabled()
+							&& ProjectLimit::canTurnOnTrial()
+						)
+						{
+							ProjectLimit::turnOnTrial();
+
+							$arResult["trialEnabled"]['project'] = true;
+						}
+
+						$privacyType = 'Secret';
+						if ($arFields['VISIBLE'] === 'Y')
+						{
+							$privacyType = $arFields['OPENED'] === 'Y' ? 'Open' : 'Close';
+						}
+
+						$analytics = Helper\Analytics\ProjectAnalytics::getInstance();
+						if ($isScrumProject)
+						{
+							$analytics->onProjectCreated(
+								$privacyType,
+								$analytics::EVENT_SCRUM_CREATE_FINISH,
+								$analytics::CATEGORY_SCRUM,
+								$analytics::SECTION_SCRUM,
+								$analytics::SUBSECTION_SCRUM_GRID,
+							);
+						}
+						else
+						{
+							$projectType = ($arFields['PROJECT'] ?? '') === 'Y' ? 'Project' : 'Group';
+							$analytics->onProjectCreated(
+								privacyType: $privacyType,
+								params: ['p2' => 'projectType_' . $projectType],
+							);
+						}
 					}
 				}
 				else
@@ -966,7 +1059,7 @@ else
 							&& $feature === 'chat'
 						)
 						{
-							CUserOptions::setOption('socialnetwork', 'default_chat_create_default', ($_POST[$feature . '_active'] === 'Y' ? 'Y' : 'N'));
+							CUserOptions::setOption('socialnetwork', 'default_chat_create_default', (($_POST[$feature . '_active'] ?? null) === 'Y' ? 'Y' : 'N'));
 						}
 
 						if (!$idTmp)
@@ -1365,7 +1458,11 @@ else
 									if ($arUser = $rsUser->Fetch())
 									{
 										$arErrorUsers[] = array(
-											CUser::FormatName($arParams["NAME_TEMPLATE"], $arUser, ($arParams['SHOW_LOGIN'] !== 'N')),
+											CUser::FormatName(
+												$arParams["NAME_TEMPLATE"],
+												$arUser,
+												(($arParams['SHOW_LOGIN'] ?? null) !== 'N')
+											),
 											CSocNetUserPerms::CanPerformOperation($arResult["currentUserId"], $arUser["ID"], "viewprofile", $arResult['isCurrentUserAdmin'])
 												? CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arUser["ID"]))
 												: ''
@@ -1626,7 +1723,8 @@ else
 							!array_key_exists("TAB", $arResult)
 								? 'create'
 								: $arResult["TAB"]
-						)
+						),
+						'trialEnabled' => $arResult["trialEnabled"],
 					]);
 					require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
 					die();
@@ -1930,6 +2028,24 @@ if ($arParams['GROUP_ID'] > 0)
 }
 
 $culture = \Bitrix\Main\Context::getCurrent()->getCulture();
+
+$analytics = Helper\Analytics\ProjectAnalytics::getInstance();
+if (
+	($arResult['GROUP_ID'] ?? 0) <= 0
+	&& ($arParams['PROJECT_OPTIONS']['scrum'] ?? false)
+)
+{
+	$analytics->onProjectCreateFormOpened(
+		$analytics::EVENT_SCRUM_CREATE_START,
+		$analytics::CATEGORY_SCRUM,
+		$analytics::SECTION_SCRUM,
+		$analytics::SUBSECTION_SCRUM_GRID,
+	);
+}
+else
+{
+	$analytics->onProjectCreateFormOpened();
+}
 
 $arResult['culture'] = [
 	'shortDateFormat' => $culture->getShortDateFormat(),

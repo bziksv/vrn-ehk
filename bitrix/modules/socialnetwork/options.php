@@ -18,7 +18,7 @@ IncludeModuleLangFile(__FILE__);
 CModule::IncludeModule('socialnetwork');
 
 if (
-	$REQUEST_METHOD=="GET"
+	$_SERVER['REQUEST_METHOD']=="GET"
 	&& ($RestoreDefaults ?? null) <> ''
 	&& $SONET_RIGHT=="W"
 	&& check_bitrix_sessid()
@@ -38,23 +38,16 @@ $arUserPermsVar = array(
 	SONET_RELATIONS_TYPE_NONE => GetMessage("SONET_PVU_NONE"),
 	SONET_RELATIONS_TYPE_FRIENDS => GetMessage("SONET_PVU_FR"),
 	SONET_RELATIONS_TYPE_AUTHORIZED => GetMessage("SONET_PVU_AUTHORIZED"),
+	SONET_RELATIONS_TYPE_ALL => GetMessage("SONET_PVU_ALL"),
 );
-if (!ModuleManager::isModuleInstalled('bitrix24'))
-{
-	$arUserPermsVar[SONET_RELATIONS_TYPE_ALL] = GetMessage("SONET_PVU_ALL");
-}
 
 $arGroupPermsVar = array(
 	UserToGroupTable::ROLE_OWNER => GetMessage("SONET_PVG_OWNER"),
 	UserToGroupTable::ROLE_MODERATOR => GetMessage("SONET_PVG_MOD"),
 	UserToGroupTable::ROLE_USER => GetMessage("SONET_PVG_USER"),
 	SONET_ROLES_AUTHORIZED => GetMessage("SONET_PVG_AUTHORIZED"),
+	SONET_ROLES_ALL => GetMessage("SONET_PVG_ALL"),
 );
-if (!ModuleManager::isModuleInstalled('bitrix24'))
-{
-	$arGroupPermsVar[SONET_ROLES_ALL] = GetMessage("SONET_PVG_ALL");
-}
-
 
 $bIntranet = IsModuleInstalled('intranet');
 
@@ -205,8 +198,8 @@ if (!function_exists('set_valign'))
 }
 
 $arAllOptionsCommon = array(
-	array("follow_default_type", GetMessage($bIntranet ? "SONET_LOG_FOLLOW_DEFAULT_TYPE2" : "SONET_LOG_FOLLOW_DEFAULT_TYPE"), "Y", Array("checkbox")),
-	array("allow_livefeed_toall", GetMessage($bIntranet ? "SONET_LOG_ALLOW_TOALL2" : "SONET_LOG_ALLOW_TOALL"), "Y", Array("checkbox")),
+	array("follow_default_type", GetMessage($bIntranet ? "SONET_LOG_FOLLOW_DEFAULT_TYPE3" : "SONET_LOG_FOLLOW_DEFAULT_TYPE"), "Y", Array("checkbox")),
+	array("allow_livefeed_toall", GetMessage($bIntranet ? "SONET_LOG_ALLOW_TOALL3" : "SONET_LOG_ALLOW_TOALL"), "Y", Array("checkbox")),
 	array("livefeed_toall_rights", GetMessage("SONET_LOG_TOALL_RIGHTS"), 'a:1:{i:0;s:2:"AU";}', Array("hidden")),
 	array("default_livefeed_toall", GetMessage("SONET_LOG_DEFAULT_TOALL"), "Y", Array("checkbox")),
 	array("email_users_all", GetMessage("SONET_LOG_EMAIL_USERS_ALL"), "N", Array("checkbox")),
@@ -223,7 +216,7 @@ if (IsModuleInstalled("im"))
 }
 
 $fulltextIndexExists = $DB->IndexExists("b_sonet_log_index", array("CONTENT"));
-$arAllOptionsCommon[] = array("use_lf_fulltext_index", GetMessage($bIntranet ? "SONET_USE_LF_FULLTEXT_INDEX2" : "SONET_USE_LF_FULLTEXT_INDEX"), ($fulltextIndexExists ? "Y" : "N"), array("checkbox"));
+$arAllOptionsCommon[] = array("use_lf_fulltext_index", GetMessage($bIntranet ? "SONET_USE_LF_FULLTEXT_INDEX3" : "SONET_USE_LF_FULLTEXT_INDEX"), ($fulltextIndexExists ? "Y" : "N"), array("checkbox"));
 
 $arAllOptions = array(
 	array("allow_frields", GetMessage("SONET_ALLOW_FRIELDS"), "Y", Array("checkbox")),
@@ -383,7 +376,7 @@ $arAllOptionsGroupsGender[] = array("default_group_picture", GetMessage("SONET_G
 
 $strWarning = "";
 if (
-	$REQUEST_METHOD == "POST"
+	$_SERVER['REQUEST_METHOD'] == "POST"
 	&& $Update <> ''
 	&& $SONET_RIGHT == "W"
 	&& check_bitrix_sessid()

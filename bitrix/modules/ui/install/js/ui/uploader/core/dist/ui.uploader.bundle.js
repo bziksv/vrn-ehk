@@ -16,6 +16,7 @@ this.BX.UI = this.BX.UI || {};
 	  ADDED: 'added',
 	  LOADING: 'loading',
 	  PENDING: 'pending',
+	  PREPARING: 'preparing',
 	  UPLOADING: 'uploading',
 	  COMPLETE: 'complete',
 	  // REMOVING: 'removing',
@@ -55,6 +56,22 @@ this.BX.UI = this.BX.UI || {};
 	  STATUS_CHANGE: 'onStatusChange',
 	  VALIDATE_FILE_ASYNC: 'onValidateFileAsync',
 	  PREPARE_FILE_ASYNC: 'onPrepareFileAsync'
+	};
+
+	const getFileExtension = filename => {
+	  const position = main_core.Type.isStringFilled(filename) ? filename.lastIndexOf('.') : -1;
+	  return position > 0 ? filename.slice(Math.max(0, position + 1)) : '';
+	};
+
+	let videoExtensions = null;
+	const isSupportedVideo = (file, mimeType = null) => {
+	  if (videoExtensions === null) {
+	    videoExtensions = Uploader.getVideoExtensions();
+	  }
+	  const fileName = main_core.Type.isFile(file) ? file.name : file;
+	  const type = main_core.Type.isFile(file) ? file.type : mimeType;
+	  const extension = getFileExtension(fileName).toLowerCase();
+	  return videoExtensions.includes(extension) && (type === null || /^video\/[\d.a-z-]+$/i.test(type));
 	};
 
 	/**
@@ -391,11 +408,6 @@ this.BX.UI = this.BX.UI || {};
 	  });
 	};
 
-	const getFileExtension = filename => {
-	  const position = main_core.Type.isStringFilled(filename) ? filename.lastIndexOf('.') : -1;
-	  return position > 0 ? filename.slice(Math.max(0, position + 1)) : '';
-	};
-
 	const imageExtensions = new Set(['jpg', 'bmp', 'jpeg', 'jpe', 'gif', 'png', 'webp']);
 	const isResizableImage = (file, mimeType = null) => {
 	  const fileName = main_core.Type.isFile(file) ? file.name : file;
@@ -433,6 +445,7 @@ this.BX.UI = this.BX.UI || {};
 	var _type = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("type");
 	var _width = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("width");
 	var _height = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("height");
+	var _animated = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("animated");
 	var _treatImageAsFile = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("treatImageAsFile");
 	var _clientPreview = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("clientPreview");
 	var _clientPreviewUrl = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("clientPreviewUrl");
@@ -447,6 +460,7 @@ this.BX.UI = this.BX.UI || {};
 	var _errors = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("errors");
 	var _progress = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("progress");
 	var _customData = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("customData");
+	var _viewerAttrs = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("viewerAttrs");
 	var _uploadController = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("uploadController");
 	var _loadController = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("loadController");
 	var _removeController = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("removeController");
@@ -490,6 +504,10 @@ this.BX.UI = this.BX.UI || {};
 	    Object.defineProperty(this, _height, {
 	      writable: true,
 	      value: null
+	    });
+	    Object.defineProperty(this, _animated, {
+	      writable: true,
+	      value: false
 	    });
 	    Object.defineProperty(this, _treatImageAsFile, {
 	      writable: true,
@@ -546,6 +564,10 @@ this.BX.UI = this.BX.UI || {};
 	    Object.defineProperty(this, _customData, {
 	      writable: true,
 	      value: Object.create(null)
+	    });
+	    Object.defineProperty(this, _viewerAttrs, {
+	      writable: true,
+	      value: null
 	    });
 	    Object.defineProperty(this, _uploadController, {
 	      writable: true,
@@ -636,6 +658,7 @@ this.BX.UI = this.BX.UI || {};
 	    if (event.isDefaultPrevented()) {
 	      return;
 	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _setStatus)[_setStatus](FileStatus.PREPARING);
 	    const prepareEvent = new main_core_events.BaseEvent({
 	      data: {
 	        file: this
@@ -874,6 +897,9 @@ this.BX.UI = this.BX.UI || {};
 	  isUploading() {
 	    return this.getStatus() === FileStatus.UPLOADING;
 	  }
+	  isPreparing() {
+	    return this.getStatus() === FileStatus.PREPARING;
+	  }
 	  isLoading() {
 	    return this.getStatus() === FileStatus.LOADING;
 	  }
@@ -912,6 +938,7 @@ this.BX.UI = this.BX.UI || {};
 	      this.setServerPreview(options.serverPreviewUrl, options.serverPreviewWidth, options.serverPreviewHeight);
 	      this.setDownloadUrl(options.downloadUrl);
 	      this.setCustomData(options.customData);
+	      this.setViewerAttrs(options.viewerAttrs);
 	      this.setLoadController(options.loadController);
 	      this.setUploadController(options.uploadController);
 	      this.setRemoveController(options.removeController);
@@ -1026,6 +1053,18 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    }
 	  }
+	  isAnimated() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _animated)[_animated];
+	  }
+	  setAnimated(flag) {
+	    if (main_core.Type.isBoolean(flag)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _animated)[_animated] = flag;
+	      this.emit(FileEvent.STATE_CHANGE, {
+	        property: 'animated',
+	        value: flag
+	      });
+	    }
+	  }
 	  setTreatImageAsFile(flag) {
 	    if (main_core.Type.isBoolean(flag)) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _treatImageAsFile)[_treatImageAsFile] = flag;
@@ -1127,6 +1166,9 @@ this.BX.UI = this.BX.UI || {};
 	    // return isResizableImage(this.getName(), this.getType());
 	    return this.getWidth() > 0 && this.getHeight() > 0 && isResizableImage(this.getName(), this.getType());
 	  }
+	  isVideo() {
+	    return isSupportedVideo(this.getName());
+	  }
 	  getProgress() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _progress)[_progress];
 	  }
@@ -1193,6 +1235,18 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	    return undefined;
 	  }
+	  setViewerAttrs(viewerAttrs) {
+	    if (main_core.Type.isNull(viewerAttrs) || main_core.Type.isPlainObject(viewerAttrs)) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _viewerAttrs)[_viewerAttrs] = viewerAttrs;
+	      this.emit(FileEvent.STATE_CHANGE, {
+	        property: 'viewerAttrs',
+	        value: viewerAttrs
+	      });
+	    }
+	  }
+	  getViewerAttrs() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _viewerAttrs)[_viewerAttrs];
+	  }
 	  toJSON() {
 	    return {
 	      id: this.getId(),
@@ -1207,9 +1261,11 @@ this.BX.UI = this.BX.UI || {};
 	      extension: this.getExtension(),
 	      origin: this.getOrigin(),
 	      isImage: this.isImage(),
+	      isVideo: this.isVideo(),
 	      failed: this.isFailed(),
 	      width: this.getWidth(),
 	      height: this.getHeight(),
+	      animated: this.isAnimated(),
 	      progress: this.getProgress(),
 	      error: this.getError(),
 	      errors: this.getErrors(),
@@ -1223,7 +1279,8 @@ this.BX.UI = this.BX.UI || {};
 	      serverPreviewWidth: this.getServerPreviewWidth(),
 	      serverPreviewHeight: this.getServerPreviewHeight(),
 	      downloadUrl: this.getDownloadUrl(),
-	      customData: this.getCustomData()
+	      customData: this.getCustomData(),
+	      viewerAttrs: this.getViewerAttrs()
 	    };
 	  }
 	}
@@ -2296,16 +2353,29 @@ this.BX.UI = this.BX.UI || {};
 	        reject(new Error('GIF signature not found.'));
 	        return;
 	      }
-	      const blob = file.slice(0, 10);
-	      getArrayBuffer(blob).then(buffer => {
+	      getArrayBuffer(file).then(buffer => {
 	        const view = new DataView(buffer);
 	        if (!compareBuffers(view, GIF87a, 0) && !compareBuffers(view, GIF89a, 0)) {
 	          reject(new Error('GIF signature not found.'));
 	          return;
 	        }
+
+	        // * a static 4-byte sequence (\x00\x21\xF9\x04)
+	        // * 4 variable bytes
+	        // * a static 2-byte sequence (\x00\x2C) (some variants may use \x00\x21 ?)
+	        // We read through the file til we reach the end of the file, or we've found
+	        // at least 2 frame headers
+	        let frames = 0;
+	        for (let i = 0, len = view.byteLength - 9; i < len && frames < 2; i++) {
+	          if (view.getUint8(i) === 0x00 && view.getUint8(i + 1) === 0x21 && view.getUint8(i + 2) === 0xF9 && view.getUint8(i + 3) === 0x04 && view.getUint8(i + 8) === 0x00 && (view.getUint8(i + 9) === 0x2C || view.getUint8(i + 9) === 0x21)) {
+	            frames++;
+	          }
+	        }
+	        const animated = frames > 1;
 	        resolve({
 	          width: view.getUint16(6, true),
-	          height: view.getUint16(8, true)
+	          height: view.getUint16(8, true),
+	          animated
 	        });
 	      }).catch(error => {
 	        reject(error);
@@ -2550,11 +2620,14 @@ this.BX.UI = this.BX.UI || {};
 	          const validStart = (extendedHeader & 0xC0) === 0;
 	          const validEnd = (extendedHeader & 0x01) === 0;
 	          if (validStart && validEnd) {
+	            const animated = (extendedHeader & 2) === 2; // 00000010 means an animated image
+
 	            const width = 1 + (headerView.getUint8(6) << 16 | headerView.getUint8(5) << 8 | headerView.getUint8(4));
 	            const height = 1 + (Math.trunc(headerView.getUint8(9)) | headerView.getUint8(8) << 8 | headerView.getUint8(7));
 	            resolve({
 	              width,
-	              height
+	              height,
+	              animated
 	            });
 	            return;
 	          }
@@ -2644,10 +2717,12 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	      getImageSize(file.getBinary()).then(({
 	        width,
-	        height
+	        height,
+	        animated
 	      }) => {
 	        file.setWidth(width);
 	        file.setHeight(height);
+	        file.setAnimated(animated === true);
 	        if (width < this.getImageMinWidth() || height < this.getImageMinHeight()) {
 	          if (this.shouldTreatOversizeImageAsFile()) {
 	            file.setTreatImageAsFile(true);
@@ -2898,8 +2973,8 @@ this.BX.UI = this.BX.UI || {};
 	// This function uses in a resize workers.
 	// You cannot import anything from other files and extensions.
 	const createImagePreviewCanvas = (imageSource, newWidth, newHeight) => {
-	  let width = Math.round(newWidth);
-	  let height = Math.round(newHeight);
+	  const width = Math.round(newWidth);
+	  const height = Math.round(newHeight);
 	  const isPageContext = typeof window !== 'undefined' && typeof document !== 'undefined' && typeof parent !== 'undefined';
 	  const createCanvas = (canvasWidth, canvasHeight) => {
 	    if (isPageContext) {
@@ -2916,11 +2991,6 @@ this.BX.UI = this.BX.UI || {};
 	    context.imageSmoothingQuality = 'high';
 	    context.drawImage(imageSource, 0, 0, width, height);
 	    return canvas;
-	  }
-	  if (imageSource.height > imageSource.width) {
-	    width = Math.floor(height * (imageSource.width / imageSource.height));
-	  } else {
-	    height = Math.floor(width * (imageSource.height / imageSource.width));
 	  }
 	  let currentImageWidth = Math.floor(imageSource.width);
 	  let currentImageHeight = Math.floor(imageSource.height);
@@ -3017,8 +3087,8 @@ this.BX.UI = this.BX.UI || {};
 	  */
 
 	  return {
-	    targetWidth: Math.round(width),
-	    targetHeight: Math.round(height),
+	    targetWidth: Math.floor(width),
+	    targetHeight: Math.floor(height),
 	    useOriginalSize: false
 	  };
 	};
@@ -4317,22 +4387,21 @@ this.BX.UI = this.BX.UI || {};
 	      babelHelpers.classPrivateFieldLooseBase(this, _uploadNext)[_uploadNext]();
 	    }
 	  }
+	  stop() {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _status$1)[_status$1] !== UploaderStatus.STOPPED) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _status$1)[_status$1] = UploaderStatus.STOPPED;
 
-	  // stop(): void
-	  // {
-	  // 	this.#status = UploaderStatus.STOPPED;
-	  //
-	  // 	this.getFiles().forEach((file: UploaderFile) => {
-	  // 		if (file.isUploading())
-	  // 		{
-	  // 			file.abort();
-	  // 			file.setStatus(FileStatus.PENDING);
-	  // 		}
-	  // 	});
-	  //
-	  // 	this.emit('onStop');
-	  // }
+	      // this.getFiles().forEach((file: UploaderFile) => {
+	      // 	if (file.isUploading())
+	      // 	{
+	      // 		file.abort();
+	      // 		file.setStatus(FileStatus.PENDING);
+	      // 	}
+	      // });
 
+	      this.emit('onStop');
+	    }
+	  }
 	  destroy(options) {
 	    this.emit(UploaderEvent.DESTROY);
 	    this.unassignBrowseAll();
@@ -4369,6 +4438,9 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  getFiles() {
 	    return [...babelHelpers.classPrivateFieldLooseBase(this, _files)[_files]];
+	  }
+	  getFileCount() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _files)[_files].length;
 	  }
 	  getId() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _id$1)[_id$1];
@@ -4603,13 +4675,16 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }
 	  getUploadingFileCount() {
-	    return babelHelpers.classPrivateFieldLooseBase(this, _files)[_files].filter(file => file.isUploading()).length;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _files)[_files].filter(file => file.isUploading() || file.isPreparing()).length;
 	  }
 	  getPendingFileCount() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _files)[_files].filter(file => file.isReadyToUpload()).length;
 	  }
 	  static getImageExtensions() {
-	    return this.getGlobalOption('imageExtensions', ['.jpg', '.bmp', '.jpeg', '.jpe', '.gif', '.png', '.webp']);
+	    return this.getGlobalOption('imageExtensions', ['jpg', 'bmp', 'jpeg', 'jpe', 'gif', 'png', 'webp']);
+	  }
+	  static getVideoExtensions() {
+	    return this.getGlobalOption('videoExtensions', ['avi', 'wmv', 'mp4', 'mov', 'webm', 'flv', 'm4v', 'mkv', 'vob', '3gp', 'ogv', 'h264']);
 	  }
 	  setAcceptOnlyImages(flag) {
 	    if (main_core.Type.isBoolean(flag)) {
@@ -4620,7 +4695,9 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }
 	  acceptOnlyImages() {
-	    const imageExtensions = Uploader.getImageExtensions();
+	    const imageExtensions = Uploader.getImageExtensions().map(extension => {
+	      return `.${extension}`;
+	    });
 	    this.setAcceptedFileTypes(imageExtensions);
 	    babelHelpers.classPrivateFieldLooseBase(this, _acceptOnlyImages)[_acceptOnlyImages] = true;
 	  }
@@ -5103,6 +5180,7 @@ this.BX.UI = this.BX.UI || {};
 		isDataUri: isDataUri,
 		isImage: isImage,
 		isResizableImage: isResizableImage,
+		isSupportedVideo: isSupportedVideo,
 		isJpeg: isJpeg,
 		getImageSize: getImageSize,
 		getResizedImageSize: getResizedImageSize,
@@ -5134,6 +5212,7 @@ this.BX.UI = this.BX.UI || {};
 	exports.AbstractLoadController = AbstractLoadController;
 	exports.AbstractUploadController = AbstractUploadController;
 	exports.AbstractRemoveController = AbstractRemoveController;
+	exports.Filter = Filter;
 	exports.formatFileSize = formatFileSize;
 	exports.getFileExtension = getFileExtension;
 	exports.getFilenameWithoutExtension = getFilenameWithoutExtension;
@@ -5143,6 +5222,7 @@ this.BX.UI = this.BX.UI || {};
 	exports.isDataUri = isDataUri;
 	exports.isImage = isImage;
 	exports.isResizableImage = isResizableImage;
+	exports.isSupportedVideo = isSupportedVideo;
 	exports.isJpeg = isJpeg;
 	exports.getImageSize = getImageSize;
 	exports.getResizedImageSize = getResizedImageSize;

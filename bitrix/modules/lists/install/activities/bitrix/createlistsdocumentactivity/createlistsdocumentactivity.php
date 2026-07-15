@@ -5,6 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Crm\Integration\Analytics\Dictionary;
 use Bitrix\Main\Localization\Loc;
 
 CBPRuntime::getRuntime()->includeActivityFile('CreateDocumentActivity');
@@ -48,8 +49,8 @@ class CBPCreateListsDocumentActivity extends CBPCreateDocumentActivity
 			return CBPActivityExecutionStatus::Closed;
 		}
 
-		$documentType = $this->DocumentType;
-		if (!$documentType)
+		$documentType = $this->getCreatedDocumentType();
+		if (empty($documentType))
 		{
 			$this->writeToTrackingService(
 				Loc::getMessage('BPCLDA_ERROR_DT_1'),
@@ -94,6 +95,31 @@ class CBPCreateListsDocumentActivity extends CBPCreateDocumentActivity
 			$this->ErrorMessage = $e->getMessage();
 		}
 
+		if (
+			$this->ElementId
+			&& method_exists($this, 'fixResult')
+		)
+		{
+			$this->fixResult($this->makeResultFromId($this->ElementId));
+		}
+
+		if (
+			($this->getDocumentType()[0] === 'crm')
+			&& $this->ElementId
+			&& \Bitrix\Main\Loader::includeModule("crm")
+		)
+		{
+			if (method_exists(\CCrmBizProcHelper::class, 'sendOperationsAnalytics'))
+			{
+				// Send Operations Analytics
+				\CCrmBizProcHelper::sendOperationsAnalytics(
+					Dictionary::EVENT_ENTITY_CREATE,
+					$this,
+					'list_element',
+				);
+			}
+		}
+
 		if ($this->workflow->isDebug())
 		{
 			$this->logDebugId($this->ElementId);
@@ -101,13 +127,21 @@ class CBPCreateListsDocumentActivity extends CBPCreateDocumentActivity
 			$fieldsMap = [];
 			foreach ($resultFields as $key => $field)
 			{
-				$fieldsMap[$key] = $documentFields[$key];
+				if (array_key_exists($key, $documentFields))
+				{
+					$fieldsMap[$key] = $documentFields[$key];
+				}
 			}
 
 			$this->logDebugFields($fieldsMap, $resultFields);
 		}
 
 		return CBPActivityExecutionStatus::Closed;
+	}
+
+	protected function getCreatedDocumentType(): array
+	{
+		return $this->DocumentType ?? [];
 	}
 
 	public static function validateProperties($testProperties = [], CBPWorkflowTemplateUser $user = null)

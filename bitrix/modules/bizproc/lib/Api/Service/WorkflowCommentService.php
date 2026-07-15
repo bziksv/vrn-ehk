@@ -11,6 +11,7 @@ use Bitrix\Bizproc\Integration\Push\Dto\UserCounter;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowStateTable;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowUserTable;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowUserCommentTable;
+use Bitrix\Bizproc\Workflow\WorkflowUserCounters;
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Forum;
@@ -28,7 +29,12 @@ class WorkflowCommentService
 		if ($toIncrement)
 		{
 			WorkflowUserCommentTable::incrementUnreadCounter($comment->workflowId, $toIncrement);
+			$this->incrementUsersCounters($toIncrement);
 			$this->pushCounters($comment->workflowId, $toIncrement);
+
+			$documentId = \CBPStateService::getStateDocumentId($comment->workflowId); //TODO using events mechanism
+			$documentService = \CBPRuntime::getRuntime()->getDocumentService();
+			$documentService->onWorkflowCommentAdded($documentId, $comment->workflowId, $comment->authorId);
 		}
 	}
 
@@ -40,7 +46,12 @@ class WorkflowCommentService
 		}
 
 		$userIds = WorkflowUserCommentTable::decrementUnreadCounterByDate($comment->workflowId, $comment->created);
+		$this->decrementUsersCounters($userIds);
 		$this->pushCounters($comment->workflowId, $userIds);
+
+		$documentId = \CBPStateService::getStateDocumentId($comment->workflowId); //TODO using events mechanism
+		$documentService = \CBPRuntime::getRuntime()->getDocumentService();
+		$documentService->onWorkflowCommentDeleted($documentId, $comment->workflowId, $comment->authorId);
 	}
 
 	public function markAsRead(MarkAsReadRequest $markRead): void
@@ -54,10 +65,15 @@ class WorkflowCommentService
 
 		if ($hasUnread)
 		{
+			$documentId = \CBPStateService::getStateDocumentId($markRead->workflowId); //TODO using events mechanism
+			$documentService = \CBPRuntime::getRuntime()->getDocumentService();
+			$documentService->onWorkflowAllCommentViewed($documentId, $markRead->workflowId, $markRead->userId);
+
 			WorkflowUserCommentTable::delete([
 				'WORKFLOW_ID' => $markRead->workflowId,
 				'USER_ID' => $markRead->userId,
 			]);
+			$this->updateUserCounters($markRead->userId);
 			$this->pushCounters($markRead->workflowId, [$markRead->userId]);
 		}
 	}
@@ -85,7 +101,7 @@ class WorkflowCommentService
 		);
 
 		if (!$feed->addServiceComment([
-			'POST_MESSAGE' => $comment->message
+			'POST_MESSAGE' => $comment->message,
 		]))
 		{
 			$response->addErrors($feed->getErrors());
@@ -97,6 +113,7 @@ class WorkflowCommentService
 				[$comment->authorId],
 				WorkflowUserCommentTable::COMMENT_TYPE_SYSTEM
 			);
+			$this->incrementUsersCounters([$comment->authorId]);
 			$this->pushCounters($comment->workflowId, [$comment->authorId]);
 		}
 
@@ -107,6 +124,11 @@ class WorkflowCommentService
 	{
 		$workflowUsers = $this->getWorkflowUsers($comment->workflowId);
 		unset($workflowUsers[$comment->authorId]);
+
+		if (!$workflowUsers)
+		{
+			return [];
+		}
 
 		$mentions = array_map(static fn($userId) => (int)$userId, $comment->mentionUserIds);
 		$directly = array_intersect($mentions, array_keys($workflowUsers));
@@ -127,7 +149,12 @@ class WorkflowCommentService
 			return array_keys($activeUsers);
 		}
 
-		return array_keys($workflowUsers);
+		$author = array_filter(
+			$workflowUsers,
+			static fn ($user) => $user['IS_AUTHOR'] === 1,
+		);
+
+		return array_keys($author);
 	}
 
 	private function getWorkflowUsers(string $workflowId): array
@@ -193,5 +220,29 @@ class WorkflowCommentService
 		}
 
 		WorkflowUserTable::touchWorkflowUsers($workflowId, $touchUserIds);
+	}
+
+	private function incrementUsersCounters(array $userIds): void
+	{
+		foreach ($userIds as $userId)
+		{
+			$userCounters = new WorkflowUserCounters($userId);
+			$userCounters->incrementComment();
+		}
+	}
+
+	private function decrementUsersCounters(array $userIds): void
+	{
+		foreach ($userIds as $userId)
+		{
+			$userCounters = new WorkflowUserCounters($userId);
+			$userCounters->decrementComment();
+		}
+	}
+
+	private function updateUserCounters(int $userId): void
+	{
+		$userCounters = new WorkflowUserCounters($userId);
+		$userCounters->setComment(WorkflowUserCommentTable::getCountUserUnread($userId));
 	}
 }

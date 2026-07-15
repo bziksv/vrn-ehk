@@ -1,5 +1,7 @@
 <?php
 $MESS["UI_TOOLBAR_ADD_PAGE_TO_LEFT_MENU"] = "Aktuelle Seite zum linken Menü hinzufügen";
+$MESS["UI_TOOLBAR_COPY_LINK_BUTTON_SUCCESS"] = "Link wurde kopiert.";
+$MESS["UI_TOOLBAR_COPY_LINK_BUTTON_TITLE"] = "Link kopieren";
 $MESS["UI_TOOLBAR_DELETE_PAGE_FROM_LEFT_MENU"] = "Aktuelle Seite aus dem linken Menü entfernen";
 $MESS["UI_TOOLBAR_ITEM_WAS_ADDED_TO_LEFT"] = "Seite wurde<br/>zum linken Menü hinzugefügt";
 $MESS["UI_TOOLBAR_ITEM_WAS_DELETED_FROM_LEFT"] = "Seite wurde<br/>aus dem linken Menü entfernt";

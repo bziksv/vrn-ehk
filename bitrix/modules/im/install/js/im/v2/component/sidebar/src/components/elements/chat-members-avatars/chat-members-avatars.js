@@ -1,25 +1,22 @@
+import { Analytics } from 'im.v2.lib.analytics';
 import { PermissionManager } from 'im.v2.lib.permission';
-import { AddToChat } from 'im.v2.component.entity-selector';
-import { ChatActionType, EventType, Layout, SidebarDetailBlock } from 'im.v2.const';
+import { AddToChat, AddToCollab } from 'im.v2.component.entity-selector';
+import { ActionByRole, ChatType, EventType, SidebarDetailBlock } from 'im.v2.const';
 
 import { EventEmitter } from 'main.core.events';
-import {
-	ChatAvatar,
-	AvatarSize,
-	Button as MessengerButton,
-	ButtonSize,
-	ButtonColor,
-} from 'im.v2.component.elements';
+import { ChatButton, ButtonSize, ButtonColor } from 'im.v2.component.elements.button';
+import { ChatAvatar, AvatarSize } from 'im.v2.component.elements.avatar';
 
 import './chat-members-avatars.css';
 
 import type { JsonObject } from 'main.core';
 import type { ImModelChat } from 'im.v2.model';
+import type { BitrixVueComponentProps } from 'ui.vue3';
 
 // @vue/component
 export const ChatMembersAvatars = {
 	name: 'ChatMembersAvatars',
-	components: { ChatAvatar, MessengerButton, AddToChat },
+	components: { ChatAvatar, ChatButton, AddToChat },
 	props:
 	{
 		dialogId: {
@@ -59,11 +56,14 @@ export const ChatMembersAvatars = {
 		},
 		canSeeMembers(): boolean
 		{
-			return PermissionManager.getInstance().canPerformAction(ChatActionType.userList, this.dialogId);
+			return PermissionManager.getInstance().canPerformActionByRole(ActionByRole.userList, this.dialogId);
 		},
 		canInviteMembers(): boolean
 		{
-			return PermissionManager.getInstance().canPerformAction(ChatActionType.extend, this.dialogId);
+			return PermissionManager.getInstance().canPerformActionByRole(
+				ActionByRole.extend,
+				this.dialogId,
+			);
 		},
 		usersInChatCount(): number
 		{
@@ -73,20 +73,22 @@ export const ChatMembersAvatars = {
 		{
 			return Math.max(this.usersInChatCount - this.dialogIds.length, 0);
 		},
-		isCopilotLayout(): boolean
+		isCollab(): boolean
 		{
-			const { name: currentLayoutName } = this.$store.getters['application/getLayout'];
-
-			return currentLayoutName === Layout.copilot.name;
+			return this.dialog.type === ChatType.collab;
 		},
 		addUsersButtonColor(): ButtonColor
 		{
-			if (this.isCopilotLayout)
+			if (this.isCollab)
 			{
-				return this.ButtonColor.Copilot;
+				return this.ButtonColor.Collab;
 			}
 
 			return this.ButtonColor.PrimaryLight;
+		},
+		addMembersPopupComponent(): BitrixVueComponentProps
+		{
+			return this.dialog.type === ChatType.collab ? AddToCollab : AddToChat;
 		},
 	},
 	methods:
@@ -100,6 +102,7 @@ export const ChatMembersAvatars = {
 		},
 		onOpenInvitePopup()
 		{
+			Analytics.getInstance().userAdd.onChatSidebarClick(this.dialogId);
 			this.showAddToChatPopup = true;
 		},
 		loc(phraseCode: string): string
@@ -124,7 +127,7 @@ export const ChatMembersAvatars = {
 				</div>
 			</div>
 			<div ref="add-members">
-				<MessengerButton
+				<ChatButton
 					v-if="canInviteMembers"
 					:text="loc('IM_SIDEBAR_ADD_BUTTON_TEXT')"
 					:size="ButtonSize.S"
@@ -135,10 +138,11 @@ export const ChatMembersAvatars = {
 					@click="onOpenInvitePopup"
 				/>
 			</div>
-			<AddToChat
+			<component
+				v-if="showAddToChatPopup"
+				:is="addMembersPopupComponent"
 				:bindElement="$refs['add-members'] || {}"
 				:dialogId="dialogId"
-				:showPopup="showAddToChatPopup"
 				:popupConfig="{offsetTop: -220, offsetLeft: -420}"
 				@close="showAddToChatPopup = false"
 			/>

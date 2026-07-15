@@ -129,7 +129,10 @@ $APPLICATION->IncludeComponent("bitrix:main.post.form",
 		"SMILES" => array("VALUE" => $arSmiles),
 		"HTML_BEFORE_TEXTAREA" => $APPLICATION->GetViewContent(implode('_', array($arParams["tplID"], 'EDIT', 'BEFORE'))).$html_before_textarea,
 		"HTML_AFTER_TEXTAREA" => $APPLICATION->GetViewContent(implode('_', array($arParams["tplID"], 'EDIT', 'AFTER'))).$html_after_textarea,
-		"FORUM_CONTEXT" => (!empty($arParams["POST_CONTENT_TYPE_ID"]) ? $arParams["POST_CONTENT_TYPE_ID"] : '')
+		"FORUM_CONTEXT" => (!empty($arParams["POST_CONTENT_TYPE_ID"]) ? $arParams["POST_CONTENT_TYPE_ID"] : ''),
+		"ATTRIBUTES" =>  [
+			...(!empty($arParams["ATTRIBUTES"]) && is_array($arParams["ATTRIBUTES"]) ? $arParams["ATTRIBUTES"] : []),
+		],
 	),
 	false,
 	array("HIDE_ICONS" => "Y")

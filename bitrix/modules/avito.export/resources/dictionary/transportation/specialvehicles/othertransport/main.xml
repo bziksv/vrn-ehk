@@ -1,0 +1,4 @@
+<root>
+	<Power variable="text"/>
+	<EngineCapacity variable="text"/>
+</root>

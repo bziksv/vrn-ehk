@@ -1,4 +1,5 @@
-<?
+<?php
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -18,6 +19,8 @@ return [
 		'ui.hint',
 		'ui.fonts.opensans',
 		'ui.design-tokens',
+		'ui.icon-set.main',
+		'ui.icon-set.actions',
 	],
 	'skip_core' => false,
 ];

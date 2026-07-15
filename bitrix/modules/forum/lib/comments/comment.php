@@ -188,7 +188,11 @@ class Comment extends BaseObject
 			"SOURCE_ID" => $params["SOURCE_ID"] ?? 0,
 
 			"POST_DATE" => array_key_exists("POST_DATE", $params) ? $params["POST_DATE"] : new \Bitrix\Main\Type\DateTime(),
-			"POST_MESSAGE" => trim($params["POST_MESSAGE"]),
+			"POST_MESSAGE" => (
+				isset($params["POST_MESSAGE"]) && is_string($params["POST_MESSAGE"])
+					? trim($params["POST_MESSAGE"])
+					: ''
+			),
 			"FILES" => $params["FILES"] ?? null,
 
 			"USE_SMILES" => $params["USE_SMILES"],
@@ -409,7 +413,8 @@ class Comment extends BaseObject
 					"TOPIC_ID" => $this->topic["ID"],
 					"MESSAGE_ID" => $this->message["ID"],
 					"MESSAGE" => $this->getComment(),
-					"ACTION" => "DEL"
+					"ACTION" => "DEL",
+					'USER_ID' => $this->getUser()?->getId(),
 				));
 			/***************** Events OnBeforeCommentDelete ******************/
 			$event = new Event("forum", "OnBeforeCommentDelete", $fields);

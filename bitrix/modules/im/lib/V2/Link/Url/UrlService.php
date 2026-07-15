@@ -6,6 +6,7 @@ use Bitrix\Im\Model\LinkUrlTable;
 use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Link\Push;
 use Bitrix\Im\V2\Message;
+use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Result;
 use Bitrix\Main\Application;
 use Bitrix\Main\ORM\Query\Query;
@@ -87,6 +88,20 @@ class UrlService
 		return $this->deleteUrls($urls);
 	}
 
+	public function deleteUrlsByMessages(MessageCollection $messages): Result
+	{
+		$result = new Result();
+
+		$urls = $this->getUrlsByMessages($messages);
+
+		if (count($urls) === 0)
+		{
+			return $result;
+		}
+
+		return $this->deleteUrls($urls);
+	}
+
 	public function deleteUrls(UrlCollection $urls): Result
 	{
 		$deleteResult = $urls->delete();
@@ -155,6 +170,15 @@ class UrlService
 			->fetchCollection();
 
 		return (new UrlCollection($urlEntities))->fillMetadata();
+	}
+
+	protected function getUrlsByMessages(MessageCollection $messages): UrlCollection
+	{
+		$urlEntities = LinkUrlTable::query()
+			->setSelect(['*'])
+			->whereIn('MESSAGE_ID', $messages->getIds())
+			->fetchCollection();
+		return (new UrlCollection($urlEntities));
 	}
 
 	protected function initUrlsByMessage(Message $message): UrlCollection

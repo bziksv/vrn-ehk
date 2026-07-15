@@ -2,9 +2,9 @@
 
 namespace Bitrix\Im\V2\Chat;
 
+use Bitrix\Im\V2\Message\Send\SendResult;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Im\Notify;
 use Bitrix\Im\User;
 use Bitrix\Im\Model\UserTable;
 use Bitrix\Im\Model\MessageTable;
@@ -15,10 +15,9 @@ use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Service\Context;
 use Bitrix\Im\V2\Service\Locator;
 use Bitrix\Im\V2\Message\Send\SendingConfig;
-use Bitrix\Im\V2\Message\Send\SendingService;
 use Bitrix\Im\V2\Message\Send\PushService;
 use Bitrix\Im\V2\Message\Params;
-use Bitrix\Im\V2\Message\ReadService;
+use Bitrix\Im\V2\Chat\Add\AddResult;
 
 class NotifyChat extends Chat
 {
@@ -27,9 +26,9 @@ class NotifyChat extends Chat
 		return self::IM_TYPE_SYSTEM;
 	}
 
-	protected function checkAccessWithoutCaching(int $userId): bool
+	protected function checkAccessInternal(int $userId): Result
 	{
-		return false;
+		return (new Result())->addError(new ChatError(ChatError::ACCESS_DENIED));
 	}
 
 	/**
@@ -126,13 +125,17 @@ class NotifyChat extends Chat
 				'ENTITY_ID' => $row['ENTITY_ID'],
 			]);
 		}
+		else
+		{
+			$result->addError(new ChatError(ChatError::NOT_FOUND));
+		}
 
 		return $result;
 	}
 
-	public function add(array $params, ?Context $context = null): Result
+	public function add(array $params, ?Context $context = null): AddResult
 	{
-		$result = new Result;
+		$result = new AddResult();
 
 		$paramsResult = $this->prepareParams($params);
 		if ($paramsResult->isSuccess())
@@ -171,10 +174,7 @@ class NotifyChat extends Chat
 
 		$chat->isFilledNonCachedData = false;
 
-		return $result->setResult([
-			'CHAT_ID' => $chat->getChatId(),
-			'CHAT' => $chat,
-		]);
+		return $result->setChat($chat);
 	}
 
 	/**
@@ -184,9 +184,10 @@ class NotifyChat extends Chat
 	 * @param SendingConfig|array|null $sendingConfig
 	 * @return Result
 	 */
-	public function sendMessage($message, $sendingConfig = null): Result
+	public function sendMessage($message, $sendingConfig = null): SendResult
 	{
-		$result = new Result;
+		return new SendResult();
+		/*$result = new Result;
 
 		if (!$this->getChatId())
 		{
@@ -250,7 +251,7 @@ class NotifyChat extends Chat
 
 
 		// fire event `im:OnBeforeMessageNotifyAdd` before message send
-		$eventResult = $sendService->fireEventBeforeNotifySend($this, $message);
+		//$eventResult = $sendService->fireEventBeforeNotifySend($this, $message);
 		if (!$eventResult->isSuccess())
 		{
 			// cancel sending by event
@@ -338,7 +339,7 @@ class NotifyChat extends Chat
 
 		$result->setResult(['messageId' => $message->getMessageId()]);
 
-		return $result;
+		return $result;*/
 	}
 
 	/**
@@ -550,5 +551,10 @@ class NotifyChat extends Chat
 	protected function updateIndex(): Chat
 	{
 		return $this;
+	}
+
+	protected function getPushService(Message $message, SendingConfig $config): PushService
+	{
+		return new Message\Send\Push\GroupPushService($message, $config);
 	}
 }

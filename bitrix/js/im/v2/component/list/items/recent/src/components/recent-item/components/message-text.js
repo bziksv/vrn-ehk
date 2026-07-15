@@ -1,10 +1,11 @@
-import { Text, Loc, type JsonObject } from 'main.core';
+import { Text, Loc } from 'main.core';
 import { DateTimeFormat } from 'main.date';
 
 import { Core } from 'im.v2.application.core';
 import { ChatType, Settings } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 import { Parser } from 'im.v2.lib.parser';
+import { MessageAvatar, AvatarSize } from 'im.v2.component.elements.avatar';
 
 import type { ImModelUser, ImModelChat, ImModelRecentItem, ImModelMessage } from 'im.v2.model';
 
@@ -17,6 +18,8 @@ const HiddenTitleByChatType = {
 
 // @vue/component
 export const MessageText = {
+	name: 'MessageText',
+	components: { MessageAvatar },
 	props:
 	{
 		item: {
@@ -24,12 +27,9 @@ export const MessageText = {
 			required: true,
 		},
 	},
-	data(): JsonObject
-	{
-		return {};
-	},
 	computed:
 	{
+		AvatarSize: () => AvatarSize,
 		recentItem(): ImModelRecentItem
 		{
 			return this.item;
@@ -58,8 +58,17 @@ export const MessageText = {
 		{
 			return this.$store.getters['application/settings/get'](Settings.recent.showLastMessage);
 		},
+		notesText(): string
+		{
+			return this.loc('IM_LIST_RECENT_CHAT_SELF_SUBTITLE');
+		},
 		hiddenMessageText(): string
 		{
+			if (this.isNotes)
+			{
+				return this.notesText;
+			}
+
 			if (this.isUser)
 			{
 				return this.$store.getters['users/getPosition'](this.recentItem.dialogId);
@@ -69,22 +78,7 @@ export const MessageText = {
 		},
 		isLastMessageAuthor(): boolean
 		{
-			return this.message.authorId === Core.getUserId();
-		},
-		lastMessageAuthorAvatar(): string
-		{
-			const authorDialog = this.$store.getters['chats/get'](this.message.authorId);
-
-			if (!authorDialog)
-			{
-				return '';
-			}
-
-			return authorDialog.avatar;
-		},
-		lastMessageAuthorAvatarStyle(): Object
-		{
-			return { backgroundImage: `url('${this.lastMessageAuthorAvatar}')` };
+			return this.showLastMessage && this.message.authorId === Core.getUserId();
 		},
 		messageText(): string
 		{
@@ -94,9 +88,9 @@ export const MessageText = {
 			}
 
 			const formattedText = Parser.purifyRecent(this.recentItem);
-			if (!formattedText)
+			if (!this.showLastMessage || !formattedText)
 			{
-				return this.isUser ? this.$store.getters['users/getPosition'](this.recentItem.dialogId) : this.hiddenMessageText;
+				return this.hiddenMessageText;
 			}
 
 			return formattedText;
@@ -135,6 +129,10 @@ export const MessageText = {
 		{
 			return !this.isUser;
 		},
+		isNotes(): boolean
+		{
+			return this.$store.getters['chats/isNotes'](this.recentItem.dialogId);
+		},
 	},
 	methods:
 	{
@@ -147,29 +145,29 @@ export const MessageText = {
 		<div class="bx-im-list-recent-item__message_container">
 			<span class="bx-im-list-recent-item__message_text">
 				<span v-if="recentItem.draft.text" v-html="preparedDraftContent"></span>
-				<div v-else-if="recentItem.invitation.isActive" class="bx-im-list-recent-item__balloon_container --invitation">
-					<div class="bx-im-list-recent-item__balloon">{{ loc('IM_LIST_RECENT_INVITATION_NOT_ACCEPTED') }}</div>
-				</div>
-				<div v-else-if="needsBirthdayPlaceholder" class="bx-im-list-recent-item__balloon_container --birthday">
-					<div class="bx-im-list-recent-item__balloon">{{ loc('IM_LIST_RECENT_BIRTHDAY') }}</div>
-				</div>
-				<div v-else-if="needsVacationPlaceholder" class="bx-im-list-recent-item__balloon_container --vacation">
-					<div class="bx-im-list-recent-item__balloon">
+				<span v-else-if="recentItem.invitation.isActive" class="bx-im-list-recent-item__balloon_container --invitation">
+					<span class="bx-im-list-recent-item__balloon">{{ loc('IM_LIST_RECENT_INVITATION_NOT_ACCEPTED_MSGVER_1') }}</span>
+				</span>
+				<span v-else-if="needsBirthdayPlaceholder" class="bx-im-list-recent-item__balloon_container --birthday" :title="loc('IM_LIST_RECENT_BIRTHDAY')">
+					<span class="bx-im-list-recent-item__balloon">{{ loc('IM_LIST_RECENT_BIRTHDAY') }}</span>
+				</span>
+				<span v-else-if="needsVacationPlaceholder" class="bx-im-list-recent-item__balloon_container --vacation">
+					<span class="bx-im-list-recent-item__balloon">
 						{{ loc('IM_LIST_RECENT_VACATION', {'#VACATION_END_DATE#': formattedVacationEndDate}) }}
-					</div>
-				</div>
-				<template v-else-if="!showLastMessage">
-					{{ hiddenMessageText }}
-				</template>
+					</span>
+				</span>
 				<template v-else>
-					<span v-if="isLastMessageAuthor" class="bx-im-list-recent-item__message_author-icon --self"></span>
-					<template v-else-if="isChat && message.authorId">
-						<span v-if="lastMessageAuthorAvatar" :style="lastMessageAuthorAvatarStyle" class="bx-im-list-recent-item__message_author-icon --user"></span>
-						<span v-else class="bx-im-list-recent-item__message_author-icon --user --default"></span>
-					</template>
-					<span class="bx-im-list-recent-item__message_text_content">{{ formattedMessageText }}</span>
+					<span v-if="isLastMessageAuthor" class="bx-im-list-recent-item__self_author-icon"></span>
+					<MessageAvatar
+						v-else-if="isChat && message.authorId"
+						:messageId="message.id"
+						:authorId="message.authorId"
+						:size="AvatarSize.XXS"
+						class="bx-im-list-recent-item__author-avatar"
+					/>
+					<span>{{ formattedMessageText }}</span>
 				</template>
 			</span>
 		</div>
-	`
+	`,
 };

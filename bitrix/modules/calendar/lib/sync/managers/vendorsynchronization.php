@@ -453,9 +453,8 @@ class VendorSynchronization
 		}
 		if (!$eventLink)
 		{
-			$result->addError(new Error('Instance connection not found'));
-
-			return $result;
+			// Trying to create instance then, there are some broken events onto sync side
+			return $this->createInstance($event, $context);
 		}
 
 		if ($masterEvent = $this->getMasterEvent($event))
@@ -656,26 +655,27 @@ class VendorSynchronization
 		$sectionLink = $context->getSectionConnection();
 		if (!$sectionLink)
 		{
-			$mainResult->addError(new Error('Section connection not found'));
+			return $mainResult->addError(new Error('Section connection not found'));
 
-			return $mainResult;
 		}
 		$context->add('sync', 'vendorSectionId', $sectionLink->getVendorSectionId());
 
+		if ($recurrenceEvent->getEventConnection()?->getVendorEventId() === null)
+		{
+			return $mainResult->addError(new Error('Event connection not found'));
+		}
+
 		$recurrenceEvent->getEvent()->setUid(
-			$recurrenceEvent->getEventConnection()->getVendorEventId()
+			$recurrenceEvent->getEventConnection()?->getVendorEventId()
 		);
 
-		if (
-			(int)$recurrenceEvent->getEventConnection()->getEventVersion()
-			=== $recurrenceEvent->getEvent()->getVersion()
-		)
+		if ((int)$recurrenceEvent->getEventConnection()?->getEventVersion() === $recurrenceEvent->getEvent()->getVersion())
 		{
 			$result = new Result();
 			$result->setData([
 				'event' => [
-					'id' => $recurrenceEvent->getEventConnection()->getVendorEventId(),
-					'etag' => $recurrenceEvent->getEventConnection()->getEntityTag(),
+					'id' => $recurrenceEvent->getEventConnection()?->getVendorEventId(),
+					'etag' => $recurrenceEvent->getEventConnection()?->getEntityTag(),
 				],
 			]);
 			$status = Dictionary::SYNC_STATUS['success'];
@@ -715,6 +715,7 @@ class VendorSynchronization
 			catch (NotFoundException $e)
 			{
 				$recurrenceEvent->getEvent()->setUid(null);
+
 				return $this->createRecurrence($recurrenceEvent, $context);
 			}
 		}

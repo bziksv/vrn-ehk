@@ -1,0 +1,1144 @@
+<Robotypylesosy>
+	<proizvoditel name="360">
+		<model name="Robot Vacuum Cleaner C50 Pro"></model>
+		<model name="Robot Vacuum Cleaner C50-1"></model>
+		<model name="Robot Vacuum Cleaner C500-1"></model>
+		<model name="Robot Vacuum Cleaner P7"></model>
+		<model name="Robot Vacuum Cleaner S10 Max"></model>
+		<model name="Robot Vacuum Cleaner S8"></model>
+		<model name="Robot Vacuum Cleaner S8 Plus"></model>
+		<model name="S5"></model>
+		<model name="S6"></model>
+		<model name="S7"></model>
+		<model name="S9"></model>
+	</proizvoditel>
+	<proizvoditel name="ABIR">
+		<model name="G20S"></model>
+		<model name="X8"></model>
+	</proizvoditel>
+	<proizvoditel name="AGAiT">
+		<model name="EC01 Enhanced"></model>
+	</proizvoditel>
+	<proizvoditel name="Accesstyle">
+		<model name="VR32L02MB"></model>
+	</proizvoditel>
+	<proizvoditel name="Aeno">
+		<model name="RC1S ARC0001S"></model>
+		<model name="RC2S ARC0002S"></model>
+		<model name="RC3S ARC0003S"></model>
+	</proizvoditel>
+	<proizvoditel name="Alibot">
+		<model name="A10"></model>
+	</proizvoditel>
+	<proizvoditel name="Ariete">
+		<model name="2717 Briciola"></model>
+	</proizvoditel>
+	<proizvoditel name="Atvel">
+		<model name="R70"></model>
+		<model name="R80 Base"></model>
+		<model name="Zorro Z5 Slim"></model>
+		<model name="Zorro Z6"></model>
+	</proizvoditel>
+	<proizvoditel name="BBK">
+		<model name="BV3512"></model>
+		<model name="BV3522"></model>
+	</proizvoditel>
+	<proizvoditel name="Bestfix">
+		<model name="BS-400"></model>
+	</proizvoditel>
+	<proizvoditel name="Bist">
+		<model name="Tornado"></model>
+	</proizvoditel>
+	<proizvoditel name="Bork">
+		<model name="V831"></model>
+	</proizvoditel>
+	<proizvoditel name="Bort">
+		<model name="BSS-Vision"></model>
+	</proizvoditel>
+	<proizvoditel name="Bosch">
+		<model name="BCR1ACG"></model>
+	</proizvoditel>
+	<proizvoditel name="Bowai">
+		<model name="OB12"></model>
+	</proizvoditel>
+	<proizvoditel name="CHOVERY">
+		<model name="CL-1"></model>
+	</proizvoditel>
+	<proizvoditel name="CaseGuru">
+		<model name="CGWash"></model>
+	</proizvoditel>
+	<proizvoditel name="Cecotec">
+		<model name="Conga 1090 Connected 05410"></model>
+		<model name="Conga 1290 05145"></model>
+		<model name="Conga 1490 Impulse"></model>
+		<model name="Conga Serie 1090 Connected force"></model>
+	</proizvoditel>
+	<proizvoditel name="Centek">
+		<model name="CT-2701"></model>
+		<model name="CT-2702"></model>
+		<model name="CT-2720"></model>
+		<model name="CT-2721"></model>
+		<model name="CT-2740"></model>
+		<model name="CT-2741"></model>
+	</proizvoditel>
+	<proizvoditel name="Cleanbot">
+		<model name="Ultraspray"></model>
+	</proizvoditel>
+	<proizvoditel name="Clever&amp;Clean">
+		<model name="Aqua Light"></model>
+		<model name="Aqua Series 03"></model>
+		<model name="L-Series 707"></model>
+		<model name="M-Series 004"></model>
+		<model name="Slim-Series VRpro 02"></model>
+	</proizvoditel>
+	<proizvoditel name="Comfee">
+		<model name="CFR05"></model>
+	</proizvoditel>
+	<proizvoditel name="Coolfort">
+		<model name="CF-3200"></model>
+		<model name="CF-3201"></model>
+		<model name="CF-3203"></model>
+		<model name="CF-3205"></model>
+	</proizvoditel>
+	<proizvoditel name="DONI">
+		<model name="LDS901Z"></model>
+	</proizvoditel>
+	<proizvoditel name="Deerma">
+		<model name="DEM-A10W"></model>
+		<model name="DX700s"></model>
+		<model name="Robot Vacuum S10+"></model>
+	</proizvoditel>
+	<proizvoditel name="Dexp">
+		<model name="LF-800"></model>
+		<model name="LF200"></model>
+		<model name="MMB-300"></model>
+	</proizvoditel>
+	<proizvoditel name="Dibea">
+		<model name="D960"></model>
+	</proizvoditel>
+	<proizvoditel name="Doffler">
+		<model name="VCR 737 NG"></model>
+	</proizvoditel>
+	<proizvoditel name="Dreame">
+		<model name="Bot L10 Pro RLS5L"></model>
+		<model name="Bot S10 Pro Ultra"></model>
+		<model name="Bot X10 Pro"></model>
+		<model name="C9"></model>
+		<model name="D10 Plus RLS3D"></model>
+		<model name="D10S Plus RLS6AD"></model>
+		<model name="D10S Pro RLS6A"></model>
+		<model name="D10S RLS3L"></model>
+		<model name="D10s"></model>
+		<model name="D10s Plus"></model>
+		<model name="D10s Pro"></model>
+		<model name="D9 Max"></model>
+		<model name="D9 Max Gen2"></model>
+		<model name="D9 Max RLD33GA"></model>
+		<model name="D9 Max RLS5-BL1"></model>
+		<model name="D9 Plus"></model>
+		<model name="D9 Plus RLD11GD"></model>
+		<model name="D9 RLS5-WH0"></model>
+		<model name="D9 White"></model>
+		<model name="F9 Pro RLF22GA"></model>
+		<model name="F9 RVS5 WH0"></model>
+		<model name="F9 RVS5-WH0"></model>
+		<model name="H12 Dual"></model>
+		<model name="L10 Prime RLL11GC"></model>
+		<model name="L10 Pro"></model>
+		<model name="L10 Ultra"></model>
+		<model name="L10 Ultra RLS6LADC-6"></model>
+		<model name="L10S Plus RLL42SD"></model>
+		<model name="L10S Pro RLS6L"></model>
+		<model name="L10S Ultra RLS6LADC"></model>
+		<model name="L10s Pro"></model>
+		<model name="L10s Pro Gen2 RLL42SDA"></model>
+		<model name="L10s Pro Ultra RLL82CE"></model>
+		<model name="L10s Ultra"></model>
+		<model name="L20 Ultra Complete RLX41CE"></model>
+		<model name="L30 Ultra RLX41CE"></model>
+		<model name="M1 RPGA"></model>
+		<model name="RLS6L"></model>
+		<model name="RVS5-WH0"></model>
+		<model name="Trouver E30 Ultra"></model>
+		<model name="Trouver M1 RPM1GA"></model>
+		<model name="Trouver S10"></model>
+		<model name="W10 Pro"></model>
+		<model name="W10 Pro RLS6TAC"></model>
+		<model name="W10 RLS5C"></model>
+		<model name="X30 Pro"></model>
+		<model name="X40 Pro"></model>
+		<model name="X40 Pro Plus"></model>
+		<model name="X40 Pro Ultra"></model>
+		<model name="X40 Ultra Complete"></model>
+		<model name="X40 Ultra Robot Vacuum"></model>
+		<model name="X50 Pro"></model>
+		<model name="Z10 Pro RLS5D"></model>
+	</proizvoditel>
+	<proizvoditel name="Dyson">
+		<model name="360 Vis Nav"></model>
+		<model name="Dyson 360 eye"></model>
+	</proizvoditel>
+	<proizvoditel name="ERGONIC-M">
+		<model name="RDC-800"></model>
+	</proizvoditel>
+	<proizvoditel name="Eastcon">
+		<model name="SI-295"></model>
+	</proizvoditel>
+	<proizvoditel name="Ecovacs">
+		<model name="DEEBOT DE55"></model>
+		<model name="DEEBOT DN5G.02"></model>
+		<model name="DEEBOT DN622.11"></model>
+		<model name="DEEBOT OZMO 900"></model>
+		<model name="DEEBOT OZMO 950"></model>
+		<model name="DEEBOT SLIM 2 Grey"></model>
+		<model name="DEEBOT T30 PRO OMNI"></model>
+		<model name="DeeBot D73"></model>
+		<model name="DeeBot M81"></model>
+		<model name="Deebot 605"></model>
+		<model name="Deebot D83"></model>
+		<model name="Deebot DM88 DM88"></model>
+		<model name="Deebot N10"></model>
+		<model name="Deebot N8"></model>
+		<model name="Deebot N8 CH1822"></model>
+		<model name="Deebot N8 DLN26-21"></model>
+		<model name="Deebot N8 Pro"></model>
+		<model name="Deebot N8 Pro DLN11-11"></model>
+		<model name="Deebot N8 Pro+"></model>
+		<model name="Deebot Ozmo 930"></model>
+		<model name="Deebot Ozmo T8 Aivi"></model>
+		<model name="Deebot Ozmo T8 Aivi DBX11-11"></model>
+		<model name="Deebot Ozmo T8+"></model>
+		<model name="Deebot T10"></model>
+		<model name="Deebot T10+"></model>
+		<model name="Deebot T50 PRO"></model>
+		<model name="Deebot T9"></model>
+		<model name="Deebot T9 Aivi"></model>
+		<model name="Deebot T9+"></model>
+		<model name="Deebot X1 Omni"></model>
+		<model name="Deebot X1+"></model>
+		<model name="T10 Turbo"></model>
+		<model name="T10 Turbo DBX23"></model>
+		<model name="T10+ DBX33"></model>
+		<model name="Y1 Pro"></model>
+	</proizvoditel>
+	<proizvoditel name="Elari">
+		<model name="SmartBot Brush black"></model>
+		<model name="SmartBot Lite SBT-002A"></model>
+		<model name="SmartBot Ultimate SBT-003WL"></model>
+	</proizvoditel>
+	<proizvoditel name="Electrolux">
+		<model name="ERV5100IW"></model>
+	</proizvoditel>
+	<proizvoditel name="Enchen">
+		<model name="R1"></model>
+		<model name="R2 Pro"></model>
+	</proizvoditel>
+	<proizvoditel name="Endever">
+		<model name="Spectre-77"></model>
+		<model name="Spectre-88"></model>
+	</proizvoditel>
+	<proizvoditel name="Eufy">
+		<model name="RoboVac 15C"></model>
+		<model name="RoboVac 25C"></model>
+		<model name="RoboVac 35C T2117G11"></model>
+		<model name="RoboVac G10 Hybrid T2150G11"></model>
+		<model name="RoboVac X8 Hybrid"></model>
+	</proizvoditel>
+	<proizvoditel name="Everybot">
+		<model name="Edge"></model>
+		<model name="Three Spin"></model>
+	</proizvoditel>
+	<proizvoditel name="Futula">
+		<model name="G10"></model>
+		<model name="G5"></model>
+		<model name="S10"></model>
+	</proizvoditel>
+	<proizvoditel name="Garlyn">
+		<model name="SR-1000"></model>
+		<model name="SR-400"></model>
+		<model name="SR-600"></model>
+		<model name="SR-700"></model>
+		<model name="SR-800 Max"></model>
+		<model name="SR-800 Pro Max"></model>
+	</proizvoditel>
+	<proizvoditel name="Genio">
+		<model name="Deluxe 480"></model>
+		<model name="Deluxe 500 Pro"></model>
+		<model name="Laser L800"></model>
+		<model name="Profi 260"></model>
+	</proizvoditel>
+	<proizvoditel name="Gutrend">
+		<model name="Echo G520"></model>
+		<model name="FUSION 150"></model>
+		<model name="Fun 110 Pet"></model>
+		<model name="Fun 120 G120BW"></model>
+		<model name="Lens 610"></model>
+		<model name="Sense G410B"></model>
+		<model name="Smart G300B"></model>
+		<model name="Style G220B"></model>
+		<model name="Vision 730"></model>
+		<model name="Vision 730 Set 2"></model>
+	</proizvoditel>
+	<proizvoditel name="HEC">
+		<model name="BOWAI OB12"></model>
+	</proizvoditel>
+	<proizvoditel name="Haier">
+		<model name="HB-QT51S"></model>
+		<model name="HSR Care F5512EM00RU"></model>
+		<model name="HSR Home F5512FM00RU"></model>
+		<model name="HWR-T321"></model>
+		<model name="Tab Smart Vacuum Cleaner MOP (HTH01H)"></model>
+	</proizvoditel>
+	<proizvoditel name="Hartens">
+		<model name="HVR-020B"></model>
+	</proizvoditel>
+	<proizvoditel name="Hi">
+		<model name="HRT1W151"></model>
+		<model name="HRT1W221"></model>
+	</proizvoditel>
+	<proizvoditel name="Hisense">
+		<model name="RVCL144AB"></model>
+	</proizvoditel>
+	<proizvoditel name="Hobot">
+		<model name="268"></model>
+		<model name="288"></model>
+		<model name="298 Ultrasonic"></model>
+		<model name="388 Ultrasonic"></model>
+		<model name="Hobot-188"></model>
+		<model name="LEGEE-668"></model>
+		<model name="Legee 669"></model>
+		<model name="Legee 688"></model>
+		<model name="Legee 7"></model>
+		<model name="Legee D7"></model>
+		<model name="Legee D8"></model>
+		<model name="Legee D8 + Lulu"></model>
+		<model name="R3 Ultrasonic"></model>
+		<model name="S6 Pro"></model>
+	</proizvoditel>
+	<proizvoditel name="Honor">
+		<model name="Choice R1"></model>
+		<model name="Choice R2"></model>
+		<model name="Choice R2 Plus"></model>
+		<model name="Choice R2s"></model>
+		<model name="Choice R2s Lite"></model>
+		<model name="Choice R2s Plus"></model>
+	</proizvoditel>
+	<proizvoditel name="Hutt">
+		<model name="C65"></model>
+	</proizvoditel>
+	<proizvoditel name="Hyundai">
+		<model name="H-VCRS01"></model>
+		<model name="H-VCRS02"></model>
+		<model name="H-VCRX50"></model>
+		<model name="H-VCRХ30"></model>
+	</proizvoditel>
+	<proizvoditel name="ILife">
+		<model name="A10s"></model>
+		<model name="A40"></model>
+		<model name="A9s"></model>
+		<model name="L100"></model>
+		<model name="T10S"></model>
+		<model name="T20s"></model>
+		<model name="V3s Max"></model>
+		<model name="V4"></model>
+		<model name="V40"></model>
+		<model name="V50"></model>
+		<model name="V50 Pro"></model>
+		<model name="V55 Pro"></model>
+		<model name="V7s Pro"></model>
+		<model name="V8 Pro"></model>
+		<model name="V8c"></model>
+		<model name="V9 Pro"></model>
+		<model name="W400"></model>
+		<model name="W450"></model>
+	</proizvoditel>
+	<proizvoditel name="IRBIS">
+		<model name="Bean 0321"></model>
+		<model name="Rice 0221"></model>
+	</proizvoditel>
+	<proizvoditel name="JVC">
+		<model name="JH-520"></model>
+		<model name="JH-VR510"></model>
+		<model name="JH-VR520"></model>
+	</proizvoditel>
+	<proizvoditel name="KUANLITU">
+		<model name="G1"></model>
+	</proizvoditel>
+	<proizvoditel name="Kamura">
+		<model name="RS300"></model>
+	</proizvoditel>
+	<proizvoditel name="Karcher">
+		<model name="RC 3"></model>
+		<model name="RCV 2"></model>
+		<model name="RCV 3"></model>
+		<model name="RCV 5"></model>
+	</proizvoditel>
+	<proizvoditel name="KaringBee">
+		<model name="S7 Omni"></model>
+	</proizvoditel>
+	<proizvoditel name="Kassel">
+		<model name="Aqua G-350"></model>
+	</proizvoditel>
+	<proizvoditel name="Kavity">
+		<model name="Elipse Pro 5"></model>
+	</proizvoditel>
+	<proizvoditel name="Kitfort">
+		<model name="KT-5115"></model>
+		<model name="KT-518"></model>
+		<model name="KT-519-4"></model>
+		<model name="KT-531"></model>
+		<model name="KT-532"></model>
+		<model name="KT-533"></model>
+		<model name="KT-563"></model>
+		<model name="KT-565"></model>
+		<model name="KT-566"></model>
+		<model name="KT-570"></model>
+		<model name="KT-577"></model>
+		<model name="KT-589"></model>
+		<model name="KT-590"></model>
+		<model name="КТ-504"></model>
+		<model name="КТ-5114"></model>
+		<model name="КТ-545"></model>
+		<model name="КТ-552-1"></model>
+		<model name="КТ-553"></model>
+		<model name="КТ-562"></model>
+		<model name="КТ-566"></model>
+		<model name="КТ-568"></model>
+		<model name="КТ-569"></model>
+		<model name="КТ-572"></model>
+	</proizvoditel>
+	<proizvoditel name="Kyvol">
+		<model name="Cybovac D3"></model>
+		<model name="Cybovac E20"></model>
+		<model name="Cybovac E25S"></model>
+		<model name="Cybovac S31"></model>
+		<model name="D10"></model>
+		<model name="D3"></model>
+		<model name="D6"></model>
+		<model name="E20"></model>
+		<model name="E30"></model>
+		<model name="E31"></model>
+		<model name="L30"></model>
+		<model name="S31"></model>
+		<model name="S32"></model>
+		<model name="S60"></model>
+	</proizvoditel>
+	<proizvoditel name="LG">
+		<model name="CordZero VR6690LVTM"></model>
+		<model name="R3-PRIME R3PRIME"></model>
+		<model name="R5-ULTIMATE R5ULTIMATE"></model>
+		<model name="R5PROPLUS"></model>
+		<model name="R9MASTER"></model>
+		<model name="VR5901LVM"></model>
+		<model name="VR62601LVR"></model>
+		<model name="VR6540LVID"></model>
+		<model name="VR6570LVMP"></model>
+		<model name="VR6640LVM"></model>
+		<model name="VRF3044LB"></model>
+		<model name="VRF4041LS"></model>
+		<model name="VRF6043LR"></model>
+		<model name="VRF6540LV"></model>
+	</proizvoditel>
+	<proizvoditel name="LIECTROUX">
+		<model name="B3000PLUS"></model>
+		<model name="B6009"></model>
+		<model name="C30B"></model>
+		<model name="HCR-02"></model>
+		<model name="X5S"></model>
+	</proizvoditel>
+	<proizvoditel name="LINNBERG">
+		<model name="Aqua"></model>
+	</proizvoditel>
+	<proizvoditel name="Lefant">
+		<model name="M201"></model>
+	</proizvoditel>
+	<proizvoditel name="Lydsto">
+		<model name="G1"></model>
+		<model name="G1 YM B01"></model>
+		<model name="G1 YM W01"></model>
+		<model name="G2"></model>
+		<model name="L1"></model>
+		<model name="R1"></model>
+		<model name="R1D"></model>
+		<model name="R5D"></model>
+		<model name="R5D YM W03"></model>
+		<model name="S1"></model>
+		<model name="S1 YM W03"></model>
+		<model name="W2"></model>
+	</proizvoditel>
+	<proizvoditel name="Mamibot">
+		<model name="EXVAC660"></model>
+		<model name="EXVAC680S"></model>
+		<model name="EXVAC880"></model>
+		<model name="EXVAC890 + Craft X"></model>
+		<model name="EXVAC900"></model>
+		<model name="EXVAC900S"></model>
+		<model name="W110-F"></model>
+	</proizvoditel>
+	<proizvoditel name="Maxwell">
+		<model name="MW-3290"></model>
+	</proizvoditel>
+	<proizvoditel name="Mazuba">
+		<model name="MD-RD2201"></model>
+	</proizvoditel>
+	<proizvoditel name="Midea">
+		<model name="I5C White"></model>
+		<model name="MVCR03"></model>
+		<model name="VCR S8+"></model>
+		<model name="VCR V12 WH"></model>
+		<model name="VCR03W"></model>
+		<model name="VCR04W"></model>
+		<model name="VCR09B"></model>
+		<model name="VCR10W"></model>
+		<model name="VCR18W"></model>
+		<model name="VCR21LDSW"></model>
+		<model name="VCRM7EVO"></model>
+	</proizvoditel>
+	<proizvoditel name="Miele">
+		<model name="Scout Home Vision RX3 HD SPQL0"></model>
+		<model name="Scout RX1 SJQL0"></model>
+		<model name="Scout Runner RX3 SPQL0"></model>
+	</proizvoditel>
+	<proizvoditel name="Mijia">
+		<model name="1C"></model>
+		<model name="H40 D101CN"></model>
+		<model name="M30 (D102)"></model>
+		<model name="M40 D110CN"></model>
+		<model name="MJSTS1"></model>
+		<model name="Mop 2 C102CN"></model>
+		<model name="Mop 2 MJST1S"></model>
+		<model name="Mop 2 Pro BHR5464CN"></model>
+		<model name="Mop 3C B106CN"></model>
+		<model name="Mop BHR5166CN"></model>
+		<model name="Mop MJSTP"></model>
+		<model name="Mop Pro STYTJ06ZHM"></model>
+		<model name="Mop robot 2 C101"></model>
+		<model name="OMNI M30S"></model>
+		<model name="Sweeping Robot G1"></model>
+		<model name="Washless Mop 2 BHR7285CN"></model>
+	</proizvoditel>
+	<proizvoditel name="Muben">
+		<model name="Smart Bot"></model>
+	</proizvoditel>
+	<proizvoditel name="Neabot">
+		<model name="N2"></model>
+	</proizvoditel>
+	<proizvoditel name="Neato Robotics">
+		<model name="BotVac 70e"></model>
+		<model name="D7 Robot Vacuum"></model>
+	</proizvoditel>
+	<proizvoditel name="Neatsvor">
+		<model name="N3"></model>
+		<model name="N6"></model>
+		<model name="V392"></model>
+		<model name="X520"></model>
+	</proizvoditel>
+	<proizvoditel name="Notto">
+		<model name="T40 HOME ROBOT"></model>
+	</proizvoditel>
+	<proizvoditel name="Novex">
+		<model name="NRT20W11"></model>
+		<model name="NRT24W11"></model>
+	</proizvoditel>
+	<proizvoditel name="Oberhof">
+		<model name="Sauber Pro S-70"></model>
+	</proizvoditel>
+	<proizvoditel name="Okami">
+		<model name="R115"></model>
+		<model name="R120"></model>
+		<model name="R130"></model>
+		<model name="T90"></model>
+		<model name="U100 Plus"></model>
+		<model name="U100 Plus VCOU1219"></model>
+		<model name="U100 UV"></model>
+		<model name="U80 UV"></model>
+		<model name="U90 UV VCOU9119"></model>
+	</proizvoditel>
+	<proizvoditel name="Panasonic">
+		<model name="MC-RSF1000-W"></model>
+	</proizvoditel>
+	<proizvoditel name="Panda">
+		<model name="Evo"></model>
+		<model name="Evo VCPE20"></model>
+		<model name="X1 Black"></model>
+		<model name="X1 Gold"></model>
+		<model name="X4"></model>
+		<model name="X500 Pet Series"></model>
+		<model name="X900 Pro"></model>
+		<model name="X950 Absolute"></model>
+		<model name="i5"></model>
+	</proizvoditel>
+	<proizvoditel name="Philips">
+		<model name="FC8776/01"></model>
+		<model name="FC8792/01"></model>
+		<model name="FC8794/01"></model>
+		<model name="FC8795/01"></model>
+		<model name="FC8796/01"></model>
+		<model name="FC8810/01"></model>
+	</proizvoditel>
+	<proizvoditel name="Pioneer">
+		<model name="VC701R"></model>
+		<model name="VC704R"></model>
+		<model name="VC705R"></model>
+	</proizvoditel>
+	<proizvoditel name="Polaris">
+		<model name="G2 Wi-Fi IQ Home PVCR 1226"></model>
+		<model name="PVCR 0225D"></model>
+		<model name="PVCR 0726"></model>
+		<model name="PVCR 0826"></model>
+		<model name="PVCR 0833"></model>
+		<model name="PVCR 0905"></model>
+		<model name="PVCR 0930"></model>
+		<model name="PVCR 1012U"></model>
+		<model name="PVCR 1015"></model>
+		<model name="PVCR 1020 Fusion Pro"></model>
+		<model name="PVCR 1028 WI-FI IQ Home"></model>
+		<model name="PVCR 1050"></model>
+		<model name="PVCR 1090 Space Sence Aqua"></model>
+		<model name="PVCR 1229 IQ Home Aqua"></model>
+		<model name="PVCR 1229 WI-FI IQ Home Aqua"></model>
+		<model name="PVCR 3200 IQ Home"></model>
+		<model name="PVCR 3400 IQ Home Aqua"></model>
+		<model name="PVCR 3600"></model>
+		<model name="PVCR 3900 IQ"></model>
+		<model name="PVCR 4000 Wi-Fi IQ Home Envision Aqua"></model>
+		<model name="PVCR 4105"></model>
+		<model name="PVCR 5001 WIFI IQ Home"></model>
+		<model name="PVCR 5003 WIFI IQ Home"></model>
+		<model name="PVCR 6001 WIFI IQ Home"></model>
+		<model name="PVCR G2 0926W"></model>
+		<model name="PVCR Wave 15 WiFi IQ Home Aqua"></model>
+		<model name="PVCR-0926W"></model>
+		<model name="PVCRDC 0101"></model>
+		<model name="PVCRDC 5002 WIFI IQ Home"></model>
+		<model name="PVCRDC 6002 WIFI IQ Home"></model>
+		<model name="WI-FI IQ Home Aqua PVCR 0735"></model>
+	</proizvoditel>
+	<proizvoditel name="Proffi">
+		<model name="Ultra Thin PH8817"></model>
+	</proizvoditel>
+	<proizvoditel name="ProfiCare">
+		<model name="PC-BSR 3042"></model>
+		<model name="PC-BSR 3043"></model>
+	</proizvoditel>
+	<proizvoditel name="Proscenic">
+		<model name="790T"></model>
+		<model name="R8"></model>
+		<model name="R9"></model>
+		<model name="V10R"></model>
+	</proizvoditel>
+	<proizvoditel name="Pullman">
+		<model name="PL-1016"></model>
+	</proizvoditel>
+	<proizvoditel name="Puppyoo">
+		<model name="R30"></model>
+		<model name="V-M611A"></model>
+		<model name="V-M900R"></model>
+	</proizvoditel>
+	<proizvoditel name="Qyron">
+		<model name="VR601"></model>
+	</proizvoditel>
+	<proizvoditel name="Raiden">
+		<model name="Extension SQ 9672"></model>
+	</proizvoditel>
+	<proizvoditel name="Red">
+		<model name="RV-R56S"></model>
+		<model name="RV-R57S"></model>
+		<model name="RV-R6030S Wi-Fi"></model>
+		<model name="RV-R6040S"></model>
+		<model name="RV-R6040S Wi-Fi"></model>
+		<model name="RV-R6050S Wi-Fi"></model>
+		<model name="RV-R6060S"></model>
+		<model name="RV-R6060S Wi-Fi"></model>
+		<model name="RV-R6070S"></model>
+		<model name="RV-RL6000S"></model>
+		<model name="RV-RL6100S"></model>
+		<model name="evolution RV-R571"></model>
+	</proizvoditel>
+	<proizvoditel name="Redmond">
+		<model name="RV-R150"></model>
+		<model name="RV-R165"></model>
+		<model name="RV-R250"></model>
+		<model name="RV-R270"></model>
+		<model name="RV-R280"></model>
+		<model name="RV-R290"></model>
+		<model name="RV-R350"></model>
+		<model name="RV-R450"></model>
+		<model name="RV-R500"></model>
+		<model name="RV-R560"></model>
+		<model name="RV-R570"></model>
+		<model name="RV-R630S"></model>
+		<model name="RV-R640S"></model>
+		<model name="RV-R650S"></model>
+		<model name="RV-R660S"></model>
+		<model name="RV-R670S"></model>
+		<model name="VR1320S"></model>
+		<model name="VR1321S"></model>
+		<model name="VR1322S"></model>
+		<model name="W2400"></model>
+	</proizvoditel>
+	<proizvoditel name="Redroad">
+		<model name="G10"></model>
+	</proizvoditel>
+	<proizvoditel name="Rekam">
+		<model name="RVC-1555B"></model>
+		<model name="RVC-1600R"></model>
+		<model name="RVC-1655B"></model>
+		<model name="RVC-2700 Pro"></model>
+	</proizvoditel>
+	<proizvoditel name="Ritmix">
+		<model name="VC-010"></model>
+		<model name="VC-020"></model>
+		<model name="VC-035WB"></model>
+	</proizvoditel>
+	<proizvoditel name="Robit">
+		<model name="R3000 Robot Vacuum"></model>
+	</proizvoditel>
+	<proizvoditel name="RoboWay">
+		<model name="X700"></model>
+	</proizvoditel>
+	<proizvoditel name="Roborock">
+		<model name="E4 52-02"></model>
+		<model name="E5"></model>
+		<model name="Q Revo Curv"></model>
+		<model name="Q Revo Master"></model>
+		<model name="Q Revo MaxV"></model>
+		<model name="Q Revo Pro"></model>
+		<model name="Q Revo QR02-02"></model>
+		<model name="Q Revo QR52-02"></model>
+		<model name="Q Revo S"></model>
+		<model name="Q5 Pro Q5-Pro"></model>
+		<model name="Q5 Pro Q5PR52-02"></model>
+		<model name="Q5 Pro+ Q5PRP52-02"></model>
+		<model name="Q7"></model>
+		<model name="Q7 02-02"></model>
+		<model name="Q7 52-02"></model>
+		<model name="Q7 Max Q7M02-02"></model>
+		<model name="Q7 Max Q7M52-02"></model>
+		<model name="Q7 Max+"></model>
+		<model name="Q7 Max+ Q380RR AED03HRR"></model>
+		<model name="Q7 Max+ Q7MP02-02"></model>
+		<model name="Q7 Max+ Q7MP52-02"></model>
+		<model name="Q7+"></model>
+		<model name="Q7+ P02-02"></model>
+		<model name="Q7+ P52-02"></model>
+		<model name="Q7+ Q400RR AED03HRR"></model>
+		<model name="Q7+ Q400RR Q7P02-02"></model>
+		<model name="Q7+ Q400RR Q7P52-02"></model>
+		<model name="Q8 Max Q8M02-02"></model>
+		<model name="Q8 Max Q8M52-02"></model>
+		<model name="Q8 Max+ Q8MP02-02"></model>
+		<model name="Q8 Max+ Q8MP52-02"></model>
+		<model name="Qrevo MaxV"></model>
+		<model name="S5 MAX (S5E02-00)"></model>
+		<model name="S5 Max S5E02-02"></model>
+		<model name="S5 Max S5E52-02"></model>
+		<model name="S5 Sweep One"></model>
+		<model name="S502-02 Wh"></model>
+		<model name="S55"></model>
+		<model name="S6 MaxV S6V52-02"></model>
+		<model name="S6 Pure S6P02-02"></model>
+		<model name="S6 Pure S6P52-02"></model>
+		<model name="S6/T6"></model>
+		<model name="S7 02-02"></model>
+		<model name="S7 52-02"></model>
+		<model name="S7 Max Ultra S7MXU02-02"></model>
+		<model name="S7 Max Ultra S7MXU52-02"></model>
+		<model name="S7 MaxV Plus S7VP52-02"></model>
+		<model name="S7 MaxV S7-MaxV"></model>
+		<model name="S7 MaxV S7V52-02"></model>
+		<model name="S7 MaxV Ultra S7VU52-02"></model>
+		<model name="S7 Pro Ultra"></model>
+		<model name="S7+ P02-02"></model>
+		<model name="S8 02-02"></model>
+		<model name="S8 52-02"></model>
+		<model name="S8 MaxV Ultra S8MVU02-02"></model>
+		<model name="S8 Plus"></model>
+		<model name="S8 Pro Ultra S8PU02-02"></model>
+		<model name="S8 Pro Ultra S8PU52-02"></model>
+		<model name="S8+"></model>
+		<model name="S8+ P02-02"></model>
+		<model name="S8+ P52-02"></model>
+		<model name="Sweep One S50 (S502-00)"></model>
+		<model name="V20"></model>
+	</proizvoditel>
+	<proizvoditel name="Roidmi">
+		<model name="Eva"></model>
+		<model name="Eve CC"></model>
+		<model name="Eve Plus"></model>
+	</proizvoditel>
+	<proizvoditel name="Rombica">
+		<model name="HWT1D301"></model>
+		<model name="HWT1D302"></model>
+	</proizvoditel>
+	<proizvoditel name="Rovus">
+		<model name="BL500N"></model>
+		<model name="Smart Power DeLux S560"></model>
+	</proizvoditel>
+	<proizvoditel name="Rowenta">
+		<model name="RR6971WH"></model>
+	</proizvoditel>
+	<proizvoditel name="Royal Wellfort">
+		<model name="VT-33"></model>
+	</proizvoditel>
+	<proizvoditel name="SLS">
+		<model name="VC-01 SLS-WFDG"></model>
+	</proizvoditel>
+	<proizvoditel name="Saferet">
+		<model name="SF-01"></model>
+	</proizvoditel>
+	<proizvoditel name="Samsung">
+		<model name="NaviBot-S SR8980"></model>
+		<model name="Powerbot SR20H9050U"></model>
+		<model name="SR10F71UB"></model>
+		<model name="SR10M7010UW"></model>
+		<model name="SR10M7030WG"></model>
+		<model name="SR20M7070WD"></model>
+		<model name="SR8751"></model>
+		<model name="SR8855"></model>
+		<model name="VR05R5050WK"></model>
+		<model name="VR20R7260WC/EV"></model>
+		<model name="VR30T80313B/EV"></model>
+		<model name="VR30T80313W"></model>
+		<model name="VR30T85513W"></model>
+		<model name="VR5000R VR05R5050WG/EV"></model>
+		<model name="VR50T95735W"></model>
+	</proizvoditel>
+	<proizvoditel name="Scarlett">
+		<model name="SC-VC80R12"></model>
+		<model name="SC-VC80R14"></model>
+		<model name="SC-VC80R20"></model>
+		<model name="SC-VC80R21"></model>
+		<model name="SC-VC80RW01"></model>
+	</proizvoditel>
+	<proizvoditel name="Sibling">
+		<model name="Powerspace-VC"></model>
+		<model name="Powerspace-VCL"></model>
+	</proizvoditel>
+	<proizvoditel name="Siemens">
+		<model name="VSR 8000"></model>
+	</proizvoditel>
+	<proizvoditel name="Smartmi">
+		<model name="VortexWave"></model>
+		<model name="VortexWave Robot Vacuum Cleaner"></model>
+	</proizvoditel>
+	<proizvoditel name="Starwind">
+		<model name="SRV3950"></model>
+		<model name="SRV3955"></model>
+		<model name="SRV4570"></model>
+		<model name="SRV4575"></model>
+		<model name="SRV5115"></model>
+		<model name="SRV5550"></model>
+	</proizvoditel>
+	<proizvoditel name="Supra">
+		<model name="VCS-4091"></model>
+		<model name="VCS-4095"></model>
+	</proizvoditel>
+	<proizvoditel name="Swiss Diamond">
+		<model name="SD-RVC 003 G"></model>
+	</proizvoditel>
+	<proizvoditel name="T-Clean">
+		<model name="MK500"></model>
+	</proizvoditel>
+	<proizvoditel name="TCL">
+		<model name="Sweeva 1000"></model>
+		<model name="Sweeva 500"></model>
+		<model name="Sweeva 500 B300A"></model>
+		<model name="Sweeva 6000"></model>
+		<model name="Sweeva 6500"></model>
+		<model name="Sweeva 6500 B610B"></model>
+	</proizvoditel>
+	<proizvoditel name="Tefal">
+		<model name="RG6825WH"></model>
+		<model name="RG7365WH"></model>
+		<model name="RG7375WH"></model>
+		<model name="RG7975WH"></model>
+		<model name="RG8227WH"></model>
+		<model name="RG8275WH"></model>
+		<model name="Smart Force Extreme RG7133RH"></model>
+		<model name="X-Plorer Serie 120 Al Animal &amp; Allergy RG7865WH"></model>
+		<model name="X-Plorer Serie 120 Animal &amp; Allergy RG7867WH"></model>
+		<model name="X-Plorer Serie 130AI Animal &amp; Allergy RG9077WH"></model>
+		<model name="X-Plorer Serie 20 RG6871WH"></model>
+		<model name="X-Plorer Serie 40 RG7267WH"></model>
+		<model name="X-Plorer Serie 40 RG7275WH"></model>
+		<model name="X-Plorer Serie 60 RG7447WH"></model>
+		<model name="X-Plorer Serie 75 Animal RG7675WH"></model>
+		<model name="X-Plorer Serie 75 Total Care RG7687WH"></model>
+		<model name="X-Plorer Serie 80 RG7765WH"></model>
+		<model name="X-Plorer Serie 95 Animal Care RG7975WH"></model>
+		<model name="X-Plorer Serie 95 Total Care RG7987WH"></model>
+		<model name="X-plorer Serie 45 RG8275WH"></model>
+		<model name="X-plorer Serie 50 RG7387WH"></model>
+		<model name="X-plorer Serie 75 RG7675WH"></model>
+		<model name="X-plorer Serie 75 S RG8575WH"></model>
+		<model name="X-plorer Serie 75 S RG8577WH"></model>
+		<model name="X-plorer Serie 75 S+ RG8595WH"></model>
+	</proizvoditel>
+	<proizvoditel name="Tesler">
+		<model name="Trobot-190"></model>
+	</proizvoditel>
+	<proizvoditel name="Tesvor">
+		<model name="A1"></model>
+		<model name="S6"></model>
+		<model name="S6 Turbo"></model>
+		<model name="X500 Pro"></model>
+	</proizvoditel>
+	<proizvoditel name="Thamtu">
+		<model name="T21"></model>
+		<model name="T25"></model>
+	</proizvoditel>
+	<proizvoditel name="Timberk">
+		<model name="T-VCR-53WI-TBN"></model>
+	</proizvoditel>
+	<proizvoditel name="Topdevice">
+		<model name="RC1 TDSRC001"></model>
+	</proizvoditel>
+	<proizvoditel name="Tp-Link">
+		<model name="Tapo RV10"></model>
+		<model name="Tapo RV10 Plus"></model>
+		<model name="Tapo RV30"></model>
+	</proizvoditel>
+	<proizvoditel name="Trouver">
+		<model name="Finder"></model>
+	</proizvoditel>
+	<proizvoditel name="Tuvio">
+		<model name="TR05MLCB"></model>
+		<model name="TR06HLCB"></model>
+	</proizvoditel>
+	<proizvoditel name="Unit">
+		<model name="UVR-8000"></model>
+	</proizvoditel>
+	<proizvoditel name="Viomi">
+		<model name="Alpha 2 Lite"></model>
+		<model name="Alpha 2 Pro V-RVCLMD40B"></model>
+		<model name="Alpha 3"></model>
+		<model name="Alpha 3 V-RVCLMC28A"></model>
+		<model name="Alpha2 lite V-RVCLMD40D"></model>
+		<model name="S9 UV V-RVCLMD28C"></model>
+		<model name="S9 UV V-RVCLMD28D"></model>
+		<model name="S9 V-RVCLMD28B"></model>
+		<model name="S9 V-RVCLMD28А"></model>
+		<model name="SE V-RVCLM21A"></model>
+		<model name="V2 Max V-RVCLM24B"></model>
+		<model name="V2 Pro V-RVCLM21B"></model>
+		<model name="V3 Absolut (V-RVCLM22A)"></model>
+		<model name="V3 Max V-RVCLM27A"></model>
+		<model name="V3 Max V-RVCLM27B"></model>
+		<model name="V3 V-RVCLM26B"></model>
+		<model name="V5 Pro V-RVCLM40B"></model>
+	</proizvoditel>
+	<proizvoditel name="Vitek">
+		<model name="VT-1801"></model>
+		<model name="VT-1803"></model>
+		<model name="VT-1804"></model>
+		<model name="VT-1805"></model>
+		<model name="VT-1806"></model>
+		<model name="VT-1806-03"></model>
+		<model name="VT-1807"></model>
+		<model name="VT-1808"></model>
+	</proizvoditel>
+	<proizvoditel name="Weissgauff">
+		<model name="i5-DS"></model>
+	</proizvoditel>
+	<proizvoditel name="Windigo">
+		<model name="WRV-501"></model>
+	</proizvoditel>
+	<proizvoditel name="Wollmer">
+		<model name="F550"></model>
+	</proizvoditel>
+	<proizvoditel name="XRobot">
+		<model name="5005"></model>
+		<model name="XR-210B"></model>
+		<model name="XR-510A"></model>
+		<model name="XR-510B"></model>
+		<model name="XR-510D"></model>
+		<model name="XR-510F"></model>
+	</proizvoditel>
+	<proizvoditel name="Xbot">
+		<model name="L3"></model>
+		<model name="L7 Pro"></model>
+		<model name="L7 Smart"></model>
+		<model name="R2"></model>
+	</proizvoditel>
+	<proizvoditel name="Xclea">
+		<model name="H30 QYSDJ01"></model>
+		<model name="Robot Vacuum and Mop Cleaner H30"></model>
+	</proizvoditel>
+	<proizvoditel name="Xiaomi">
+		<model name="Alpha S9"></model>
+		<model name="Alpha S9 UV"></model>
+		<model name="BOBOT WIN WD3060"></model>
+		<model name="F9"></model>
+		<model name="Intelligent Sweep Robot R1"></model>
+		<model name="Lydsto G1"></model>
+		<model name="Lydsto R3"></model>
+		<model name="Mi Roborock Sweep One S50"></model>
+		<model name="Mi Robot Vacuum - Mop 2 Lite MJSTL"></model>
+		<model name="Mi Robot Vacuum Cleaner (SDJQR02RR)"></model>
+		<model name="Mi Robot Vacuum Cleaner 1S (SDJQR03RR)"></model>
+		<model name="Mi Robot Vacuum E10 BHR6783EU"></model>
+		<model name="Mi Robot Vacuum E12 BHR7331EU"></model>
+		<model name="Mi Robot Vacuum EU SKV4022GL"></model>
+		<model name="Mi Robot Vacuum Mop SKV4093GL"></model>
+		<model name="Mi Robot Vacuum S10+ BHR6368EU"></model>
+		<model name="Mi Robot Vacuum S10T BHR5887EU"></model>
+		<model name="Mi Robot Vacuum S12 BHR7328GL"></model>
+		<model name="Mi Robot Vacuum T12 BHR7726GL"></model>
+		<model name="Mi Robot Vacuum X10+ BHR6363EU"></model>
+		<model name="Mi Robot Vacuum- Mop 2 Pro+ STYTJ02ZHM"></model>
+		<model name="Mi Robot Vacuum- Mop 2 Ultra BHR5195EU"></model>
+		<model name="Mi Robot Vacuum- Mop 2C XMSTJQR2C"></model>
+		<model name="Mi Robot Vacuum- Mop 2S BHR5771EU"></model>
+		<model name="Mi Robot Vacuum- Mop Essential SKV4136GL"></model>
+		<model name="Mi Robot Vacuum- Mop Pro SKV4109GL"></model>
+		<model name="Mi Robot Vacuum- Mop Pro SKV4110GL"></model>
+		<model name="Mi Robot Vacuum-Mop 2 BHR5055EU"></model>
+		<model name="Mi Robot Vacuum-Mop 2 Pro"></model>
+		<model name="Mi Robot Vacuum-Mop 2 Pro MJST1SHW"></model>
+		<model name="Mi Robot Vacuum-Mop 2 STYTJ03ZHM"></model>
+		<model name="Mi Robot Vacuum-Mop Essential"></model>
+		<model name="Mi Robot Vacuum-Mop P"></model>
+		<model name="Mi Robot Vacuum-Mop STYTJ01ZHM"></model>
+		<model name="Mijia LDS Vacuum STYTJ02YM"></model>
+		<model name="Mijia M30 Pro"></model>
+		<model name="Mijia Mop 3C Plus BHR7533CN"></model>
+		<model name="Mijia Robot Vacuum Floor Sweeper and Washer MJSTP"></model>
+		<model name="Mijia Robot Vacuum Mop 3 LDS MJST1S"></model>
+		<model name="Mijia Robot Vacuum Mop M40"></model>
+		<model name="Mijia Robot Vacuum-Mop 2"></model>
+		<model name="Mijia Sweeping Vacuum Cleaner 3C BHR5989CN"></model>
+		<model name="Roborock G10"></model>
+		<model name="Robot Vacuum E10"></model>
+		<model name="Robot Vacuum E10C"></model>
+		<model name="Robot Vacuum E5"></model>
+		<model name="Robot Vacuum Mop 2 LDS CN"></model>
+		<model name="Robot Vacuum S10 B106GL"></model>
+		<model name="Robot Vacuum S10 B106GL BHR6390RU/BHR5988ER"></model>
+		<model name="Robot Vacuum S20"></model>
+		<model name="Robot Vacuum S20+"></model>
+		<model name="Robot Vacuum X10 BHR6068EU"></model>
+		<model name="Robot Vacuum X20+ BHR8124EU"></model>
+		<model name="S10 RU BHR6390RU/BHR5988EU"></model>
+		<model name="SDJQR01RR"></model>
+		<model name="SE"></model>
+		<model name="Trouver LDS Vacuum Mop Finder RLS3"></model>
+		<model name="V3"></model>
+		<model name="V3 Max"></model>
+		<model name="Vacuum Cleaner R1"></model>
+		<model name="Vacuum Mop Essential MJSTG1"></model>
+		<model name="Vacuum-Mop 2 Ultra BHR5195EU/BHR5196EU"></model>
+		<model name="X20+"></model>
+		<model name="Xiaomi Mi Robot Vacuum E12 BHR7331EU"></model>
+	</proizvoditel>
+	<proizvoditel name="Ximeijie">
+		<model name="K-555"></model>
+		<model name="XM-08"></model>
+	</proizvoditel>
+	<proizvoditel name="Yeedi">
+		<model name="Cube"></model>
+		<model name="DVX46 K850+"></model>
+		<model name="Floor 3+"></model>
+		<model name="K650"></model>
+		<model name="K650 K651G"></model>
+		<model name="Vac 2 Pro"></model>
+		<model name="Vac 2 Pro K950"></model>
+		<model name="Vac Hybrid"></model>
+		<model name="Vac Hybrid K760 K760"></model>
+	</proizvoditel>
+	<proizvoditel name="ZetRobot">
+		<model name="AH-RT"></model>
+	</proizvoditel>
+	<proizvoditel name="e.ziclean">
+		<model name="Tornado V2 Pets"></model>
+	</proizvoditel>
+	<proizvoditel name="iBoto">
+		<model name="Aqua V715B"></model>
+		<model name="Aqua X220G"></model>
+		<model name="Aqua X310"></model>
+		<model name="Aqua X615GW"></model>
+		<model name="L923"></model>
+		<model name="RUS-X325-BL"></model>
+		<model name="Smart Aqua C820W"></model>
+		<model name="Smart Aqua C820WU"></model>
+		<model name="Smart Aqua L920SW"></model>
+		<model name="Smart Aqua L920W"></model>
+		<model name="Smart Aqua L925"></model>
+		<model name="Smart Aqua L925W"></model>
+		<model name="Smart Aqua V720GW"></model>
+		<model name="Smart Aqua X320G"></model>
+		<model name="Smart Aqua X420GW"></model>
+		<model name="Smart Aqua X610G"></model>
+		<model name="Smart Aqua С820WU"></model>
+		<model name="Smart Aqua Х420GW"></model>
+		<model name="Smart Aqua Х425GWE"></model>
+		<model name="Smart N520GT"></model>
+	</proizvoditel>
+	<proizvoditel name="iClebo">
+		<model name="G5 YCR-M09-20W"></model>
+		<model name="O5 Wi-Fi YCR-M07-20W"></model>
+		<model name="Omega YCR-M07-10"></model>
+		<model name="YCR-M04-01"></model>
+		<model name="YCR-M05-10"></model>
+		<model name="YCR-M05-20"></model>
+	</proizvoditel>
+	<proizvoditel name="iPlus">
+		<model name="i7"></model>
+	</proizvoditel>
+	<proizvoditel name="iRobot">
+		<model name="Braava 380"></model>
+		<model name="Braava 390T"></model>
+		<model name="Braava Jet 250"></model>
+		<model name="Braava Jet M6 M613240"></model>
+		<model name="Roomba 530"></model>
+		<model name="Roomba 581"></model>
+		<model name="Roomba 616"></model>
+		<model name="Roomba 625 Pet"></model>
+		<model name="Roomba 676 67604RND"></model>
+		<model name="Roomba 681"></model>
+		<model name="Roomba 694"></model>
+		<model name="Roomba 698 69804RND"></model>
+		<model name="Roomba 770"></model>
+		<model name="Roomba 772"></model>
+		<model name="Roomba 780"></model>
+		<model name="Roomba 865"></model>
+		<model name="Roomba 886"></model>
+		<model name="Roomba 960 96004RND"></model>
+		<model name="Roomba 965"></model>
+		<model name="Roomba 976 97604RND"></model>
+		<model name="Roomba 980"></model>
+		<model name="Roomba 981 98104RND"></model>
+		<model name="Roomba C7 C715840"></model>
+		<model name="Roomba C7+ C755840"></model>
+		<model name="Roomba Combo I8 I8170"></model>
+		<model name="Roomba Combo I8+ I8570"></model>
+		<model name="Roomba Combo J7 C7158"></model>
+		<model name="Roomba Combo J7+ C7558"></model>
+		<model name="Roomba E5 E515840"></model>
+		<model name="Roomba I1 I115240"></model>
+		<model name="Roomba I1 I115240RND"></model>
+		<model name="Roomba I1+ I155640"></model>
+		<model name="Roomba I3 I315840"></model>
+		<model name="Roomba I3+"></model>
+		<model name="Roomba I3+ I355840PLUS RND"></model>
+		<model name="Roomba I7 I715840"></model>
+		<model name="Roomba I7+ I755840"></model>
+		<model name="Roomba J7"></model>
+		<model name="Roomba J7 J715840"></model>
+		<model name="Roomba J7 J715840 RND"></model>
+		<model name="Roomba J7+"></model>
+		<model name="Roomba J7+ J755840"></model>
+		<model name="Roomba J7+ J755840PLUS RND"></model>
+		<model name="Roomba J9 J915840"></model>
+		<model name="Roomba J9+ J955840"></model>
+		<model name="Roomba S9+"></model>
+		<model name="Roomba S9+ S955840"></model>
+		<model name="Roomba S9+ S955840PLUS RND"></model>
+		<model name="Roomba i6"></model>
+		<model name="Scooba 390"></model>
+		<model name="Scooba 450"></model>
+	</proizvoditel>
+	<proizvoditel name="Даджет">
+		<model name="dBot W200"></model>
+	</proizvoditel>
+</Robotypylesosy>

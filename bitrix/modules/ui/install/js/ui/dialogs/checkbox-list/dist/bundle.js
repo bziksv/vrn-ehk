@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,checkboxList_css,main_popup,ui_designTokens,ui_vue3,ui_forms,ui_switcher,main_core_events,main_core) {
 	'use strict';
@@ -8,6 +9,7 @@ this.BX = this.BX || {};
 	};
 	const CheckboxListOption = {
 	  props: ['id', 'title', 'isChecked', 'isLocked', 'isEditable', 'context'],
+	  emits: ['onToggleOption'],
 	  data() {
 	    return {
 	      viewMode: viewMode.view,
@@ -82,6 +84,23 @@ this.BX = this.BX || {};
 	      } else {
 	        this.isCheckedValue = !this.isCheckedValue;
 	      }
+	      const {
+	        id,
+	        title,
+	        isLocked,
+	        isCheckedValue,
+	        isEditable,
+	        context
+	      } = this;
+	      this.$emit('onToggleOption', {
+	        id,
+	        title,
+	        isChecked: isCheckedValue,
+	        isLocked,
+	        isEditable,
+	        context,
+	        viewMode: this.viewMode
+	      });
 	    },
 	    onToggleViewMode() {
 	      this.viewMode = this.isEditMode ? viewMode.view : viewMode.edit;
@@ -150,6 +169,7 @@ this.BX = this.BX || {};
 
 	const CheckboxListCategory = {
 	  props: ['columnCount', 'category', 'options', 'context', 'isActiveSearch', 'isEditableOptionsTitle', 'onChange', 'setOptionRef'],
+	  emits: ['onToggleOption'],
 	  components: {
 	    CheckboxListOption
 	  },
@@ -158,6 +178,9 @@ this.BX = this.BX || {};
 	      if (ref) {
 	        this.setOptionRef(ref.getId(), ref);
 	      }
+	    },
+	    onToggleOption(event) {
+	      this.$emit('onToggleOption', event);
 	    }
 	  },
 	  template: `
@@ -184,6 +207,7 @@ this.BX = this.BX || {};
 						:isLocked="option?.locked"
 						:isEditable="isEditableOptionsTitle"
 						:ref="setRef"
+						@onToggleOption="onToggleOption"
 					/>
 				</div>
 			</div>
@@ -289,7 +313,7 @@ this.BX = this.BX || {};
 	    CheckboxComponent,
 	    TextToggleComponent
 	  },
-	  props: ['dialog', 'popup', 'columnCount', 'compactField', 'customFooterElements', 'lang', 'sections', 'categories', 'options', 'params', 'context', 'onToggleOption'],
+	  props: ['dialog', 'popup', 'columnCount', 'compactField', 'customFooterElements', 'lang', 'sections', 'categories', 'options', 'params', 'context'],
 	  data() {
 	    return {
 	      dataSections: this.sections,
@@ -439,15 +463,25 @@ this.BX = this.BX || {};
 	        this.selectAll();
 	      }
 	    },
-	    select(id) {
+	    select(id, value = true) {
 	      const option = this.getOptionRefs().find(item => item.id === id);
-	      option == null ? void 0 : option.setValue(true);
+	      option == null ? void 0 : option.setValue(value);
 	    },
 	    selectAll() {
-	      this.getOptionRefs().forEach(option => !option.isLocked && option.setValue(true));
+	      this.setValueForAllVisibleOptions(true);
 	    },
 	    deselectAll() {
-	      this.getOptionRefs().forEach(option => !option.isLocked && option.setValue(false));
+	      this.setValueForAllVisibleOptions(false);
+	    },
+	    setValueForAllVisibleOptions(value) {
+	      const visibleOptionIds = new Set(this.getOptions().map(option => option.id));
+	      this.getOptionRefs().forEach(option => {
+	        if (option.isLocked || !visibleOptionIds.has(option.getId())) {
+	          return;
+	        }
+	        this.dataOptions.get(option.getId()).value = value;
+	        option.setValue(value);
+	      });
 	    },
 	    getOptionRefs() {
 	      return [...this.optionsRef.values()];
@@ -515,6 +549,13 @@ this.BX = this.BX || {};
 	    },
 	    isAllSectionsDisabled() {
 	      return main_core.Type.isArrayFilled(this.dataSections) && this.dataSections.every(section => section.value === false);
+	    },
+	    onToggleOption(event) {
+	      if (this.dataOptions.has(event.id)) {
+	        const option = this.dataOptions.get(event.id);
+	        option.value = event.isChecked;
+	        this.dataOptions.set(event.id, option);
+	      }
 	    }
 	  },
 	  watch: {
@@ -966,8 +1007,14 @@ this.BX = this.BX || {};
 	    columnIds.forEach(id => this.selectOption(id));
 	    this.apply();
 	  }
-	  selectOption(id) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _getLayoutComponent)[_getLayoutComponent]().select(id);
+	  selectOption(id, value) {
+	    // to maintain backward compatibility without creating dependencies on main within the ticket #187991
+	    // @todo remove later and set default value = true in the function signature
+	    if (value !== false) {
+	      // eslint-disable-next-line no-param-reassign
+	      value = true;
+	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _getLayoutComponent)[_getLayoutComponent]().select(id, value);
 	  }
 	  apply() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _getLayoutComponent)[_getLayoutComponent]().apply();

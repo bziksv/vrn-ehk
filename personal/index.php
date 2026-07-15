@@ -144,44 +144,7 @@ $APPLICATION->SetTitle("Личный кабинет");
 						</form>
 					</div>
 				</div>
-				<div class="block">
-					<div class="title"><a href="#"><span class="ico ico_3"></span>Данные доставки</a></div>
-					<div class="b_content">
-						<form action="#" method="POST" class="update_user">
-							<fieldset>
-								<div class="line">
-									<span class="label">Населенный пункт</span>
-									<span class="value">
-										<?$APPLICATION->IncludeComponent("bitrix:sale.ajax.locations", ".default", array(
-											"CITY_OUT_LOCATION" => "Y",
-											"ALLOW_EMPTY_CITY" => "Y",
-											"COUNTRY_INPUT_NAME" => "COUNTRY",
-											"REGION_INPUT_NAME" => "REGION",
-											"CITY_INPUT_NAME" => "LOCATION",
-											"LOCATION_VALUE" => $cur_user["UF_LOCATION"],
-											"COUNTRY" => "",
-											"ONCITYCHANGE" => "",
-											"NAME" => "q"
-											),
-											false
-										);?>
-									</span>
-									<div class="clear"></div>
-								</div>
-								<div class="line">
-									<span class="label">Адрес</span>
-									<span class="value"><input type="text" value="<?=$cur_user["PERSONAL_STREET"]?>" name="PERSONAL_STREET"></span>
-									<div class="clear"></div>
-								</div>
-								<div class="line">
-									<span class="label">&nbsp;</span>
-									<span class="value"><input type="submit" value="Сохранить"></span>
-									<div class="clear"></div>
-								</div>
-							</fieldset>
-						</form>
-					</div>
-				</div>
+				
 			</div>
 			<div class="clear"></div>
 		</div>

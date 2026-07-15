@@ -1,0 +1,30 @@
+<root>
+	<ProductType name="Вытяжки"/>
+	<ProductType name="Микроволновые печи"/>
+	<ProductType name="Плиты и духовые шкафы" oldNames="Плиты">
+		<GoodsSubType name="Плиты"/>
+		<GoodsSubType name="Варочные панели"/>
+		<GoodsSubType name="Духовые шкафы"/>
+		<GoodsSubType name="Настольные плиты"/>
+		<GoodsSubType name="Запчасти и аксессуары"/>
+	</ProductType>
+	<ProductType name="Посудомоечные машины"/>
+	<ProductType name="Холодильники и морозильные камеры">
+		<GoodsSubType name="Холодильники">
+			<ProductSubType name="Отдельностоящий">
+				<BrandModelColor file="refrigeratorsandfreezers/holodilniki_novyj.xml"/>
+			</ProductSubType>
+			<ProductSubType name="Встраиваемый"/>
+			<ProductSubType name="Другой"/>
+		</GoodsSubType>
+		<GoodsSubType name="Морозильные камеры и лари">
+			<ProductSubType name="Отдельностоящий"/>
+			<ProductSubType name="Ларь"/>
+			<ProductSubType name="Встраиваемый"/>
+			<ProductSubType name="Другой"/>
+		</GoodsSubType>
+		<GoodsSubType name="Винные шкафы"/>
+		<GoodsSubType name="Запчасти и аксессуары"/>
+	</ProductType>
+	<ProductType name="Мелкая кухонная техника"/>
+</root>

@@ -6,21 +6,20 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use Bitrix\Bizproc\Api\Data\WorkflowStateService\WorkflowStateFilter;
+use Bitrix\Bizproc\Api\Service\TaskService;
 use Bitrix\Lists\Api\Service\ServiceFactory\ProcessService;
 use Bitrix\Lists\Api\Service\ServiceFactory\ServiceFactory;
+use Bitrix\Main\Engine\Contract\Controllerable;
+use Bitrix\Main\Errorable;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Error;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Loader;
-use Bitrix\Main\Type\DateTime;
 use Bitrix\Bizproc\Api\Data\WorkflowStateService\WorkflowStateToGet;
 use Bitrix\Bizproc\Api\Service\WorkflowStateService;
 use Bitrix\Bizproc\Api\Response\WorkflowStateService\GetListResponse;
-use Bitrix\Main\Web\Uri;
 
-class BizprocUserProcesses
-	extends CBitrixComponent
-	implements \Bitrix\Main\Errorable, \Bitrix\Main\Engine\Contract\Controllerable
+class BizprocUserProcesses extends CBitrixComponent implements Errorable, Controllerable
 {
 	protected const GRID_ID = 'bizproc_user_processes_v2';
 	protected const NAVIGATION_ID = 'page';
@@ -28,7 +27,9 @@ class BizprocUserProcesses
 
 	private ErrorCollection $errorCollection;
 	private \Bitrix\Main\UI\Filter\Options $filterOptions;
-	private bool $isRenderingOnFront = false;
+	private \Bitrix\Main\Grid\Options $gridOptions;
+
+	private int $targetUserId;
 
 	private const WORKFLOW_FIELDS_TO_LOAD = [
 		'STARTED_BY',
@@ -50,6 +51,7 @@ class BizprocUserProcesses
 
 		$this->errorCollection = new ErrorCollection();
 		$this->filterOptions = new \Bitrix\Main\UI\Filter\Options(static::FILTER_ID);
+		$this->gridOptions = new \Bitrix\Main\Grid\Options(static::GRID_ID);
 	}
 
 	public function addErrors(array $errors): static
@@ -84,6 +86,10 @@ class BizprocUserProcesses
 	public function loadWorkflowsAction(array $ids): ?array
 	{
 		$this->init();
+		if (!$this->hasErrors())
+		{
+			$this->checkRights();
+		}
 
 		if ($this->hasErrors())
 		{
@@ -122,8 +128,6 @@ class BizprocUserProcesses
 			return null;
 		}
 
-		$this->isRenderingOnFront = true;
-
 		return [
 			'workflows' => $this->getWorkflowsViewData($response),
 		];
@@ -132,6 +136,10 @@ class BizprocUserProcesses
 	public function delegateTasksAction(array $taskIds, int $toUserId): ?array
 	{
 		$this->init();
+		if (!$this->hasErrors())
+		{
+			$this->checkRights();
+		}
 
 		if (!$this->hasErrors() && $toUserId > 0)
 		{
@@ -144,7 +152,7 @@ class BizprocUserProcesses
 				}
 			}
 
-			$taskService = new \Bitrix\Bizproc\Api\Service\TaskService(
+			$taskService = new TaskService(
 				new \Bitrix\Bizproc\Api\Service\TaskAccessService($this->getCurrentUserId()),
 			);
 
@@ -181,14 +189,20 @@ class BizprocUserProcesses
 
 		if (!$this->hasErrors())
 		{
+			$this->checkRights();
+
 			$this->addToolbar();
 			$this->fillCounters();
 			$this->fillGridData();
 			$this->fillGridActions();
 			$this->subscribeToPushes();
+
+			$this->includeComponentTemplate();
+
+			return;
 		}
 
-		$this->includeComponentTemplate();
+		$this->includeComponentTemplate('error');
 	}
 
 	private function subscribeToPushes(): void
@@ -205,11 +219,6 @@ class BizprocUserProcesses
 	private function init(): void
 	{
 		$this->checkModules();
-		if (!$this->hasErrors())
-		{
-			$this->checkRights();
-		}
-
 		$this->arResult['viewData'] = [];
 	}
 
@@ -217,7 +226,7 @@ class BizprocUserProcesses
 	{
 		if (!\Bitrix\Main\Loader::includeModule('bizproc'))
 		{
-			$errorMessage = Loc::getMessage('BIZPROC_USER_PROCESSES_MODULE_ERROR', ['#MODULE#' => 'BizProc']);
+			$errorMessage = Loc::getMessage('BIZPROC_USER_PROCESSES_MODULE_ERROR', ['#MODULE#' => 'bizproc']);
 			$this->setError(new Error($errorMessage));
 		}
 	}
@@ -229,6 +238,7 @@ class BizprocUserProcesses
 		$taskViewAccessResult = $accessService->checkViewTasks($this->getTargetUserId());
 		if (!$taskViewAccessResult->isSuccess())
 		{
+			$this->targetUserId = $this->getCurrentUserId();
 			$this->addErrors($taskViewAccessResult->getErrors());
 		}
 	}
@@ -246,13 +256,20 @@ class BizprocUserProcesses
 	private function fillCounters(): void
 	{
 		$userId = $this->getCurrentUserId();
+		// time to verify
+		\Bitrix\Bizproc\Workflow\Entity\WorkflowUserCommentTable::verifyUserUnread($userId);
+
+		$task = (int)(CBPTaskService::getCounters($userId)['*'] ?? 0);
+		$comment = \Bitrix\Bizproc\Workflow\Entity\WorkflowUserCommentTable::getCountUserUnread($userId);
 
 		$this->arResult['counters'] = [
-			'task' => (int)(CBPTaskService::getCounters($userId)['*'] ?? 0),
-			'comment' => \Bitrix\Bizproc\Workflow\Entity\WorkflowUserCommentTable::getCountUserUnread(
-				$userId
-			),
+			'task' => $task,
+			'comment' => $comment,
 		];
+
+		$userCounters = new \Bitrix\Bizproc\Workflow\WorkflowUserCounters($userId);
+		$userCounters->setTask($task);
+		$userCounters->setComment($comment);
 	}
 
 	private function getGridColumns(): array
@@ -284,9 +301,9 @@ class BizprocUserProcesses
 			],
 			[
 				'id' => 'MODIFIED',
-				'name' => Loc::getMessage('BIZPROC_USER_PROCESSES_GRID_COLUMN_MODIFIED_2'),
+				'name' => Loc::getMessage('BIZPROC_USER_PROCESSES_GRID_COLUMN_MODIFIED_2_MSGVER_1'),
 				'default' => true,
-				'sort' => '',
+				'sort' => 'MODIFIED',
 				'width' => 192,
 				//'align' => 'center',
 				'first_order' => 'desc',
@@ -297,7 +314,7 @@ class BizprocUserProcesses
 				'name' => Loc::getMessage('BIZPROC_USER_PROCESSES_GRID_COLUMN_TASK_FACES'),
 				'default' => true,
 				'sort' => '',
-				'width' => 316,
+				'width' => 330,
 				'resizeable' => false,
 			],
 			[
@@ -333,7 +350,7 @@ class BizprocUserProcesses
 				'id' => 'WORKFLOW_STARTED',
 				'name' => Loc::getMessage('BIZPROC_USER_PROCESSES_GRID_COLUMN_WORKFLOW_STARTED'),
 				'default' => false,
-				'sort' => '',
+				'sort' => 'WORKFLOW_STARTED',
 			],
 			[
 				'id' => 'WORKFLOW_STARTED_BY',
@@ -352,8 +369,7 @@ class BizprocUserProcesses
 
 	private function getPageNavigation(): \Bitrix\Main\UI\PageNavigation
 	{
-		$options = new \Bitrix\Main\Grid\Options(static::GRID_ID);
-		$navParams = $options->GetNavParams();
+		$navParams = $this->gridOptions->GetNavParams();
 
 		$pageNavigation = new \Bitrix\Main\UI\PageNavigation(static::NAVIGATION_ID);
 		$pageNavigation->setPageSize($navParams['nPageSize'])->initFromUri();
@@ -401,6 +417,15 @@ class BizprocUserProcesses
 		$this->arResult['viewData']['workflows'] = $workflowViews;
 	}
 
+	private function setSortingToRequest(WorkflowStateToGet $workflowsRequest): void
+	{
+		$defaultSorting = ['MODIFIED' => 'DESC'];
+
+		$sortingPayload = $this->gridOptions->getSorting(['sort' => $defaultSorting]);
+
+		$workflowsRequest->setOrder($sortingPayload['sort'] ?? $defaultSorting);
+	}
+
 	private function fetchWorkflows(int $limit, int $offset, bool $shouldCountTotal = true): GetListResponse
 	{
 		$workflowStateService = new WorkflowStateService();
@@ -417,13 +442,15 @@ class BizprocUserProcesses
 
 		$this->setFilterToRequest($workflowsRequest);
 
+		$this->setSortingToRequest($workflowsRequest);
+
 		return $workflowStateService->getList($workflowsRequest);
 	}
 
 	private function setFilterToRequest(WorkflowStateToGet $workflowsRequest): void
 	{
 		$workflowsRequest->setFilterUserId($this->getTargetUserId());
-		$userFilter = $this->filterOptions->getFilter();
+		$userFilter = $this->filterOptions->getFilter($this->getFilterFields());
 		if (empty($userFilter) && $this->filterOptions->getCurrentFilterId() === 'default_filter')
 		{
 			$userFilter['SYSTEM_PRESET'] = WorkflowStateFilter::PRESET_DEFAULT;
@@ -471,65 +498,27 @@ class BizprocUserProcesses
 		$workflowViews = [];
 		$userId = $this->getTargetUserId();
 
+		$allColumns = array_column($this->getGridColumns(), 'id');
+		$defaultColumns = array_column(
+			array_filter($this->getGridColumns(), static fn($column) => $column['default']),
+			'id'
+		);
+		$usedColumns = $this->gridOptions->getUsedColumns($defaultColumns);
+
 		foreach ($workflows->getWorkflowStatesCollection() as $workflowState)
 		{
 			$workflowId = $workflowState->getId();
-			$complexDocumentId = $workflowState->getComplexDocumentId();
 
-			$startedBy = \Bitrix\Main\UserTable::getById($workflowState->getStartedBy())->fetchObject();
-			if ($this->isRenderingOnFront)
-			{
-				$startedBy =
-					isset($startedBy)
-						? CUser::FormatName(CSite::GetNameFormat(false), $startedBy)
-						: null;
-			}
+			$workflowView = new \Bitrix\Bizproc\UI\WorkflowUserGridView($workflowState, $userId);
+			$workflowView
+				->setUsedColumns(array_intersect($usedColumns, $allColumns))
+				->setModified($workflows->getUserModified($workflowId))
+			;
 
-			$workflowView = new \Bitrix\Bizproc\UI\WorkflowUserView($workflowState, $userId);
-
-			$workflowViews[] = [
-				'workflowId' => $workflowId,
-				'userId' => $userId,
-				'startedById' => $workflowState->getStartedBy(),
-				'startedBy' => $startedBy,
-				'taskProgress' => $workflowView->getFaces(),
-				'name' => $workflowView->getName(),
-				'description' => $workflowView->getDescription(),
-				'typeName' => $workflowView->getTypeName(),
-				'statusText' => $workflowView->getStatusText(),
-				'modified' => $this->formatDate($workflows->getUserModified($workflowId)),
-				'templateName' => $workflowState->getTemplate()?->fillName() ?? '',
-				'workflowStarted' => $this->formatDate($workflowState->getStarted()),
-				'document' => [
-					'url' => $this->getDocumentUrl($complexDocumentId),
-					'name' => $this->getDocumentName($complexDocumentId),
-				],
-				'task' => $workflowView->getTasks()[0] ?? null,
-				'taskCnt' => count($workflowView->getTasks()),
-				'commentCnt' => $workflowView->getCommentCounter(),
-				'isCompleted' => $workflowView->getIsCompleted(),
-			];
+			$workflowViews[] = $workflowView->toArray();
 		}
 
 		return $workflowViews;
-	}
-
-	private function formatDate(?DateTime $date): string
-	{
-		if (!$date)
-		{
-			return '';
-		}
-
-		$thisYear = $date->format('Y') === date('Y');
-		$culture = \Bitrix\Main\Application::getInstance()->getContext()->getCulture();
-		$df = $thisYear
-			? $culture?->getDayMonthFormat() ?? 'j F'
-			: $culture?->getLongDateFormat() ?? 'j F Y'
-		;
-		$tf = $culture?->getShortTimeFormat() ?? 'H:i';
-
-		return \FormatDate("$df, $tf", $date->toUserTime());
 	}
 
 	private function fillGridActions(): void
@@ -602,23 +591,12 @@ class BizprocUserProcesses
 		];
 	}
 
-	// TODO - implement service
-	private function getDocumentName(array $complexDocumentId): string
-	{
-		$documentService = CBPRuntime::getRuntime()->getDocumentService();
-
-		return $documentService->getDocumentName($complexDocumentId) ?? '';
-	}
-
-	// TODO - implement service
-	private function getDocumentUrl(array $complexDocumentId): ?string
-	{
-		return CBPDocument::getDocumentAdminPage($complexDocumentId);
-	}
-
 	private function getTargetUserId(): int
 	{
-		return (int)($this->filterOptions->getFilter()['TARGET_USER'] ?? $this->getCurrentUserId());
+		return $this->targetUserId
+			?? (int)($this->filterOptions->getFilter()['TARGET_USER']
+			?? $this->getCurrentUserId())
+		;
 	}
 
 	private function getCurrentUserId(): int
@@ -641,8 +619,8 @@ class BizprocUserProcesses
 		\Bitrix\UI\Toolbar\Facade\Toolbar::addFilter($filterParams);
 		\Bitrix\UI\Toolbar\Facade\Toolbar::addFavoriteStar();
 
-		$lists = $this->getLists();
-		if (is_array($lists))
+		$listInfo = $this->getListInfo();
+		if (is_array($listInfo))
 		{
 			$addButton = new \Bitrix\UI\Buttons\AddButton([
 				'color' => \Bitrix\UI\Buttons\Color::SUCCESS,
@@ -650,11 +628,14 @@ class BizprocUserProcesses
 				'dataset' => [
 					'toolbar-collapsed-icon' => \Bitrix\UI\Buttons\Icon::ADD,
 				],
+				'click' => new \Bitrix\UI\Buttons\JsCode(
+					'BX.Bizproc.Component.UserProcesses.Instance.clickStartWorkflowButton();'
+				),
 			]);
 
 			$this->arResult['viewData']['startWorkflowButtonId'] = static::GRID_ID . '-filter-start-workflow-button';
+			$this->arResult['viewData']['listParams'] = $listInfo;
 			$addButton->addAttribute('id', $this->arResult['viewData']['startWorkflowButtonId']);
-			$addButton->addAttribute('data-lists', \Bitrix\Main\Web\Json::encode($lists));
 
 			\Bitrix\UI\Toolbar\Facade\Toolbar::addButton(
 				$addButton,
@@ -663,7 +644,7 @@ class BizprocUserProcesses
 		}
 	}
 
-	private function getLists(): ?array
+	private function getListInfo(): ?array
 	{
 		if (!\Bitrix\Main\Loader::includeModule('lists'))
 		{
@@ -678,73 +659,34 @@ class BizprocUserProcesses
 			return null;
 		}
 
-		$showAllProcesses = method_exists($factory::class, 'getAddElementCatalog');
-
-		$response = $showAllProcesses ? $factory->getAddElementCatalog() : $factory->getCatalog();
-		if (!$response->isSuccess())
-		{
-			return null;
-		}
-
-		$siteDir = SITE_DIR;
-		$path = rtrim($siteDir, '/');
+		$listInfo = [];
 
 		$requestIBlockId = (int)$this->request->get('iBlockId');
 
-		$listData = [];
-		foreach ($response->getCatalog() as $process)
+		if ($requestIBlockId > 0 )
 		{
-			$iBlockId = (int)$process['ID'];
+			$filter = new \Bitrix\Lists\Api\Data\IBlockService\IBlockListFilter();
+			$filter->setField('ID', $requestIBlockId, '=');
 
-			if (!$showAllProcesses && !CLists::getLiveFeed($iBlockId))
+			$response = $factory->getAddElementCatalog($filter);
+			if (!$response->isSuccess())
 			{
-				continue;
+				return $listInfo;
 			}
 
-			$data = [
-				'name' => $process['NAME'],
-				'iBlockTypeId' => $iBlockTypeId,
-				'iBlockId' => $iBlockId,
-				'icon' => '/bitrix/images/lists/default.png',
-				'selected' => false,
-			];
-
-			if (!$showAllProcesses)
+			[$process] = $response->getCatalog();
+			if ($process)
 			{
-				$url = new Uri($path . \Bitrix\Main\Config\Option::get('lists', 'livefeed_url'));
-				$url->addParams([
-					'livefeed' => 'y',
-					'list_id' => $iBlockId,
-					'element_id' => 0,
-					'back_url' => $this->request->getRequestUri(),
-				]);
-				$data['url'] = $url;
+				$iBlockId = (int)$process['ID'];
+				$listInfo = [
+					'name' => $process['NAME'],
+					'iBlockTypeId' => $iBlockTypeId,
+					'iBlockId' => $iBlockId,
+				];
 			}
-
-			if ($process['PICTURE'] > 0)
-			{
-				$imageFile = CFile::GetFileArray($process['PICTURE']);
-				if($imageFile !== false)
-				{
-					$imageFile = CFile::ResizeImageGet(
-						$imageFile,
-						['width' => 36, 'height' => 30],
-						BX_RESIZE_IMAGE_PROPORTIONAL,
-						false
-					);
-					$data['icon'] = $imageFile['src'];
-				}
-			}
-
-			if ($iBlockId === $requestIBlockId)
-			{
-				$data['selected'] = true;
-			}
-
-			$listData[] = $data;
 		}
 
-		return $listData;
+		return $listInfo;
 	}
 
 	private function getFilterFields(): array

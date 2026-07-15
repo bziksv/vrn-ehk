@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\Web;
@@ -40,10 +40,10 @@ class Uri implements \JsonSerializable, UriInterface
 		if ($parsedUrl !== false)
 		{
 			$this->scheme = strtolower($parsedUrl['scheme'] ?? '');
-			$this->host = strtolower($parsedUrl['host'] ?? '');
+			$this->setHost($parsedUrl['host'] ?? '');
 			$this->port = $parsedUrl['port'] ?? null;
-			$this->user = $parsedUrl['user'] ?? '';
-			$this->pass = $parsedUrl['pass'] ?? '';
+			$this->setUser($parsedUrl['user'] ?? '');
+			$this->setPass($parsedUrl['pass'] ?? '');
 			$this->path = $parsedUrl['path'] ?? '';
 			$this->query = $parsedUrl['query'] ?? '';
 			$this->fragment = $parsedUrl['fragment'] ?? '';
@@ -73,12 +73,27 @@ class Uri implements \JsonSerializable, UriInterface
 		}
 
 		$authority = $this->getAuthority();
+		$path = $this->getPath();
 		if ($authority != '')
 		{
 			$uri .= '//' . $authority;
+
+			if (!str_starts_with($path, '/'))
+			{
+				$uri .= '/';
+			}
+			$uri .= $path;
+		}
+		else
+		{
+			$uri .= $path;
 		}
 
-		$uri .= $this->getPathQuery();
+		$query = $this->getQuery();
+		if ($query != '')
+		{
+			$uri .= '?' . $query;
+		}
 
 		return $uri;
 	}
@@ -128,22 +143,22 @@ class Uri implements \JsonSerializable, UriInterface
 	}
 
 	/**
-	 * Returns the password.
+	 * Returns the rawurlencoded password.
 	 * @return string
 	 */
 	public function getPass()
 	{
-		return $this->pass;
+		return rawurlencode($this->pass);
 	}
 
 	/**
-	 * Sets the password.
+	 * Decodes and sets the password.
 	 * @param string $pass Password,
 	 * @return $this
 	 */
 	public function setPass($pass)
 	{
-		$this->pass = $pass;
+		$this->pass = rawurldecode($pass);
 		return $this;
 	}
 
@@ -168,7 +183,7 @@ class Uri implements \JsonSerializable, UriInterface
 	}
 
 	/**
-	 * Returns the path with the query.
+	 * Returns the path with the query. Empty path is treated as a root (/)
 	 * @return string
 	 */
 	public function getPathQuery()
@@ -227,22 +242,22 @@ class Uri implements \JsonSerializable, UriInterface
 	}
 
 	/**
-	 * Returns the user.
+	 * Returns the rawurlencoded user.
 	 * @return string
 	 */
 	public function getUser()
 	{
-		return $this->user;
+		return rawurlencode($this->user);
 	}
 
 	/**
-	 * Sets the user.
+	 * Decodes and sets the user.
 	 * @param string $user User.
 	 * @return $this
 	 */
 	public function setUser($user)
 	{
-		$this->user = $user;
+		$this->user = rawurldecode($user);
 		return $this;
 	}
 
@@ -350,7 +365,7 @@ class Uri implements \JsonSerializable, UriInterface
 
 	/**
 	 * Converts the host to punycode.
-	 * @return string|\Bitrix\Main\Error
+	 * @return string|Main\Error
 	 */
 	public function convertToPunycode()
 	{
@@ -358,7 +373,25 @@ class Uri implements \JsonSerializable, UriInterface
 
 		if (!empty($encodingErrors))
 		{
-			return new \Bitrix\Main\Error(implode("\n", $encodingErrors));
+			return new Main\Error(implode("\n", $encodingErrors));
+		}
+
+		$this->setHost($host);
+
+		return $host;
+	}
+
+	/**
+	 * Converts the host to Unicode.
+	 * @return string|Main\Error
+	 */
+	public function convertToUnicode()
+	{
+		$host = \CBXPunycode::ToUnicode($this->getHost(), $encodingErrors);
+
+		if (!empty($encodingErrors))
+		{
+			return new Main\Error(implode("\n", $encodingErrors));
 		}
 
 		$this->setHost($host);
@@ -383,11 +416,11 @@ class Uri implements \JsonSerializable, UriInterface
 	public static function urnEncode($str, $charset = 'UTF-8')
 	{
 		$result = '';
-		$arParts = preg_split("#(://|:\\d+/|/|\\?|=|&)#", $str, -1, PREG_SPLIT_DELIM_CAPTURE);
+		$parts = preg_split("#(://|:\\d+/|/|\\?|=|&)#", $str, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 		if ($charset === false)
 		{
-			foreach ($arParts as $i => $part)
+			foreach ($parts as $i => $part)
 			{
 				$result .= ($i % 2) ? $part : rawurlencode($part);
 			}
@@ -395,7 +428,7 @@ class Uri implements \JsonSerializable, UriInterface
 		else
 		{
 			$currentCharset = Main\Context::getCurrent()->getCulture()->getCharset();
-			foreach ($arParts as $i => $part)
+			foreach ($parts as $i => $part)
 			{
 				$result .= ($i % 2)	? $part	: rawurlencode(Encoding::convertEncoding($part, $currentCharset, $charset));
 			}
@@ -412,11 +445,11 @@ class Uri implements \JsonSerializable, UriInterface
 	public static function urnDecode($str, $charset = false)
 	{
 		$result = '';
-		$arParts = preg_split("#(://|:\\d+/|/|\\?|=|&)#", $str, -1, PREG_SPLIT_DELIM_CAPTURE);
+		$parts = preg_split("#(://|:\\d+/|/|\\?|=|&)#", $str, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 		if ($charset === false)
 		{
-			foreach ($arParts as $i => $part)
+			foreach ($parts as $i => $part)
 			{
 				$result .= ($i % 2) ? $part : rawurldecode($part);
 			}
@@ -424,7 +457,7 @@ class Uri implements \JsonSerializable, UriInterface
 		else
 		{
 			$currentCharset = Main\Context::getCurrent()->getCulture()->getCharset();
-			foreach ($arParts as $i => $part)
+			foreach ($parts as $i => $part)
 			{
 				$result .= ($i % 2) ? $part : rawurldecode(Encoding::convertEncoding($part, $charset, $currentCharset));
 			}
@@ -454,6 +487,61 @@ class Uri implements \JsonSerializable, UriInterface
 				$this->host = $request->getHttpHost();
 			}
 		}
+		return $this;
+	}
+
+	/**
+	 * Converts the relative URI to the absolute one within a context of a base URI.
+	 *
+	 * @see https://www.rfc-editor.org/rfc/rfc3986#section-5
+	 * @param Uri $base
+	 * @return $this
+	 */
+	public function resolveRelativeUri(Uri $base): Uri
+	{
+		if (empty($this->scheme))
+		{
+			if (empty($this->getAuthority()))
+			{
+				if (empty($this->getPath()))
+				{
+					$this->setPath($base->getPath());
+
+					if (empty($this->getQuery()))
+					{
+						$this->query = $base->getQuery();
+					}
+				}
+				else
+				{
+					if (!str_starts_with($this->getPath(), '/'))
+					{
+						$basePath = $base->getPath();
+
+						if (!empty($base->getAuthority()) && empty($basePath))
+						{
+							$this->setPath('/' . $this->getPath());
+						}
+						else
+						{
+							if (($p = strrpos($basePath, '/')) !== false)
+							{
+								$this->setPath(substr($basePath, 0, $p + 1) . $this->getPath());
+							}
+						}
+					}
+				}
+
+				// authority
+				$this->setUser($base->getUser());
+				$this->setPass($base->getPass());
+				$this->setHost($base->getHost());
+				$this->port = $base->getPort();
+			}
+
+			$this->scheme = $base->getScheme();
+		}
+
 		return $this;
 	}
 

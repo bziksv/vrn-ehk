@@ -26,6 +26,7 @@ $wizard->IncludeWizardLang('scripts/convert.php', $lang);
 require_once $_SERVER['DOCUMENT_ROOT'] . $wizard->path . '/wizard.php';
 
 $myConnection = \Bitrix\Main\Application::getConnection();
+$mySqlHelper = $myConnection->getSqlHelper();
 $pgConnection = \Bitrix\Main\Application::getConnection($_REQUEST['connection']);
 
 $error = '';
@@ -73,7 +74,8 @@ else
 				}
 			}
 
-			$tableInfo['COLUMNS'] = GetTableColumns($myConnection, $tableInfo['TABLE_NAME']);
+			$tableColumns = GetTableColumns($myConnection, $tableInfo['TABLE_NAME']);
+			$fullTextColumns = $pgConnection->getTableFullTextFields($tableInfo['TABLE_NAME']);
 
 			$i = intval($tableInfo['REC_COUNT']);
 			$di = 0;
@@ -84,8 +86,8 @@ else
 				$strSelect = '
 					SELECT *
 					FROM ' . $tableInfo['TABLE_NAME'] . '
-					' . ($tableInfo['LAST_ID'] <> '' ? 'WHERE ' . $tableInfo['KEY_COLUMN'] . " > '" . $tableInfo['LAST_ID'] . "'" : '') . '
-					ORDER BY ' . $tableInfo['KEY_COLUMN'] . '
+					' . ($tableInfo['LAST_ID'] <> '' ? 'WHERE ' . $mySqlHelper->quote($tableInfo['KEY_COLUMN']) . " > '" . $tableInfo['LAST_ID'] . "'" : '') . '
+					ORDER BY ' . $mySqlHelper->quote($tableInfo['KEY_COLUMN']) . '
 					LIMIT ' . $pageSize . '
 				';
 			}
@@ -110,11 +112,11 @@ else
 					{
 						$arSource[$key] = 'NULL';
 					}
-					elseif ($tableInfo['COLUMNS'][$key] == 0)
+					elseif ($tableColumns[$key] == 0)
 					{
 						$arSource[$key] = $value;
 					}
-					elseif ($tableInfo['COLUMNS'][$key] == 1)
+					elseif ($tableColumns[$key] == 1)
 					{
 						if (empty($value) && $value != '0')
 						{
@@ -125,14 +127,21 @@ else
 							$arSource[$key] = "decode('" . bin2hex($value) . "', 'hex')";
 						}
 					}
-					elseif ($tableInfo['COLUMNS'][$key] == 2)
+					elseif ($tableColumns[$key] == 2)
 					{
 						$value = str_replace('0000-00-00', '0001-01-01', $value);
 						$arSource[$key] = "'" . $pgConnection->getSqlHelper()->forSql($value) . "'";
 					}
-					elseif ($tableInfo['COLUMNS'][$key] == 3)
+					elseif ($tableColumns[$key] == 3)
 					{
-						$arSource[$key] = "'" . $pgConnection->getSqlHelper()->forSql($value) . "'";
+						if (array_key_exists($key, $fullTextColumns))
+						{
+							$arSource[$key] = $pgConnection->getSqlHelper()->convertToFullText($value);
+						}
+						else
+						{
+							$arSource[$key] = "'" . $pgConnection->getSqlHelper()->forSql($value) . "'";
+						}
 					}
 				}
 				$insertValues[] = '(' . implode(',', $arSource) . ')';

@@ -1,0 +1,5 @@
+<root>
+	<BusinessSubType name="Растениеводство"/>
+	<BusinessSubType name="Животноводство"/>
+	<BusinessSubType name="Рыбоводство"/>
+</root>

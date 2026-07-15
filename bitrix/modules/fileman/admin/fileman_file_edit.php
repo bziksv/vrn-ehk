@@ -1,10 +1,11 @@
-<?
-##############################################
-# Bitrix: SiteManager                        #
-# Copyright (c) 2002-2006 Bitrix             #
-# https://www.bitrixsoft.com                 #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+<?php
+
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage fileman
+ * @copyright 2001-2025 Bitrix
+ */
 
 use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
@@ -185,7 +186,7 @@ if($strWarning == '')
 			$filesrc_tmp = CFileman::GetTemplateContent($arTemplates[0]["file"], LANGUAGE_ID, array($site_template));
 	}
 
-	if($REQUEST_METHOD == "POST" && $save <> '' && $propeditmore == '' && !$only_read)
+	if($_SERVER['REQUEST_METHOD'] == "POST" && $save <> '' && $propeditmore == '' && !$only_read)
 	{
 		if(!check_bitrix_sessid())
 		{

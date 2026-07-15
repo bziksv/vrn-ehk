@@ -1,9 +1,9 @@
 <?php
 
 use Bitrix\Calendar\Core\Managers\Accessibility;
-use Bitrix\Calendar\Core\Mappers;
 use Bitrix\Calendar\Rooms;
 use Bitrix\Calendar\Integration\Bitrix24Manager;
+use Bitrix\Calendar\Sharing\SharingUser;
 use Bitrix\Calendar\Util;
 
 class CCalendarPlanner
@@ -21,7 +21,13 @@ class CCalendarPlanner
 
 		// Config
 		if (!$config['id'])
-			$config['id'] = (isset($config['id']) && $config['id'] <> '') ? $config['id'] : 'bx_calendar_planner'.mb_substr(uniqid(mt_rand(), true), 0, 4);
+		{
+			$config['id'] = (isset($config['id']) && $config['id'] <> '')
+				? $config['id']
+				: 'bx_calendar_planner'
+				. mb_substr(uniqid(mt_rand(), true), 0, 4)
+			;
+		}
 
 		$APPLICATION->AddHeadScript('/bitrix/js/calendar/planner.js');
 		$APPLICATION->SetAdditionalCSS("/bitrix/js/calendar/planner.css");
@@ -29,7 +35,7 @@ class CCalendarPlanner
 		$mess_lang = \Bitrix\Main\Localization\Loc::loadLanguageFile(__FILE__);
 		?>
 		<div id="<?= htmlspecialcharsbx($config['id'])?>" class="calendar-planner-wrapper"></div>
-		<script type="text/javascript">
+		<script>
 			BX.namespace('BX.Calendar');
 			if(typeof BX.Calendar.PlannerManager === 'undefined')
 			{
@@ -44,7 +50,6 @@ class CCalendarPlanner
 						if (window.CalendarPlanner)
 						{
 							BX.Calendar.PlannerManager.planners[id] = new window.CalendarPlanner(config, initialParams);
-							//BX.Calendar.PlannerManager.planners[id] = new BX.Calendar.Planner(config, initialParams);
 						}
 					}
 				}
@@ -60,10 +65,10 @@ class CCalendarPlanner
 				);
 			});
 		</script>
-		<?
+		<?php
 	}
 
-	public static function prepareData($params = [])
+	public static function prepareData($params = []): array
 	{
 		$parentId = (int)($params['parent_id'] ?? null);
 		$entryId = (int)($params['entry_id'] ?? null);
@@ -71,8 +76,9 @@ class CCalendarPlanner
 		$skipEntryId = $parentId !== 0 ? $parentId : $entryId;
 		$curUserId = (int)($params['user_id'] ?? null);
 		$hostUserId = (int)($params['host_id'] ?? null);
+		$skipFeatureCheck = $params['skipFeatureCheck'] ?? false;
 
-		$isPlannerFeatureEnabled = Bitrix24Manager::isPlannerFeatureEnabled();
+		$isPlannerFeatureEnabled = $skipFeatureCheck || Bitrix24Manager::isPlannerFeatureEnabled();
 
 		$skipEntryList = (isset($params['skipEntryList']) && is_array($params['skipEntryList']))
 			? $params['skipEntryList']
@@ -121,8 +127,9 @@ class CCalendarPlanner
 					'avatar' => CCalendar::GetUserAvatarSrc($user),
 					'strictStatus' => $userSettings['denyBusyInvitation'],
 					'emailUser' => isset($user['EXTERNAL_AUTH_ID']) && ($user['EXTERNAL_AUTH_ID'] === 'email'),
-					'sharingUser' => isset($user['EXTERNAL_AUTH_ID']) && ($user['EXTERNAL_AUTH_ID'] === 'calendar_sharing'),
+					'sharingUser' => isset($user['EXTERNAL_AUTH_ID']) && ($user['EXTERNAL_AUTH_ID'] === SharingUser::EXTERNAL_AUTH_ID),
 					'timezoneName' => CCalendar::GetUserTimezoneName((int)$user['USER_ID']),
+					'isCollabUser' => Util::isCollabUser((int)$user['USER_ID']),
 				];
 			}
 		}
@@ -138,7 +145,7 @@ class CCalendarPlanner
 		{
 			foreach($params['resources'] as $resource)
 			{
-				$resourceId = intval($resource['id']);
+				$resourceId = (int)$resource['id'];
 				$resourceIdList[] = $resourceId;
 				$resource['type'] = preg_replace("/[^a-zA-Z0-9_]/i", "", $resource['type']);
 				$result['entries'][] = array(
@@ -153,10 +160,16 @@ class CCalendarPlanner
 		$from = $params['date_from'] ?? null;
 		$to = $params['date_to'] ?? null;
 
-		if ($isPlannerFeatureEnabled)
+		if (empty($from) || empty($to))
+		{
+			return $result;
+		}
+
+		$maxPlannerUsers = \CCalendar::GetMaxPlannerUsers();
+		$dontLoadAccessibility = $maxPlannerUsers > 0 && count($userIds) > $maxPlannerUsers;
+		if ($isPlannerFeatureEnabled && !$dontLoadAccessibility)
 		{
 			$accessibility = (new Accessibility())
-				->setCheckPermissions(false)
 				->setSkipEventId($skipEntryId)
 				->getAccessibility($userIds, CCalendar::TimestampUTC($from), CCalendar::TimestampUTC($to))
 			;
@@ -284,7 +297,7 @@ class CCalendarPlanner
 
 					foreach ($meetingRoomRes as $entry)
 					{
-						if (in_array((int)$entry['ID'], $skipEntryList))
+						if ((int)$entry['PARENT_ID'] === $skipEntryId || in_array((int)$entry['ID'], $skipEntryList))
 						{
 							continue;
 						}
@@ -373,10 +386,5 @@ class CCalendarPlanner
 		}
 
 		return $result;
-	}
-
-	private static function getUsersIdList($params = [])
-	{
-
 	}
 }

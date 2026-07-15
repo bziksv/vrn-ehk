@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Iblock;
 
@@ -10,6 +11,11 @@ class CIBlockPropertySKU extends CIBlockPropertyElementAutoComplete
 
 	public static function GetUserTypeDescription()
 	{
+		if (!Loader::includeModule('catalog'))
+		{
+			return [];
+		}
+
 		return [
 			'PROPERTY_TYPE' => Iblock\PropertyTable::TYPE_ELEMENT,
 			'USER_TYPE' => Iblock\PropertyTable::USER_TYPE_SKU,
@@ -101,6 +107,36 @@ class CIBlockPropertySKU extends CIBlockPropertyElementAutoComplete
 			return '';
 		}
 
+		$viewMode = '';
+		$resultKey = '';
+		if (!empty($strHTMLControlName['MODE']))
+		{
+			switch ($strHTMLControlName['MODE'])
+			{
+				case 'CSV_EXPORT':
+					$viewMode = 'CSV_EXPORT';
+					$resultKey = 'ID';
+					break;
+				case 'EXTERNAL_ID':
+					$viewMode = 'EXTERNAL_ID';
+					$resultKey = 'XML_ID';
+					break;
+				case 'SIMPLE_TEXT':
+					$viewMode = 'SIMPLE_TEXT';
+					$resultKey = 'NAME';
+					break;
+				case 'ELEMENT_TEMPLATE':
+					$viewMode = 'ELEMENT_TEMPLATE';
+					$resultKey = 'NAME';
+					break;
+			}
+		}
+
+		if ($viewMode !== '' && $resultKey !== '')
+		{
+			return $element[$resultKey];
+		}
+
 		return htmlspecialcharsbx($element['NAME']) . ' [' . $elementId . ']';
 	}
 
@@ -139,15 +175,21 @@ class CIBlockPropertySKU extends CIBlockPropertyElementAutoComplete
 			return null;
 		}
 
-		$element = CIBlockElement::GetList(
+		$iterator = CIBlockElement::GetList(
 			[],
 			[
 				'ID' => $elementId,
 			],
 			false,
 			false,
-			['ID', 'IBLOCK_ID', 'NAME']
-		)->Fetch();
+			[
+				'ID',
+				'IBLOCK_ID',
+				'NAME',
+				'XML_ID',
+			]
+		);
+		$element = $iterator->Fetch();
 
 		if ($element)
 		{

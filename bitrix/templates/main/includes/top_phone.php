@@ -1,1 +1,1 @@
- <span class="number"> <a href="tel:+7473-200-89-81">+7 (473) 200-89-81</a></span>
+<span class="number"> <a href="tel:88007550776">8 800 755-07-76</a></span>

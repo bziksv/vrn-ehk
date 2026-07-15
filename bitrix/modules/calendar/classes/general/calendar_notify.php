@@ -2,15 +2,13 @@
 /** var CMain $APPLICATION */
 IncludeModuleLangFile(__FILE__);
 
-use Bitrix\Calendar\Core\Mappers;
+use Bitrix\Main\Engine\UrlManager;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
-use Bitrix\Calendar\Sharing;
 
 class CCalendarNotify
 {
 	const PUSH_MESSAGE_MAX_LENGTH = 255;
-	public const NOTIFY_USERS_ADDED_TO_MULTI_LINK = 'users_added_to_multi_link';
 
 	public static function Send($params)
 	{
@@ -19,12 +17,18 @@ class CCalendarNotify
 			return false;
 		}
 
-//		$params['rrule'] = CCalendarEvent::GetRRULEDescription($params['fields'] ?? null, false, false);
 		$params["eventId"] = (int)($params["eventId"] ?? null);
 		$mode = $params['mode'];
 		$fromUser = (int)$params["userId"];
 		$toUser = (int)$params["guestId"];
-		if (!$fromUser || !$toUser || ($toUser === $fromUser && !in_array($mode, ['status_accept', 'status_decline', 'fail_ical_invite'])))
+		if (
+			!$fromUser
+			|| !$toUser
+			|| (
+				$toUser === $fromUser
+				&& !in_array($mode, ['status_accept', 'status_decline', 'fail_ical_invite', 'ics_link'])
+			)
+		)
 		{
 			return false;
 		}
@@ -132,6 +136,9 @@ class CCalendarNotify
 			case 'cancel_booking':
 				$notifyFields = self::CancelBooking($notifyFields, $params);
 				break;
+			case 'ics_link':
+				$notifyFields = self::IcsLink($notifyFields, $params);
+				break;
 		}
 
 		$messageId = CIMNotify::Add($notifyFields);
@@ -140,15 +147,6 @@ class CCalendarNotify
 			$CIMNotify = new CIMNotify((int)($params["userId"] ?? null));
 			$CIMNotify->MarkNotifyRead($messageId);
 		}
-
-		$spaceEventData = $notifyFields;
-		$spaceEventData['ID'] = $params['eventId'] ?? null;
-		$spaceEventData['ATTENDEES_CODES'] = $params['fields']['ATTENDEES_CODES'] ?? null;
-		unset($spaceEventData['TITLE']);
-		(new \Bitrix\Calendar\Integration\SocialNetwork\SpaceService())->addEvent(
-			$mode,
-			$spaceEventData
-		);
 
 		foreach(GetModuleEvents("calendar", "OnSendInvitationMessage", true) as $arEvent)
 		{
@@ -732,8 +730,8 @@ class CCalendarNotify
 		$fields['NOTIFY_EVENT'] = "info";
 		$fields['FROM_USER_ID'] = (int)$params["guestId"];
 		$fields['TO_USER_ID'] = (int)$params["userId"];
-		$fields['NOTIFY_TAG'] = "CALENDAR|STATUS|".$params['eventId']."|". (int)$params["userId"];
-		$fields['NOTIFY_SUB_TAG'] = "CALENDAR|STATUS|".$params['eventId'];
+		$fields['NOTIFY_TAG'] = "CALENDAR|STATUS|" . $params['eventId'] . "|" . (int)$params["userId"];
+		$fields['NOTIFY_SUB_TAG'] = "CALENDAR|STATUS|" . $params['eventId'];
 
 		if (($params['isSharing'] ?? false) && $params['mode'] === 'status_accept')
 		{
@@ -751,16 +749,17 @@ class CCalendarNotify
 		}
 		else
 		{
-			$fields['MESSAGE'] = fn (?string $languageId = null) => Loc::getMessage(
-				$params['mode'] === 'status_accept'
-					? 'EC_MESS_STATUS_NOTIFY_Y_SITE'
-					: 'EC_MESS_STATUS_NOTIFY_N_SITE',
-				[
-					'#TITLE#' => "[url=".$params["pathToEvent"]."]".$params["name"]."[/url]",
-					'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId)
-				],
-				$languageId
-			);
+			$fields['MESSAGE'] = static fn (?string $languageId = null) =>
+				Loc::getMessage(
+					$params['mode'] === 'status_accept'
+						? 'EC_MESS_STATUS_NOTIFY_Y_SITE'
+						: 'EC_MESS_STATUS_NOTIFY_N_SITE',
+					[
+						'#TITLE#' => "[url=".$params["pathToEvent"]."]".$params["name"]."[/url]",
+						'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId)
+					],
+					$languageId
+				);
 
 			$fields['NOTIFY_LINK'] = $params["pathToEvent"];
 		}
@@ -860,7 +859,7 @@ class CCalendarNotify
 
 			// Here we don't need info about users
 			$attendees = CCalendarEvent::GetAttendees($aId);
-			if (is_array($attendees) && is_array($attendees[$aId]))
+			if (is_array($attendees) && is_array($attendees[$aId] ?? null))
 			{
 				if (!$instanceDate)
 				{
@@ -954,11 +953,13 @@ class CCalendarNotify
 			{
 				CIMNotify::DeleteByTag("CALENDAR|INVITE|".$eventId."|".$userId);
 				CIMNotify::DeleteByTag("CALENDAR|STATUS|".$eventId."|".$userId);
+				CIMNotify::DeleteByTag("CALENDAR|ICS|".$eventId."|".$userId);
 			}
 			elseif($eventId)
 			{
 				CIMNotify::DeleteBySubTag("CALENDAR|INVITE|".$eventId);
 				CIMNotify::DeleteBySubTag("CALENDAR|STATUS|".$eventId);
+				CIMNotify::DeleteBySubTag("CALENDAR|ICS|".$eventId);
 			}
 		}
 	}
@@ -1129,14 +1130,54 @@ class CCalendarNotify
 		return $fields;
 	}
 
+	private static function IcsLink(array $fields = [], array $params = []): array
+	{
+		$fields['NOTIFY_EVENT'] = 'info';
+		$fields['FROM_USER_ID'] = (int)$params['guestId'];
+		$fields['TO_USER_ID'] = (int)$params['userId'];
+		$fields['NOTIFY_TAG'] = 'CALENDAR|ICS|' . $params['eventId'] . '|' . (int)$params['userId'];
+		$fields['NOTIFY_SUB_TAG'] = 'CALENDAR|ICS|' . $params['eventId'];
+		$uri = sprintf(
+			'%s/calendar/ics/?EVENT_ID=%d',
+			UrlManager::getInstance()->getHostUrl(),
+			$params['eventId']
+		);
+
+		$fields['MESSAGE'] = static fn (?string $languageId = null) =>
+			Loc::getMessage(
+				'EC_MESS_STATUS_NOTIFY_DOWNLOAD_ICS',
+				[
+					'#TITLE#' => '[url=' . $params['pathToEvent'] . ']' . $params['name'] . '[/url]',
+					'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId),
+					'#LINK#' => $uri,
+				],
+				$languageId
+			);
+
+		$fields['MESSAGE_OUT'] = static fn (?string $languageId = null) =>
+			Loc::getMessage(
+				'EC_MESS_STATUS_NOTIFY_DOWNLOAD_ICS',
+				[
+					'#TITLE#' => '[url=' . $params['pathToEvent'] . ']' . $params['name'] . '[/url]',
+					'#ACTIVE_FROM#' => self::getFromFormatted($params, $languageId),
+					'#LINK#' => $uri,
+				],
+				$languageId
+			);
+
+		$fields['NOTIFY_LINK'] = $params['pathToEvent'];
+
+		return $fields;
+	}
+
 	private static function getFromFormatted($params, ?string $languageId = null): string
 	{
 		$culture = \Bitrix\Main\Context::getCurrent()?->getCulture();
-		$result = FormatDate($culture?->getFullDateFormat(), $params['from_timestamp'], false);
+		$result = FormatDate($culture?->getFullDateFormat(), $params['from_timestamp'], false, $languageId);
 
 		if (($params['fields']['DT_SKIP_TIME'] ?? null) !== 'Y')
 		{
-			$result .= ' ' . FormatDate($culture?->getShortTimeFormat(), $params['from_timestamp'], false);
+			$result .= ' ' . FormatDate($culture?->getShortTimeFormat(), $params['from_timestamp'], false, $languageId);
 		}
 
 		return $result;

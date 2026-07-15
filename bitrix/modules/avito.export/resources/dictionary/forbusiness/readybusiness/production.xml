@@ -1,0 +1,13 @@
+<Catering>
+	<BusinessSubType name="Автомобильное производство"/>
+	<BusinessSubType name="Деревообрабатывающее производство"/>
+	<BusinessSubType name="Добыча и обработка ископаемых"/>
+	<BusinessSubType name="Мебельное производство"/>
+	<BusinessSubType name="Металлообрабатывающее производство"/>
+	<BusinessSubType name="Переработка и утилизация"/>
+	<BusinessSubType name="Пищевое производство"/>
+	<BusinessSubType name="Производство строительных материалов"/>
+	<BusinessSubType name="Производство товаров"/>
+	<BusinessSubType name="Текстильное производство"/>
+	<BusinessSubType name="Химическое производство"/>
+</Catering>

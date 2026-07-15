@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_component_elements,im_v2_component_message_supervisor_base,main_core,im_v2_lib_analytics) {
+(function (exports,im_v2_component_elements_button,im_v2_component_message_supervisor_base,main_core,im_v2_lib_analytics,im_v2_lib_helpdesk) {
 	'use strict';
 
 	const EnableFeatures = Object.freeze({
@@ -23,7 +23,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  scrum: 'scrum',
 	  invoices: 'invoices',
 	  saleshub: 'saleshub',
-	  websitesStores: 'sites'
+	  websitesStores: 'sites',
+	  checkIn: 'checkIn',
+	  checkInGeo: 'checkInGeo'
 	});
 	const UpdateFeatures = Object.freeze({
 	  collaborativeDocumentEditing: 'limit_office_no_document',
@@ -39,11 +41,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	const onOpenPriceTable = featureId => {
 	  return () => {
-	    im_v2_lib_analytics.Analytics.getInstance().onOpenPriceTable(featureId);
+	    im_v2_lib_analytics.Analytics.getInstance().supervisor.onOpenPriceTable(featureId);
 	    BX.SidePanel.Instance.open(`${window.location.origin}/settings/license_all.php`);
 	  };
 	};
-	const onHelpClick = ARTICLE_CODE => BX.Helper.show(`redirect=detail&code=${ARTICLE_CODE}`);
+	const onHelpClick = ARTICLE_CODE => im_v2_lib_helpdesk.openHelpdeskArticle(ARTICLE_CODE);
 	const metaData = {
 	  [UpdateFeatures.collaborativeDocumentEditing]: {
 	    title: main_core.Loc.getMessage(`IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_${UpdateFeatures.collaborativeDocumentEditing}`),
@@ -160,7 +162,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const SupervisorUpdateFeatureMessage = {
 	  name: 'SupervisorUpdateFeatureMessage',
 	  components: {
-	    ButtonComponent: im_v2_component_elements.Button,
+	    ChatButton: im_v2_component_elements_button.ChatButton,
 	    SupervisorBaseMessage: im_v2_component_message_supervisor_base.SupervisorBaseMessage
 	  },
 	  props: {
@@ -177,8 +179,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    message() {
 	      return this.item;
 	    },
-	    ButtonSize: () => im_v2_component_elements.ButtonSize,
-	    ButtonColor: () => im_v2_component_elements.ButtonColor,
+	    ButtonSize: () => im_v2_component_elements_button.ButtonSize,
+	    ButtonColor: () => im_v2_component_elements_button.ButtonColor,
 	    toolId() {
 	      return this.message.componentParams[TOOL_ID_PARAMS_KEY];
 	    },
@@ -200,14 +202,14 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				<div :class="['bx-im-message-update-features__image-wrapper', modifierImageClass]" />
 			</template>
 			<template #actions>
-				<ButtonComponent
+				<ChatButton
 					:size="ButtonSize.L"
 					:isRounded="true"
 					:color="ButtonColor.Success"
 					:text="toolData.detailButton.text"
 					@click="toolData.detailButton.callback"
 				/>
-				<ButtonComponent
+				<ChatButton
 					:size="ButtonSize.L"
 					:color="ButtonColor.LightBorder"
 					:isRounded="true"
@@ -221,5 +223,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.SupervisorUpdateFeatureMessage = SupervisorUpdateFeatureMessage;
 
-}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.Message,BX,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.Message,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
 //# sourceMappingURL=update-feature.bundle.js.map

@@ -1,0 +1,30 @@
+<root>
+	<ProductType name="Бортовые">
+		<Brand file="trailers/flatbed_brand.xml"/>
+		<Axles name="1"/>
+		<Axles name="2"/>
+		<Axles name="3"/>
+		<GrossVehicleWeight variable="text"/>
+		<DumpTruckFunction name="Да"/>
+		<DumpTruckFunction name="Нет"/>
+	</ProductType>
+	<ProductType name="Для водного транспорта">
+		<VehicleType name="Лодка"/>
+		<VehicleType name="Катер"/>
+		<VehicleType name="Гидроцикл"/>
+		<VehicleType name="Яхта"/>
+		<Brand file="trailers/flatbed_brand.xml"/>
+	</ProductType>
+	<ProductType name="Эвакуаторы"/>
+	<ProductType name="Запчасти и комплектующие">
+		<PartsHindcarriageType name="Сцепное устройство"/>
+		<PartsHindcarriageType name="Детали подвески"/>
+		<PartsHindcarriageType name="Борта"/>
+		<PartsHindcarriageType name="Кузовные запчасти"/>
+		<PartsHindcarriageType name="Крепление"/>
+		<PartsHindcarriageType name="Опорные колеса и стойки"/>
+		<PartsHindcarriageType name="Электроника и свет"/>
+		<PartsHindcarriageType name="Тенты и крышки"/>
+	</ProductType>
+	<ProductType name="Другое"/>
+</root>

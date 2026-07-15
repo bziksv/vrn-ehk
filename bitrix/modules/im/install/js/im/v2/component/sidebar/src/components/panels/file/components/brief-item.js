@@ -1,10 +1,16 @@
 import 'ui.icons';
+import { Text } from 'main.core';
 
-import { ImModelSidebarFileItem, ImModelFile } from 'im.v2.model';
 import { Utils } from 'im.v2.lib.utils';
-import { MessageAvatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
+import { FileViewerContext } from 'im.v2.const';
+import { highlightText } from 'im.v2.lib.text-highlighter';
+import { ChatTitle } from 'im.v2.component.elements.chat-title';
+import { MessageAvatar, AvatarSize } from 'im.v2.component.elements.avatar';
 
 import '../css/brief-item.css';
+
+import type { JsonObject } from 'main.core';
+import type { ImModelSidebarFileItem, ImModelFile } from 'im.v2.model';
 
 // @vue/component
 export const BriefItem = {
@@ -19,9 +25,15 @@ export const BriefItem = {
 			type: String,
 			required: true,
 		},
+		searchQuery: {
+			type: String,
+			default: '',
+			required: false,
+		},
 	},
 	emits: ['contextMenuClick'],
-	data() {
+	data(): JsonObject
+	{
 		return {
 			showContextButton: false,
 		};
@@ -40,8 +52,13 @@ export const BriefItem = {
 		fileShortName(): string
 		{
 			const NAME_MAX_LENGTH = 15;
+			const shortName = Utils.file.getShortFileName(this.file.name, NAME_MAX_LENGTH);
+			if (this.searchQuery.length === 0)
+			{
+				return Text.encode(shortName);
+			}
 
-			return Utils.file.getShortFileName(this.file.name, NAME_MAX_LENGTH);
+			return highlightText(Text.encode(shortName), this.searchQuery);
 		},
 		fileSize(): string
 		{
@@ -49,7 +66,11 @@ export const BriefItem = {
 		},
 		viewerAttributes(): Object
 		{
-			return Utils.file.getViewerDataAttributes(this.file.viewerAttrs);
+			return Utils.file.getViewerDataAttributes({
+				viewerAttributes: this.file.viewerAttrs,
+				previewImageSrc: this.file.urlPreview,
+				context: FileViewerContext.sidebarTabBriefs,
+			});
 		},
 		isViewerAvailable(): boolean
 		{
@@ -65,8 +86,7 @@ export const BriefItem = {
 				return;
 			}
 
-			const urlToOpen = this.file.urlShow ? this.file.urlShow : this.file.urlDownload;
-			window.open(urlToOpen, '_blank');
+			window.open(this.file.urlDownload, '_blank');
 		},
 		onContextMenuClick(event)
 		{
@@ -87,7 +107,7 @@ export const BriefItem = {
 			<div class="bx-im-sidebar-brief-item__content-container">
 				<div class="bx-im-sidebar-brief-item__content">
 					<div class="bx-im-sidebar-brief-item__title" @click="download" v-bind="viewerAttributes">
-						<span class="bx-im-sidebar-brief-item__title-text" :title="file.name">{{fileShortName}}</span>
+						<span class="bx-im-sidebar-brief-item__title-text" :title="file.name" v-html="fileShortName"></span>
 						<span class="bx-im-sidebar-brief-item__size-text">{{fileSize}}</span>
 					</div>
 					<div class="bx-im-sidebar-brief-item__author-container">

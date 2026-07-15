@@ -4,6 +4,7 @@ import { Actions } from '../actions';
 import { ProviderRequestFactory } from '../provider-request-factory';
 import { ProvidersType } from '../types/providers-type';
 import { BaseProvider } from './base-provider';
+import { FeaturePromotersRegistry } from 'ui.info-helper';
 
 export class SliderProvider extends BaseProvider
 {
@@ -13,6 +14,7 @@ export class SliderProvider extends BaseProvider
 		this.frameUrlTemplate = params.frameUrlTemplate || '';
 		this.frameUrl = Type.isStringFilled(params.frameUrl) ? params.frameUrl : '';
 		this.width = Type.isNumber(params.width) ? params.width : 700;
+		this.constructorParams = params;
 
 		if (params.dataSource && params.dataSource instanceof Promise)
 		{
@@ -20,7 +22,12 @@ export class SliderProvider extends BaseProvider
 		}
 		else
 		{
-			this.dataSource = (new ProviderRequestFactory(ProvidersType.SLIDER)).getRequest();
+			const providerRequestFactoryConfiguration = {
+				type: ProvidersType.SLIDER,
+				code: null,
+				featureId: params.featureId,
+			};
+			this.dataSource = (new ProviderRequestFactory(providerRequestFactoryConfiguration)).getRequest();
 		}
 	}
 
@@ -36,8 +43,16 @@ export class SliderProvider extends BaseProvider
 
 		const contentCallback = (slider) => {
 			return new Promise((resolve, reject) => {
-				(new ProviderRequestFactory(ProvidersType.SLIDER)).getRequest()
+				const providerRequestFactoryConfiguration = {
+					type: ProvidersType.SLIDER,
+				};
+				(new ProviderRequestFactory(providerRequestFactoryConfiguration)).getRequest()
 					.then((response) => {
+						if (!Type.isStringFilled(this.frameUrlTemplate))
+						{
+							this.frameUrlTemplate = response.data?.frameUrlTemplate ?? '';
+						}
+
 						frame.src = this.#buildUrl(code);
 
 						return this.#createContainerNode(this.getLoader(), frame);
@@ -45,12 +60,19 @@ export class SliderProvider extends BaseProvider
 					.then((content) => resolve(content));
 			});
 		};
+
+		const provider = FeaturePromotersRegistry.getPromoter({ code }).getProvider();
+
 		this.#openSlider({
 			id: sliderId,
 			contentCallback: contentCallback.bind(this),
 			width: width,
 			events: {
-				onLoad: () => this.showFrame(frame),
+				onLoad: () => {
+					provider.frameNode = frame;
+					provider.frameUrl = frame.src;
+					this.showFrame(frame);
+				},
 			},
 		});
 	}
@@ -67,7 +89,7 @@ export class SliderProvider extends BaseProvider
 			params = {};
 		}
 
-		if (!code)
+		if (!code && !params.featureId && !this.constructorParams.featureId && !this.constructorParams.dataSource)
 		{
 			return;
 		}
@@ -83,6 +105,11 @@ export class SliderProvider extends BaseProvider
 					this.dataSource
 						.then((response) => {
 							const { data } = response;
+							if (data.code)
+							{
+								code = data.code;
+							}
+
 							this.frameUrlTemplate = data.frameUrlTemplate;
 							this.frameUrl = this.#buildUrl(code, params, data);
 

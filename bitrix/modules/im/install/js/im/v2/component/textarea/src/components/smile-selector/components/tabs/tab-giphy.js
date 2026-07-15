@@ -1,7 +1,9 @@
 import { Runtime } from 'main.core';
 
-import { SendingService } from 'im.v2.provider.service';
-import { Loader, Spinner, SpinnerSize, SpinnerColor } from 'im.v2.component.elements';
+import { SendingService } from 'im.v2.provider.service.sending';
+import { Loader, Spinner, SpinnerSize, SpinnerColor } from 'im.v2.component.elements.loader';
+import { openHelpdeskArticle } from 'im.v2.lib.helpdesk';
+
 import { GifService, GifItem } from '../../classes/gif-service';
 
 import '../../../../css/smile-selector/tabs/tab-smiles.css';
@@ -211,7 +213,7 @@ export const TabGiphy = {
 		openHelpArticle()
 		{
 			const ARTICLE_CODE = '17942324';
-			BX.Helper?.show(`redirect=detail&code=${ARTICLE_CODE}`);
+			openHelpdeskArticle(ARTICLE_CODE);
 		},
 	},
 	template: `

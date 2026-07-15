@@ -1,0 +1,10 @@
+<root>
+	<BusinessSubType name="Аптеки и оптики"/>
+	<BusinessSubType name="Косметологии"/>
+	<BusinessSubType name="Медицинские центры"/>
+	<BusinessSubType name="Парикмахерские и барбершопы"/>
+	<BusinessSubType name="Салоны красоты"/>
+	<BusinessSubType name="Стоматологии"/>
+	<BusinessSubType name="Студии маникюра"/>
+	<BusinessSubType name="Студии массажа"/>
+</root>

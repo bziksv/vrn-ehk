@@ -93,8 +93,10 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 
 		$this->arParams['USE_LINK_TARGETS_REPLACING'] = isset($this->arParams['USE_LINK_TARGETS_REPLACING']) && $this->arParams['USE_LINK_TARGETS_REPLACING'];
 		$this->arParams['PLAIN_VIEW'] = isset($this->arParams['PLAIN_VIEW']) && $this->arParams['PLAIN_VIEW'];
+		$this->arParams['HIDE_TOOLBAR'] = (bool)($this->arParams['HIDE_TOOLBAR'] ?? false);
 		$this->arParams['USE_PADDING'] = !isset($this->arParams['USE_PADDING']) || $this->arParams['USE_PADDING'];
 		$this->arParams['USE_UI_TOOLBAR_MARGIN'] = !isset($this->arParams['USE_UI_TOOLBAR_MARGIN']) || $this->arParams['USE_UI_TOOLBAR_MARGIN'];
+		$this->arParams['USE_UI_TOOLBAR'] = isset($this->arParams['USE_UI_TOOLBAR']) && $this->arParams['USE_UI_TOOLBAR'] === 'Y';
 		$this->arParams['USE_BACKGROUND_CONTENT'] = !isset($this->arParams['USE_BACKGROUND_CONTENT']) || $this->arParams['USE_BACKGROUND_CONTENT'];
 		$this->arParams['BUTTONS'] = $this->arParams['BUTTONS'] ?? [];
 		$this->arParams['PAGE_MODE'] = !isset($this->arParams['PAGE_MODE']) || $this->arParams['PAGE_MODE'];
@@ -118,6 +120,8 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 			$this->arParams['RELOAD_GRID_AFTER_SAVE'] = false;
 			$this->arParams['RELOAD_PAGE_AFTER_SAVE'] = false;
 		}
+
+		$this->arResult['CUSTOM_BACKGROUND_STYLE'] = $this->arParams['CUSTOM_BACKGROUND_STYLE'] ?? '';
 
 		$this->arResult["SKIP_NOTIFICATION"] = $this->request->get("notifyAfterSave") === "N";
 		$this->arParams['USE_TOP_MENU'] =
@@ -161,6 +165,12 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 		{
 			$this->arResult["SHOW_BITRIX24_THEME"] = "N";
 		}
+
+		$this->arResult['DESIGN_SYSTEM_CONTEXT'] = (
+			isset($this->arParams['DESIGN_SYSTEM_CONTEXT']) && is_string($this->arParams['DESIGN_SYSTEM_CONTEXT'])
+				? $this->arParams['DESIGN_SYSTEM_CONTEXT']
+				: ''
+		);
 
 		if ($this->isPageSliderContext() && !self::$isWrapperCalled)
 		{

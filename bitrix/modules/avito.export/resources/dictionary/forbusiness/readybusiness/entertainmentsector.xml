@@ -1,0 +1,11 @@
+<root>
+	<BusinessSubType name="Спорт и активный отдых"/>
+	<BusinessSubType name="Виртуальная реальность"/>
+	<BusinessSubType name="Компьютерные клубы"/>
+	<BusinessSubType name="Развлечения для детей"/>
+	<BusinessSubType name="Досуг и творчество"/>
+	<BusinessSubType name="Ночные и караоке клубы"/>
+	<BusinessSubType name="Аттракционы"/>
+	<BusinessSubType name="Культура и просвещение"/>
+	<BusinessSubType name="Бани и сауны"/>
+</root>

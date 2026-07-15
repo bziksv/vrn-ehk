@@ -23,8 +23,14 @@ class LogEntry extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract
 	protected const STATUS_DENIED = 'denied';
 	protected const STATUS_ERROR = 'error';
 
-	/** @var ErrorCollection errorCollection */
-	protected $errorCollection;
+	protected ErrorCollection $errorCollection;
+
+	public function __construct($component = null)
+	{
+		parent::__construct($component);
+
+		$this->errorCollection = new ErrorCollection();
+	}
 
 	public function getErrorByCode($code)
 	{
@@ -84,7 +90,7 @@ class LogEntry extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract
 		{
 			$folderUsers = Option::get('socialnetwork', 'user_page', false, SITE_ID);
 			$params['PATH_TO_LOG_TAG'] = $folderUsers . 'log/?TAG=#tag#';
-			if (SITE_TEMPLATE_ID === 'bitrix24')
+			if (SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air')
 			{
 				$params['PATH_TO_LOG_TAG'] .= '&apply_filter=Y';
 			}

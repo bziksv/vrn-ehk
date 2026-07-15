@@ -1,0 +1,8 @@
+<root>
+	<Originality name="Оригинал"/>
+	<Originality name="Аналог">
+		<OriginalVendor file="originalvendor.xml"/>
+		<OriginalOEM variable="text"/>
+	</Originality>
+	<Originality name="Не знаю"/>
+</root>

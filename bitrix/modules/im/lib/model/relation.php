@@ -38,9 +38,9 @@ use Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Relation_Query query()
- * @method static EO_Relation_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Relation_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Relation_Result getById($id)
- * @method static EO_Relation_Result getList(array $parameters = array())
+ * @method static EO_Relation_Result getList(array $parameters = [])
  * @method static EO_Relation_Entity getEntity()
  * @method static \Bitrix\Im\Model\EO_Relation createObject($setDefaultValues = true)
  * @method static \Bitrix\Im\Model\EO_Relation_Collection createCollection()
@@ -117,6 +117,11 @@ class RelationTable extends Entity\DataManager
 				'default_value' => '',
 				'validation' => array(__CLASS__, 'validateReason'),
 			),
+			'IS_HIDDEN' => array(
+				'data_type' => 'boolean',
+				'values' => array('N', 'Y'),
+				'default_value' => 'N',
+			),
 			'LAST_FILE_ID' => array(
 				'data_type' => 'integer',
 				//'title' => Loc::getMessage('RELATION_ENTITY_LAST_FILE_ID_FIELD'),
@@ -173,7 +178,7 @@ class RelationTable extends Entity\DataManager
 				'reference' => array('=this.LAST_ID' => 'ref.ID'),
 			),
 			'USER' => array(
-				'data_type' => 'Bitrix\Main\User',
+				'data_type' => 'Bitrix\Im\Model\UserTable',
 				'reference' => array('=this.USER_ID' => 'ref.ID'),
 			),
 		);

@@ -169,6 +169,7 @@ class CPullOptions
 	{
 		Option::set("pull", "server_mode", $mode);
 	}
+
 	public static function IsServerShared()
 	{
 		return static::GetQueueServerMode() == static::SERVER_MODE_SHARED;
@@ -189,6 +190,16 @@ class CPullOptions
 			CAgent::RemoveAgent("CPushManager::SendAgent();", "pull");
 
 		return true;
+	}
+
+	public static function SetSharedWorkerAllowed(bool $val): void
+	{
+		Option::set('pull', 'shared_worker_allowed', $val ? 'Y' : 'N') ;
+	}
+
+	public static function IsSharedWorkerAllowed(): bool
+	{
+		return Option::get('pull', 'shared_worker_allowed', 'Y') === 'Y';
 	}
 
 	public static function GetPushMessagePerHit()
@@ -622,7 +633,7 @@ class CPullOptions
 		{
 			$userId = intval($GLOBALS['USER']->GetID());
 		}
-		else if (IsModuleInstalled('statistic') && intval($_SESSION["SESS_SEARCHER_ID"]) <= 0 && intval($_SESSION["SESS_GUEST_ID"]) > 0 && COption::GetOptionString("pull", "guest", self::GetDefaultOption("guest")) == 'Y')
+		else if (IsModuleInstalled('statistic') && intval($_SESSION["SESS_SEARCHER_ID"] ?? 0) <= 0 && intval($_SESSION["SESS_GUEST_ID"] ?? 0) > 0 && COption::GetOptionString("pull", "guest", self::GetDefaultOption("guest")) == 'Y')
 		{
 			$userId = intval($_SESSION["SESS_GUEST_ID"])*-1;
 		}

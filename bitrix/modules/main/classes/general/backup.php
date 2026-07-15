@@ -1,5 +1,17 @@
 <?php
+/*
+ Test tar no compression no encryption
+ /var/www/html/bitrix/backup# cat `ls -1v *.tar*` | tar tvf -
 
+ Test encrypted tar with no compression
+ /var/www/html/bitrix/backup# cat `ls -1v *.enc*` | tail -c +513 | openssl aes-256-ecb -d -in - -out - -K `php -r 'echo bin2hex(md5("passwd"));'` -nosalt -nopad | tar tvf -
+
+ Test compressed tar no encryption
+ /var/www/html/bitrix/backup# cat `ls -1v *.tar.gz*` | tar tvzf -
+
+ Test compressed and encrypted tar
+ /var/www/html/bitrix/backup# cat `ls -1v *.enc.gz*` | gunzip | tail -c +513 | openssl aes-256-ecb -d -in - -out - -K `php -r 'echo bin2hex(md5("passwd"));'` -nosalt -nopad | tar tvf -
+*/
 class CBackup
 {
 	static $DOCUMENT_ROOT_SITE;
@@ -1980,8 +1992,8 @@ class CloudDownload
 				if (!haveTime()) // Сохраняется путь файла, который еще предстоит сохранить, TODO: пошаговое скачивание больших файлов
 					return false;
 
-				$HTTP = new CHTTP;
-				if ($HTTP->Download($this->obBucket->GetFileSRC(array("URN" => $name)), DOCUMENT_ROOT.BX_ROOT.'/backup/clouds/'.$this->id.$name))
+				$http = new \Bitrix\Main\Web\HttpClient();
+				if ($http->download($this->obBucket->GetFileSRC(array("URN" => $name)), DOCUMENT_ROOT.BX_ROOT.'/backup/clouds/'.$this->id.$name))
 				{
 					$this->download_size += $arCloudFiles['file_size'][$k];
 					$this->download_cnt++;

@@ -4,6 +4,7 @@ import { typeof BBCodeFragmentNode } from './fragment-node';
 import { type BBCodeNodeStringifier } from '../scheme/node-schemes/node-scheme';
 import { typeof BBCodeTagScheme } from '../scheme/node-schemes/tag-scheme';
 import { typeof BBCodeScheme } from '../scheme/bbcode-scheme';
+import { type BBCodeToStringOptions } from './root-node';
 
 export type BBCodeElementNodeValue = string | number | boolean;
 
@@ -175,10 +176,10 @@ export class BBCodeElementNode extends BBCodeNode
 	appendChild(...children: Array<BBCodeContentNode | BBCodeFragmentNode>)
 	{
 		const flattenedChildren: Array<BBCodeContentNode> = BBCodeNode.flattenChildren(children);
-		const filteredChildren: FilteredChildren = this.filterChildren(flattenedChildren);
-		const convertedChildren: Array<BBCodeContentNode> = this.convertChildren(filteredChildren.resolved);
+		const convertedChildren: Array<BBCodeContentNode> = this.convertChildren(flattenedChildren);
+		const filteredChildren: FilteredChildren = this.filterChildren(convertedChildren);
 
-		convertedChildren.forEach((node: BBCodeContentNode) => {
+		filteredChildren.resolved.forEach((node: BBCodeContentNode) => {
 			node.remove();
 			node.setParent(this);
 			this.children.push(node);
@@ -186,7 +187,16 @@ export class BBCodeElementNode extends BBCodeNode
 
 		if (Type.isArrayFilled(filteredChildren.unresolved))
 		{
-			if (this.getScheme().isAllowedUnresolvedNodesHoisting())
+			const tagScheme: BBCodeTagScheme = this.getTagScheme();
+			if (tagScheme.hasNotAllowedChildrenCallback())
+			{
+				tagScheme.runNotAllowedChildrenCallback({
+					node: this,
+					children: filteredChildren.unresolved,
+					scheme: this.getScheme(),
+				});
+			}
+			else if (this.getScheme().isAllowedUnresolvedNodesHoisting())
 			{
 				this.propagateChild(...filteredChildren.unresolved);
 			}
@@ -202,10 +212,10 @@ export class BBCodeElementNode extends BBCodeNode
 	prependChild(...children: Array<BBCodeContentNode | BBCodeFragmentNode>)
 	{
 		const flattenedChildren: Array<BBCodeContentNode> = BBCodeNode.flattenChildren(children);
-		const filteredChildren: FilteredChildren = this.filterChildren(flattenedChildren);
-		const convertedChildren: Array<BBCodeContentNode> = this.convertChildren(filteredChildren.resolved);
+		const convertedChildren: Array<BBCodeContentNode> = this.convertChildren(flattenedChildren);
+		const filteredChildren: FilteredChildren = this.filterChildren(convertedChildren);
 
-		convertedChildren.forEach((node: BBCodeContentNode) => {
+		filteredChildren.resolved.forEach((node: BBCodeContentNode) => {
 			node.remove();
 			node.setParent(this);
 			this.children.unshift(node);
@@ -213,7 +223,16 @@ export class BBCodeElementNode extends BBCodeNode
 
 		if (Type.isArrayFilled(filteredChildren.unresolved))
 		{
-			if (this.getScheme().isAllowedUnresolvedNodesHoisting())
+			const tagScheme: BBCodeTagScheme = this.getTagScheme();
+			if (tagScheme.hasNotAllowedChildrenCallback())
+			{
+				tagScheme.runNotAllowedChildrenCallback({
+					node: this,
+					children: filteredChildren.unresolved,
+					scheme: this.getScheme(),
+				});
+			}
+			else if (this.getScheme().isAllowedUnresolvedNodesHoisting())
 			{
 				this.propagateChild(...filteredChildren.unresolved);
 			}
@@ -234,10 +253,10 @@ export class BBCodeElementNode extends BBCodeNode
 				node.setParent(null);
 
 				const flattenedChildren: Array<BBCodeContentNode> = BBCodeNode.flattenChildren(children);
-				const filteredChildren: FilteredChildren = this.filterChildren(flattenedChildren);
-				const convertedChildren: Array<BBCodeContentNode> = this.convertChildren(filteredChildren.resolved);
+				const convertedChildren: Array<BBCodeContentNode> = this.convertChildren(flattenedChildren);
+				const filteredChildren: FilteredChildren = this.filterChildren(convertedChildren);
 
-				return convertedChildren.map((child: BBCodeContentNode) => {
+				return filteredChildren.resolved.map((child: BBCodeContentNode) => {
 					child.remove();
 					child.setParent(this);
 
@@ -270,11 +289,11 @@ export class BBCodeElementNode extends BBCodeNode
 			.join(' ');
 	}
 
-	getContent(): string
+	getContent(options: BBCodeToStringOptions = {}): string
 	{
 		return this.getChildren()
 			.map((child: BBCodeContentNode) => {
-				return child.toString();
+				return child.toString(options);
 			})
 			.join('');
 	}
@@ -381,7 +400,43 @@ export class BBCodeElementNode extends BBCodeNode
 		return super.getTagScheme();
 	}
 
-	toString(): string
+	trimStartLinebreaks()
+	{
+		const firstChild: BBCodeContentNode = this.getFirstChild();
+		if (firstChild && firstChild.getName() === '#linebreak')
+		{
+			firstChild.remove();
+			this.trimStartLinebreaks();
+		}
+	}
+
+	trimEndLinebreaks()
+	{
+		const lastChild: BBCodeContentNode = this.getLastChild();
+		if (lastChild && lastChild.getName() === '#linebreak')
+		{
+			lastChild.remove();
+			this.trimEndLinebreaks();
+		}
+	}
+
+	trimLinebreaks()
+	{
+		this.trimStartLinebreaks();
+		this.trimEndLinebreaks();
+	}
+
+	trimLinebreaksOnce()
+	{
+		[this.getFirstChild(), this.getLastChild()].forEach((child: BBCodeContentNode) => {
+			if (child && child.getName() === '#linebreak')
+			{
+				child.remove();
+			}
+		});
+	}
+
+	toString(options: BBCodeToStringOptions = {}): string
 	{
 		const tagScheme: BBCodeTagScheme = this.getTagScheme();
 		const stringifier: BBCodeNodeStringifier = tagScheme.getStringifier();
@@ -389,11 +444,11 @@ export class BBCodeElementNode extends BBCodeNode
 		{
 			const scheme: BBCodeScheme = this.getScheme();
 
-			return stringifier(this, scheme);
+			return stringifier(this, scheme, options);
 		}
 
 		const openingTag: string = this.getOpeningTag();
-		const content: string = this.getContent();
+		const content: string = this.getContent(options);
 
 		if (this.isVoid())
 		{

@@ -2,6 +2,7 @@
 
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Bizproc\WorkflowTemplateTable;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -26,7 +27,7 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 		$this->activitySettings = new \Bitrix\Bizproc\Activity\Settings('~bizprocdesigner');
 	}
 
-protected function listKeysSignedParameters()
+	protected function listKeysSignedParameters()
 	{
 		return ['MODULE_ID', 'ENTITY', 'DOCUMENT_TYPE'];
 	}
@@ -42,7 +43,7 @@ protected function listKeysSignedParameters()
 
 		if (!isset($params['MODULE_ID']) && !defined('MODULE_ID') && !empty($params['ID']))
 		{
-			$tpl = \Bitrix\Bizproc\WorkflowTemplateTable::getList([
+			$tpl = WorkflowTemplateTable::getList([
 				'filter' => ['=ID' => $params['ID']],
 				'select' => ['MODULE_ID', 'ENTITY', 'DOCUMENT_TYPE']
 			])->fetch();
@@ -111,26 +112,45 @@ protected function listKeysSignedParameters()
 		$ID = intval($this->arResult['ID']);
 		if($ID > 0)
 		{
-			$dbTemplatesList = CBPWorkflowTemplateLoader::GetList([], ["ID" =>$ID]);
-			if ($arTemplate = $dbTemplatesList->Fetch())
+			$result = WorkflowTemplateTable::query()
+				->setFilter(['ID' => $ID])
+				->setSelect(['*', 'TEMPLATE_SETTINGS'])
+			;
+			if ($tpl = $result->fetchObject())
 			{
+				$arTemplate = $tpl->collectValues();
+				CBPWorkflowTemplateLoader::prepareDocumentType($arTemplate);
+				CBPWorkflowTemplateLoader::prepareSettingsCollection($arTemplate);
+
 				$canWrite = CBPDocument::CanUserOperateDocumentType(
 					CBPCanUserOperateOperation::CreateWorkflow,
 					$GLOBALS["USER"]->GetID(),
 					$arTemplate["DOCUMENT_TYPE"]
 				);
 
+				if (!CBPHelper::isEqualDocument(
+					[MODULE_ID, ENTITY, $documentType],
+					$arTemplate["DOCUMENT_TYPE"],
+				))
+				{
+					ShowError(Loc::getMessage("BIZPROC_WFEDIT_ERROR_COMPLEX_TYPE"));
+
+					return;
+				}
+
 				$documentType = $arTemplate["DOCUMENT_TYPE"][2];
 
 				$workflowTemplateName = $arTemplate["NAME"];
 				$workflowTemplateDescription = $arTemplate["DESCRIPTION"];
 				$workflowTemplateAutostart = $arTemplate["AUTO_EXECUTE"];
-				$workflowTemplateIsSystem = $arTemplate["IS_SYSTEM"];
+				$workflowTemplateIsSystem = CBPHelper::getBool($arTemplate["IS_SYSTEM"]) ? 'Y' : 'N';
 				$workflowTemplateSort = $arTemplate["SORT"];
 				$arWorkflowTemplate = $arTemplate["TEMPLATE"];
 				$arWorkflowParameters = $arTemplate["PARAMETERS"];
 				$arWorkflowVariables = $arTemplate["VARIABLES"];
 				$arWorkflowConstants = $arTemplate["CONSTANTS"];
+				$workflowTemplateType = $arTemplate['TYPE'];
+				$workflowTemplateSettings = $arTemplate['TEMPLATE_SETTINGS'];
 			}
 			else
 			{
@@ -156,6 +176,7 @@ protected function listKeysSignedParameters()
 			$workflowTemplateAutostart = 1;
 			$workflowTemplateIsSystem = 'N';
 			$workflowTemplateSort = 10;
+			$workflowTemplateType = 'default';
 
 			if (isset($_GET['init']) && $_GET['init'] == 'statemachine')
 			{
@@ -183,6 +204,7 @@ protected function listKeysSignedParameters()
 			$arWorkflowParameters = [];
 			$arWorkflowVariables = [];
 			$arWorkflowConstants = [];
+			$workflowTemplateSettings = [];
 		}
 
 		if(!$canWrite)
@@ -218,164 +240,6 @@ protected function listKeysSignedParameters()
 				$this->activitySettings->save($d);
 				die('<!--SUCCESS-->');
 			}
-
-			$arFields = [
-				"DOCUMENT_TYPE" => [MODULE_ID, ENTITY, $documentType],
-				//		"ACTIVE" 		=> $_POST["ACTIVE"],
-				"AUTO_EXECUTE" 	=> $_POST["workflowTemplateAutostart"],
-				"NAME" 			=> $_POST["workflowTemplateName"],
-				"DESCRIPTION" 	=> $_POST["workflowTemplateDescription"],
-				"TEMPLATE" 		=> $_POST["arWorkflowTemplate"],
-				"PARAMETERS"	=> $_POST["arWorkflowParameters"],
-				"VARIABLES" 	=> $_POST["arWorkflowVariables"],
-				"CONSTANTS" 	=> $_POST["arWorkflowConstants"],
-				"IS_SYSTEM" 	=> $_POST["workflowTemplateIsSystem"] ?? 'N',
-				"SORT" 	=> $_POST["workflowTemplateSort"] ?? 10,
-				"USER_ID"		=> intval($USER->GetID()),
-				"MODIFIER_USER" => new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser),
-			];
-
-			if(!is_array($arFields["VARIABLES"]))
-			{
-				$arFields["VARIABLES"] = [];
-			}
-			if(!is_array($arFields["CONSTANTS"]))
-			{
-				$arFields["CONSTANTS"] = [];
-			}
-
-			if (!empty($arFields['PARAMETERS']))
-			{
-				$maxParametersLength = 65535;
-				if (self::getCompressedFieldLength($arFields['PARAMETERS']) > $maxParametersLength)
-				{
-					self::showError(Loc::getMessage('BIZPROC_WFEDIT_PARAMETERS_SAVE_ERROR_MSGVER_1'));
-					die('<!--SUCCESS-->');
-				}
-			}
-
-			if (!empty($arFields['VARIABLES']))
-			{
-				$maxVariablesLength = 65535;
-				if (self::getCompressedFieldLength($arFields['VARIABLES']) > $maxVariablesLength)
-				{
-					self::showError(Loc::getMessage('BIZPROC_WFEDIT_VARIABLES_SAVE_ERROR_MSGVER_1'));
-					die('<!--SUCCESS-->');
-				}
-			}
-
-			if (!empty($arFields['CONSTANTS']))
-			{
-				$maxConstantsLength = 16777215;
-				if (self::getCompressedFieldLength($arFields['CONSTANTS']) > $maxConstantsLength)
-				{
-					self::showError(Loc::getMessage('BIZPROC_WFEDIT_CONSTANTS_SAVE_ERROR_MSGVER_1'));
-					die('<!--SUCCESS-->');
-				}
-			}
-
-			// Check if request filter cleared some of required fields and if so, show an alert and die
-			$postList = Main\Application::getInstance()->getContext()->getRequest()->getPostList();
-			$fieldsToCheck = [
-				'workflowTemplateName',
-				'workflowTemplateDescription',
-				'arWorkflowTemplate',
-				'arWorkflowParameters',
-				'arWorkflowVariables',
-				'arWorkflowConstants',
-			];
-			foreach ($fieldsToCheck as $fieldToCheck)
-			{
-				$initialFieldValue = $postList->getRaw($fieldToCheck);
-				if (
-					empty($_POST[$fieldToCheck])
-					&& !in_array($initialFieldValue, ['', '[]', '{}'])
-				)
-				{
-					$errorMsg = GetMessageJS('BIZPROC_WFEDIT_SAVE_ERROR_CAUSE_FILTER');
-					die("<!--SUCCESS--><script>\nalert('" . $errorMsg . "');\n</script>");
-				}
-			}
-			// Field values weren't changed by the filter, we're able to continue
-
-			try
-			{
-				if($ID>0)
-				{
-					CBPWorkflowTemplateLoader::Update($ID, $arFields);
-				}
-				else
-				{
-					$ID = CBPWorkflowTemplateLoader::Add($arFields);
-					$applyUrl = str_replace("#ID#", $ID, $this->arResult["EDIT_PAGE_TEMPLATE"]);
-					if ($backUrl)
-					{
-						$applyUrl = CHTTP::urlAddParams($applyUrl, ['back_url' => $backUrl], ['encode' => true]);
-					}
-				}
-			}
-			catch (Exception $e)
-			{
-				$errorMessages = [];
-				$errors = [];
-				if (method_exists($e, 'getErrors'))
-				{
-					$errors = $e->getErrors();
-					foreach($errors as $error)
-					{
-						$errorMessages[] = CUtil::JSEscape($error['message']);
-					}
-				}
-				else
-				{
-					$errorMessages[] = CUtil::JSEscape($e->getMessage());
-				}
-				?><!--SUCCESS--><script>
-					alert('<?=GetMessageJS("BIZPROC_WFEDIT_SAVE_ERROR")?>\n<?=implode('\n', $errorMessages)?>');
-					(function(){
-						var i, setFocus = true, activity, error, errors = [];
-						errors = <?=\Bitrix\Main\Web\Json::encode($errors);?>;
-
-						for (i = 0; i < errors.length; ++i)
-						{
-							error = errors[i];
-							if (error.activityName)
-							{
-								activity = window.rootActivity.findChildById(error.activityName);
-								/** @var BizProcActivity activity */
-								if (activity)
-								{
-									activity.SetError(true, setFocus);
-									setFocus = false;
-								}
-							}
-						}
-					})();
-				</script><?
-				die();
-			}
-
-			if (isset($_POST["workflowTemplateTrackOn"]))
-			{
-				if ($_POST["workflowTemplateTrackOn"] === 'Y')
-				{
-					$trackOn = (int)Bitrix\Main\Config\Option::get('bizproc', 'tpl_track_on_' . $ID, 0);
-					if ((time() - (7 * 86400)) > $trackOn)
-					{
-						Bitrix\Main\Config\Option::set('bizproc', 'tpl_track_on_' . $ID, time());
-					}
-				}
-				else
-				{
-					Bitrix\Main\Config\Option::delete('bizproc', ['name' => 'tpl_track_on_' . $ID]);
-				}
-			}
-
-			?><!--SUCCESS--><script>
-				BPTemplateIsModified = false;
-				window.location = '<?=(!empty($_REQUEST["apply"])? CUtil::JSEscape($applyUrl) : CUtil::JSEscape($saveUrl))?>';
-			</script><?
-			die();
 		}
 
 		if($_SERVER['REQUEST_METHOD']=='GET' && !empty($_REQUEST['export_template']) && check_bitrix_sessid())
@@ -482,6 +346,8 @@ protected function listKeysSignedParameters()
 		$this->arResult['TEMPLATE_DESC'] = $workflowTemplateDescription;
 		$this->arResult['TEMPLATE_AUTOSTART'] = $workflowTemplateAutostart;
 		$this->arResult['TEMPLATE_IS_SYSTEM'] = $workflowTemplateIsSystem;
+		$this->arResult['TEMPLATE_SETTINGS'] = $workflowTemplateSettings;
+		$this->arResult['TEMPLATE_TYPE'] = $workflowTemplateType;
 		$this->arResult['TEMPLATE_SORT'] = $workflowTemplateSort;
 		$this->arResult['TEMPLATE'] = $arWorkflowTemplate;
 		$this->arResult['TEMPLATE_CHECK_STATUS'] = CBPWorkflowTemplateLoader::checkTemplateActivities($arWorkflowTemplate);
@@ -500,6 +366,12 @@ protected function listKeysSignedParameters()
 		/** @var CBPDocumentService $documentService */
 		$documentService = $runtime->getDocumentService();
 		$this->arResult['DOCUMENT_FIELDS'] = $documentService->GetDocumentFields([MODULE_ID, ENTITY, $documentType]);
+
+		$this->arResult['DOCUMENT_CATEGORIES'] = $documentService->getDocumentCategories([
+			MODULE_ID,
+			ENTITY,
+			$documentType
+		]);
 
 		$this->arResult["ID"] = $ID;
 
@@ -529,16 +401,6 @@ protected function listKeysSignedParameters()
 		}
 
 		$this->includeComponentTemplate();
-	}
-
-	private static function getCompressedFieldLength($field)
-	{
-		if (CBPWorkflowTemplateLoader::useGZipCompression())
-		{
-			return mb_strlen(gzcompress(serialize($field), 9));
-		}
-
-		return mb_strlen(serialize($field));
 	}
 
 	private static function showError($message): void

@@ -1,0 +1,6 @@
+<ProductType>
+	<RimDiameter file="rimdiameter.xml"/>
+	<WheelAxle name="Задняя"/>
+	<WheelAxle name="Любая"/>
+	<WheelAxle name="Передняя"/>
+</ProductType>

@@ -1261,13 +1261,10 @@ class CAdminSubListRow extends CAdminListRow
 			}
 			else
 			{
-				$val = '';
-				if (isset($this->arRes[$id]))
+				$val = $this->arRes[$id] ?? '';
+				if (is_string($val))
 				{
-					if(is_string($this->arRes[$id]))
-						$val = trim($this->arRes[$id]);
-					else
-						$val = $this->arRes[$id];
+					$val = trim($val);
 				}
 
 				if(isset($field["view"]))
@@ -1281,10 +1278,18 @@ class CAdminSubListRow extends CAdminListRow
 								$val = htmlspecialcharsex(GetMessage("admin_lib_list_no"));
 							break;
 						case "select":
-							if($field["edit"]["values"][$val])
+							if (isset($field["edit"]["values"][$val]))
+							{
 								$val = htmlspecialcharsex($field["edit"]["values"][$val]);
+							}
+							elseif (isset($field["view"]["values"][$val]))
+							{
+								$val = htmlspecialcharsex($field["view"]["values"][$val]);
+							}
 							else
+							{
 								$val = htmlspecialcharsex($val);
+							}
 							break;
 						case "file":
 							if ($val > 0)
@@ -1829,7 +1834,7 @@ echo '
 		}
 	}
 
-	public static function closeSubForm($reload = true, $closeWait = true)
+	public static function closeSubForm($reload = true, $closeWait = true): void
 	{
 		$reload = ($reload !== false);
 		$closeWait = ($closeWait !== false);
@@ -1847,8 +1852,8 @@ echo '
 		if ($reload)
 			$result .= ' if (!!currentWindow.ReloadSubList) { currentWindow.ReloadSubList(); }';
 		$result .= '</script>';
-		echo $result;
-		die();
+
+		CMain::FinalActions($result);
 	}
 }
 

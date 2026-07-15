@@ -1,0 +1,22 @@
+<root>
+	<ProductType name="Кондиционеры и запчасти">
+		<GoodsSubType name="Кондиционеры">
+			<Brand file="climatecontrolequipment/kondicionery.xml" rename="true"/>
+			<AirConditionerType name="Сплит-система"/>
+			<AirConditionerType name="Мобильный"/>
+			<AirConditionerType name="Фанкойл"/>
+			<AirConditionerSubType name="Напольный"/>
+			<AirConditionerSubType name="Настенный"/>
+			<AirConditionerSubType name="Потолочный"/>
+			<AirConditionerSubType name="Напольно-потолочный"/>
+			<AirConditionerSubType name="Канальный"/>
+			<AirConditionerSubType name="Кассетный"/>
+			<AirConditionerSubType name="Настольный"/>
+			<AirConditionerSubType name="Оконный"/>
+		</GoodsSubType>
+	</ProductType>
+	<ProductType name="Вентиляторы"/>
+	<ProductType name="Обогреватели"/>
+	<ProductType name="Очистители воздуха"/>
+	<ProductType name="Термометры и метеостанции"/>
+</root>

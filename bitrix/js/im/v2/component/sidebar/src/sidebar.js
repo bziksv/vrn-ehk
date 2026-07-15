@@ -11,7 +11,7 @@ import './css/sidebar.css';
 
 import type { JsonObject } from 'main.core';
 
-type SidebarPanelType = $Keys<typeof SidebarDetailBlock>;
+type SidebarPanelType = $Values<typeof SidebarDetailBlock>;
 
 // @vue/component
 export const ChatSidebar = {
@@ -68,6 +68,10 @@ export const ChatSidebar = {
 			const messageSearchPanel = this.topLevelPanelType === SidebarDetailBlock.messageSearch;
 
 			return !messageSearchPanel;
+		},
+		sidebarOpened(): boolean
+		{
+			return this.topLevelPanelType || this.secondLevelPanelType;
 		},
 	},
 	watch:
@@ -133,7 +137,7 @@ export const ChatSidebar = {
 			}
 			const { panel = '', standalone = false, dialogId, entityId = '' } = event.getData();
 
-			const needToCloseSecondLevelPanel = panel && this.secondLevelPanelType === panel;
+			const needToCloseSecondLevelPanel = !standalone && panel && this.secondLevelPanelType === panel;
 			if (needToCloseSecondLevelPanel)
 			{
 				this.closeSecondLevelPanel();
@@ -224,7 +228,7 @@ export const ChatSidebar = {
 		},
 	},
 	template: `
-		<div class="bx-im-sidebar__container">
+		<div class="bx-im-sidebar__container" :class="{'--opened': sidebarOpened}">
 			<Transition :name="topLevelTransitionName">
 				<SidebarPanel
 					v-if="topLevelPanelType"

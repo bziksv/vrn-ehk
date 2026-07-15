@@ -15,6 +15,11 @@ class CashboxOrangeDataFfd12 extends CashboxOrangeData
 {
 	private const FFD_12_VERSION = 4;
 
+	const CODE_VAT_5 = 7;
+	const CODE_VAT_7 = 8;
+	const CODE_CALC_VAT_5 = 9;
+	const CODE_CALC_VAT_7 = 10;
+
 	/**
 	 * @see http://www.consultant.ru/document/cons_doc_LAW_362322/78cda7f497d697a7a544ce05660a93fe557cf915/
 	 */
@@ -86,6 +91,11 @@ class CashboxOrangeDataFfd12 extends CashboxOrangeData
 		$result['content']['causeDocumentNumber'] = $this->getCorrectionCauseDocumentNumber($correctionInfo);
 		$result['content']['totalSum'] = $this->getCorrectionTotalSum($correctionInfo);
 
+		if ($this->useTax20ForCorrection($data))
+		{
+			$result['content']['useTax20'] = true;
+		}
+
 		$vats = $this->getVatsByCheckData($data);
 		if (is_array($vats))
 		{
@@ -104,6 +114,29 @@ class CashboxOrangeDataFfd12 extends CashboxOrangeData
 	protected function getVatKeyPrefix(): string
 	{
 		return 'vat';
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getVatToCalcVatMap() : array
+	{
+		$map = parent::getVatToCalcVatMap();
+
+		return
+			$map +
+			[
+				self::CODE_VAT_5 => self::CODE_CALC_VAT_5,
+				self::CODE_VAT_7 => self::CODE_CALC_VAT_7,
+			]
+		;
+	}
+
+	protected static function getDefaultVatList(): array
+	{
+		$vatList = parent::getDefaultVatList();
+
+		return $vatList + [5 => self::CODE_VAT_5, 7 => self::CODE_VAT_7];
 	}
 
 	/**

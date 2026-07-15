@@ -46,12 +46,11 @@ $data = [
 		'sberbank' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBERBANK'),
 		'sberbank_sms' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBERBANK_SMS'),
 		'sberbank_qr' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBERBANK_QR'),
-		'qiwi' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_QIWI'),
 		'alfabank' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_ALFABANK'),
 		'cash' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_CASH'),
 		'embedded' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_EMBEDDED'),
-		'tinkoff_bank' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_TINKOFF_BANK'),
-		'installments' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_INSTALLMENTS'),
+		'tinkoff_bank' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_TBANK'),
+		'sber_loan' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBER_LOAN'),
 		'sbp' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBP'),
 	],
 	'HANDLER_MODE_DESCRIPTION_LIST' => [
@@ -79,10 +78,6 @@ $data = [
 			'MAIN' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBERBANK_QR_DESCRIPTION'),
 			'PUBLIC' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBERBANK_QR_PUBLIC_DESCRIPTION'),
 		],
-		'qiwi' => [
-			'MAIN' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_QIWI_DESCRIPTION'),
-			'PUBLIC' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_QIWI_PUBLIC_DESCRIPTION'),
-		],
 		'alfabank' => [
 			'MAIN' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_ALFABANK_DESCRIPTION'),
 			'PUBLIC' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_ALFABANK_PUBLIC_DESCRIPTION'),
@@ -92,12 +87,12 @@ $data = [
 			'PUBLIC' => '',
 		],
 		'tinkoff_bank' => [
-			'MAIN' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_TINKOFF_BANK_DESCRIPTION'),
-			'PUBLIC' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_TINKOFF_BANK_PUBLIC_DESCRIPTION'),
+			'MAIN' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_TBANK_DESCRIPTION'),
+			'PUBLIC' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_TBANK_PUBLIC_DESCRIPTION'),
 		],
-		'installments' => [
-			'MAIN' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_INSTALLMENTS_DESCRIPTION'),
-			'PUBLIC' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_INSTALLMENTS_PUBLIC_DESCRIPTION'),
+		'sber_loan' => [
+			'MAIN' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBER_LOAN_DESCRIPTION'),
+			'PUBLIC' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBER_LOAN_PUBLIC_DESCRIPTION'),
 		],
 		'sbp' => [
 			'MAIN' => Loc::getMessage('SALE_HPS_YANDEX_CHECKOUT_SBP_DESCRIPTION'),

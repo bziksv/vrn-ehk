@@ -1,6 +1,7 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetPageProperty("title", "Прайс-листы на кованые изделия");
+$APPLICATION->SetPageProperty("description", "Полные прайс-листы на элементы ковки: розничные и оптовые цены. Скачайте в Excel. Для партнеров – персональные условия!");
+$APPLICATION->SetPageProperty("title", "Скачать прайс-лист ЭХК | Актуальные цены на ковку");
 $APPLICATION->SetTitle("Прайс-листы на кованые изделия");
 ?><?$APPLICATION->IncludeComponent("bitrix:news.list", "prices", Array(
 	"IBLOCK_TYPE" => "info",	// Тип информационного блока (используется только для проверки)

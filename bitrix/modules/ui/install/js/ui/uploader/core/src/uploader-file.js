@@ -5,6 +5,7 @@ import { BaseEvent, EventEmitter } from 'main.core.events';
 import { FileStatus } from './enums/file-status';
 import { FileOrigin } from './enums/file-origin';
 import { FileEvent } from './enums/file-event';
+import isSupportedVideo from './helpers/is-supported-video';
 
 import UploaderError from './uploader-error';
 import AbstractUploadController from './backend/abstract-upload-controller';
@@ -33,6 +34,7 @@ export default class UploaderFile extends EventEmitter
 	#type: string = '';
 	#width: ?number = null;
 	#height: ?number = null;
+	#animated: boolean = false;
 	#treatImageAsFile: boolean = false;
 
 	#clientPreview: ?Blob = null;
@@ -51,6 +53,7 @@ export default class UploaderFile extends EventEmitter
 	#errors: UploaderError[] = [];
 	#progress: number = 0;
 	#customData: Object<string, any> = Object.create(null);
+	#viewerAttrs: Object<string, string> | null = null;
 
 	#uploadController: AbstractUploadController = null;
 	#loadController: AbstractLoadController = null;
@@ -160,6 +163,8 @@ export default class UploaderFile extends EventEmitter
 		{
 			return;
 		}
+
+		this.#setStatus(FileStatus.PREPARING);
 
 		const prepareEvent: BaseEvent = new BaseEvent({ data: { file: this } });
 		this.emitAsync(FileEvent.PREPARE_FILE_ASYNC, prepareEvent)
@@ -439,6 +444,11 @@ export default class UploaderFile extends EventEmitter
 		return this.getStatus() === FileStatus.UPLOADING;
 	}
 
+	isPreparing(): boolean
+	{
+		return this.getStatus() === FileStatus.PREPARING;
+	}
+
 	isLoading(): boolean
 	{
 		return this.getStatus() === FileStatus.LOADING;
@@ -499,6 +509,7 @@ export default class UploaderFile extends EventEmitter
 
 			this.setDownloadUrl(options.downloadUrl);
 			this.setCustomData(options.customData);
+			this.setViewerAttrs(options.viewerAttrs);
 
 			this.setLoadController(options.loadController);
 			this.setUploadController(options.uploadController);
@@ -648,6 +659,20 @@ export default class UploaderFile extends EventEmitter
 		}
 	}
 
+	isAnimated(): boolean
+	{
+		return this.#animated;
+	}
+
+	setAnimated(flag: boolean): void
+	{
+		if (Type.isBoolean(flag))
+		{
+			this.#animated = flag;
+			this.emit(FileEvent.STATE_CHANGE, { property: 'animated', value: flag });
+		}
+	}
+
 	setTreatImageAsFile(flag: boolean): void
 	{
 		if (Type.isBoolean(flag))
@@ -766,6 +791,11 @@ export default class UploaderFile extends EventEmitter
 		return this.getWidth() > 0 && this.getHeight() > 0 && isResizableImage(this.getName(), this.getType());
 	}
 
+	isVideo(): boolean
+	{
+		return isSupportedVideo(this.getName());
+	}
+
 	getProgress(): number
 	{
 		return this.#progress;
@@ -849,6 +879,20 @@ export default class UploaderFile extends EventEmitter
 		return undefined;
 	}
 
+	setViewerAttrs(viewerAttrs: Object | null): void
+	{
+		if (Type.isNull(viewerAttrs) || Type.isPlainObject(viewerAttrs))
+		{
+			this.#viewerAttrs = viewerAttrs;
+			this.emit(FileEvent.STATE_CHANGE, { property: 'viewerAttrs', value: viewerAttrs });
+		}
+	}
+
+	getViewerAttrs(): Object<string, string> | null
+	{
+		return this.#viewerAttrs;
+	}
+
 	toJSON(): UploaderFileInfo
 	{
 		return {
@@ -863,9 +907,11 @@ export default class UploaderFile extends EventEmitter
 			extension: this.getExtension(),
 			origin: this.getOrigin(),
 			isImage: this.isImage(),
+			isVideo: this.isVideo(),
 			failed: this.isFailed(),
 			width: this.getWidth(),
 			height: this.getHeight(),
+			animated: this.isAnimated(),
 			progress: this.getProgress(),
 			error: this.getError(),
 			errors: this.getErrors(),
@@ -880,6 +926,7 @@ export default class UploaderFile extends EventEmitter
 			serverPreviewHeight: this.getServerPreviewHeight(),
 			downloadUrl: this.getDownloadUrl(),
 			customData: this.getCustomData(),
+			viewerAttrs: this.getViewerAttrs(),
 		};
 	}
 }

@@ -1,0 +1,285 @@
+<Pribory_uchyota>
+	<brend_priborov_uchyota name="ABB">
+		<seriya_priborov_uchota name="A41"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="A42"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="A43"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="A44"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="B21"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="B22"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="B23"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="B24"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="C11"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="C13"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="DAB"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="DAN"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="DELTAsingle"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="E31"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="FBB"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="ODINsingle"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Circutor">
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="EKF">
+		<seriya_priborov_uchota name="SKAT"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="EctoControl">
+		<seriya_priborov_uchota name="Chint"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Elster">
+		<seriya_priborov_uchota name="Альфа"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Eltaco">
+		<seriya_priborov_uchota name="DSZ"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="WSZ"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Finder">
+		<seriya_priborov_uchota name="7E"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="7M"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Fronius">
+		<seriya_priborov_uchota name="Smart Meter"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="General Electric">
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Hager">
+		<seriya_priborov_uchota name="TE"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="IEK">
+		<seriya_priborov_uchota name="STAR"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Toresco"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Iskra">
+		<seriya_priborov_uchota name="ME"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="MT"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Ketotek">
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Keweisi">
+		<seriya_priborov_uchota name="AC"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Kostal">
+		<seriya_priborov_uchota name="EM"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Legrand">
+		<seriya_priborov_uchota name="EMDX"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="MDT">
+		<seriya_priborov_uchota name="EZ"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="ORNO">
+		<seriya_priborov_uchota name="OR-WE"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Peacefair">
+		<seriya_priborov_uchota name="PZIOT"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Ps-Link">
+		<seriya_priborov_uchota name="ZMAi"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="RBUZ">
+		<seriya_priborov_uchota name="V3"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Schneider Electric">
+		<seriya_priborov_uchota name="Acti9"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Sinotimer">
+		<seriya_priborov_uchota name="DDS"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Smtonoff">
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Systeme Electric">
+		<seriya_priborov_uchota name="iEM"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="TAIYEDQ">
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="TDM Electric">
+		<seriya_priborov_uchota name="Марс"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="WAGO">
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="WAVIoT">
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Фобос"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Без бренда">
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Госан">
+		<seriya_priborov_uchota name="БИМ"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="ЗАО «Микрон»">
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="СЭБ"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="СЭО"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Инкотекс">
+		<seriya_priborov_uchota name="Меркурий"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="КЭАЗ">
+		<seriya_priborov_uchota name="МТ"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Курбанский приборостроительный завод">
+		<seriya_priborov_uchota name="М2М"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="ЛЭМЗ">
+		<seriya_priborov_uchota name="EC"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="СКВТ"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="СОЛО"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="ТРИО"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="ЦЭ"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Ленэлектро">
+		<seriya_priborov_uchota name="RS"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="ЛЕ"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="МЗЭП">
+		<seriya_priborov_uchota name="АГАТ"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="МИРТЕК">
+		<seriya_priborov_uchota name="1-BY"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="1-РУ"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="101-BY"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="12-РУ"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="135-РУ"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="212-РУ"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="232-РУ"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="3-BY"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="3-РУ"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="301"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="32-РУ"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Матрица">
+		<seriya_priborov_uchota name="AD"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="NP"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Smart IMS"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Милур">
+		<seriya_priborov_uchota name="307"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="НЗиФ">
+		<seriya_priborov_uchota name="МАЯК"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="ПСЧ"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="СЭБ"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="СЭО"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="СЭТ"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="НПО МИР">
+		<seriya_priborov_uchota name="C-04"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="С-03"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="С-03.Б"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="С-05"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="С-07"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Нартис">
+		<seriya_priborov_uchota name="100"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="300"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="И100"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="И300"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="И500"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Новатек-Электро">
+		<seriya_priborov_uchota name="EM"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Промэнерго">
+		<seriya_priborov_uchota name="I-PROM"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Пульсар">
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Пульсар"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="РиМ">
+		<seriya_priborov_uchota name="109"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="112"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="114"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="115"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="129"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="184"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="185"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="189"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="289"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="384"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="389"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="432"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="489"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="515"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="532"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="586"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="789"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="889"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="СОЭБ"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="СТЭБ"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="СПб ЗИП">
+		<seriya_priborov_uchota name="Вектор"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="ЦЭ"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Спектр">
+		<seriya_priborov_uchota name="SP101"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="SP301"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Тайпит-Измерительные Приборы">
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Нева"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="СТ"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="ЭМИС-ЭЛЕКТРА">
+		<seriya_priborov_uchota name="971"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="976"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Электроприбор">
+		<seriya_priborov_uchota name="МПК"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="ПРОТЕКТ"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="ЩМК"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+	<brend_priborov_uchyota name="Энергомера">
+		<seriya_priborov_uchota name="Не указана"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="СЕ"></seriya_priborov_uchota>
+		<seriya_priborov_uchota name="ЦЭ"></seriya_priborov_uchota>
+	</brend_priborov_uchyota>
+</Pribory_uchyota>

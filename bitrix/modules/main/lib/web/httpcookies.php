@@ -11,11 +11,11 @@ namespace Bitrix\Main\Web;
 
 use Bitrix\Main\ArgumentTypeException;
 
+/**
+ * @property Http\Cookie[] $values
+ */
 class HttpCookies extends \Bitrix\Main\Type\Dictionary
 {
-	/** @var Http\Cookie[]  */
-	protected $values = [];
-
 	/**
 	 * @param string[] | Http\Cookie[] | null $values
 	 */
@@ -45,6 +45,7 @@ class HttpCookies extends \Bitrix\Main\Type\Dictionary
 		{
 			$str .= ($str == '' ? '' : '; ') . rawurlencode($cookie->getName()) . '=' . rawurlencode($cookie->getValue());
 		}
+
 		return $str;
 	}
 
@@ -58,10 +59,10 @@ class HttpCookies extends \Bitrix\Main\Type\Dictionary
 		{
 			$cookie = trim($str);
 		}
-		$arCookie = explode('=', $cookie, 2);
+		$cookies = explode('=', $cookie, 2);
 
-		$name = rawurldecode($arCookie[0]);
-		$value = rawurldecode($arCookie[1]);
+		$name = rawurldecode($cookies[0]);
+		$value = rawurldecode($cookies[1]);
 
 		// TODO: a cookie has more attributes
 		$this[$name] = new Http\Cookie($name, $value);
@@ -74,6 +75,7 @@ class HttpCookies extends \Bitrix\Main\Type\Dictionary
 		{
 			$cookies[$cookie->getName()] = $cookie->getValue();
 		}
+
 		return $cookies;
 	}
 

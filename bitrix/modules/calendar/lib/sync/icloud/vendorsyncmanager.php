@@ -1,8 +1,9 @@
 <?php
-	
+
 namespace Bitrix\Calendar\Sync\Icloud;
 
 use Bitrix\Calendar\Core;
+use Bitrix\Calendar\Integration\Pull\PushCommand;
 use Bitrix\Calendar\Sync\Builders\BuilderConnectionFromArray;
 use Bitrix\Calendar\Sync\Builders\BuilderConnectionFromDM;
 use Bitrix\Calendar\Sync\Managers;
@@ -27,7 +28,7 @@ class VendorSyncManager
 	protected ?VendorSyncService $syncService = null;
 	/** @var Core\Mappers\Factory */
 	private Core\Mappers\Factory $mapperFactory;
-	
+
 	public function __construct()
 	{
 		$this->helper = new Helper();
@@ -77,7 +78,7 @@ class VendorSyncManager
 		}
 
 		Util::addPullEvent(
-			'process_sync_connection',
+			PushCommand::ProcessSyncConnection,
 			$userId,
 			[
 				'vendorName' => $this->helper::ACCOUNT_TYPE,
@@ -96,7 +97,7 @@ class VendorSyncManager
 		}
 
 		Util::addPullEvent(
-			'process_sync_connection',
+			PushCommand::ProcessSyncConnection,
 			$userId,
 			[
 				'vendorName' => $this->helper::ACCOUNT_TYPE,
@@ -145,6 +146,7 @@ class VendorSyncManager
 		$owner = Core\Role\Helper::getRole(\CCalendar::GetUserId(), Core\Role\User::TYPE);
 		$connectionManager = new Managers\ConnectionManager();
 		$connections = $connectionManager->getConnectionsData($owner, [Helper::ACCOUNT_TYPE]);
+		$connectionManager->deactivateConnections($connections);
 		foreach ($connections as $con)
 		{
 			$existPath = $con->getServerScheme()
@@ -163,13 +165,10 @@ class VendorSyncManager
 
 		if ($connection)
 		{
-			if ($connection->isDeleted())
-			{
-				$connection->setDeleted(false);
-				$connection->getServer()->setPassword($appPassword);
-			}
-
+			$connection->setDeleted(false);
+			$connection->getServer()->setPassword($appPassword);
 			$connectionManager->update($connection);
+
 			return $connection->getId();
 		}
 
@@ -216,7 +215,7 @@ class VendorSyncManager
 
 		return $this->syncService;
 	}
-	
+
 	public function getError(): string
 	{
 		return $this->error;

@@ -1,6 +1,6 @@
 <?php
 
-class CAllPerfomanceSQL
+class CPerfomanceSQL
 {
 	/**
 	 * @param array $arSelect
@@ -89,6 +89,11 @@ class CAllPerfomanceSQL
 			case 'MODULE_NAME':
 			case 'COMPONENT_NAME':
 			case 'NODE_ID':
+			case 'SELECTED_ROWS':
+			case 'SELECTED_FIELDS':
+			case 'FETCHED_ROWS':
+			case 'FETCHED_LENGTH':
+			case 'HAS_BIG_FIELDS':
 				if ($bGroup)
 				{
 					$arQueryGroup[$strColumn] = 's.' . $strColumn;
@@ -112,10 +117,10 @@ class CAllPerfomanceSQL
 				}
 				break;
 			case 'COUNT':
-				if ($bGroup)
-				{
+				// if ($bGroup)
+				// {
 					$arQuerySelect[$strColumn] = 'COUNT(s.ID) ' . $strColumn;
-				}
+				// }
 				break;
 			}
 		}
@@ -159,9 +164,39 @@ class CAllPerfomanceSQL
 				'FIELD_TYPE' => 'int',
 				'JOIN' => false,
 			],
+			'SELECTED_ROWS' => [
+				'TABLE_ALIAS' => 's',
+				'FIELD_NAME' => 's.SELECTED_ROWS',
+				'FIELD_TYPE' => 'int',
+				'JOIN' => false,
+			],
+			'SELECTED_FIELDS' => [
+				'TABLE_ALIAS' => 's',
+				'FIELD_NAME' => 's.SELECTED_FIELDS',
+				'FIELD_TYPE' => 'int',
+				'JOIN' => false,
+			],
+			'FETCHED_ROWS' => [
+				'TABLE_ALIAS' => 's',
+				'FIELD_NAME' => 's.FETCHED_ROWS',
+				'FIELD_TYPE' => 'int',
+				'JOIN' => false,
+			],
+			'FETCHED_LENGTH' => [
+				'TABLE_ALIAS' => 's',
+				'FIELD_NAME' => 's.FETCHED_LENGTH',
+				'FIELD_TYPE' => 'int',
+				'JOIN' => false,
+			],
+			'HAS_BIG_FIELDS' => [
+				'TABLE_ALIAS' => 's',
+				'FIELD_NAME' => 's.HAS_BIG_FIELDS',
+				'FIELD_TYPE' => 'string',
+				'JOIN' => false,
+			],
 		]);
 
-		if (count($arQuerySelect) < 1)
+		if (empty($arQuerySelect))
 		{
 			$arQuerySelect = ['ID' => 's.ID'];
 		}
@@ -172,7 +207,23 @@ class CAllPerfomanceSQL
 		}
 		$strQueryWhere = $obQueryWhere->GetQuery($arFilter);
 
-		if (is_array($arNavStartParams) && ($arNavStartParams['nTopCount'] ?? 0) > 0)
+		if (is_array($arNavStartParams) && isset($arNavStartParams['nOffset']) && isset($arNavStartParams['nTopCount']))
+		{
+			$connection = \Bitrix\Main\Application::getConnection();
+			$sqlHelper = $connection->getSqlHelper();
+			$strSql = '
+				SELECT ' . implode(', ', $arQuerySelect) . '
+				FROM b_perf_sql s
+				' . $obQueryWhere->GetJoins() . '
+				' . ($strQueryWhere ? 'WHERE ' . $strQueryWhere : '') . '
+				' . ($bGroup ? 'GROUP BY ' . implode(', ', $arQueryGroup) : '') . '
+				' . (count($arQueryOrder) ? 'ORDER BY ' . implode(', ', $arQueryOrder) : '') . '
+			';
+			$strSql = $sqlHelper->getTopSql($strSql, $arNavStartParams['nTopCount'], $arNavStartParams['nOffset']);
+
+			$res = $DB->Query($strSql);
+		}
+		elseif (is_array($arNavStartParams) && ($arNavStartParams['nTopCount'] ?? 0) > 0)
 		{
 			$strSql = $DB->TopSQL('
 				SELECT ' . implode(', ', $arQuerySelect) . '
@@ -182,7 +233,7 @@ class CAllPerfomanceSQL
 				' . ($bGroup ? 'GROUP BY ' . implode(', ', $arQueryGroup) : '') . '
 				' . (count($arQueryOrder) ? 'ORDER BY ' . implode(', ', $arQueryOrder) : '') . '
 			', $arNavStartParams['nTopCount']);
-			$res = $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			$res = $DB->Query($strSql);
 		}
 		elseif (is_array($arNavStartParams))
 		{
@@ -217,7 +268,7 @@ class CAllPerfomanceSQL
 				' . ($bGroup ? 'GROUP BY ' . implode(', ', $arQueryGroup) : '') . '
 				' . (count($arQueryOrder) ? 'ORDER BY ' . implode(', ', $arQueryOrder) : '') . '
 			';
-			$res = $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			$res = $DB->Query($strSql);
 		}
 
 		return $res;
@@ -329,5 +380,20 @@ class CAllPerfomanceSQL
 			$strSql = str_replace($arMatch[1], $res, $strSql);
 		}
 		return $strSql;
+	}
+
+	public static function Clear()
+	{
+		global $DB;
+		$res = $DB->Query('TRUNCATE TABLE b_perf_sql_backtrace');
+		if ($res)
+		{
+			$res = $DB->Query('TRUNCATE TABLE b_perf_index_suggest_sql');
+		}
+		if ($res)
+		{
+			$res = $DB->Query('TRUNCATE TABLE b_perf_sql');
+		}
+		return $res;
 	}
 }

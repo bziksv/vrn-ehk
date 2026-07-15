@@ -9,9 +9,8 @@ return [
 		'./dist/counter.bundle.js',
 	],
 	'rel' => [
-		'main.core',
 		'main.core.events',
-		'ui.vue3.vuex',
+		'main.core',
 		'im.v2.application.core',
 		'im.v2.lib.desktop',
 		'im.v2.lib.logger',

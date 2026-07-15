@@ -1,0 +1,8 @@
+<Autobusiness>
+	<BusinessSubType name="Автомойки и детейлинг"/>
+	<BusinessSubType name="Автосервис"/>
+	<BusinessSubType name="Автостоянки"/>
+	<BusinessSubType name="Автоуслуги"/>
+	<BusinessSubType name="АЗС и ЭЗС"/>
+	<BusinessSubType name="Шиномонтаж"/>
+</Autobusiness>

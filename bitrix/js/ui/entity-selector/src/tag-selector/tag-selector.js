@@ -1,6 +1,8 @@
 import { Cache, Dom, Tag, Text, Type, Loc, Browser } from 'main.core';
 import { EventEmitter, BaseEvent } from 'main.core.events';
 
+import 'ui.icon-set.outline';
+
 import Dialog from '../dialog/dialog';
 import TagItem from './tag-item';
 
@@ -42,6 +44,7 @@ export default class TagSelector extends EventEmitter
 	tagBgColor: ?string = null;
 	tagFontWeight: ?string = null;
 	tagMaxWidth: ?number = null;
+	tagClickable: boolean = null;
 
 	dialog: ?Dialog = null;
 
@@ -75,6 +78,7 @@ export default class TagSelector extends EventEmitter
 		this.setTagTextColor(options.tagTextColor);
 		this.setTagBgColor(options.tagBgColor);
 		this.setTagFontWeight(options.tagFontWeight);
+		this.setTagClickable(options.tagClickable);
 
 		if (Type.isPlainObject(options.dialogOptions))
 		{
@@ -369,7 +373,7 @@ export default class TagSelector extends EventEmitter
 			className += this.isLocked() ? ' ui-tag-selector-container-locked' : '';
 
 			return Tag.render`
-				<div class="ui-tag-selector-outer-container${className}">${this.getContainer()}</div>
+				<div class="ui-tag-selector-outer-container --air --ui-context-content-light${className}">${this.getContainer()}</div>
 			`;
 		});
 	}
@@ -429,7 +433,7 @@ export default class TagSelector extends EventEmitter
 			const width = this.getTextBoxWidth();
 			if (width !== null)
 			{
-				Dom.style(input, 'width', Type.isStringFilled(width) ? width : `${width}px`);
+				Dom.style(input, 'min-width', Type.isStringFilled(width) ? width : `${width}px`);
 			}
 
 			if (this.isLocked())
@@ -504,7 +508,7 @@ export default class TagSelector extends EventEmitter
 			this.textBoxWidth = width;
 			if (this.isRendered())
 			{
-				Dom.style(this.getTextBox(), 'width', width);
+				Dom.style(this.getTextBox(), 'min-width', width);
 			}
 		}
 		else if (Type.isNumber(width) && width > 0)
@@ -512,7 +516,7 @@ export default class TagSelector extends EventEmitter
 			this.textBoxWidth = width;
 			if (this.isRendered())
 			{
-				Dom.style(this.getTextBox(), 'width', `${width}px`);
+				Dom.style(this.getTextBox(), 'min-width', `${width}px`);
 			}
 		}
 	}
@@ -541,6 +545,20 @@ export default class TagSelector extends EventEmitter
 		if (Type.isString(tagAvatar) || tagAvatar === null)
 		{
 			this.tagAvatar = tagAvatar;
+			this.updateTags();
+		}
+	}
+
+	getTagClickable(): boolean | null
+	{
+		return this.tagClickable;
+	}
+
+	setTagClickable(flag: boolean | null): void
+	{
+		if (Type.isBoolean(flag) || flag === null)
+		{
+			this.tagClickable = flag;
 			this.updateTags();
 		}
 	}

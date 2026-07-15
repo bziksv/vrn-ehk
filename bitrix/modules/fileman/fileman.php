@@ -1,14 +1,12 @@
 <?php
 
-/*
-##############################################
-# Bitrix: SiteManager                        #
-# Copyright (c) 2002-2005 Bitrix             #
-# https://www.bitrixsoft.com                 #
-# mailto:admin@bitrixsoft.com                #
-##############################################
-*/
-global $DOCUMENT_ROOT, $MESS;
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage fileman
+ * @copyright 2001-2025 Bitrix
+ */
+
 IncludeModuleLangFile(__FILE__);
 define("DEBUG_FILE_MAN", false);
 if(!defined("CACHED_stickers_count")) define("CACHED_stickers_count", 36000000);
@@ -94,9 +92,12 @@ class CFileMan
 {
 	public static function OnPanelCreate()
 	{
-		global $APPLICATION, $REQUEST_URI;
+		global $APPLICATION;
+
 		if($APPLICATION->GetGroupRight("fileman")<="D")
 			return;
+
+		$requestUri = $_SERVER['REQUEST_URI'];
 
 		$cur_page = $APPLICATION->GetCurPage(true);
 		$cur_dir = $APPLICATION->GetCurDir();
@@ -132,7 +133,7 @@ class CFileMan
 		if ($sect_permission>="W")
 		{
 			// New page
-			$href = "/bitrix/admin/fileman_".$editor_type."_edit.php?lang=".LANGUAGE_ID."&site=".SITE_ID."&path=".UrlEncode($APPLICATION->GetCurDir())."&new=Y&templateID=".urlencode(SITE_TEMPLATE_ID)."&back_url=".UrlEncode($REQUEST_URI);
+			$href = "/bitrix/admin/fileman_".$editor_type."_edit.php?lang=".LANGUAGE_ID."&site=".SITE_ID."&path=".UrlEncode($APPLICATION->GetCurDir())."&new=Y&templateID=".urlencode(SITE_TEMPLATE_ID)."&back_url=".UrlEncode($requestUri);
 			$APPLICATION->AddPanelButtonMenu('create', array("SEPARATOR"=>true, "SORT"=>99));
 			$APPLICATION->AddPanelButtonMenu('create', array(
 				"TEXT" => GetMessage("fileman_panel_admin"),
@@ -142,7 +143,7 @@ class CFileMan
 			));
 
 			//New folder
-			$href = "/bitrix/admin/fileman_newfolder.php?lang=".LANGUAGE_ID."&site=".SITE_ID."&path=". UrlEncode($APPLICATION->GetCurDir())."&back_url=".UrlEncode($REQUEST_URI);
+			$href = "/bitrix/admin/fileman_newfolder.php?lang=".LANGUAGE_ID."&site=".SITE_ID."&path=". UrlEncode($APPLICATION->GetCurDir())."&back_url=".UrlEncode($requestUri);
 			$APPLICATION->AddPanelButtonMenu('create_section', array("SEPARATOR"=>true, "SORT"=>99));
 			$APPLICATION->AddPanelButtonMenu('create_section', array(
 				"TEXT" => GetMessage("fileman_panel_admin"),
@@ -154,7 +155,7 @@ class CFileMan
 		// Edit page
 		if ($page_permission>="W")
 		{
-			$href = "/bitrix/admin/fileman_".$editor_type."_edit.php?lang=".LANGUAGE_ID."&site=".SITE_ID."&templateID=".urlencode(SITE_TEMPLATE_ID).$full_src."&path=".UrlEncode(isset($_SERVER["REAL_FILE_PATH"]) && $_SERVER["REAL_FILE_PATH"]<>""? $_SERVER["REAL_FILE_PATH"] : $cur_page)."&back_url=".UrlEncode($REQUEST_URI);
+			$href = "/bitrix/admin/fileman_".$editor_type."_edit.php?lang=".LANGUAGE_ID."&site=".SITE_ID."&templateID=".urlencode(SITE_TEMPLATE_ID).$full_src."&path=".UrlEncode(isset($_SERVER["REAL_FILE_PATH"]) && $_SERVER["REAL_FILE_PATH"]<>""? $_SERVER["REAL_FILE_PATH"] : $cur_page)."&back_url=".UrlEncode($requestUri);
 			$APPLICATION->AddPanelButtonMenu('edit', array("SEPARATOR"=>true, "SORT"=>99));
 			$APPLICATION->AddPanelButtonMenu('edit', array(
 				"TEXT" => GetMessage("fileman_panel_admin"),
@@ -168,7 +169,7 @@ class CFileMan
 		$alt = GetMessage("FILEMAN_FOLDER_PROPS");
 		if ($sect_permission>="W")
 		{
-			$href = "/bitrix/admin/fileman_folder.php?lang=".LANGUAGE_ID."&site=".SITE_ID."&path=".UrlEncode($APPLICATION->GetCurDir())."&back_url=".UrlEncode($REQUEST_URI);
+			$href = "/bitrix/admin/fileman_folder.php?lang=".LANGUAGE_ID."&site=".SITE_ID."&path=".UrlEncode($APPLICATION->GetCurDir())."&back_url=".UrlEncode($requestUri);
 			$APPLICATION->AddPanelButtonMenu('edit_section', array("SEPARATOR"=>true, "SORT"=>99));
 			$APPLICATION->AddPanelButtonMenu('edit_section', array(
 				"TEXT" => GetMessage("fileman_panel_admin"),
@@ -549,6 +550,9 @@ class CFileMan
 		$DOC_ROOT_TO = CSite::GetSiteDocRoot($site_to);
 		$strWarning = '';
 
+		$path_from = Rel2Abs('/', $path_from);
+		$path_to = Rel2Abs('/', $path_to);
+
 		//check: if we copy to the same directory
 		if(mb_strpos($DOC_ROOT_TO.$path_to."/", $DOC_ROOT_FROM.$path_from."/") === 0)
 			return GetMessage("FILEMAN_LIB_BAD_FOLDER").": \"".$path_from."\".\n";
@@ -583,8 +587,10 @@ class CFileMan
 				return GetMessage("FILEMAN_FILEMAN_FILE_READ_DENY")." \"".$path_from."\".\n";
 
 			// Copying php or system file without PHP or LPA access
-			if (!($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath) || !(HasScriptExtension($Elem["NAME"]) || mb_substr($Elem["NAME"], 0, 1) == ".")))
+			if (!($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', [$site_from, $path_from]) || !(HasScriptExtension($path_from) || mb_substr($path_from, 0, 1) == ".")))
+			{
 				return GetMessage("FILEMAN_FILEMAN_FILE_READ_DENY")." \"".$path_from."\".\n";
+			}
 
 			// If we can't move source-file
 			if($bDeleteAfterCopy &&  !$USER->CanDoFileOperation('fm_delete_file', Array($site_from, $path_from)))

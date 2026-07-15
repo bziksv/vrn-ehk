@@ -1,53 +1,63 @@
+import 'ui.icon-set.outline';
 import { Extension, Type } from 'main.core';
 import { BaseEvent, EventEmitter } from 'main.core.events';
+import { BIcon, Outline as OutlineIcons } from 'ui.icon-set.api.vue';
 
-import { ChatType, EventType, LocalStorageKey, SoundType, TextareaPanelType as PanelType } from 'im.v2.const';
+import { EventType, LocalStorageKey, SoundType, TextareaPanelType as PanelType, Color } from 'im.v2.const';
+import { Analytics } from 'im.v2.lib.analytics';
 import { Logger } from 'im.v2.lib.logger';
 import { DraftManager } from 'im.v2.lib.draft';
 import { Utils } from 'im.v2.lib.utils';
 import { Parser } from 'im.v2.lib.parser';
 import { LocalStorageManager } from 'im.v2.lib.local-storage';
-import { MessageService, SendingService, UploadingService } from 'im.v2.provider.service';
+import { SendingService } from 'im.v2.provider.service.sending';
+import { MessageService } from 'im.v2.provider.service.message';
+import { UploadingService, MultiUploadingService, type MultiUploadingResult } from 'im.v2.provider.service.uploading';
 import { SoundNotificationManager } from 'im.v2.lib.sound-notification';
 import { isSendMessageCombination, isNewLineCombination } from 'im.v2.lib.hotkey';
 import { Textarea } from 'im.v2.lib.textarea';
-import { ChannelManager } from 'im.v2.lib.channel';
+import { InputAction } from 'im.v2.lib.input-action';
+import { SendButton } from 'im.v2.component.elements.send-button';
+import { getFilesFromDataTransfer, isFilePasted } from 'ui.uploader.core';
+import { EscEventAction } from 'im.v2.lib.esc-manager';
 
 import { MentionManager, MentionManagerEvents } from './classes/mention-manager';
+import { InputSenderService } from './classes/input-sender-service';
 import { ResizeDirection, ResizeManager } from './classes/resize-manager';
-import { TypingService } from './classes/typing-service';
 import { AudioInput } from './components/audio-input/audio-input';
 import { SmileSelector } from './components/smile-selector/smile-selector';
 import { UploadMenu } from './components/upload-menu/upload-menu';
-import { CreateEntityMenu } from './components/create-entity-menu/create-entity-menu';
-import { SendButton } from './components/send-button';
 import { UploadPreviewPopup } from './components/upload-preview/upload-preview-popup';
 import { MentionPopup } from './components/mention/mention-popup';
 import { TextareaPanel } from './components/panel/panel';
+import { AutoDeleteSelector } from './components/auto-delete-selector/auto-delete-selector';
 
 import './css/textarea.css';
 
 import type { JsonObject } from 'main.core';
 import type { ImModelChat, ImModelMessage } from 'im.v2.model';
 import type { InsertTextEvent, InsertMentionEvent } from 'im.v2.const';
+import type { ForwardedEntityConfig, PanelContextWithMultipleIds } from 'im.v2.provider.service.sending';
 
-const MESSAGE_ACTION_PANELS = new Set([PanelType.edit, PanelType.reply, PanelType.forward]);
+const MESSAGE_ACTION_PANELS = new Set([PanelType.edit, PanelType.reply, PanelType.forward, PanelType.forwardEntity]);
 const TextareaHeight = {
 	max: 400,
 	min: 22,
 };
+const ICON_SIZE = 24;
 
 // @vue/component
 export const ChatTextarea = {
 	components: {
 		UploadMenu,
-		CreateEntityMenu,
 		SmileSelector,
 		SendButton,
 		UploadPreviewPopup,
 		MentionPopup,
 		TextareaPanel,
 		AudioInput,
+		AutoDeleteSelector,
+		BIcon,
 	},
 	props: {
 		dialogId: {
@@ -57,10 +67,6 @@ export const ChatTextarea = {
 		placeholder: {
 			type: String,
 			default: '',
-		},
-		withCreateMenu: {
-			type: Boolean,
-			default: true,
 		},
 		withMarket: {
 			type: Boolean,
@@ -78,13 +84,13 @@ export const ChatTextarea = {
 			type: Boolean,
 			default: true,
 		},
-		withAudioInput: {
+		withAutoFocus: {
 			type: Boolean,
 			default: true,
 		},
-		draftManagerClass: {
-			type: Function,
-			default: DraftManager,
+		withMention: {
+			type: Boolean,
+			default: true,
 		},
 	},
 	emits: ['mounted'],
@@ -98,14 +104,20 @@ export const ChatTextarea = {
 			mentionQuery: '',
 
 			showUploadPreviewPopup: false,
-			previewPopupUploaderId: '',
+			previewPopupUploaderIds: [],
+			previewPopupUploadingId: null,
+			previewPopupSourceFilesCount: 0,
 
 			panelType: PanelType.none,
-			panelMessageId: 0,
+			panelContext: {
+				messageId: 0,
+			},
 		};
 	},
 	computed:
 	{
+		OutlineIcons: () => OutlineIcons,
+		ICON_SIZE: () => ICON_SIZE,
 		dialog(): ImModelChat
 		{
 			return this.$store.getters['chats/get'](this.dialogId, true);
@@ -122,6 +134,10 @@ export const ChatTextarea = {
 		{
 			return this.panelType === PanelType.forward;
 		},
+		forwardEntityMode(): boolean
+		{
+			return this.panelType === PanelType.forwardEntity;
+		},
 		editMode(): boolean
 		{
 			return this.panelType === PanelType.edit;
@@ -132,7 +148,7 @@ export const ChatTextarea = {
 		},
 		isDisabled(): boolean
 		{
-			return this.text.trim() === '' && !this.editMode && !this.forwardMode;
+			return this.text.trim() === '' && !this.editMode && !this.forwardMode && !this.forwardEntityMode;
 		},
 		textareaPlaceholder(): string
 		{
@@ -162,13 +178,26 @@ export const ChatTextarea = {
 
 			return settings.get('maxLength');
 		},
-		isChannelType(): boolean
-		{
-			return ChannelManager.isChannel(this.dialogId);
-		},
 		isEmptyText(): boolean
 		{
 			return this.text === '';
+		},
+		isAutoDeleteEnabled(): boolean
+		{
+			return this.$store.getters['chats/autoDelete/isEnabled'](this.dialog.chatId);
+		},
+		marketIconColor(): string
+		{
+			if (this.marketMode)
+			{
+				return Color.accentBlue;
+			}
+
+			return Color.gray40;
+		},
+		isFocused(): boolean
+		{
+			return this.$refs.textarea === document.activeElement;
 		},
 	},
 	watch:
@@ -180,7 +209,7 @@ export const ChatTextarea = {
 
 			if (Type.isStringFilled(newValue))
 			{
-				this.getTypingService().startTyping();
+				this.getInputActionService().startAction(InputAction.writing);
 			}
 		},
 	},
@@ -188,35 +217,47 @@ export const ChatTextarea = {
 	{
 		this.initResizeManager();
 		this.restoreTextareaHeight();
-		this.restoreDraft();
+		void this.restorePanel();
 		this.initSendingService();
 
 		EventEmitter.subscribe(EventType.textarea.insertMention, this.onInsertMention);
 		EventEmitter.subscribe(EventType.textarea.insertText, this.onInsertText);
 		EventEmitter.subscribe(EventType.textarea.editMessage, this.onEditMessage);
 		EventEmitter.subscribe(EventType.textarea.replyMessage, this.onReplyMessage);
+		EventEmitter.subscribe(EventType.textarea.forwardEntity, this.onForwardEntity);
 		EventEmitter.subscribe(EventType.textarea.sendMessage, this.onSendMessage);
 		EventEmitter.subscribe(EventType.textarea.insertForward, this.onInsertForward);
 		EventEmitter.subscribe(EventType.textarea.openUploadPreview, this.onOpenUploadPreview);
+		EventEmitter.subscribe(EventType.key.onBeforeEscape, this.onBeforeEscape);
+		EventEmitter.subscribe(EventType.dialog.closeComments, this.onCloseComments);
 
 		EventEmitter.subscribe(EventType.dialog.onMessageDeleted, this.onMessageDeleted);
 	},
 	mounted()
 	{
-		this.initMentionManager();
-		this.focus();
+		void this.initMentionManager();
+
+		if (this.withAutoFocus)
+		{
+			this.focus();
+		}
+
 		this.$emit('mounted');
 	},
 	beforeUnmount()
 	{
 		this.resizeManager.destroy();
+		this.unbindUploadingService();
 		EventEmitter.unsubscribe(EventType.textarea.insertMention, this.onInsertMention);
 		EventEmitter.unsubscribe(EventType.textarea.insertText, this.onInsertText);
 		EventEmitter.unsubscribe(EventType.textarea.editMessage, this.onEditMessage);
 		EventEmitter.unsubscribe(EventType.textarea.replyMessage, this.onReplyMessage);
+		EventEmitter.unsubscribe(EventType.textarea.forwardEntity, this.onForwardEntity);
 		EventEmitter.unsubscribe(EventType.textarea.sendMessage, this.onSendMessage);
 		EventEmitter.unsubscribe(EventType.textarea.insertForward, this.onInsertForward);
 		EventEmitter.unsubscribe(EventType.textarea.openUploadPreview, this.onOpenUploadPreview);
+		EventEmitter.unsubscribe(EventType.key.onBeforeEscape, this.onBeforeEscape);
+		EventEmitter.unsubscribe(EventType.dialog.closeComments, this.onCloseComments);
 
 		EventEmitter.unsubscribe(EventType.dialog.onMessageDeleted, this.onMessageDeleted);
 	},
@@ -240,46 +281,67 @@ export const ChatTextarea = {
 			else
 			{
 				this.getSendingService().sendMessage({ text, dialogId: this.dialogId });
+				SoundNotificationManager.getInstance().playOnce(SoundType.send);
 			}
 
-			this.getTypingService().stopTyping();
+			this.getInputActionService().stopAction(InputAction.writing);
 			this.clear();
 			this.getDraftManager().clearDraft(this.dialogId);
-			SoundNotificationManager.getInstance().playOnce(SoundType.send);
 			this.focus();
 			EventEmitter.emit(EventType.textarea.onAfterSendMessage);
 		},
 		handlePanelAction(text: string)
 		{
-			if (this.editMode && text === '')
+			if (this.editMode)
 			{
-				void this.getMessageService().deleteMessage(this.panelMessageId);
-			}
-			else if (this.editMode && text !== '')
-			{
-				this.getMessageService().editMessageText(this.panelMessageId, text);
+				this.handleEditAction(text);
 			}
 			else if (this.forwardMode)
 			{
-				this.getSendingService().forwardMessages({
+				void this.getSendingService().forwardMessages({
 					text,
 					dialogId: this.dialogId,
-					forwardIds: [this.panelMessageId],
+					forwardIds: this.panelContext.messagesIds,
 				});
+				SoundNotificationManager.getInstance().playOnce(SoundType.send);
+			}
+			else if (this.forwardEntityMode)
+			{
+				console.error('sending forwarded entity message');
 			}
 			else if (this.replyMode)
 			{
 				this.getSendingService().sendMessage({
 					text,
 					dialogId: this.dialogId,
-					replyId: this.panelMessageId,
+					replyId: this.panelContext.messageId,
 				});
+				SoundNotificationManager.getInstance().playOnce(SoundType.send);
 			}
+		},
+		handleEditAction(text: string): void
+		{
+			if (text === '' && !this.messageHasFiles(this.panelContext.messageId))
+			{
+				return this.getMessageService().deleteMessages([this.panelContext.messageId]);
+			}
+
+			return this.getMessageService().editMessageText(this.panelContext.messageId, text);
+		},
+		messageHasFiles(messageId: number): boolean
+		{
+			const message = this.$store.getters['messages/getById'](messageId);
+			if (!message)
+			{
+				return false;
+			}
+
+			return message.files.length > 0;
 		},
 		clear()
 		{
 			this.text = '';
-			this.mentionManager.clearMentionReplacements();
+			this.mentionManager?.clearMentionReplacements();
 		},
 		hasActiveMessageAction(): boolean
 		{
@@ -292,9 +354,11 @@ export const ChatTextarea = {
 				this.clear();
 			}
 			this.panelType = PanelType.none;
-			this.panelMessageId = 0;
+			this.panelContext = {
+				messageId: 0,
+			};
 
-			this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelMessageId);
+			this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelContext);
 		},
 		openEditPanel(messageId: number)
 		{
@@ -310,7 +374,7 @@ export const ChatTextarea = {
 			}
 
 			this.panelType = PanelType.edit;
-			this.panelMessageId = messageId;
+			this.panelContext.messageId = messageId;
 
 			const mentions = this.mentionManager.extractMentions(message.text);
 			this.mentionManager.setMentionReplacements(mentions);
@@ -319,7 +383,7 @@ export const ChatTextarea = {
 			this.focus();
 
 			this.draftManager.setDraftText(this.dialogId, this.text);
-			this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelMessageId);
+			this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelContext);
 			this.draftManager.setDraftMentions(this.dialogId, mentions);
 		},
 		openReplyPanel(messageId: number)
@@ -329,19 +393,28 @@ export const ChatTextarea = {
 				this.clear();
 			}
 			this.panelType = PanelType.reply;
-			this.panelMessageId = messageId;
+			this.panelContext.messageId = messageId;
 			this.focus();
 
-			this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelMessageId);
+			this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelContext);
 		},
-		openForwardPanel(messageId: number)
+		openForwardPanel(messagesIds: number[])
 		{
 			this.panelType = PanelType.forward;
-			this.panelMessageId = messageId;
+			this.panelContext.messageId = 0;
+			this.panelContext.messagesIds = messagesIds;
 			this.clear();
 			this.focus();
 
-			this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelMessageId);
+			this.draftManager.setDraftPanel(this.dialogId, this.panelType, this.panelContext);
+		},
+		async openForwardEntityPanel(entityConfig: ForwardedEntityConfig)
+		{
+			this.panelType = PanelType.forwardEntity;
+			this.panelContext.messageId = 0;
+			this.panelContext.entityConfig = entityConfig;
+			this.clear();
+			this.focus();
 		},
 		toggleMarketPanel()
 		{
@@ -352,7 +425,7 @@ export const ChatTextarea = {
 				return;
 			}
 			this.panelType = PanelType.market;
-			this.panelMessageId = 0;
+			this.panelContext.messageId = 0;
 		},
 		async adjustTextareaHeight()
 		{
@@ -389,31 +462,66 @@ export const ChatTextarea = {
 			this.resizedTextareaHeight = savedHeight;
 			this.textareaHeight = savedHeight;
 		},
-		async restoreDraft()
+		checkMessageExists(messageId: number): boolean
+		{
+			return this.$store.getters['messages/isExists'](messageId);
+		},
+		verifyPanelContext(panelContext: PanelContextWithMultipleIds): boolean
+		{
+			if (panelContext.messagesIds)
+			{
+				return panelContext.messagesIds.every((messageId) => this.checkMessageExists(messageId));
+			}
+
+			return this.checkMessageExists(panelContext.messageId);
+		},
+		async restorePanel()
 		{
 			const {
 				text = '',
 				panelType = PanelType.none,
-				panelMessageId = 0,
+				panelContext = {
+					messageId: 0,
+				},
 			} = await this.getDraftManager().getDraft(this.dialogId);
 
-			this.text = text;
-			this.panelType = panelType;
-			this.panelMessageId = panelMessageId;
-		},
-		async onKeyDown(event: KeyboardEvent)
-		{
-			if (this.showMention)
-			{
-				this.mentionManager.onActiveMentionKeyDown(event);
+			const noPanel = this.panelType === PanelType.none;
 
+			if (!noPanel && !this.verifyPanelContext(panelContext))
+			{
 				return;
 			}
 
-			const exitActionCombination = Utils.key.isCombination(event, 'Escape');
-			if (this.hasActiveMessageAction() && exitActionCombination)
+			this.text = text;
+			if (noPanel)
+			{
+				this.panelType = panelType;
+			}
+			this.panelContext = panelContext;
+		},
+		onBeforeEscape(): $Values<typeof EscEventAction>
+		{
+			if (this.hasActiveMessageAction())
 			{
 				this.closePanel();
+
+				return EscEventAction.handled;
+			}
+
+			if (this.isFocused && !this.isEmptyText)
+			{
+				return EscEventAction.handled;
+			}
+
+			return EscEventAction.ignored;
+		},
+		async onKeyDown(event: KeyboardEvent)
+		{
+			Analytics.getInstance().onTypeMessage(this.dialog);
+
+			if (this.showMention && this.withMention)
+			{
+				this.mentionManager.onActiveMentionKeyDown(event);
 
 				return;
 			}
@@ -443,7 +551,7 @@ export const ChatTextarea = {
 				return;
 			}
 
-			const decorationCombination = Utils.key.isCombination(event, ['Ctrl+b', 'Ctrl+i', 'Ctrl+u', 'Ctrl+s']);
+			const decorationCombination = Utils.key.isExactCombination(event, ['Ctrl+b', 'Ctrl+i', 'Ctrl+u', 'Ctrl+s']);
 			if (decorationCombination)
 			{
 				event.preventDefault();
@@ -499,20 +607,20 @@ export const ChatTextarea = {
 		{
 			this.resizeManager.onResizeStart(event, this.textareaHeight);
 		},
-		async onFileSelect({ event, sendAsFile }: InputEvent)
+		async onFileSelect({ event, sendAsFile }: Event)
 		{
-			const uploaderId = await this.getUploadingService().uploadFromInput({
-				event,
+			const multiUploadingService: MultiUploadingService = this.getMultiUploadingService();
+			const multiUploadingResult: MultiUploadingResult = await multiUploadingService.upload({
+				files: Object.values(event.target.files),
 				sendAsFile,
-				autoUpload: !this.isChannelType,
 				dialogId: this.dialogId,
+				autoUpload: false,
 			});
 
-			if (this.isChannelType)
-			{
-				this.showUploadPreviewPopup = true;
-				this.previewPopupUploaderId = uploaderId;
-			}
+			this.showUploadPreviewPopup = true;
+			this.previewPopupUploaderIds = multiUploadingResult.uploaderIds;
+			this.previewPopupUploadingId = multiUploadingResult.uploadingId;
+			this.previewPopupSourceFilesCount = multiUploadingResult.sourceFilesCount;
 		},
 		onDiskFileSelect({ files })
 		{
@@ -520,7 +628,7 @@ export const ChatTextarea = {
 		},
 		onInsertMention(event: BaseEvent<InsertMentionEvent>)
 		{
-			const { mentionText, mentionReplacement, dialogId } = event.getData();
+			const { mentionText, mentionReplacement, dialogId, isMentionSymbol = true } = event.getData();
 			let { textToReplace = '' } = event.getData();
 			if (this.dialogId !== dialogId)
 			{
@@ -530,12 +638,13 @@ export const ChatTextarea = {
 			const mentions = this.mentionManager.addMentionReplacement(mentionText, mentionReplacement);
 			this.draftManager.setDraftMentions(this.dialogId, mentions);
 
-			const mentionSymbol = this.mentionManager.getMentionSymbol();
+			const mentionSymbol = isMentionSymbol ? this.mentionManager.getMentionSymbol() : '';
 			textToReplace = `${mentionSymbol}${textToReplace}`;
 			this.text = Textarea.insertMention(this.$refs.textarea, {
 				textToInsert: mentionText,
 				textToReplace,
 			});
+			this.mentionManager.clearMentionSymbol();
 		},
 		onInsertText(event: BaseEvent<InsertTextEvent>)
 		{
@@ -564,43 +673,66 @@ export const ChatTextarea = {
 			}
 			this.openReplyPanel(messageId);
 		},
-		onInsertForward(event: BaseEvent<{ messageId: number, dialogId: string }>)
+		onForwardEntity(event: BaseEvent<{ dialogId: string, entityConfig: ForwardedEntityConfig }>)
 		{
-			const { messageId, dialogId } = event.getData();
+			const { dialogId, entityConfig } = event.getData();
 			if (this.dialogId !== dialogId)
 			{
 				return;
 			}
-			this.openForwardPanel(messageId);
+			this.openForwardEntityPanel(entityConfig);
 		},
-		async onPaste(clipboardEvent: ClipboardEvent)
+		onInsertForward(event: BaseEvent<{ messagesIds: number[], dialogId: string }>)
 		{
+			const { messagesIds, dialogId } = event.getData();
+			if (this.dialogId !== dialogId)
+			{
+				return;
+			}
+
+			this.openForwardPanel(messagesIds);
+		},
+		async onPaste(event: ClipboardEvent)
+		{
+			this.text = Textarea.handlePasteUrl(this.$refs.textarea, event);
+
 			if (!this.withUploadMenu)
 			{
 				return;
 			}
 
-			const uploaderId = await this.getUploadingService().uploadFromClipboard({
-				clipboardEvent,
+			if (!event.clipboardData || !isFilePasted(event.clipboardData))
+			{
+				return;
+			}
+
+			event.preventDefault();
+
+			const multiUploadingService: MultiUploadingService = this.getMultiUploadingService();
+			const multiUploadingResult: MultiUploadingResult = await multiUploadingService.upload({
+				files: await getFilesFromDataTransfer(event.clipboardData),
 				dialogId: this.dialogId,
 				autoUpload: false,
-				imagesOnly: !this.isChannelType,
 			});
 
-			if (!uploaderId)
+			if (!Type.isArrayFilled(multiUploadingResult.uploaderIds))
 			{
 				return;
 			}
 
 			this.showUploadPreviewPopup = true;
-			this.previewPopupUploaderId = uploaderId;
+			this.previewPopupUploaderIds = multiUploadingResult.uploaderIds;
+			this.previewPopupUploadingId = multiUploadingResult.uploadingId;
+			this.previewPopupSourceFilesCount = multiUploadingResult.sourceFilesCount;
 		},
 		onOpenUploadPreview(event: BaseEvent)
 		{
-			const { uploaderId } = event.getData();
+			const { multiUploadingResult } = event.getData();
 
 			this.showUploadPreviewPopup = true;
-			this.previewPopupUploaderId = uploaderId;
+			this.previewPopupUploaderIds = multiUploadingResult.uploaderIds;
+			this.previewPopupUploadingId = multiUploadingResult.uploadingId;
+			this.previewPopupSourceFilesCount = multiUploadingResult.sourceFilesCount;
 		},
 		onMarketIconClick()
 		{
@@ -609,7 +741,13 @@ export const ChatTextarea = {
 		onMessageDeleted(event: BaseEvent<{ messageId: number }>)
 		{
 			const { messageId } = event.getData();
-			if (this.panelMessageId === messageId)
+
+			if (this.panelContext.messageId === messageId)
+			{
+				this.closePanel();
+			}
+
+			if (this.panelContext.messagesIds && this.panelContext.messagesIds.includes(messageId))
 			{
 				this.closePanel();
 			}
@@ -663,20 +801,20 @@ export const ChatTextarea = {
 		{
 			return this.sendingService;
 		},
-		getTypingService(): TypingService
+		getInputActionService(): InputSenderService
 		{
-			if (!this.typingService)
+			if (!this.inputSenderService)
 			{
-				this.typingService = new TypingService(this.dialogId);
+				this.inputSenderService = new InputSenderService(this.dialogId);
 			}
 
-			return this.typingService;
+			return this.inputSenderService;
 		},
 		getDraftManager(): DraftManager
 		{
 			if (!this.draftManager)
 			{
-				this.draftManager = this.draftManagerClass.getInstance();
+				this.draftManager = DraftManager.getInstance();
 			}
 
 			return this.draftManager;
@@ -694,22 +832,70 @@ export const ChatTextarea = {
 		{
 			if (!this.uploadingService)
 			{
-				this.uploadingService = UploadingService.getInstance();
+				this.initUploadingService();
 			}
 
 			return this.uploadingService;
 		},
-		onSendFilesFromPreviewPopup(event)
+		initUploadingService()
 		{
-			this.text = '';
-			const { groupFiles, text, uploaderId } = event;
-			if (groupFiles)
+			this.uploadingService = UploadingService.getInstance();
+
+			this.startFileUploadAction = () => {
+				this.getInputActionService().startAction(InputAction.sendingFile);
+			};
+
+			this.stopFileUploadAction = () => {
+				this.getInputActionService().stopAction(InputAction.sendingFile);
+			};
+			this.uploadingService.subscribe(UploadingService.event.uploadStart, this.startFileUploadAction);
+			this.uploadingService.subscribe(UploadingService.event.uploadComplete, this.stopFileUploadAction);
+			this.uploadingService.subscribe(UploadingService.event.uploadCancel, this.stopFileUploadAction);
+			this.uploadingService.subscribe(UploadingService.event.uploadError, this.stopFileUploadAction);
+		},
+		unbindUploadingService()
+		{
+			if (!this.uploadingService)
 			{
 				return;
 			}
 
+			this.uploadingService.unsubscribe(UploadingService.event.uploadStart, this.startFileUploadAction);
+			this.uploadingService.unsubscribe(UploadingService.event.uploadComplete, this.stopFileUploadAction);
+			this.uploadingService.unsubscribe(UploadingService.event.uploadCancel, this.stopFileUploadAction);
+			this.uploadingService.unsubscribe(UploadingService.event.uploadError, this.stopFileUploadAction);
+		},
+		getMultiUploadingService(): MultiUploadingService
+		{
+			if (!this.multiUploadingService)
+			{
+				this.multiUploadingService = new MultiUploadingService();
+			}
+
+			return this.multiUploadingService;
+		},
+		async onSendFilesFromPreviewPopup(event)
+		{
+			this.text = '';
+			const { text, files, sendAsFile } = event;
 			const textWithMentions = this.mentionManager.replaceMentions(text);
-			this.getUploadingService().sendMessageWithFiles({ uploaderId, text: textWithMentions });
+
+			const multiUploadingResult = await this.getMultiUploadingService().upload({
+				files,
+				dialogId: this.dialogId,
+				autoUpload: false,
+				sendAsFile,
+			});
+
+			await multiUploadingResult.loadAllComplete;
+
+			multiUploadingResult.uploaderIds.forEach((uploaderId: string, index) => {
+				this.getUploadingService().sendMessageWithFiles({
+					uploaderId,
+					text: index === 0 ? textWithMentions : '',
+				});
+			});
+
 			this.focus();
 		},
 		closeMentionPopup()
@@ -725,7 +911,7 @@ export const ChatTextarea = {
 		},
 		focus(): void
 		{
-			this.$refs?.textarea.focus({ preventScroll: true });
+			this.$refs.textarea?.focus({ preventScroll: true });
 		},
 		loc(phraseCode: string): string
 		{
@@ -744,22 +930,29 @@ export const ChatTextarea = {
 		{
 			this.text += inputText;
 		},
+		onCloseComments()
+		{
+			this.restoreTextareaHeight();
+		},
 	},
 	template: `
-		<div class="bx-im-send-panel__scope bx-im-send-panel__container">
+		<div class="bx-im-send-panel__scope bx-im-send-panel__container --ui-context-content-light">
 			<div class="bx-im-textarea__container">
 				<div @mousedown="onResizeStart" class="bx-im-textarea__drag-handle"></div>
 				<TextareaPanel
 					:type="panelType"
-					:messageId="panelMessageId"
+					:context="panelContext"
 					:dialogId="dialogId"
 					@close="closePanel"
 				/>
-				<div class="bx-im-textarea__content" ref="textarea-content">
-					<div class="bx-im-textarea__left">
-						<div v-if="withUploadMenu" class="bx-im-textarea__upload_container">
-							<UploadMenu @fileSelect="onFileSelect" @diskFileSelect="onDiskFileSelect" />
-						</div>
+				<div class="bx-im-textarea__content" ref="textarea-content" @click="focus">
+					<div class="bx-im-textarea__top">
+						<UploadMenu
+							v-if="withUploadMenu"
+							:dialogId="dialogId" 
+							@fileSelect="onFileSelect" 
+							@diskFileSelect="onDiskFileSelect" 
+						/>
 						<textarea
 							v-model="text"
 							:style="textareaStyle"
@@ -771,41 +964,46 @@ export const ChatTextarea = {
 							ref="textarea"
 							rows="1"
 						></textarea>
+					</div>
+					<div class="bx-im-textarea__bottom">
+						<slot name="bottom-panel-buttons"></slot>
+						<AutoDeleteSelector
+							v-if="isAutoDeleteEnabled"
+							:dialogId="dialogId"
+						/>
+						<BIcon
+							v-if="withMarket"
+							:name="OutlineIcons.APPS"
+							:title="loc('IM_TEXTAREA_ICON_APPLICATION')"
+							:size="ICON_SIZE"
+							:color="marketIconColor"
+							class="bx-im-textarea__icon"
+							@click="onMarketIconClick"
+						/>
+						<SmileSelector
+							v-if="withSmileSelector"
+							:dialogId="dialogId"
+						/>
 						<AudioInput
-							v-if="withAudioInput"
 							@inputStart="onAudioInputStart"
 							@inputResult="onAudioInputResult"
 						/>
-					</div>
-					<div class="bx-im-textarea__right">
-						<div class="bx-im-textarea__action-panel">
-							<CreateEntityMenu v-if="withCreateMenu" :dialogId="dialogId" :textareaValue="text" />
-							<div
-								v-if="withMarket"
-								:title="loc('IM_TEXTAREA_ICON_APPLICATION')"
-								@click="onMarketIconClick"
-								class="bx-im-textarea__icon --market"
-								:class="{'--active': marketMode}"
-							></div>
-							<SmileSelector 
-								v-if="withSmileSelector" 
-								:dialogId="dialogId" 
-							/>
-						</div>
+						<SendButton :dialogId="dialogId" :editMode="editMode" :isDisabled="isDisabled" @click="sendMessage" />
 					</div>
 				</div>
 			</div>
-			<SendButton :dialogId="dialogId" :editMode="editMode" :isDisabled="isDisabled" @click="sendMessage" />
 			<UploadPreviewPopup
 				v-if="showUploadPreviewPopup"
 				:dialogId="dialogId"
-				:uploaderId="previewPopupUploaderId"
+				:uploaderIds="previewPopupUploaderIds"
+				:uploadingId="previewPopupUploadingId"
+				:sourceFilesCount="previewPopupSourceFilesCount"
 				:textareaValue="text"
 				@close="showUploadPreviewPopup = false"
 				@sendFiles="onSendFilesFromPreviewPopup"
 			/>
 			<MentionPopup 
-				v-if="showMention" 
+				v-if="withMention && showMention" 
 				:bindElement="$refs['textarea-content']"
 				:dialogId="dialogId"
 				:query="mentionQuery"

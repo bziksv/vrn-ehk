@@ -11,6 +11,7 @@ use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\Model\StoreDocument;
 use Bitrix\Catalog\Config\Feature;
 use Bitrix\Catalog\Config\State;
+use Bitrix\Catalog\Integration\AI\Settings;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Catalog\Restriction\ToolAvailabilityManager;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
@@ -22,6 +23,8 @@ use Bitrix\Currency\Integration\IblockMoneyProperty;
 use Bitrix\Iblock\ElementTable;
 use Bitrix\Iblock\PropertyTable;
 use Bitrix\Iblock\Model\PropertyFeature;
+use Bitrix\Main\Application;
+use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Engine\Response\AjaxJson;
 use Bitrix\Main\Entity\AddResult;
@@ -32,7 +35,9 @@ use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM;
+use Bitrix\Main\Result;
 use Bitrix\Main\Text\HtmlFilter;
+use Bitrix\Main\Type;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main\UI\FileInputUtility;
 use Bitrix\UI\Toolbar\Facade\Toolbar;
@@ -489,13 +494,6 @@ class CatalogProductDetailsComponent
 		return true;
 	}
 
-	private function getApplication()
-	{
-		global $APPLICATION;
-
-		return $APPLICATION;
-	}
-
 	protected function setIblockId(int $iblockId): self
 	{
 		$this->iblockId = $iblockId;
@@ -651,7 +649,7 @@ class CatalogProductDetailsComponent
 			$title = HtmlFilter::encode($product->getName());
 		}
 
-		$this->getApplication()->setTitle($title);
+		Toolbar::setTitle($title);
 	}
 
 	protected function createProduct(): ?BaseProduct
@@ -854,6 +852,9 @@ class CatalogProductDetailsComponent
 		$this->arResult['PRODUCT_TYPE_NAME'] = $this->getProductTypeName($product);
 		$this->arResult['DROPDOWN_TYPES'] = $this->getDropdownTypes($product);
 		$this->arResult['DISABLED_HTML_CONTROLS'] = $this->getDisabledHtmlControls();
+		$this->arResult['CHTML_EDITOR_PARAMS'] = $this->getChtmlEditorParams();
+
+		$this->arResult['IS_COPILOT_ENABLED'] = Settings::isTextProductCardAvailable();
 	}
 
 	/**
@@ -1159,6 +1160,14 @@ class CatalogProductDetailsComponent
 	{
 		$sectionFields = $fields['IBLOCK_SECTION'] ?? null;
 		unset($fields['IBLOCK_SECTION']);
+		if (is_array($sectionFields))
+		{
+			Type\Collection::normalizeArrayValuesByInt($sectionFields);
+			if (empty($sectionFields))
+			{
+				$sectionFields = null;
+			}
+		}
 
 		return $sectionFields;
 	}
@@ -1806,6 +1815,10 @@ class CatalogProductDetailsComponent
 				$index = str_replace(BaseForm::PRICE_FIELD_PREFIX, '', $name);
 				if (!empty($index))
 				{
+					if (is_string($value))
+					{
+						str_replace(',', '.', $value);
+					}
 					$priceFields[$index]['PRICE'] = $value;
 				}
 
@@ -1944,6 +1957,10 @@ class CatalogProductDetailsComponent
 		if ($sectionFields !== null)
 		{
 			$product->getSectionCollection()->setValues($sectionFields);
+			if ($product->isNew() && !isset($fields['IBLOCK_SECTION_ID']))
+			{
+				$product->setField('IBLOCK_SECTION_ID', reset($sectionFields));
+			}
 		}
 
 		if (!empty($propertyFields))
@@ -2023,7 +2040,10 @@ class CatalogProductDetailsComponent
 
 		if (!$this->getForm()->isPurchasingPriceAllowed())
 		{
-			unset($fields['PURCHASING_PRICE']);
+			unset(
+				$fields['PURCHASING_PRICE'],
+				$fields['PURCHASING_CURRENCY'],
+			);
 		}
 
 		if (!empty($fields))
@@ -2033,9 +2053,18 @@ class CatalogProductDetailsComponent
 				$fields['NAME'] = $product->getName();
 			}
 
-			if (isset($fields['PURCHASING_PRICE']) && $fields['PURCHASING_PRICE'] === '')
+			if (isset($fields['PURCHASING_PRICE']))
 			{
-				$fields['PURCHASING_PRICE'] = null;
+				if (is_string($fields['PURCHASING_PRICE']))
+				{
+					$fields['PURCHASING_PRICE'] = str_replace(
+						',', '.', trim($fields['PURCHASING_PRICE'])
+					);
+				}
+				if ($fields['PURCHASING_PRICE'] === '')
+				{
+					$fields['PURCHASING_PRICE'] = null;
+				}
 			}
 
 			$sku->setFields($fields);
@@ -2159,10 +2188,25 @@ class CatalogProductDetailsComponent
 
 	private function saveInternal(BaseProduct $product, bool $notifyAboutNewVariation = false): ?array
 	{
-		$result = $product->save();
-
-		if (!$result->isSuccess())
+		$connection = Application::getConnection();
+		$connection->startTransaction();
+		try
 		{
+			$result = $product->save();
+		}
+		catch (SqlQueryException)
+		{
+			$result = new Result();
+			$result->addError(new Error(Loc::getMessage('CPD_ERROR_SAVE')));
+		}
+
+		if ($result->isSuccess())
+		{
+			$connection->commitTransaction();
+		}
+		else
+		{
+			$connection->rollbackTransaction();
 			$this->errorCollection->add($result->getErrors());
 
 			return null;
@@ -2997,6 +3041,13 @@ class CatalogProductDetailsComponent
 		return [
 			'Code',
 			'Quote',
+		];
+	}
+
+	private function getChtmlEditorParams(): array
+	{
+		return [
+			'normalBodyWidth' => 600,
 		];
 	}
 

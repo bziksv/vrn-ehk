@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ResolutionValues>
+	<Resolution>272x340</Resolution>
+	<Resolution>320x240</Resolution>
+	<Resolution>640x480</Resolution>
+	<Resolution>720x480</Resolution>
+	<Resolution>1024x768</Resolution>
+	<Resolution>1200x640</Resolution>
+	<Resolution>1280x720 (НD)</Resolution>
+	<Resolution>1280x960</Resolution>
+	<Resolution>1440x1080</Resolution>
+	<Resolution>1728x1296</Resolution>
+	<Resolution>1920x720</Resolution>
+	<Resolution>1920x1080 (Full НD)</Resolution>
+	<Resolution>2048x1536</Resolution>
+	<Resolution>2048х1080</Resolution>
+	<Resolution>2304х1296 (Super НD)</Resolution>
+	<Resolution>2312x1080</Resolution>
+	<Resolution>2340х1080</Resolution>
+	<Resolution>2560x1080</Resolution>
+	<Resolution>2560x1440 (2К)</Resolution>
+	<Resolution>2560x1440</Resolution>
+	<Resolution>2560x1600</Resolution>
+	<Resolution>2592x1944</Resolution>
+	<Resolution>2720x2720</Resolution>
+	<Resolution>2880x2160</Resolution>
+	<Resolution>3840x2160 (4K)</Resolution>
+</ResolutionValues>

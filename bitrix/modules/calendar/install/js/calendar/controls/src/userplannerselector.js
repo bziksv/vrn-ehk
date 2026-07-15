@@ -3,8 +3,8 @@ import {Util} from 'calendar.util';
 import {EventEmitter, BaseEvent} from 'main.core.events';
 import {Planner} from "calendar.planner";
 import {Dialog as EntitySelectorDialog} from 'ui.entity-selector';
-import { ControlButton } from 'intranet.control-button';
 import { AttendeesList, IntranetButton } from 'calendar.controls';
+import { AvatarRoundGuest } from 'ui.avatar';
 
 export class UserPlannerSelector extends EventEmitter
 {
@@ -12,6 +12,7 @@ export class UserPlannerSelector extends EventEmitter
 	static EDIT_MODE = 'edit';
 	static MAX_USER_COUNT_DISPLAY = 8;
 	static PLANNER_WIDTH = 550;
+	static canEditAttendeesPopupShown = false;
 	zIndex = 4200;
 	readOnlyMode = true;
 	meetingNotifyValue = true;
@@ -26,7 +27,7 @@ export class UserPlannerSelector extends EventEmitter
 	{
 		super();
 		this.setEventNamespace('BX.Calendar.Controls.UserPlannerSelector');
-		this.selectorId = params.id || 'user-selector-' + Math.round(Math.random() * 10000);
+		this.selectorId = params.id || `user-selector-${Math.round(Math.random() * 10000)}`;
 		this.BX = Util.getBX();
 		this.DOM = {
 			outerWrap: params.outerWrap,
@@ -54,10 +55,10 @@ export class UserPlannerSelector extends EventEmitter
 		this.type = params.type;
 		this.ownerId = params.ownerId;
 		this.zIndex = params.zIndex || this.zIndex;
-		this.dayOfWeekMonthFormat = params.dayOfWeekMonthFormat;
 
-		this.plannerFeatureEnabled = !!params.plannerFeatureEnabled;
-		this.isEditableSharingEvent = !!params.isEditableSharingEvent;
+		this.plannerReadOnly = params.plannerReadOnly || false;
+		this.plannerFeatureEnabled = Boolean(params.plannerFeatureEnabled);
+		this.isEditableSharingEvent = Boolean(params.isEditableSharingEvent);
 		this.openEditFormCallback = params.openEditFormCallback;
 		this.create();
 	}
@@ -76,33 +77,14 @@ export class UserPlannerSelector extends EventEmitter
 							targetNode: this.DOM.changeLink,
 							context: 'CALENDAR',
 							preselectedItems: this.attendeesPreselectedItems,
+							undeselectedItems: this.attendeesUndeselectedItems,
 							enableSearch: true,
 							zIndex: this.zIndex + 10,
 							events: {
 								'Item:onSelect': this.handleUserSelectorChanges.bind(this),
 								'Item:onDeselect': this.handleUserSelectorChanges.bind(this),
 							},
-							entities: [
-								{
-									id: 'user',
-									options: {
-										inviteGuestLink: true,
-										emailUsers: true,
-										analyticsSource: 'calendar',
-									}
-								},
-								{
-									id: 'project'
-								},
-								{
-									id: 'department',
-									options: {selectMode: 'usersAndDepartments'}
-								},
-								{
-									id: 'meta-user',
-									options: { 'all-users': true }
-								}
-							],
+							entities: this.getSelectorEntities(),
 							searchTabOptions: {
 								stubOptions: {
 									title: Loc.getMessage('EC_USER_DIALOG_404_TITLE'),
@@ -110,7 +92,7 @@ export class UserPlannerSelector extends EventEmitter
 									icon: '/bitrix/images/calendar/search-email.svg',
 									iconOpacity: 100,
 									arrow: true,
-								}
+								},
 							},
 						});
 					}
@@ -126,13 +108,14 @@ export class UserPlannerSelector extends EventEmitter
 		}
 
 		this.planner = new Planner({
+			readonly: this.plannerReadOnly,
+			solidStatus: this.plannerReadOnly,
+			showWorkTimeNotice: true,
 			wrap: this.DOM.plannerOuterWrap,
 			minWidth: UserPlannerSelector.PLANNER_WIDTH,
 			width: UserPlannerSelector.PLANNER_WIDTH,
 			showEntryName: false,
 			locked: !this.plannerFeatureEnabled,
-			dayOfWeekMonthFormat: this.dayOfWeekMonthFormat
-
 		});
 
 		Event.bind(this.DOM.informWrap, 'click', () => {
@@ -153,10 +136,45 @@ export class UserPlannerSelector extends EventEmitter
 		}
 	}
 
-	setValue({attendeesEntityList, attendees, location, notify, hideGuests, viewMode, entry})
+	getSelectorEntities()
 	{
+		const result = [
+			{
+				id: 'user',
+				options: {
+					inviteGuestLink: true,
+					emailUsers: Util.isEventWithEmailGuestAllowed(),
+					analyticsSource: 'calendar',
+					lockGuestLink: !Util.isEventWithEmailGuestAllowed(),
+					lockGuestLinkFeatureId: 'calendar_events_with_email_guests',
+				},
+			},
+			{
+				id: 'department',
+				options: { selectMode: 'usersAndDepartments' },
+			},
+			{
+				id: 'meta-user',
+				options: { 'all-users': true },
+			},
+		];
+
+		if (Util.isProjectFeatureEnabled())
+		{
+			result.push({
+				id: 'project',
+			});
+		}
+
+		return result;
+	}
+
+	setValue(params)
+	{
+		const { attendeesEntityList, attendees, location, notify, hideGuests, viewMode, entry } = params;
 		this.attendeesEntityList = Type.isArray(attendeesEntityList) ? attendeesEntityList : [];
 		this.attendeesPreselectedItems = this.attendeesEntityList.map((item) => {return [item.entityId, item.id]});
+		this.attendeesUndeselectedItems = params.attendeesUndeselectedItems || [];
 
 		this.entry = entry;
 		this.entryId = this.entry.id;
@@ -180,10 +198,10 @@ export class UserPlannerSelector extends EventEmitter
 		if (
 			this.entryId
 			&& this.entry
-			&& this.entry.data['PARENT_ID']
+			&& this.entry.data.PARENT_ID
 			&& (
-				this.entry.data['EVENT_TYPE'] === '#shared#'
-				|| this.entry.data['EVENT_TYPE'] === '#shared_crm#'
+				this.entry.data.EVENT_TYPE === '#shared#'
+				|| this.entry.data.EVENT_TYPE === '#shared_crm#'
 			)
 			&& this.entry.getCurrentStatus() !== false
 		)
@@ -208,27 +226,41 @@ export class UserPlannerSelector extends EventEmitter
 			Dom.clean(this.DOM.videocallWrap);
 			Dom.removeClass(this.DOM.videocallWrap, 'calendar-videocall-hidden');
 
+			const items = Util.getCalendarContext().isCollabUser
+				? ['chat', 'videocall', 'task']
+				: ['chat', 'videocall', 'blog_post', 'task']
+			;
+
 			this.intranetControllButton = new IntranetButton({
 				intranetControlButtonParams: {
+					items,
 					container: this.DOM.videocallWrap,
 					entityType: 'calendar_event',
 					entityId: this.entry.parentId,
 					mainItem: 'chat',
 					entityData: {
 						dateFrom: Util.formatDate(this.entry.from),
-						parentId: this.entry.parentId
+						parentId: this.entry.parentId,
 					},
-					analyticsLabel: {
-						formType: 'compact'
-					}
+					analytics: {
+						startVideoCall: {
+							tool: 'im',
+							category: 'events',
+							event: 'click_call',
+							type: 'group',
+							c_section: 'card_compact',
+							c_sub_section: 'context_menu',
+							p5: `eventId_${this.entry.parentId}`,
+						},
+					},
 				},
 				callbacks: {
-					getUsersCount: () => this.attendeeList.accepted.length + this.attendeeList.requested.length,
+					getUsersCount: () => this.getUsersCount(),
 					hasChat: () => this.entry.data?.MEETING?.CHAT_ID > 0,
 				},
 			});
 		}
-		else if(this.DOM.videocallWrap)
+		else if (this.DOM.videocallWrap)
 		{
 			Dom.addClass(this.DOM.videocallWrap, 'calendar-videocall-hidden');
 		}
@@ -290,6 +322,8 @@ export class UserPlannerSelector extends EventEmitter
 			{
 				this.planner.updateSelector(this.planner.currentFromDate, this.planner.currentToDate, true);
 			}
+
+			this.planner.setEntriesCount(this.getUsersCount());
 		}
 	}
 
@@ -303,7 +337,8 @@ export class UserPlannerSelector extends EventEmitter
 			entityList: entityList,
 			timezone: dateTime.timezoneFrom,
 			location: this.getLocationValue(),
-			entryId: this.entryId
+			entryId: this.entryId,
+			parentId: this.entry.parentId,
 		})
 			.then((response) =>
 			{
@@ -318,7 +353,8 @@ export class UserPlannerSelector extends EventEmitter
 				if (Type.isArray(response.data.entries))
 				{
 					response.data.entries.forEach((entry) => {
-						if (entry.type === 'user' && !this.prevUserList.includes(parseInt(entry.id)))
+						const hasAccessibility = this.loadedAccessibilityData[entry.id];
+						if (entry.type === 'user' && !this.prevUserList.includes(parseInt(entry.id)) && hasAccessibility)
 						{
 							this.prevUserList.push(parseInt(entry.id));
 						}
@@ -387,7 +423,8 @@ export class UserPlannerSelector extends EventEmitter
 				timezone: dateTime.timezoneFrom,
 				location: this.getLocationValue(),
 				entryId: this.entryId,
-				prevUserList: this.prevUserList
+				parentId: this.entry.parentId,
+				prevUserList: this.prevUserList,
 			});
 		}
 	}
@@ -409,7 +446,8 @@ export class UserPlannerSelector extends EventEmitter
 					if (Type.isArray(response.data.entries))
 					{
 						response.data.entries.forEach((entry) => {
-							if (entry.type === 'user' && !this.prevUserList.includes(parseInt(entry.id)))
+							const hasAccessibility = this.loadedAccessibilityData[entry.id];
+							if (entry.type === 'user' && !this.prevUserList.includes(parseInt(entry.id)) && hasAccessibility)
 							{
 								this.prevUserList.push(parseInt(entry.id));
 							}
@@ -434,6 +472,7 @@ export class UserPlannerSelector extends EventEmitter
 		return this.BX.ajax.runAction('calendar.api.calendarajax.updatePlanner', {
 			data: {
 				entryId: params.entryId || 0,
+				parentId: params.parentId || 0,
 				entryLocation: this.entry.data.LOCATION || '',
 				ownerId: this.ownerId,
 				hostId: this.entry.data.MEETING_HOST || null,
@@ -444,8 +483,9 @@ export class UserPlannerSelector extends EventEmitter
 				timezone: params.timezone || '',
 				location: params.location || '',
 				entries: params.entrieIds || false,
-				prevUserList: params.prevUserList || []
-			}
+				prevUserList: params.prevUserList || [],
+				entry: this.entry,
+			},
 		});
 	}
 
@@ -502,8 +542,7 @@ export class UserPlannerSelector extends EventEmitter
 	{
 		Dom.clean(this.DOM.attendeesList);
 		this.attendeeList = AttendeesList.sortAttendees(attendees);
-		const usersCount = this.attendeeList.accepted.length
-			+ this.attendeeList.requested.length;
+		const usersCount = this.getUsersCount();
 		this.emit('onDisplayAttendees', new BaseEvent({
 			data: {
 				usersCount: usersCount
@@ -546,18 +585,37 @@ export class UserPlannerSelector extends EventEmitter
 		}
 	}
 
+	getUsersCount(): number
+	{
+		return this.attendeeList.accepted.length + this.attendeeList.requested.length;
+	}
+
 	static getUserAvatarNode(user)
 	{
-		let
-			imageNode,
-			img = user.AVATAR || user.SMALL_AVATAR;
-		if (!img || img === "/bitrix/images/1.gif")
+		let imageNode;
+		let img = user.AVATAR || user.SMALL_AVATAR;
+
+		if (user.COLLAB_USER)
+		{
+			imageNode = new AvatarRoundGuest(
+				{
+					size: 22,
+					userName: user.DISPLAY_NAME,
+					userpicPath: user.AVATAR && user.AVATAR !== '/bitrix/images/1.gif'
+						? user.AVATAR
+						: null,
+					baseColor: '#19cc45',
+				},
+			).getContainer();
+		}
+		else if (!img || img === "/bitrix/images/1.gif")
 		{
 			let defaultAvatarClass = 'ui-icon-common-user';
 			if (user.EMAIL_USER)
 			{
 				defaultAvatarClass = 'ui-icon-common-user-mail';
 			}
+
 			if (user.SHARING_USER)
 			{
 				defaultAvatarClass += ' ui-icon-common-user-sharing';
@@ -567,13 +625,15 @@ export class UserPlannerSelector extends EventEmitter
 		else
 		{
 			imageNode = Tag.render`
-			<img
-				title="${Text.encode(user.DISPLAY_NAME)}"
-				class="calendar-member"
-				id="simple_popup_${parseInt(user.ID)}"
-				src="${encodeURI(img)}"
-			>`;
+				<img
+					title="${Text.encode(user.DISPLAY_NAME)}"
+					class="calendar-member"
+					id="simple_popup_${parseInt(user.ID, 10)}"
+					src="${encodeURI(img)}"
+				>
+			`;
 		}
+
 		return imageNode;
 	}
 
@@ -628,8 +688,9 @@ export class UserPlannerSelector extends EventEmitter
 
 	hasExternalEmailUsers(attendees = [])
 	{
-		return !!attendees.find((item) => {return item.EMAIL_USER;})
-			|| !!this.getEntityList().find((item) => {return item.entityType === 'email';});
+		return Boolean(attendees.some((item) => item.EMAIL_USER))
+			|| Boolean(this.getEntityList().some((item) => item.entityType === 'email'))
+		;
 	}
 
 	destroy()
@@ -637,7 +698,7 @@ export class UserPlannerSelector extends EventEmitter
 		if (this.userSelectorDialog && this.userSelectorDialog.destroy)
 		{
 			this.userSelectorDialog.destroy();
-		 	this.userSelectorDialog = null;
+			this.userSelectorDialog = null;
 		}
 
 		if (this.intranetControllButton && this.intranetControllButton.destroy)
@@ -687,9 +748,7 @@ export class UserPlannerSelector extends EventEmitter
 	{
 		if (Type.isArray(userIdList) && userIdList.length && this.prevUserList.length)
 		{
-			this.prevUserList = this.prevUserList.filter((userId) => {
-				return !userIdList.includes(userId);
-			});
+			this.prevUserList = this.prevUserList.filter((userId) => !userIdList.includes(userId));
 		}
 	}
 
@@ -706,7 +765,7 @@ export class UserPlannerSelector extends EventEmitter
 					timezone: dateTime.timezoneFrom,
 					location: this.getLocationValue(),
 					entryId: this.entryId,
-					focusSelector: false
+					focusSelector: false,
 				});
 			}
 		}
@@ -721,13 +780,22 @@ export class UserPlannerSelector extends EventEmitter
 	{
 		return this.BX.ajax.runAction('calendar.api.calendarajax.getConferenceChatId', {
 			data: {
-				eventId: this.entry.data['PARENT_ID'],
+				eventId: this.entry.data.PARENT_ID,
+			},
+			analytics: {
+				tool: 'im',
+				category: 'events',
+				event: 'click_call',
+				type: 'videoconf',
+				c_section: 'card_compact',
+				c_sub_section: 'card',
+				p5: `eventId_${this.entry.data.PARENT_ID}`,
 			},
 		}).then(
 			(response) => {
 				if (top.window.BXIM && response.data && response.data.chatId)
 				{
-					top.BXIM.openMessenger('chat' + parseInt(response.data.chatId));
+					top.BXIM.openMessenger(`chat${parseInt(response.data.chatId, 10)}`);
 
 					return null;
 				}
@@ -740,7 +808,7 @@ export class UserPlannerSelector extends EventEmitter
 				alert(Loc.getMessage('EC_CONFERENCE_ERROR'));
 
 				return null;
-			}
+			},
 		);
 	}
 
@@ -756,19 +824,41 @@ export class UserPlannerSelector extends EventEmitter
 		Event.bind(this.DOM.changeLink, 'click', clickAction);
 		if (this.attendeesPreselectedItems.length <= 2)
 		{
-			const hintPopup = new BX.PopupWindow('ui-hint-popup-' + (+new Date()), this.DOM.changeLink, {
-				darkMode: true,
-				content: Loc.getMessage('EC_EDIT_SHARING_EVENTS_FEATURE_POPUP_CONTENT'),
-				angle: {position: 'top', offset: 50},
-				autoHide: true,
-				animation: {
-					showClassName: "calendar-edit-sharing-events-feature-popup-animation-open",
-					closeClassName: "calendar-edit-sharing-events-feature-popup-animation-close",
-					closeAnimationType: "animation"
-				},
-			});
-			setTimeout(() => hintPopup.show(), 500);
-			setTimeout(() => hintPopup.close(), 5000);
+			this.showCanEditAttendeesPopup();
 		}
+	}
+
+	setCanEditAttendeesMode()
+	{
+		this.showCanEditAttendeesPopup();
+	}
+
+	showCanEditAttendeesPopup()
+	{
+		if (UserPlannerSelector.canEditAttendeesPopupShown)
+		{
+			return;
+		}
+
+		UserPlannerSelector.canEditAttendeesPopupShown = true;
+		const hintPopup = new BX.PopupWindow(`ui-hint-popup-${Date.now()}`, this.DOM.changeLink, {
+			darkMode: true,
+			content: Loc.getMessage('EC_EDIT_SHARING_EVENTS_FEATURE_POPUP_CONTENT'),
+			angle: { position: 'top', offset: 50 },
+			autoHide: true,
+			animation: {
+				showClassName: 'calendar-edit-sharing-events-feature-popup-animation-open',
+				closeClassName: 'calendar-edit-sharing-events-feature-popup-animation-close',
+				closeAnimationType: 'animation'
+			},
+		});
+		setTimeout(() => hintPopup.show(), 500);
+		setTimeout(() => hintPopup.close(), 5000);
+		const hideEditSharingEventHintPopup = () => {
+			hintPopup.close();
+			EventEmitter.unsubscribe('BX.Calendar.EntityRelation.onMouseEnter', hideEditSharingEventHintPopup.bind(this));
+		};
+
+		EventEmitter.subscribe('BX.Calendar.EntityRelation.onMouseEnter', hideEditSharingEventHintPopup.bind(this));
 	}
 }

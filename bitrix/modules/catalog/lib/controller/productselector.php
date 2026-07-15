@@ -335,6 +335,10 @@ class ProductSelector extends JsonController
 			'PROPERTIES' => $formFields['properties'],
 			'VAT_ID' => $formFields['taxId'],
 			'VAT_INCLUDED' => $formFields['taxIncluded'],
+			'TAX_RATE' => $formFields['taxRate'],
+			'TAX_RATE_FORMATTED' => $this->formatTaxRate($formFields['taxRate']),
+			'TAX_INCLUDED' => $formFields['taxIncluded'],
+			'TAX_INCLUDED_FORMATTED' => $this->formatTaxIncluded($formFields['taxIncluded']),
 			'BRANDS' => $this->getProductBrand($sku),
 			'WEIGHT' => $formFields['weight'],
 			'DIMENSIONS' => $formFields['dimensions'],
@@ -380,6 +384,23 @@ class ProductSelector extends JsonController
 		return $response;
 	}
 
+	private function formatTaxRate(?float $rate): string
+	{
+		if ($rate === null)
+		{
+			return Loc::getMessage('PRODUCT_SELECTOR_PRODUCT_NOT_TAX');
+		}
+
+		return $rate . ' %';
+	}
+
+	private function formatTaxIncluded(string $taxIncluded): string
+	{
+		return ($taxIncluded === 'Y')
+			? Loc::getMessage('PRODUCT_SELECTOR_PRODUCT_TAX_INCLUDED')
+			: Loc::getMessage('PRODUCT_SELECTOR_PRODUCT_TAX_NOT_INCLUDED');
+	}
+
 	private function getProductIdByBarcode(string $barcode): ?int
 	{
 		$barcodeRaw = StoreBarcodeTable::getList([
@@ -404,7 +425,7 @@ class ProductSelector extends JsonController
 			return null;
 		}
 
-		$brand = $product->getPropertyCollection()->findByCode('BRAND_FOR_FACEBOOK');
+		$brand = $product->getPropertyCollection()->findByCodeLazy('BRAND_FOR_FACEBOOK');
 		if (!$brand)
 		{
 			return null;
@@ -432,20 +453,29 @@ class ProductSelector extends JsonController
 
 	private function getProductProperties(BaseSku $sku): array
 	{
-		$columns = PropertyProduct::getColumnNames();
 		$emptyProps = [];
+		$columns = PropertyProduct::getColumnNames();
 		foreach ($columns as $columnName)
 		{
 			$emptyProps[$columnName] = '';
 		}
 
-		$productId = $sku->getParent()->getId();
-		$productIblockId = $sku->getIblockInfo()->getProductIblockId();
-		$productProps = PropertyProduct::getIblockProperties($productIblockId, $productId);
+		$productProps = [];
+		$parent = $sku->getParent();
+		if ($parent)
+		{
+			$productId = $parent->getId();
+			$productIblockId = $sku->getIblockInfo()->getProductIblockId();
+			if ($productId && $productIblockId)
+			{
+				$productProps = PropertyProduct::getIblockProperties($productIblockId, $productId);
+			}
+		}
+		unset($parent);
 
+		$skuProps = [];
 		$skuId = $sku->getId();
 		$skuIblockId = $sku->getIblockId();
-		$skuProps = [];
 		if ($skuId && $skuIblockId)
 		{
 			$skuProps = PropertyProduct::getSkuProperties($skuIblockId, $skuId);
@@ -727,7 +757,7 @@ class ProductSelector extends JsonController
 
 		$values = [];
 
-		$property = $entity->getPropertyCollection()->findByCode(MorePhotoImage::CODE);
+		$property = $entity->getPropertyCollection()->findByCodeLazy(MorePhotoImage::CODE);
 		foreach ($imageValues as $key => $newImage)
 		{
 			$newImage = $this->prepareMorePhotoValue($newImage, $entity);

@@ -10,12 +10,16 @@ use Bitrix\Im\V2\Common\FieldAccessImplementation;
 use Bitrix\Im\V2\Common\RegistryEntryImplementation;
 use Bitrix\Im\V2\Entity\User\User;
 use Bitrix\Im\V2\Relation\Reason;
+use Bitrix\Im\V2\Rest\RestEntity;
 use Bitrix\Main\Type\DateTime;
 
-class Relation implements ArrayAccess, RegistryEntry, ActiveRecord
+class Relation implements ArrayAccess, RegistryEntry, ActiveRecord, RestEntity
 {
 	use FieldAccessImplementation;
-	use ActiveRecordImplementation;
+	use ActiveRecordImplementation
+	{
+		prepareFields as protected prepareFieldsDefault;
+	}
 	use RegistryEntryImplementation;
 	use ContextCustomer;
 
@@ -27,6 +31,7 @@ class Relation implements ArrayAccess, RegistryEntry, ActiveRecord
 	protected ?int $unreadId = null;
 	protected ?int $lastId = null;
 	protected ?int $lastSendId = null;
+	protected ?int $lastSendMessageId = null;
 	protected ?int $lastFileId = null;
 	protected ?DateTime $lastRead = null;
 	protected ?int $status = null;
@@ -38,6 +43,8 @@ class Relation implements ArrayAccess, RegistryEntry, ActiveRecord
 	protected ?int $startCounter = null;
 	protected ?User $user = null;
 	protected Reason $reason = Reason::DEFAULT;
+	protected ?bool $isHidden = null;
+	protected bool $isFake = false;
 
 	public function __construct($source = null)
 	{
@@ -108,6 +115,32 @@ class Relation implements ArrayAccess, RegistryEntry, ActiveRecord
 		return $this;
 	}
 
+	public function prepareFields(): Result
+	{
+		if ($this->isFake)
+		{
+			return (new Result())->setData(['SKIP_SAVE' => true]);
+		}
+
+		return $this->prepareFieldsDefault();
+	}
+
+	public function toRestFormat(array $option = []): ?array
+	{
+		return [
+			'id' => $this->getId(),
+			'userId' => $this->getUserId(),
+			'chatId' => $this->getChatId(),
+			'isHidden' => $this->isHidden(),
+			'role' => mb_strtolower($this->getRole()),
+		];
+	}
+
+	public static function getRestEntityName(): string
+	{
+		return 'relation';
+	}
+
 	/**
 	 * @return array<array>
 	 */
@@ -154,6 +187,11 @@ class Relation implements ArrayAccess, RegistryEntry, ActiveRecord
 				'field' => 'lastSendId',
 				'set' => 'setLastSendId', /** @see Relation::setLastSendId */
 				'get' => 'getLastSendId', /** @see Relation::getLastSendId */
+			],
+			'LAST_SEND_MESSAGE_ID' => [
+				'field' => 'lastSendMessageId',
+				'set' => 'setLastSendMessageId', /** @see Relation::setLastSendMessageId */
+				'get' => 'getLastSendMessageId', /** @see Relation::getLastSendMessageId */
 			],
 			'LAST_FILE_ID' => [
 				'field' => 'lastFileId',
@@ -206,6 +244,11 @@ class Relation implements ArrayAccess, RegistryEntry, ActiveRecord
 				'get' => 'getReason', /** @see Relation::getReason */
 				'loadFilter' => 'prepareReasonForLoad', /** @see Relation::prepareReasonForLoad */
 				'saveFilter' => 'prepareReasonForSave', /** @see Relation::prepareReasonForSave */
+			],
+			'IS_HIDDEN' => [
+				'field' => 'isHidden',
+				'set' => 'markAsHidden', /** @see Relation::markAsHidden */
+				'get' => 'isHidden', /** @see Relation::isHidden */
 			],
 		];
 	}
@@ -297,6 +340,17 @@ class Relation implements ArrayAccess, RegistryEntry, ActiveRecord
 	public function setLastSendId(?int $lastSendId): Relation
 	{
 		$this->lastSendId = $lastSendId;
+		return $this;
+	}
+
+	public function getLastSendMessageId(): ?int
+	{
+		return $this->lastSendMessageId;
+	}
+
+	public function setLastSendMessageId(?int $lastSendMessageId): Relation
+	{
+		$this->lastSendMessageId = $lastSendMessageId;
 		return $this;
 	}
 
@@ -435,6 +489,42 @@ class Relation implements ArrayAccess, RegistryEntry, ActiveRecord
 	public function prepareReasonForSave(Reason $reason): string
 	{
 		return $reason->value;
+	}
+
+	public function isHidden(): ?bool
+	{
+		return $this->isHidden;
+	}
+
+	public function markAsHidden(?bool $isHidden): Relation
+	{
+		$this->isHidden = $isHidden;
+		return $this;
+	}
+
+	public function getRole(): string
+	{
+		if (!$this->getId())
+		{
+			return Chat::ROLE_GUEST;
+		}
+		if ($this->getManager())
+		{
+			return Chat::ROLE_MANAGER;
+		}
+		if ($this->getChat()->getAuthorId() === $this->getUserId())
+		{
+			return Chat::ROLE_OWNER;
+		}
+
+		return Chat::ROLE_MEMBER;
+	}
+
+	public function markAsFake(): self
+	{
+		$this->isFake = true;
+
+		return $this;
 	}
 
 	//endregion

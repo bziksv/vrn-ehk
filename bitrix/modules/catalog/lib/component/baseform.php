@@ -5,6 +5,7 @@ namespace Bitrix\Catalog\Component;
 use Bitrix\Catalog;
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Integration\AI\Settings;
 use Bitrix\Catalog\Url;
 use Bitrix\Catalog\Config\State;
 use Bitrix\Catalog\Product;
@@ -167,6 +168,11 @@ abstract class BaseForm
 		$this->urlBuilder->setIblockId($this->entity->getIblockId());
 	}
 
+	/**
+	 * Returns true, if public product card is allowed.
+	 *
+	 * @return bool
+	 */
 	public function isCardAllowed(): bool
 	{
 		switch ($this->params['SCOPE'])
@@ -189,6 +195,11 @@ abstract class BaseForm
 		return $result;
 	}
 
+	/**
+	 * Returns true, if current user can't modify product.
+	 *
+	 * @return bool
+	 */
 	public function isReadOnly(): bool
 	{
 		if (State::isExternalCatalog())
@@ -202,6 +213,11 @@ abstract class BaseForm
 		;
 	}
 
+	/**
+	 * Returns true, if current user can create new product or modify existing product.
+	 *
+	 * @return bool
+	 */
 	public function isAllowedEditFields(): bool
 	{
 		if ($this->isEntityCreationForm())
@@ -212,16 +228,31 @@ abstract class BaseForm
 		return $this->accessController->check(ActionDictionary::ACTION_PRODUCT_EDIT);
 	}
 
+	/**
+	 * Returns true, if current user can modify card settings.
+	 *
+	 * @return bool
+	 */
 	public function isCardSettingsEditable(): bool
 	{
 		return $this->accessController->check(ActionDictionary::ACTION_PRODUCT_CARD_EDIT);
 	}
 
+	/**
+	 * Returns true, if current user can write card settings for all users.
+	 *
+	 * @return bool
+	 */
 	public function isEnabledSetSettingsForAll(): bool
 	{
 		return $this->accessController->check(ActionDictionary::ACTION_PRODUCT_CARD_SETTINGS_FOR_USERS_SET);
 	}
 
+	/**
+	 * Returns true, if current user can modify product prices.
+	 *
+	 * @return bool
+	 */
 	public function isPricesEditable(): bool
 	{
 		return
@@ -233,11 +264,21 @@ abstract class BaseForm
 		;
 	}
 
+	/**
+	 * Return true, if current user can view purchasing prices.
+	 *
+	 * @return bool
+	 */
 	public function isPurchasingPriceAllowed(): bool
 	{
 		return $this->accessController->check(ActionDictionary::ACTION_PRODUCT_PURCHASE_INFO_VIEW);
 	}
 
+	/**
+	 * Returns true, if current user can modify product's visibility.
+	 *
+	 * @return bool
+	 */
 	public function isVisibilityEditable(): bool
 	{
 		return
@@ -246,6 +287,11 @@ abstract class BaseForm
 		;
 	}
 
+	/**
+	 * Returns true, if current user can change inventory management setting.
+	 *
+	 * @return bool
+	 */
 	public function isInventoryManagementAccess(): bool
 	{
 		return $this->accessController->check(ActionDictionary::ACTION_INVENTORY_MANAGEMENT_ACCESS);
@@ -256,6 +302,11 @@ abstract class BaseForm
 		return $name;
 	}
 
+	/**
+	 * Returns controller's list for product card.
+	 *
+	 * @return array[]
+	 */
 	public function getControllers(): array
 	{
 		return [
@@ -297,6 +348,13 @@ abstract class BaseForm
 		];
 	}
 
+	/**
+	 * Returns product field values.
+	 *
+	 * @param bool $allowDefaultValues Can use default values.
+	 * @param array|null $descriptions Field descriptions.
+	 * @return array
+	 */
 	public function getValues(bool $allowDefaultValues = true, array $descriptions = null): array
 	{
 		$values = [];
@@ -645,16 +703,10 @@ abstract class BaseForm
 					{
 						$controlId = $description['name'] . '_uploader';
 
-						$additionalValues[$descriptionData['view']] = '';
-						$additionalValues[$descriptionData['viewList']]['SINGLE'] = '';
-						$additionalValues[$descriptionData['viewList']]['MULTIPLE'] = '';
-
-						if (!empty($value))
-						{
-							$additionalValues[$descriptionData['view']] = $this->getFilePropertyViewHtml($description, $value, $controlId);
-							$additionalValues[$descriptionData['viewList']]['SINGLE'] = $this->getFilePropertyViewHtml($description, is_array($value) ? $value[0] ?? null : $value, $controlId, false);
-							$additionalValues[$descriptionData['viewList']]['MULTIPLE'] = $this->getFilePropertyViewHtml($description, is_array($value) ? $value : [$value], $controlId, true);
-						}
+						// for empty value fill as empty string - need for component extensions
+						$additionalValues[$descriptionData['view']] = $this->getFilePropertyViewHtml($description, $value, $controlId);
+						$additionalValues[$descriptionData['viewList']]['SINGLE'] = $this->getFilePropertyViewHtml($description, is_array($value) ? $value[0] ?? null : $value, $controlId, false);
+						$additionalValues[$descriptionData['viewList']]['MULTIPLE'] = $this->getFilePropertyViewHtml($description, is_array($value) ? $value : [$value], $controlId, true);
 
 						$additionalValues[$descriptionData['edit']] = $this->getFilePropertyEditHtml($description, $value, $controlId);
 						$additionalValues[$descriptionData['editList']]['SINGLE'] = $this->getFilePropertyEditHtml($description, is_array($value) ? $value[0] ?? null : $value, $controlId, false);
@@ -1247,6 +1299,30 @@ abstract class BaseForm
 					$description['defaultValue'] = ProductTable::STATUS_YES;
 				}
 			}
+			elseif ($field instanceof TextField)
+			{
+				$description['buttons'] = [];
+				$description['postFormSettings'] = [
+					'isAiImageEnabled' => false,
+					'isDnDEnabled' => false,
+				];
+
+				if ($fieldName === 'DETAIL_TEXT')
+				{
+					$description['copilotIntegrationParams'] = [
+						'isMentionUnavailable' => true,
+						'isCopilotTextEnabledBySettings' => Settings::isTextProductCardAvailable(),
+						'copilotParams' => [
+							'contextId' => 'catalog_product_card_detail_description',
+							'moduleId' => 'catalog',
+							'category' => 'product_description',
+							'isCopilotEnabled' => true,
+						],
+					];
+
+					$description['buttons'][] = 'Copilot';
+				}
+			}
 
 			$descriptions[] = $description;
 		}
@@ -1808,6 +1884,8 @@ abstract class BaseForm
 		if ($description['propertyCode'] === self::MORE_PHOTO)
 		{
 			$description['optionFlags'] = 1; // showAlways
+			$description['hint'] = Loc::getMessage('CATALOG_PRODUCT_CARD_MORE_PHOTO_SIZE');
+			$description['hintHtml'] = true;
 		}
 
 		if ($description['multiple'] && !is_array($description['defaultValue']))
@@ -2205,16 +2283,19 @@ abstract class BaseForm
 		$cid = FileInputUtility::instance()->registerControl('', $controlId);
 		$signer = new \Bitrix\Main\Security\Sign\Signer();
 		$signature = $signer->getSignature($cid, 'main.file.input');
-		if (is_array($value))
+		if (!empty($value))
 		{
-			foreach ($value as $elementOfValue)
+			if (is_array($value))
 			{
-				FileInputUtility::instance()->registerFile($cid, $elementOfValue);
+				foreach ($value as $elementOfValue)
+				{
+					FileInputUtility::instance()->registerFile($cid, $elementOfValue);
+				}
 			}
-		}
-		else
-		{
-			FileInputUtility::instance()->registerFile($cid, $value);
+			else
+			{
+				FileInputUtility::instance()->registerFile($cid, $value);
+			}
 		}
 
 		if ($multipleForList === null)
@@ -2234,9 +2315,18 @@ abstract class BaseForm
 			[
 				'userField' => [
 					'ID' => $description['settings']['ID'],
-					'VALUE' => $value,
-					'USER_TYPE_ID' => 'file',
+					'ENTITY_ID' => ProductTable::USER_FIELD_ENTITY_ID,
+					'FIELD_NAME' => $description['name'],
+					'USER_TYPE_ID' => UserField\Types\FileType::USER_TYPE_ID,
+					'XML_ID' => $description['settings']['XML_ID'],
+					'SORT' => $description['settings']['SORT'],
 					'MULTIPLE' => $multiple,
+					'MANDATORY' => $description['settings']['IS_REQUIRED'],
+					'SHOW_FILTER' => $description['settings']['FILTRABLE'],
+					'SHOW_IN_LIST' => 'Y',
+					'EDIT_IN_LIST' => 'Y',
+					'IS_SEARCHABLE' => $description['settings']['SEARCHABLE'],
+					'VALUE' => $value,
 				],
 				'additionalParameters' => [
 					'mode' => 'main.view',
@@ -2250,6 +2340,13 @@ abstract class BaseForm
 				],
 			]
 		);
+
+		if (empty($value))
+		{
+			ob_end_clean();
+
+			return '';
+		}
 
 		return ob_get_clean();
 	}
@@ -2493,22 +2590,17 @@ abstract class BaseForm
 
 	protected function getDefaultVat(): array
 	{
-		$emptyVat = null;
 		$iblockVatId = $this->entity->getIblockInfo()->getVatId();
 
 		foreach ($this->getVats() as $vat)
 		{
-			if ($vat['EXCLUDE_VAT'] === 'Y')
-			{
-				$emptyVat = $vat;
-			}
-
 			if ((int)$vat['ID'] === $iblockVatId)
 			{
 				$vat['NAME'] = Loc::getMessage(
-					"CATALOG_C_F_DEFAULT",
+					'CATALOG_C_F_DEFAULT',
 					['#VALUE#' => htmlspecialcharsbx($vat['NAME'])]
 				);
+
 				return $vat;
 			}
 		}
@@ -2518,9 +2610,9 @@ abstract class BaseForm
 			'RATE' => null,
 			'EXCLUDE_VAT' => null,
 			'NAME' => Loc::getMessage(
-				"CATALOG_C_F_DEFAULT",
-				['#VALUE#' => Loc::getMessage("CATALOG_PRODUCT_CARD_VARIATION_GRID_NOT_SELECTED")]
-			)
+				'CATALOG_C_F_DEFAULT',
+				['#VALUE#' => Loc::getMessage('CATALOG_PRODUCT_CARD_VARIATION_GRID_NOT_SELECTED')]
+			),
 		];
 	}
 

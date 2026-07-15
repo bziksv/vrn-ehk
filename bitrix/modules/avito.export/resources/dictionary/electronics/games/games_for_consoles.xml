@@ -1,0 +1,32 @@
+<root>
+	<Type name="Диск"/>
+	<Type name="Картридж"/>
+	<Type name="Карта памяти"/>
+	<Type name="Электронный ключ"/>
+	<Type name="Карта активации"/>
+	<Type name="Другое"/>
+	<Platform name="PlayStation"/>
+	<Platform name="PlayStation 2"/>
+	<Platform name="PlayStation 3"/>
+	<Platform name="PlayStation 4"/>
+	<Platform name="PlayStation 5"/>
+	<Platform name="PlayStation Portable"/>
+	<Platform name="PlayStation Vita"/>
+	<Platform name="Xbox"/>
+	<Platform name="Xbox 360"/>
+	<Platform name="Xbox One"/>
+	<Platform name="Xbox Series S"/>
+	<Platform name="Xbox Series X"/>
+	<Platform name="Game Boy Advance"/>
+	<Platform name="Nintendo 3DS"/>
+	<Platform name="Nintendo DS"/>
+	<Platform name="Nintendo Game &amp; Watch"/>
+	<Platform name="Nintendo Switch"/>
+	<Platform name="Nintendo Wii"/>
+	<Platform name="Nintendo Wii U"/>
+	<Platform name="Другая платформа"/>
+	<Localization name="Без локализации"/>
+	<Localization name="Русская озвучка, субтитры и интерфейс"/>
+	<Localization name="Русские субтитры и интерфейс"/>
+	<Localization name="Русский интерфейс"/>
+</root>

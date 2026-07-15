@@ -3,12 +3,11 @@ import {
 	AuthorGroup,
 	MessageComponents,
 	CollectionManager,
-	MessageComponentManager,
 } from 'im.v2.component.message-list';
+import { MessageComponentManager } from 'im.v2.lib.message-component';
 import { MessageComponent } from 'im.v2.const';
 
 import { CommentsDialogLoader } from './dialog-loader';
-import { CommentsMessageMenu } from '../classes/message-menu';
 
 import '../css/message-list.css';
 
@@ -28,7 +27,6 @@ export const CommentsMessageList = {
 	},
 	computed:
 	{
-		CommentsMessageMenu: () => CommentsMessageMenu,
 		dialog(): ImModelChat
 		{
 			return this.$store.getters['chats/get'](this.dialogId, true);
@@ -71,7 +69,6 @@ export const CommentsMessageList = {
 	template: `
 		<MessageList
 			:dialogId="dialogId"
-			:messageMenuClass="CommentsMessageMenu"
 			ref="messageList"
 		>
 			<template #loader>
@@ -79,7 +76,7 @@ export const CommentsMessageList = {
 			</template>
 			<template v-if="showPostMessage" #before-messages>
 				<div class="bx-im-comments-message-list__channel-post">
-					<AuthorGroup :item="postAuthorGroup" :contextDialogId="dialogId">
+					<AuthorGroup :item="postAuthorGroup" :contextDialogId="dialogId" :withAvatarMenu="false">
 						<template #message>
 							<component
 								:is="getMessageComponentName(postMessage)"

@@ -328,14 +328,7 @@ final class ForumCommentsComponent extends CBitrixComponent implements Main\Engi
 			$this->arParams["USE_CAPTCHA"] = $this->forum["USE_CAPTCHA"];
 		if ($this->arParams["USE_CAPTCHA"] == "Y" && $this->getUser()?->IsAuthorized() !== true)
 		{
-			include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
 			$this->captcha = new CCaptcha();
-			$captchaPass = COption::GetOptionString("main", "captcha_password", "");
-			if ($captchaPass == '')
-			{
-				$captchaPass = randString(10);
-				COption::SetOptionString("main", "captcha_password", $captchaPass);
-			}
 		}
 
 		if (in_array($this->arParams["ALLOW_UPLOAD"], array("A", "Y", "F", "N", "I")))
@@ -357,6 +350,7 @@ final class ForumCommentsComponent extends CBitrixComponent implements Main\Engi
 
 		$this->arParams["AJAX_MODE"] = $this->isAjaxRequest() ? "Y" : "N";
 		$this->arParams["index"] = $this->componentId;
+		$this->arParams["form_index"] =  str_pad($this->componentId, 5, "0", STR_PAD_LEFT);
 		$this->arParams["COMPONENT_ID"] = $this->componentId;
 		return $this;
 	}
@@ -424,7 +418,7 @@ final class ForumCommentsComponent extends CBitrixComponent implements Main\Engi
 			$code = $this->request->getPost("captcha_code");
 			$word = $this->request->getPost("captcha_word");
 
-			if ($code <> '' && !$this->captcha->CheckCodeCrypt($word, $code, COption::GetOptionString("main", "captcha_password", "")) ||
+			if ($code <> '' && !$this->captcha->CheckCodeCrypt($word, $code) ||
 				$code == '' && !$this->captcha->CheckCode($word, 0))
 			{
 				return false;
@@ -601,7 +595,7 @@ final class ForumCommentsComponent extends CBitrixComponent implements Main\Engi
 			}
 			else if ($this->request["NOREDIRECT"] != "Y" && !$this->isAjaxRequest())
 			{
-				$strURL = $this->request["back_page"] ?: $this->getApplication()->GetCurPageParam("", array("MID", "ID", "SEF_APPLICATION_CUR_PAGE_URL", BX_AJAX_PARAM_ID, "result", "sessid", "bxajaxid"));
+				$strURL = $this->request["back_page"] ?: $this->getApplication()->GetCurPageParam("", array("MID", "ID", BX_AJAX_PARAM_ID, "result", "sessid", "bxajaxid"));
 				$strURL = ForumAddPageParams($strURL, array("MID" => $message["ID"], "result" => ($message["APPROVED"] == "Y" ? "reply" : "not_approved")));
 				LocalRedirect($strURL);
 			}
@@ -674,6 +668,7 @@ final class ForumCommentsComponent extends CBitrixComponent implements Main\Engi
 	{
 		return [
 			"FORUM_ID",
+			"SHOW_POST_FORM",
 			"ENTITY_TYPE",
 			"ENTITY_ID",
 			"ENTITY_XML_ID",

@@ -1,0 +1,202 @@
+<root>
+	<ElectricsType name="Кабели и провода">
+		<DeviceType name="Силовой">
+			<DeviceSubType file="electrics/DeviceSubType.xml"/>
+		</DeviceType>
+		<DeviceType name="Нагревательный"/>
+		<DeviceType name="СИП"/>
+		<DeviceType name="Монтажный"/>
+		<DeviceType name="Витая пара"/>
+		<DeviceType name="Ретро"/>
+		<DeviceType name="Для охранно-пожарной сигнализации"/>
+		<DeviceType name="Другой"/>
+		<PriceFor name="За метр"/>
+		<PriceFor name="За упаковку"/>
+		<CoresNumber name="1"/>
+		<CoresNumber name="2"/>
+		<CoresNumber name="3"/>
+		<CoresNumber name="4"/>
+		<CoresNumber name="5"/>
+		<CoresNumber name="6 и более"/>
+		<CoreSection file="electrics/CoreSection.xml"/>
+		<PackagingType name="На отрез">
+			<MinSaleQuantity variable="text"/>
+		</PackagingType>
+		<PackagingType name="Упаковка">
+			<PackageQuantity variable="text"/>
+		</PackagingType>
+	</ElectricsType>
+	<ElectricsType name="Выключатели, розетки, удлинители">
+		<ElectricsSubType name="Выключатели и розетки">
+			<DeviceType name="Выключатели">
+				<InstallationType name="Накладной"/>
+				<InstallationType name="Встраиваемый"/>
+				<KeyType name="Механические"/>
+				<KeyType name="Сенсорные"/>
+				<KeysNumber name="1"/>
+				<KeysNumber name="2"/>
+				<KeysNumber name="3"/>
+				<KeysNumber name="4"/>
+				<KeysNumber name="6"/>
+				<KeysNumber name="8"/>
+				<SmartHome name="Да"/>
+				<SmartHome name="Нет"/>
+			</DeviceType>
+			<DeviceType name="Диммеры">
+				<InstallationType name="Накладной"/>
+				<InstallationType name="Встраиваемый"/>
+			</DeviceType>
+			<DeviceType name="Розетки">
+				<InstallationType name="Накладной"/>
+				<InstallationType name="Встраиваемый"/>
+				<SmartHome name="Да"/>
+				<SmartHome name="Нет"/>
+				<Features name="USB" multiple="true"/>
+				<Features name="HDMI"/>
+				<Features name="BNC"/>
+				<Features name="F-81"/>
+				<Features name="LAN"/>
+				<Features name="RJ11"/>
+				<Features name="RJ45"/>
+				<Features name="TV"/>
+				<Features name="SAT"/>
+				<Features name="R(FM)"/>
+				<Features name="Type-C"/>
+			</DeviceType>
+			<DeviceType name="Клавиши"/>
+			<DeviceType name="Другое"/>
+		</ElectricsSubType>
+		<ElectricsSubType name="Удлинители, кабельные розетки и вилки"/>
+	</ElectricsType>
+	<ElectricsType name="Щитовое и электромонтажное оборудование">
+		<ElectricsSubType name="Щиты"/>
+		<ElectricsSubType name="Шкафы, боксы"/>
+		<ElectricsSubType name="Трубы и лотки для кабеля"/>
+		<ElectricsSubType name="Кабель каналы"/>
+		<ElectricsSubType name="Клеммы, сжимы, кабельная арматура"/>
+		<ElectricsSubType name="Рейки, шины и комплектующие"/>
+		<ElectricsSubType name="Монтажные коробки, подрозетники"/>
+		<ElectricsSubType name="Молниезащита и заземление"/>
+	</ElectricsType>
+	<ElectricsType name="Устройства защиты, контроля и управления">
+		<ElectricsSubType name="Автоматические выключатели">
+			<Brand file="electrics/brendy_avtomaticheskih_vyklyuchatelej.xml" rename="true"/>
+			<PhaseType name="Однофазный"/>
+			<PhaseType name="Трёхфазный"/>
+			<RatedCurrent file="electrics/autobreakers_rated_current.xml"/>
+			<Poles name="1"/>
+			<Poles name="2"/>
+			<Poles name="3"/>
+			<Poles name="4"/>
+			<TrippingType name="A"/>
+			<TrippingType name="B"/>
+			<TrippingType name="C"/>
+			<TrippingType name="D"/>
+			<TrippingType name="K"/>
+			<TrippingType name="Z"/>
+			<TrippingType name="Ma"/>
+			<SmartHome name="Есть"/>
+			<SmartHome name="Нет"/>
+		</ElectricsSubType>
+		<ElectricsSubType name="Дифференциальные автоматы">
+			<Brand file="electrics/brend_differencialnye_avtomaty.xml" rename="true"/>
+			<PhaseType name="Однофазный"/>
+			<PhaseType name="Трёхфазный"/>
+			<RatedCurrent file="electrics/differential_breakers_rated_current.xml"/>
+			<TrippingType name="B"/>
+			<TrippingType name="C"/>
+			<TrippingType name="D"/>
+			<LeakageCurrentType name="A"/>
+			<LeakageCurrentType name="AC"/>
+			<LeakageCurrentType name="B"/>
+			<LeakageCurrentType name="F"/>
+			<Poles name="1"/>
+			<Poles name="2"/>
+			<Poles name="3"/>
+			<Poles name="4"/>
+			<SmartHome name="Есть"/>
+			<SmartHome name="Нет"/>
+		</ElectricsSubType>
+		<ElectricsSubType name="Реле">
+			<DeviceType name="Импульсное" multiple="true"/>
+			<DeviceType name="Промежуточное"/>
+			<DeviceType name="Времени"/>
+			<DeviceType name="Коммутационное"/>
+			<DeviceType name="Безопасности"/>
+			<DeviceType name="Давления"/>
+			<DeviceType name="Мощности"/>
+			<DeviceType name="Напряжения"/>
+			<DeviceType name="Утечки"/>
+			<DeviceType name="Перегрузки"/>
+			<DeviceType name="Отключения"/>
+			<DeviceType name="Температурное"/>
+			<DeviceType name="Твердотельное"/>
+			<Brand file="electrics/brendy_rele.xml" rename="true"/>
+			<Voltage file="electrics/rele_Voltage.xml"/>
+			<SmartHome name="Есть"/>
+			<SmartHome name="Нет"/>
+		</ElectricsSubType>
+		<ElectricsSubType name="Приборы учёта">
+			<DeviceType name="Электронный">
+				<PhaseType name="Однофазный" multiple="true"/>
+				<PhaseType name="Трёхфазный"/>
+				<NumberTariffs name="Однотарифный"/>
+				<NumberTariffs name="Многотарифный"/>
+				<SmartFunction name="Да"/>
+				<SmartFunction name="Нет"/>
+			</DeviceType>
+			<DeviceType name="Электромеханический">
+				<PhaseType name="Однофазный" multiple="true"/>
+				<PhaseType name="Трёхфазный"/>
+				<NumberTariffs name="Однотарифный"/>
+				<NumberTariffs name="Многотарифный"/>
+				<SmartFunction name="Да"/>
+				<SmartFunction name="Нет"/>
+			</DeviceType>
+			<DeviceType name="Газовый"/>
+		</ElectricsSubType>
+		<ElectricsSubType name="УЗО и другие устройства защиты"/>
+		<ElectricsSubType name="Средства и системы охранно-пожарной сигнализации"/>
+		<ElectricsSubType name="Клеммы, сжимы, кабельная арматура"/>
+		<ElectricsSubType name="Другое"/>
+	</ElectricsType>
+	<ElectricsType name="Коммутационное оборудование">
+		<ElectricsSubType name="Контакторы"/>
+		<ElectricsSubType name="Рубильники, разъединители, выключатели нагрузки"/>
+		<ElectricsSubType name="Переключатели"/>
+		<ElectricsSubType name="Пускатели"/>
+		<ElectricsSubType name="Другое"/>
+	</ElectricsType>
+	<ElectricsType name="Солнечные панели">
+		<DeviceType name="Cтанции">
+			<Brand file="electrics/brendy_solnechnyh_panelej.xml" rename="true"/>
+			<Voltage file="electrics/solar_panel_voltage.xml"/>
+			<Capacity variable="text"/>
+		</DeviceType>
+		<DeviceType name="Панели">
+			<Brand file="electrics/brendy_solnechnyh_panelej.xml" rename="true"/>
+			<Voltage file="electrics/solar_panel_voltage.xml"/>
+			<Capacity variable="text"/>
+		</DeviceType>
+		<DeviceType name="Аккумуляторы">
+			<Brand file="electrics/brendy_solnechnyh_panelej.xml" rename="true"/>
+			<Voltage file="electrics/solar_panel_voltage.xml"/>
+			<Capacity variable="text"/>
+		</DeviceType>
+		<DeviceType name="Инверторы">
+			<Brand file="electrics/brendy_solnechnyh_panelej.xml" rename="true"/>
+			<Voltage file="electrics/solar_panel_voltage.xml"/>
+			<Capacity variable="text"/>
+		</DeviceType>
+		<DeviceType name="Комплектующие"/>
+	</ElectricsType>
+	<ElectricsType name="Тёплые полы"/>
+	<ElectricsType name="Освещение">
+		<ElectricsSubType name="Лампочки"/>
+		<ElectricsSubType name="Потолочное освещение"/>
+		<ElectricsSubType name="Уличное освещение"/>
+		<ElectricsSubType name="Светодиодная лента"/>
+		<ElectricsSubType name="Питание и управление светом"/>
+	</ElectricsType>
+	<ElectricsType name="Другое"/>
+</root>

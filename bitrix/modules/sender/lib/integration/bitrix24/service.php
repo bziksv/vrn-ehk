@@ -142,7 +142,7 @@ class Service
 	 */
 	public static function isCloudRegionRussian(bool $onlyRu = false): bool
 	{
-		$regions = $onlyRu ? ['ru'] : ['ru', 'kz', 'by'];
+		$regions = $onlyRu ? ['ru'] : ['ru', 'kz', 'by', 'uz'];
 		return self::isCloud() && in_array(\CBitrix24::getPortalZone(), $regions);
 	}
 
@@ -241,7 +241,7 @@ class Service
 		}
 		elseif (Loader::includeModule('intranet'))
 		{
-			return in_array(\CIntranetUtils::getPortalZone(), ['ru', 'kz', 'by']) && $isLanguageAcceptable;
+			return in_array(\CIntranetUtils::getPortalZone(), ['ru', 'kz', 'by', 'uz']) && $isLanguageAcceptable;
 		}
 
 		return $isLanguageAcceptable;
@@ -363,7 +363,7 @@ class Service
 			{
 				$queryDomain = preg_replace('/^([-\.\w]+)\.bitrix24\.([-\.\w]+)/', '$2.$1', $domain);
 				$subdomain = rtrim(mb_substr(str_replace('.','-', $queryDomain), 0, 63), '-');
-				$domain = "$subdomain.mailinetservice.net/$queryDomain";
+				$domain = "$subdomain.mailinetservice.com/$queryDomain";
 			}
 
 			$uri = "https://$domain$uri";

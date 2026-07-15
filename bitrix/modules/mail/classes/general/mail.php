@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Mail\Helper\AttachmentHelper;
 use Bitrix\Mail\Helper\MailContact;
 use Bitrix\Mail\MailMessageTable;
 use Bitrix\Main\Application;
@@ -741,14 +742,16 @@ class CAllMailBox
 		if(!$DB->Query($strSql, true))
 			return false;
 
-		$DB->query(sprintf('DELETE FROM b_mail_mailbox_access WHERE MAILBOX_ID = %u', $ID));
+		\Bitrix\Mail\Internals\MailboxAccessTable::deleteByFilter(['=MAILBOX_ID' => $ID,]);
 		$DB->query(sprintf('DELETE FROM b_mail_mailbox_dir WHERE MAILBOX_ID = %u', $ID));
 		$DB->query(sprintf('DELETE FROM b_mail_counter WHERE MAILBOX_ID = %u', $ID));
 		$DB->query(sprintf('DELETE FROM b_mail_entity_options WHERE MAILBOX_ID = %u', $ID));
 
 		CMailbox::SMTPReload();
-		$strSql = "DELETE FROM b_mail_mailbox WHERE ID=".$ID;
-		return $DB->Query($strSql, true);
+
+		\Bitrix\Mail\MailboxTable::delete($ID);
+
+		return new CDBResult();
 	}
 
 	public static function SMTPReload()
@@ -1205,38 +1208,55 @@ class CMailHeader
 
 		if($p < mb_strlen($full_content_type))
 		{
-			$add = mb_substr($full_content_type, $p + 1);
-			if(preg_match("'name=([^;]+)'i", $full_content_type, $res))
-				$this->filename = trim($res[1], '"');
-		}
-
-		$cd = isset($this->arHeader["CONTENT-DISPOSITION"]) ? $this->arHeader["CONTENT-DISPOSITION"] : '';
-		if ($cd <> '')
-		{
-			if (preg_match("'filename=([^;]+)'i", $cd, $res))
+			if(preg_match("'name\s*=\s*([^;]+)'i", $full_content_type, $res))
 			{
 				$this->filename = trim($res[1], '"');
 			}
-			else if (preg_match("'filename\*=([^;]+)'i", $cd, $res))
+		}
+
+		$cd = $this->arHeader["CONTENT-DISPOSITION"] ?? '';
+		if ($cd <> '')
+		{
+			if (preg_match("'filename\s*=\s*([^;]+)'i", $cd, $res))
 			{
+				// Handles the case where the filename is specified directly.
+				// Example: Content-Disposition: attachment; filename  =  "example.txt"
+
+				$this->filename = trim($res[1], '"');
+			}
+			else if (preg_match("'filename\s*\*=\s*([^;]+)'i", $cd, $res))
+			{
+				// Handles the case where the filename is encoded with a specified charset.
+				// Example: Content-Disposition: attachment; filename *= UTF-8''example.txt
+
 				[$fncharset, $fnstr] = preg_split("/'[^']*'/", trim($res[1], '"'));
 				$this->filename = CMailUtil::ConvertCharset(rawurldecode($fnstr), $fncharset, $charset);
 			}
-			else if (preg_match("'filename\*0=([^;]+)'i", $cd, $res))
+			else if (preg_match("'filename\s*\*0=\s*([^;]+)'i", $cd, $res))
 			{
+				// Handles the case where the filename is split into multiple parts.
+				// Example: Content-Disposition: attachment; filename *0= "example"; filename*1=".txt"
+
 				$this->filename = trim($res[1], '"');
 
 				$i = 0;
-				while (preg_match("'filename\*".(++$i)."=([^;]+)'i", $cd, $res))
+				while (preg_match("'filename\s*\*".(++$i)."=\s*([^;]+)'i", $cd, $res))
+				{
 					$this->filename .= trim($res[1], '"');
+				}
 			}
-			else if (preg_match("'filename\*0\*=([^;]+)'i", $cd, $res))
+			else if (preg_match("'filename\s*\*0\*=\s*([^;]+)'i", $cd, $res))
 			{
+				// Handles the case where the filename is split into multiple parts and encoded with a specified charset.
+				// Example: Content-Disposition: attachment; filename*0*=UTF-8''example; filename *1* =UTF-8''file.txt
+
 				$fnstr = trim($res[1], '"');
 
 				$i = 0;
-				while (preg_match("'filename\*".(++$i)."\*?=([^;]+)'i", $cd, $res))
+				while (preg_match("'filename\s*\*".(++$i)."\*?\s*=([^;]+)'i", $cd, $res))
+				{
 					$fnstr .= trim($res[1], '"');
+				}
 
 				[$fncharset, $fnstr] = preg_split("/'[^']*'/", $fnstr);
 				if (!empty($fnstr))
@@ -1680,16 +1700,12 @@ class CAllMailMessage
 		return static::saveMessage($mailboxId, $message, $header, $html, $text, $attachments, $params);
 	}
 
-	public static function saveMessage($mailboxId, &$message, &$header, &$bodyHtml, &$bodyText, &$attachments, $params = array())
+	public static function saveMessage(int $mailboxId, &$message, &$header, &$bodyHtml, &$bodyText, &$attachments, $params = array())
 	{
-		global $DB;
-
-		$mailbox_id = $mailboxId;
 		$obHeader = &$header;
 		$message_body_html = &$bodyHtml;
 		$message_body = &$bodyText;
 		$arMessageParts = &$attachments;
-		$initialHtmlLen = mb_strlen($message_body_html);
 
 		$isStrippedTagsToBody = false;
 		$isOriginalEmptyBody = empty(trim(strip_tags($message_body_html)));
@@ -1709,7 +1725,7 @@ class CAllMailMessage
 		}
 
 		$arFields = array(
-			"MAILBOX_ID" => $mailbox_id,
+			"MAILBOX_ID" => $mailboxId,
 			"HEADER" => $obHeader->strHeader,
 			"FIELD_DATE_ORIGINAL" => $obHeader->GetHeader("DATE"),
 			"NEW_MESSAGE"	=> "Y",
@@ -1775,7 +1791,7 @@ class CAllMailMessage
 
 		if (isset($params['replaces']) && $params['replaces'] > 0)
 		{
-			\CMailMessage::update($message_id = $params['replaces'], $arFields, $mailbox_id);
+			\CMailMessage::update($message_id = $params['replaces'], $arFields, $mailboxId);
 		}
 		else
 		{
@@ -1784,7 +1800,7 @@ class CAllMailMessage
 				$arFields['OPTIONS']['trackable'] = \Bitrix\Main\Config\Option::get('main', 'track_outgoing_emails_read', 'Y') == 'Y';
 			}
 
-			$message_id = \CMailMessage::add($arFields, $mailbox_id);
+			$message_id = \CMailMessage::add($arFields, $mailboxId);
 		}
 
 		if ($message_id > 0)
@@ -1793,7 +1809,7 @@ class CAllMailMessage
 			$arFields['FOR_SPAM_TEST'] = $forSpamTest;
 
 			\CMailLog::addMessage(array(
-				'MAILBOX_ID'  => $mailbox_id,
+				'MAILBOX_ID'  => $mailboxId,
 				'MESSAGE_ID'  => $message_id,
 				'STATUS_GOOD' => 'Y',
 				'LOG_TYPE'    => isset($params['replaces']) && $params['replaces'] > 0 ? 'RENEW_MESSAGE' : 'NEW_MESSAGE',
@@ -1814,19 +1830,25 @@ class CAllMailMessage
 				MessageClosureTable::insertIgnoreFromSql(sprintf('VALUES (%1$u, %1$u)', $message_id));
 
 				/**
-				 * We find the parents(in the standard case there should be one) of this message and create a chain.
 				 * If the id of the parent (IN_REPLY_TO) matches the id of the message itself(MSG_ID),
-				 * then nothing will happen(INSERT IGNORE), since such a chain was created in the step above.
+				 * skip the chain creation step.
 				 * */
-				if ($arFields['IN_REPLY_TO'])
+				if (isset($arFields['IN_REPLY_TO']) && isset($arFields['MSG_ID']) && (string)isset($arFields['IN_REPLY_TO']) !== $arFields['MSG_ID'])
 				{
-					self::makeMessageClosureChain($message_id, $mailbox_id, (string)$arFields['IN_REPLY_TO']);
+					self::makeMessageClosureChain($message_id, $mailboxId, (string)$arFields['IN_REPLY_TO']);
 				}
 
-				$mailbox = Bitrix\Mail\MailboxTable::getList(array(
-					'select' => array('ID', 'USER_ID', 'OPTIONS'),
-					'filter' => array('=ID' => $mailbox_id, '=ACTIVE' => 'Y'),
-				))->fetch();
+				static $cachedMailboxes = [];
+
+				if (!array_key_exists($mailboxId, $cachedMailboxes))
+				{
+					$cachedMailboxes[$mailboxId] = Bitrix\Mail\MailboxTable::getList([
+						'select' => ['ID', 'USER_ID', 'OPTIONS'],
+						'filter' => ['=ID' => $mailboxId, '=ACTIVE' => 'Y'],
+					])->fetch();
+				}
+
+				$mailbox = $cachedMailboxes[$mailboxId];
 
 				if ($mailbox['USER_ID'] > 0)
 				{
@@ -1913,7 +1935,7 @@ class CAllMailMessage
 					);
 				}
 
-				\CMailMessage::update($message_id, array('BODY_HTML' => $arFields['BODY_HTML']), $mailbox_id);
+				\CMailMessage::update($message_id, array('BODY_HTML' => $arFields['BODY_HTML']), $mailboxId);
 			}
 			else
 			{
@@ -1927,6 +1949,7 @@ class CAllMailMessage
 				$arFields['IS_TRASH'] = !empty($params['trash']);
 				$arFields['IS_SPAM'] = !empty($params['spam']);
 				$arFields['IS_SEEN'] = !empty($params['seen']);
+				$arFields['IS_RECOVERED'] = !empty($params['recovered']);
 				$arFields['MSG_HASH'] = $params['hash'];
 
 				if (!empty($params['excerpt']) && is_array($params['excerpt']))
@@ -1986,9 +2009,8 @@ class CAllMailMessage
 	}
 
 	/**
-	 * We find the parents(in the standard case there should be one) of this message and create a chain.
-	 * If the id of the parent (IN_REPLY_TO) matches the id of the message itself(MSG_ID),
-	 * then nothing will happen(INSERT IGNORE), since such a chain was created in the step above.
+	 * We find all the ancestors(by IN_REPLY_TO) of this message(by MSG_ID) (parent of parent, etc.)
+	 * to create an unbroken chain (if one link is deleted, the chain is not broken).
 	 *
 	 * @param int $messageId Mail message ID
 	 * @param int $mailboxId Mailbox ID
@@ -2299,10 +2321,11 @@ class CAllMailMessage
 		$n = intval($dbr_arr["ATTACHMENTS"])+1;
 		if (empty($arFields['FILE_NAME']))
 		{
-			$arFields['FILE_NAME'] = sprintf(
-				'%u-%u-%u.%s',
-				$dbr_arr['MAILBOX_ID'], $dbr_arr['ID'], $n,
-				mb_strpos($arFields['CONTENT_TYPE'], 'message/') === 0 ? 'msg' : 'file'
+			$arFields['FILE_NAME'] = AttachmentHelper::generateFileName(
+				$dbr_arr['MAILBOX_ID'],
+				$dbr_arr['ID'],
+				$n,
+				$arFields['CONTENT_TYPE'],
 			);
 		}
 
@@ -2332,7 +2355,7 @@ class CAllMailMessage
 			'MODULE_ID' => 'mail'
 		);
 
-		if (!($file_id = CFile::saveFile($file, 'mail/attachment')))
+		if (!($file_id = CFile::saveFile($file, AttachmentHelper::generateMessageAttachmentPath())))
 		{
 			\CMail::option('attachment_failure', true);
 			return false;

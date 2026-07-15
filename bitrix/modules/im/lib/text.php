@@ -1,7 +1,12 @@
 <?php
 namespace Bitrix\Im;
 
+use Bitrix\Im\V2\Message\Text\BbCode\Image;
+use Bitrix\Im\V2\Message\Text\BbCode\Image\Size;
+use Bitrix\Im\V2\Message\Text\BbCode\Timestamp;
+use Bitrix\Im\V2\Message\Text\BbCode\Timestamp\DateFormat;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Type\DateTime;
 
 Loc::loadMessages(__FILE__);
 
@@ -58,7 +63,7 @@ class Text
 		$text = preg_replace_callback("/\[CODE\](.*?)\[\/CODE\]/si", Array('\Bitrix\Im\Text', 'setReplacement'), $text);
 		$text = preg_replace_callback("/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/i", Array('\Bitrix\Im\Text', 'setReplacement'), $text);
 		$text = preg_replace_callback("/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/i", Array('\Bitrix\Im\Text', 'setReplacement'), $text);
-		$text = preg_replace_callback("/\[USER=([0-9]{1,})\]\[\/USER\]/i", Array('\Bitrix\Im\Text', 'modifyShortUserTag'), $text);
+		$text = preg_replace_callback("/\[USER=([0-9]+|all)\]\[\/USER\]/i", Array('\Bitrix\Im\Text', 'modifyShortUserTag'), $text);
 
 		if ($cutStrikeParam === 'Y')
 		{
@@ -154,7 +159,7 @@ class Text
 		$text = preg_replace_callback("/\[PUT(?:=(.+?))?\](.+?)?\[\/PUT\]/i", Array('\Bitrix\Im\Text', 'setReplacement'), $text);
 		$text = preg_replace_callback("/\[SEND(?:=(.+?))?\](.+?)?\[\/SEND\]/i", Array('\Bitrix\Im\Text', 'setReplacement'), $text);
 		$text = preg_replace_callback("/\[CODE\](.*?)\[\/CODE\]/si", Array('\Bitrix\Im\Text', 'setReplacement'), $text);
-		$text = preg_replace_callback("/\[USER=([0-9]{1,})\]\[\/USER\]/i", Array('\Bitrix\Im\Text', 'modifyShortUserTag'), $text);
+		$text = preg_replace_callback("/\[USER=([0-9]+|all)\]\[\/USER\]/i", Array('\Bitrix\Im\Text', 'modifyShortUserTag'), $text);
 
 		if ($cutStrikeParam === 'Y')
 		{
@@ -288,8 +293,14 @@ class Text
 	public static function modifyShortUserTag($matches)
 	{
 		$userId = $matches[1];
-		$userName = \Bitrix\Im\User::getInstance($userId)->getFullName(false);
-		return '[USER='.$userId.' REPLACE]'.$userName.'[/USER]';
+
+		$innerText =
+			$userId === 'all'
+			? Loc::getMessage('IM_MESSAGE_MENTION_ALL')
+			: \Bitrix\Im\User::getInstance($userId)->getFullName(false)
+		;
+
+		return '[USER='.$userId.' REPLACE]'.$innerText.'[/USER]';
 	}
 
 	public static function removeBbCodes($text, $withFile = false, $attachValue = false)
@@ -312,8 +323,8 @@ class Text
 		$text = preg_replace("/\[url\\s*=\\s*((?:[^\\[\\]]++|\\[ (?: (?>[^\\[\\]]+) | (?:\\1) )* \\])+)\\s*\\](.*?)\\[\\/url\\]/ixsu", "$2", $text);
 		$text = preg_replace("/\[RATING=([1-5]{1})\]/i", " [".Loc::getMessage('IM_MESSAGE_RATING')."] ", $text);
 		$text = preg_replace("/\[ATTACH=([0-9]{1,})\]/i", " [".Loc::getMessage('IM_MESSAGE_ATTACH')."] ", $text);
-		$text = preg_replace_callback("/\[USER=([0-9]{1,})\]\[\/USER\]/i", Array('\Bitrix\Im\Text', 'modifyShortUserTag'), $text);
-		$text = preg_replace("/\[USER=([0-9]+)( REPLACE)?](.*?)\[\/USER]/i", "$3", $text);
+		$text = preg_replace_callback("/\[USER=([0-9]+|all)\]\[\/USER\]/i", Array('\Bitrix\Im\Text', 'modifyShortUserTag'), $text);
+		$text = preg_replace("/\[USER=([0-9]+|all)( REPLACE)?](.*?)\[\/USER]/i", "$3", $text);
 		$text = preg_replace("/\[dialog=(chat\d+|\d+:\d)(?: message=(\d+))?](.*?)\[\/dialog]/i", "$3", $text);
 		$text = preg_replace("/\[context=(chat\d+|\d+:\d+)\/(\d+)](.*?)\[\/context]/i", "$3", $text);
 		$text = preg_replace("/\[CHAT=([0-9]{1,})\](.*?)\[\/CHAT\]/i", "$2", $text);
@@ -324,6 +335,8 @@ class Text
 		$text = preg_replace("/\[size=(\d+)](.*?)\[\/size]/i", "$2", $text);
 		$text = preg_replace("/\[color=#([0-9a-f]{3}|[0-9a-f]{6})](.*?)\[\/color]/i", "$2", $text);
 		$text = preg_replace_callback("/\[ICON\=([^\]]*)\]/i", Array('\Bitrix\Im\Text', 'modifyIcon'), $text);
+		$text = preg_replace_callback('/\[TIMESTAMP=(\d+) FORMAT=([^\]]*)\]/i', [__CLASS__, 'modifyTimestampCode'], $text);
+		$text = preg_replace_callback('/\[IMG SIZE=([a-z]+)\](.*?)\[\/IMG\]/i', [__CLASS__, 'modifyImageCode'], $text);
 		$text = preg_replace('#\-{54}.+?\-{54}#s', " [".Loc::getMessage('IM_QUOTE')."] ", str_replace(array("#BR#"), Array(" "), $text));
 		$text = trim($text);
 
@@ -342,13 +355,26 @@ class Text
 		return $text;
 	}
 
-	public static function populateUserBbCode(string $text): string
+	public static function modifyTimestampCode(array $matches): string
 	{
-		return preg_replace_callback("/\[USER=([0-9]{1,})\]\[\/USER\]/i", static function($matches){
-			$userId = $matches[1];
-			$userName = \Bitrix\Im\User::getInstance($userId)->getFullName(false);
-			return '[USER='.$userId.' REPLACE]'.$userName.'[/USER]';
-		}, $text);
+		$timestamp = (int)($matches[1] ?? 0);
+		$date = DateTime::createFromTimestamp($timestamp);
+		$format = $matches[2] ?? '';
+		$formatCode = DateFormat::tryFrom($format);
+		if ($formatCode === null)
+		{
+			return $matches[0];
+		}
+
+		return Timestamp::build($date, $formatCode)->toPlain();
+	}
+
+	public static function modifyImageCode(array $matches): string
+	{
+		$size = Size::tryFrom($matches[1]) ?? Size::Medium;
+		$link = $matches[2] ?? '';
+
+		return Image::build($link, $size)->toPlaceholder();
 	}
 
 	public static function encodeEmoji($text)
@@ -485,5 +511,81 @@ class Text
 	{
 		$code = mb_strpos(mb_strtoupper($params[0]), '[SEND') === 0? 'SEND': 'PUT';
 		return preg_replace("/\[$code(?:=(.+))?\](.+?)?\[\/$code\]/i", "$2", $params[0]);
+	}
+
+	public static function getSaveModificator()
+	{
+		return [
+			[__CLASS__, 'extendedEncodeEmoji']
+		];
+	}
+
+	public static function getFetchModificator()
+	{
+		return [
+			[__CLASS__, 'extendedDecodeEmoji']
+		];
+	}
+
+	public static function extendedEncodeEmoji($text)
+	{
+		return isset($text) ? self::encodeEmoji($text) : null;
+	}
+
+	public static function extendedDecodeEmoji($text)
+	{
+		return isset($text) ? self::decodeEmoji($text) : null;
+	}
+
+	public static function convertSymbolsAfterJsonDecode($data)
+	{
+		$search = ["\\n", "\\t", '\\"', "\\\\"];
+		$replace = ["\n", "\t", '"', "\\"];
+
+		if (is_string($data))
+		{
+			return str_replace($search, $replace, $data);
+		}
+
+		if (is_array($data))
+		{
+			foreach ($data as $key => $value)
+			{
+				$data[$key] = self::convertSymbolsAfterJsonDecode($value);
+			}
+		}
+
+		return $data;
+	}
+
+	public static function filterUserBbCodes(string $text, int $currentUserId): string
+	{
+		$pattern = "/\[USER=(\d+)(?: REPLACE)?](.*?)\[\/USER]/is";
+
+		do
+		{
+			$previousText = $text;
+			$text = preg_replace_callback($pattern, function ($matches) use($currentUserId) {
+				return self::replaceUserBbCodeByAccess($matches, $currentUserId);
+			}, $text);
+		}
+		while ($previousText !== $text);
+
+		return $text;
+	}
+
+	private static function replaceUserBbCodeByAccess($matches, int $currentUserId): string
+	{
+		$userId = $matches[1];
+
+		$currentUser = \Bitrix\Im\V2\Entity\User\User::getInstance($currentUserId);
+		$result = $currentUser->checkAccess((int)$userId);
+
+		if ($result->isSuccess())
+		{
+			return $matches[0] ?? '';
+		}
+
+		return $matches[2] ?? '';
 	}
 }

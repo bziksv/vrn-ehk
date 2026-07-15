@@ -11,7 +11,7 @@ use Bitrix\Calendar\Sync\Internals\ContextInterface;
 use Bitrix\Calendar\Sync\Internals\HasContextTrait;
 use Bitrix\Calendar\Sync\Exceptions\ConflictException;
 use Bitrix\Calendar\Sync\Exceptions\NotFoundException;
-use Bitrix\Calendar\Sync\Util\RequestLogger;
+use Bitrix\Calendar\Synchronization\Internal\Service\Logger\RequestLogger;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
@@ -26,7 +26,7 @@ class ApiClient
 
 	/** @var HttpClient */
 	protected HttpClient $httpClient;
-	/** @var RequestLogger */
+
 	protected RequestLogger $logger;
 
 	/**
@@ -200,7 +200,7 @@ class ApiClient
 
 	/**
 	 * @param string $response
-	 * @param string|null $boundary
+	 * @param string $boundary
 	 *
 	 * @return array
 	 */
@@ -231,17 +231,13 @@ class ApiClient
 					{
 						$event = Json::decode($partEvent[2]);
 					}
-					catch(Exception $exception)
+					catch (Exception $exception)
 					{
 						continue;
 					}
 
 					$event['etag'] = $data['etag'];
 					$events[$id] = $event;
-				}
-				else
-				{
-					AddMessage2Log('Event sync error. ID: ' . ($id ?? 'unknown'));
 				}
 			}
 		}

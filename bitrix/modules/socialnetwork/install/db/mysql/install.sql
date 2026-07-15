@@ -45,6 +45,7 @@ create table b_sonet_group
 	SCRUM_MASTER_ID int null,
 	SCRUM_SPRINT_DURATION int null,
 	SCRUM_TASK_RESPONSIBLE char(1) null,
+	TYPE varchar(10) default null,
 	primary key (ID),
 	index IX_SONET_GROUP_1(OWNER_ID)
 );
@@ -569,4 +570,55 @@ create table if not exists b_sonet_event_queue (
 	PRIMARY KEY (ID),
 	index ix_sonet_event_queue_datetime (DATETIME),
 	index ix_sonet_event_queue_priority (PRIORITY)
+);
+
+create table if not exists b_sonet_collab_option
+(
+	ID        int unsigned not null auto_increment,
+	COLLAB_ID int          not null,
+	NAME      varchar(255) not null,
+	VALUE     varchar(255) not null,
+	primary key (ID),
+	unique index ix_sonet_collab_option_collab_name (COLLAB_ID, NAME)
+);
+
+create table if not exists b_sonet_collab_last_activity
+(
+	USER_ID int          not null,
+	COLLAB_ID int          not null,
+	ACTIVITY_DATE datetime default null,
+	primary key (USER_ID)
+);
+
+create table if not exists b_sonet_collab_log
+(
+	ID int unsigned not null auto_increment,
+	COLLAB_ID int not null,
+	DATETIME datetime not null,
+	TYPE varchar(255) null,
+	USER_ID int not null,
+	ENTITY_TYPE varchar(255) null,
+	ENTITY_ID int null,
+	DATA text null,
+	primary key (ID),
+	index ix_sonet_collab_log_collab_id_user_id (COLLAB_ID, USER_ID),
+	index ix_sonet_collab_log_collab_id_datetime (COLLAB_ID, DATETIME),
+	index ix_sonet_collab_log_entity (ENTITY_TYPE, ENTITY_ID)
+);
+
+create table if not exists b_sonet_onboarding_queue
+(
+	ID int not null auto_increment,
+	COLLAB_ID int not null,
+	USER_ID int not null,
+	TYPE varchar(150) not null,
+	CREATED_DATE datetime default now(),
+	NEXT_EXECUTION datetime not null,
+	PROCESSED_DATE datetime default null,
+	IS_PROCESSED tinyint default 0,
+
+	primary key (ID),
+	unique ix_b_sonet_onboarding_queue_collab_user_type(COLLAB_ID, USER_ID, TYPE),
+	index ix_b_sonet_onboarding_queue_execution_processed (NEXT_EXECUTION, IS_PROCESSED),
+	index ix_b_sonet_onboarding_queue_collab_type_execution (COLLAB_ID, TYPE, NEXT_EXECUTION)
 );

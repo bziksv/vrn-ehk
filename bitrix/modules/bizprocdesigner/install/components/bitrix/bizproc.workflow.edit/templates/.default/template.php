@@ -134,9 +134,26 @@ $aMenu[] = [
 	"LINK"  => "javascript:BCPProcessImport();",
 	"ICON"  => "",
 ];
+$isAvailable = (bool)\Bitrix\Main\Config\Option::get('bizproc', 'autosave_temp_2025', 0);
+if ($isAvailable)
+{
+	$aMenu[] = [
+		'TEXT' => GetMessage("BIZPROC_WFEDIT_MENU_GLOBAL_DRAFTS_TITLE"),
+		'TITLE' => GetMessage("BIZPROC_WFEDIT_MENU_GLOBAL_DRAFTS_TITLE"),
+		'LINK' => 'javascript:BX.Bizproc.WorkflowEditComponent.Globals.showDrafts("' . CUtil::JSEscape($arResult['DOCUMENT_TYPE_SIGNED']) . '");',
+	];
+}
+
+$saveUrl = $arResult["LIST_PAGE_URL"];
+$applyUrl = $arResult["EDIT_PAGE_TEMPLATE"];
+if ($arParams['BACK_URL'])
+{
+	$saveUrl = $arParams['BACK_URL'];
+}
 
 ?>
 <script>
+	let isSaving = false;
 	var BCPEmptyWorkflow =  <?=$ID > 0 ? 'false' : 'true'?>;
 
 	function BCPProcessExport()
@@ -146,11 +163,11 @@ $aMenu[] = [
 			alert('<?= GetMessageJS("BIZPROC_EMPTY_EXPORT") ?>');
 			return false;
 		}
-		<? $u = \Bitrix\Main\Engine\UrlManager::getInstance()->create('export', [
+		<?php $u = \Bitrix\Main\Engine\UrlManager::getInstance()->create('bizprocdesigner.Template.export', [
 				'c' => 'bitrix:bizproc.workflow.edit',
-				'mode' => \Bitrix\Main\Engine\Router::COMPONENT_MODE_AJAX,
 				'templateId' => $ID,
 				'signedParameters' => $this->getComponent()->getSignedParameters(),
+				'sessid' => bitrix_sessid(),
 			]);
 		?>
 		window.open('<?=CUtil::JSEscape($u)?>');
@@ -179,7 +196,25 @@ $aMenu[] = [
 					_name.value = workflowTemplateName;
 					_descr.value = workflowTemplateDescription;
 					_auto.value = encodeURIComponent(workflowTemplateAutostart);
-					_form.submit();
+
+					const formData = new FormData(_form);
+					const templateId = BPTemplateId || 0;
+					formData.append('templateId', templateId);
+					formData.append('workflowTemplateAutostart', workflowTemplateAutostart);
+					formData.append('c', 'bitrix:bizproc.workflow.edit');
+
+					BX.ajax.runAction('bizprocdesigner.Template.import', {
+						data: formData,
+						signedParameters: '<?=CUtil::JSEscape($this->getComponent()->getSignedParameters())?>',
+					}).then((response) => {
+						let applyUrl = '<?= CUtil::JSEscape($applyUrl)?>';
+						const url = applyUrl.replace('#ID#', response.data);
+						applyUrl = BX.Uri.addParam(url, {back_url: '<?= CUtil::JSEscape(urlencode($arParams['BACK_URL'])) ?>'});
+						window.location = applyUrl;
+					}).catch((response) => {
+						alert('<?=GetMessageJS("BIZPROC_WFEDIT_SAVE_ERROR")?>\n' + response.errors[0].message);
+						BX.closeWait();
+					});
 				}
 
 				this.parentWindow.Close();
@@ -204,16 +239,7 @@ $aMenu[] = [
 		}
 		BCPEmptyWorkflow = false;
 
-		var btnSave = BX('bizprocdesigner-btn-save');
-		var btnApply = BX('bizprocdesigner-btn-apply');
-		if (btnSave)
-		{
-			BX.removeClass(btnSave, 'ui-btn-wait');
-		}
-		if (btnApply)
-		{
-			BX.removeClass(btnApply, 'ui-btn-wait');
-		}
+		resetButtons();
 	}
 
 	<?$v = str_replace("&amp;", "&", POST_FORM_ACTION_URI);?>
@@ -226,30 +252,127 @@ $aMenu[] = [
 		jsExtLoader.startPost('<?= CUtil::JSEscape($v) ?><?if(mb_strpos($v, "?")):?>&<?else:?>?<?endif?><?=bitrix_sessid_get()?>&saveajax=Y&saveuserparams=Y', data);
 	}
 
+	function resetButtons()
+	{
+		var btnSave = BX('bizprocdesigner-btn-save');
+		var btnApply = BX('bizprocdesigner-btn-apply');
+		if (btnSave)
+		{
+			BX.removeClass(btnSave, 'ui-btn-wait');
+		}
+		if (btnApply)
+		{
+			BX.removeClass(btnApply, 'ui-btn-wait');
+		}
+	}
+
 	function BCPSaveTemplate(save)
 	{
-		arWorkflowTemplate = Array(rootActivity.Serialize());
-		var data =
-			'workflowTemplateName=' + encodeURIComponent(workflowTemplateName) + '&' +
-			'workflowTemplateDescription=' + encodeURIComponent(workflowTemplateDescription) + '&' +
-			'workflowTemplateAutostart=' + encodeURIComponent(workflowTemplateAutostart) + '&' +
-			'workflowTemplateIsSystem=' + encodeURIComponent(workflowTemplateIsSystem) + '&' +
-			'workflowTemplateSort=' + encodeURIComponent(workflowTemplateSort) + '&' +
+		if (isSaving)
+		{
+			return;
+		}
 
-			JSToPHP(arWorkflowParameters, 'arWorkflowParameters') + '&' +
-			JSToPHP(arWorkflowVariables, 'arWorkflowVariables') + '&' +
-			JSToPHP(arWorkflowConstants, 'arWorkflowConstants') + '&' +
-			JSToPHP(arWorkflowTemplate, 'arWorkflowTemplate');
+		isSaving = true;
+
+		arWorkflowTemplate = Array(rootActivity.Serialize());
+		const fields = {
+			NAME: workflowTemplateName,
+			DESCRIPTION: workflowTemplateDescription,
+			AUTO_EXECUTE: workflowTemplateAutostart,
+			IS_SYSTEM: workflowTemplateIsSystem ?? 'N',
+			SORT: workflowTemplateSort ?? 10,
+			TYPE: workflowTemplateType,
+			PARAMETERS: arWorkflowParameters ?? [],
+			VARIABLES: arWorkflowVariables ?? [],
+			CONSTANTS: arWorkflowConstants ?? [],
+			TEMPLATE_SETTINGS: workflowTemplateSettings ?? [],
+			TRACK_ON: null,
+			TEMPLATE: arWorkflowTemplate,
+		};
 
 		if (window.workflowTemplateTrackOn)
 		{
-			data += '&workflowTemplateTrackOn=' + encodeURIComponent(workflowTemplateTrackOn);
+			fields.TRACK_ON = workflowTemplateTrackOn ?? null;
 		}
 
-		jsExtLoader.onajaxfinish = BCPSaveTemplateComplete;
-		jsExtLoader.startPost('<?=CUtil::JSEscape($v)?><?if(mb_strpos($v, "?")):?>&<?else:?>?<?endif?><?=bitrix_sessid_get()?>&saveajax=Y' +
-			(save ? '' : '&apply=Y'),
-			data);
+		BX.ajax.runAction('bizprocdesigner.Template.save', {
+			json: {
+				templateId: BPTemplateId || 0,
+				fields: fields,
+				c: 'bitrix:bizproc.workflow.edit',
+				signedParameters: '<?=CUtil::JSEscape($this->getComponent()->getSignedParameters())?>',
+			},
+		}).then((response) => {
+			const saveUrl = '<?= CUtil::JSEscape($saveUrl)?>';
+			let applyUrl = '<?= CUtil::JSEscape($applyUrl)?>';
+			const url = applyUrl.replace('#ID#', response.data);
+			applyUrl = BX.Uri.addParam(url, {back_url: '<?= CUtil::JSEscape(urlencode($arParams['BACK_URL'])) ?>'});
+
+			BCPEmptyWorkflow = false;
+			BPTemplateIsModified = false;
+			resetButtons();
+			window.location = save === true ? saveUrl : applyUrl;
+		}).catch((response) => {
+			resetButtons();
+			alert('<?=GetMessageJS("BIZPROC_WFEDIT_SAVE_ERROR")?>\n' + response.errors[0].message);
+			setActivityError(response);
+			isSaving = false;
+		});
+	}
+
+	function BCPSaveTemplateDraft()
+	{
+		arWorkflowTemplate = Array(rootActivity.Serialize());
+		const fields = {
+			NAME: workflowTemplateName,
+			DESCRIPTION: workflowTemplateDescription,
+			AUTO_EXECUTE: workflowTemplateAutostart,
+			IS_SYSTEM: workflowTemplateIsSystem ?? 'N',
+			SORT: workflowTemplateSort ?? 10,
+			TYPE: workflowTemplateType,
+			PARAMETERS: arWorkflowParameters ?? [],
+			VARIABLES: arWorkflowVariables ?? [],
+			CONSTANTS: arWorkflowConstants ?? [],
+			TEMPLATE_SETTINGS: workflowTemplateSettings ?? [],
+			TRACK_ON: null,
+			TEMPLATE: arWorkflowTemplate,
+		};
+
+		if (window.workflowTemplateTrackOn)
+		{
+			fields.TRACK_ON = workflowTemplateTrackOn ?? null;
+		}
+
+		return BX.ajax.runAction('bizprocdesigner.Template.saveDraft', {
+			json: {
+				templateId: BPTemplateId || 0,
+				fields: fields,
+				c: 'bitrix:bizproc.workflow.edit',
+				signedParameters: '<?=CUtil::JSEscape($this->getComponent()->getSignedParameters())?>',
+			},
+		});
+	}
+
+	function setActivityError(response)
+	{
+		var i, setFocus = true, activity, error, errors = [];
+		errors = response.data.activityErrors;
+
+		for (i = 0; i < errors.length; ++i)
+		{
+			error = errors[i];
+			if (error.activityName)
+			{
+				activity = window.rootActivity.findChildById(error.activityName);
+				/** @var BizProcActivity activity */
+				if (activity)
+				{
+					activity.SetError(true, setFocus);
+					setFocus = false;
+				}
+			}
+		}
 	}
 
 	function BCPShowParams()
@@ -266,11 +389,14 @@ $aMenu[] = [
 				'workflowTemplateIsSystem=' + encodeURIComponent(workflowTemplateIsSystem) + '&' +
 				'workflowTemplateSort=' + encodeURIComponent(workflowTemplateSort) + '&' +
 				'workflowTemplateId=' + encodeURIComponent(BPTemplateId || 0) + '&' +
+				'workflowTemplateType=' + encodeURIComponent(workflowTemplateType) + '&' +
 				'document_type=' + encodeURIComponent(document_type) + '&' +
 				'<?= bitrix_sessid_get() ?>' + '&' +
 				JSToPHP(arWorkflowParameters, 'arWorkflowParameters') + '&' +
 				JSToPHP(arWorkflowVariables, 'arWorkflowVariables') + '&' +
 				JSToPHP(arWorkflowConstants, 'arWorkflowConstants') + '&' +
+				JSToPHP(workflowTemplateSettings, 'workflowTemplateSettings') + '&' +
+				JSToPHP(documentCategories, 'documentCategories') + '&' +
 				JSToPHP(Array(rootActivity.Serialize()), 'arWorkflowTemplate'),
 			'height': 500,
 			'width': 800,
@@ -354,11 +480,14 @@ $aMenu[] = [
 		var wfGConstVisibilityNames = <?= CUtil::PhpToJSObject($arResult['GLOBAL_CONSTANTS_VISIBILITY_NAMES']) ?>;
 		var arWorkflowTemplate = <?=CUtil::PhpToJSObject($arResult['TEMPLATE'][0])?>;
 		var arDocumentFields = <?=CUtil::PhpToJSObject($arResult['DOCUMENT_FIELDS'])?>;
+		var documentCategories = <?=CUtil::PhpToJSObject($arResult['DOCUMENT_CATEGORIES'] ?? [])?>;
+		var workflowTemplateSettings = <?=CUtil::PhpToJSObject($arResult['TEMPLATE_SETTINGS'] ?? [])?>;
 
 		var workflowTemplateName = <?=CUtil::PhpToJSObject($arResult['TEMPLATE_NAME'])?>;
 		var workflowTemplateDescription = <?=CUtil::PhpToJSObject($arResult['TEMPLATE_DESC'])?>;
 		var workflowTemplateAutostart = <?=CUtil::PhpToJSObject($arResult['TEMPLATE_AUTOSTART'])?>;
 		var workflowTemplateIsSystem = <?=CUtil::PhpToJSObject($arResult['TEMPLATE_IS_SYSTEM'])?>;
+		var workflowTemplateType = <?=CUtil::PhpToJSObject($arResult['TEMPLATE_TYPE'])?>;
 		var workflowTemplateSort = <?=CUtil::PhpToJSObject($arResult['TEMPLATE_SORT'])?>;
 
 		var document_type = <?=CUtil::PhpToJSObject($arResult['DOCUMENT_TYPE'])?>;
@@ -487,7 +616,10 @@ $aMenu[] = [
 	endif;
 	?>
 	<form>
-		<div id="wf1" style="width: 100%; border-bottom: 2px #efefef dotted; padding-bottom: 10px; position: relative; z-index: 1"></div>
+		<div
+			id="wf1"
+			style="width: 100%; border-bottom: 2px #efefef dotted; padding-bottom: 10px; position: relative; z-index: 1; overflow: scroll"
+		></div>
 
 		<?php if (!$isAdminSection):
 
@@ -497,12 +629,12 @@ $aMenu[] = [
 						[
 							'ID' => 'bizprocdesigner-btn-save',
 							'TYPE' => 'save',
-							'ONCLICK' => 'BCPSaveTemplate(true); return false;',
+							'ONCLICK' => 'event.preventDefault(); BCPSaveTemplate(true); return false;',
 						],
 						[
 							'ID' => 'bizprocdesigner-btn-apply',
 							'TYPE' => 'apply',
-							'ONCLICK' => 'BCPSaveTemplate(); return false;',
+							'ONCLICK' => 'event.preventDefault(); BCPSaveTemplate(); return false;',
 						],
 						[
 							'TYPE' => 'cancel',

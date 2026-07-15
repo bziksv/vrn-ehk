@@ -1,0 +1,122 @@
+<root>
+	<ProductType name="Блоки для строительства">
+		<ConstructionBlocksType name="Керамические блоки"/>
+		<ConstructionBlocksType name="Другие материалы"/>
+		<ConstructionBlocksType name="Газобетон">
+			<AeratedConcretePrice name="За штуку"/>
+			<AeratedConcretePrice name="За тонну"/>
+			<AeratedConcretePrice name="За м³"/>
+			<AeratedConcretePrice name="За паллет">
+				<AeratedConcreteAmount variable="int"/>
+			</AeratedConcretePrice>
+			<Brand file="constructionofwalls/brend_gazobetona.xml" rename="true"/>
+			<Size file="constructionofwalls/gazobeton_size.xml"/>
+			<Density name="D200"/>
+			<Density name="D250"/>
+			<Density name="D300"/>
+			<Density name="D350"/>
+			<Density name="D400"/>
+			<Density name="D500"/>
+			<Density name="D600"/>
+			<Density name="D700"/>
+			<Density name="D800"/>
+			<Density name="D900"/>
+			<Density name="D1000"/>
+			<Density name="D1100"/>
+			<Density name="D1200"/>
+		</ConstructionBlocksType>
+		<ConstructionBlocksType name="Газосиликат">
+			<Brand file="constructionofwalls/proizvoditel_gazosilikata.xml" rename="true"/>
+			<Size file="constructionofwalls/GasSilicateSize.xml"/>
+			<GasSilicateType name="Стеновой"/>
+			<GasSilicateType name="Перегородочный"/>
+			<GasSilicateType name="Перемычка"/>
+			<GasSilicateType name="U-блок"/>
+			<GasSilicateType name="П-образный"/>
+			<GasSilicateType name="О-блок"/>
+			<Density name="D200"/>
+			<Density name="D300"/>
+			<Density name="D350"/>
+			<Density name="D400"/>
+			<Density name="D450"/>
+			<Density name="D500"/>
+			<Density name="D600"/>
+			<Density name="D700"/>
+			<Density name="D800"/>
+		</ConstructionBlocksType>
+		<ConstructionBlocksType name="Пенобетон">
+			<FoamConcretePurpose name="Стеновой"/>
+			<FoamConcretePurpose name="Перегородочный"/>
+			<FoamConcretePurpose name="U-блок"/>
+			<FoamConcretePurpose name="Перемычка"/>
+			<FoamConcreteSize file="constructionofwalls/razmer_penobetonnogo_bloka.xml" rename="true"/>
+			<FoamConcreteDensity name="D200"/>
+			<FoamConcreteDensity name="D300"/>
+			<FoamConcreteDensity name="D400"/>
+			<FoamConcreteDensity name="D500"/>
+			<FoamConcreteDensity name="D600"/>
+			<FoamConcreteDensity name="D700"/>
+			<FoamConcreteDensity name="D800"/>
+			<FoamConcreteDensity name="D900"/>
+			<FoamConcreteDensity name="D1000"/>
+			<FoamConcreteDensity name="D1100"/>
+			<FoamConcreteDensity name="D1200"/>
+		</ConstructionBlocksType>
+		<ConstructionBlocksType name="Керамзит, шлакоблок"/>
+	</ProductType>
+	<ProductType name="Панели">
+		<PanelsType name="Сэндвич-панели"/>
+		<PanelsType name="СИП-панели"/>
+	</ProductType>
+	<ProductType name="Опалубка">
+		<FormworkType name="Для перекрытий"/>
+		<FormworkType name="Для стен и колонн"/>
+		<FormworkType name="Балки"/>
+		<FormworkType name="Стойки"/>
+		<FormworkType name="Фанера"/>
+		<FormworkType name="Комплектующие">
+			<ComponentsType name="Унивилка"/>
+			<ComponentsType name="Крепёж"/>
+			<ComponentsType name="Домкрат"/>
+			<ComponentsType name="Зажим"/>
+			<ComponentsType name="Замок"/>
+			<ComponentsType name="Захват"/>
+			<ComponentsType name="Тренога"/>
+			<ComponentsType name="Подкос"/>
+			<ComponentsType name="Смазка"/>
+		</FormworkType>
+	</ProductType>
+	<ProductType name="Кирпич">
+		<PurposeBrick name="Строительный"/>
+		<PurposeBrick name="Облицовочный"/>
+		<PurposeBrick name="Огнеупорный"/>
+		<TypeBrick name="Керамический"/>
+		<TypeBrick name="Силикатный"/>
+		<TypeBrick name="Шамотный"/>
+		<TypeBrick name="Гиперпрессованный"/>
+		<TypeBrick name="Клинкерный"/>
+		<TypeBrick name="Бетонный"/>
+		<Color name="Бежевый"/>
+		<Color name="Белый"/>
+		<Color name="Бирюзовый"/>
+		<Color name="Бордовый"/>
+		<Color name="Голубой"/>
+		<Color name="Жёлтый"/>
+		<Color name="Зелёный"/>
+		<Color name="Золотой"/>
+		<Color name="Коричневый"/>
+		<Color name="Красный"/>
+		<Color name="Оранжевый"/>
+		<Color name="Розовый"/>
+		<Color name="Серебристый"/>
+		<Color name="Серый"/>
+		<Color name="Синий"/>
+		<Color name="Фиолетовый"/>
+		<Color name="Чёрный"/>
+		<Color name="Другой"/>
+		<Size file="constructionofwalls/brick_size.xml"/>
+		<HollownessBrick name="Пустотелый"/>
+		<HollownessBrick name="Полнотелый"/>
+	</ProductType>
+	<ProductType name="Строительные леса"/>
+</root>

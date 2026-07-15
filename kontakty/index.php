@@ -1,6 +1,7 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetPageProperty("title", "Контактные данные");
+$APPLICATION->SetPageProperty("description", "Контакты «Элементы художественной ковки» email: info@vrn-ehk.ru. График работы: Пн-Пт 9:00-18:00. Закажите консультацию по кованым изделиям!");
+$APPLICATION->SetPageProperty("title", "Контакты ЭХК | Тел: 8 (800) 707-94-91");
 $APPLICATION->SetTitle("Контактные данные");
 ?>
 <div class="contacts_page">

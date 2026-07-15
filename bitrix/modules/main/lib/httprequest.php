@@ -58,7 +58,7 @@ class HttpRequest extends Request
 	 * @param array $files _FILES
 	 * @param array $cookies _COOKIE
 	 */
-	public function __construct(Server $server, array $queryString, array $postData, array $files, array $cookies)
+	public function __construct(Server $server, array $queryString, array $postData, array $files, array $cookies, array $jsonData = [])
 	{
 		$request = array_merge($queryString, $postData);
 		parent::__construct($server, $request);
@@ -69,7 +69,7 @@ class HttpRequest extends Request
 		$this->cookiesRaw = new Type\ParameterDictionary($cookies);
 		$this->cookies = new Type\ParameterDictionary($this->prepareCookie($cookies));
 		$this->headers = $this->buildHttpHeaders($server);
-		$this->jsonData = new Type\ParameterDictionary();
+		$this->jsonData = new Type\ParameterDictionary($jsonData);
 	}
 
 	private function buildHttpHeaders(Server $server)
@@ -77,7 +77,14 @@ class HttpRequest extends Request
 		$headers = new HttpHeaders();
 		foreach ($this->fetchHeaders($server) as $headerName => $value)
 		{
-			$headers->add($headerName, $value);
+			try
+			{
+				$headers->add($headerName, $value);
+			}
+			catch (\InvalidArgumentException)
+			{
+				// ignore an invalid header
+			}
 		}
 
 		return $headers;
@@ -126,6 +133,10 @@ class HttpRequest extends Request
 		{
 			$this->setValuesNoDemand(array_merge($this->queryString->values, $this->postData->values));
 		}
+
+		// need to reinit
+		$this->requestedPage = null;
+		$this->requestedPageDirectory = null;
 	}
 
 	/**
@@ -485,14 +496,14 @@ class HttpRequest extends Request
 	}
 
 	/**
-	 * Returns script file possibly corrected by urlrewrite.php or virtual_file_system.php.
+	 * Returns script file possibly corrected by urlrewrite.php.
 	 *
 	 * @return string
 	 */
 	public function getScriptFile()
 	{
 		$scriptName = $this->getScriptName();
-		if ($scriptName == "/bitrix/routing_index.php" || $scriptName == "/bitrix/urlrewrite.php" || $scriptName == "/404.php" || $scriptName == "/bitrix/virtual_file_system.php")
+		if ($scriptName == "/bitrix/routing_index.php" || $scriptName == "/bitrix/urlrewrite.php" || $scriptName == "/404.php")
 		{
 			if (($v = $this->server->get("REAL_FILE_PATH")) != null)
 			{
@@ -581,6 +592,24 @@ class HttpRequest extends Request
 			catch (ArgumentException)
 			{
 			}
+		}
+	}
+
+	public function decodeJsonStrict(): void
+	{
+		if (!$this->isJson())
+		{
+			throw new SystemException('Input is not valid JSON');
+		}
+		if (empty($this->jsonData->getValues()))
+		{
+			$json = Web\Json::decode(static::getInput());
+			if (!is_array($json))
+			{
+				throw new SystemException('Decoded JSON is not an array');
+			}
+
+			$this->jsonData = new Type\ParameterDictionary($json);
 		}
 	}
 }

@@ -1,0 +1,6 @@
+<root>
+	<ProductType name="Бритвы и триммеры"/>
+	<ProductType name="Машинки для стрижки"/>
+	<ProductType name="Фены и приборы для укладки"/>
+	<ProductType name="Эпиляторы"/>
+</root>

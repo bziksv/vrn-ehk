@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Socialnetwork\Collab\Registry\CollabRegistry;
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -14,7 +16,6 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 /** @global CMain $APPLICATION */
 
 $component = $this->getComponent();
-
 $pageId = "group";
 $blogPageId = '';
 
@@ -35,7 +36,7 @@ $componentParams = [
 	"PATH_TO_GROUP_FEATURES" => $arResult["PATH_TO_GROUP_FEATURES"],
 	"PATH_TO_GROUP_BAN" => $arResult["PATH_TO_GROUP_BAN"],
 	"PATH_TO_SEARCH" => $arResult["PATH_TO_SEARCH"],
-	"PATH_TO_SEARCH_TAG" => $arParams["PATH_TO_SEARCH_TAG"],
+	"PATH_TO_SEARCH_TAG" => $arParams["PATH_TO_SEARCH_TAG"] ?? '',
 	"PAGE_VAR" => $arResult["ALIASES"]["page"] ?? '',
 	"USER_VAR" => $arResult["ALIASES"]["user_id"] ?? '',
 	"GROUP_VAR" => $arResult["ALIASES"]["group_id"] ?? '',
@@ -98,10 +99,12 @@ $componentParams = [
 include('util_copy_blog.php');
 include('util_copy_landing.php');
 include('util_group_menu.php');
-if (SITE_TEMPLATE_ID === 'bitrix24')
+if (SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air')
 {
 	include('util_group_blog_menu.php');
 }
+include("util_group_limit.php");
+
 $APPLICATION->IncludeComponent(
 	'bitrix:ui.sidepanel.wrapper',
 	'',

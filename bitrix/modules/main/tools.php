@@ -288,58 +288,47 @@ function SelectBoxFromArray(
 	return $strReturnBox . '</select>';
 }
 
-/**
- * Date functions
- */
-
-function Calendar($sFieldName, $sFormName = "skform", $sFromName = "", $sToName = "")
+function Calendar($fieldName, $formName = "")
 {
-	if (defined("ADMIN_SECTION") && ADMIN_SECTION == true)
+	if (defined("ADMIN_SECTION") && ADMIN_SECTION)
 	{
-		return CAdminCalendar::Calendar($sFieldName, $sFromName, $sToName);
+		return CAdminCalendar::Calendar($fieldName);
 	}
 
-	static $bCalendarCode = false;
-	$func = "";
-	if (!$bCalendarCode)
-	{
-		$bCalendarCode = true;
-		$func =
-			"<script>\n" .
-			"window.Calendar = function(params, dateVal)\n" .
-			"{\n" .
-			"	var left, top;\n" .
-			"	var width = 180, height = 160;\n" .
-			"	if('['+typeof(window.event)+']' == '[object]')\n" .
-			"	{\n" .
-			"		top = (window.event.screenY+20+height>screen.height-40? window.event.screenY-45-height:window.event.screenY+20);\n" .
-			"		left = (window.event.screenX-width/2);\n" .
-			"	}\n" .
-			"	else\n" .
-			"	{\n" .
-			"		top = Math.floor((screen.height - height)/2-14);\n" .
-			"		left = Math.floor((screen.width - width)/2-5);\n" .
-			"	}\n" .
-			"	window.open('/bitrix/tools/calendar.php?lang=" . LANGUAGE_ID . (defined("ADMIN_SECTION") && ADMIN_SECTION === true ? "&admin_section=Y" : "&admin_section=N") . "&'+params+'&date='+escape(dateVal)+'&initdate='+escape(dateVal),'','scrollbars=no,resizable=yes,width='+width+',height='+height+',left='+left+',top='+top);\n" .
-			"}\n" .
-			"</script>\n";
-	}
-	return $func . "<a href=\"javascript:void(0);\" onclick=\"window.Calendar('name=" . urlencode($sFieldName) . "&amp;from=" . urlencode($sFromName) . "&amp;to=" . urlencode($sToName) . "&amp;form=" . urlencode($sFormName) . "', document['" . $sFormName . "']['" . $sFieldName . "'].value);\" title=\"" . GetMessage("TOOLS_CALENDAR") . "\"><img src=\"" . BX_ROOT . "/images/icons/calendar.gif\" alt=\"" . GetMessage("TOOLS_CALENDAR") . "\" width=\"15\" height=\"15\" border=\"0\" /></a>";
+	global $APPLICATION;
+
+	ob_start();
+
+	$APPLICATION->IncludeComponent(
+		'bitrix:main.calendar',
+		'',
+		[
+			'RETURN' => 'Y',
+			'SHOW_INPUT' => 'N',
+			'INPUT_NAME' => $fieldName,
+			'FORM_NAME' => $formName,
+			'SHOW_TIME' => 'N',
+		],
+		null,
+		['HIDE_ICONS' => 'Y']
+	);
+
+	return ob_get_clean();
 }
 
-function CalendarDate($sFromName, $sFromVal, $sFormName = "skform", $size = "10", $param = "class=\"typeinput\"")
+function CalendarDate($fieldName, $value, $formName = "", $size = "10", $param = "class=\"typeinput\"")
 {
-	if (defined("ADMIN_SECTION") && ADMIN_SECTION == true)
+	if (defined("ADMIN_SECTION") && ADMIN_SECTION)
 	{
-		return CAdminCalendar::CalendarDate($sFromName, $sFromVal, $size, ($size > 10));
+		return CAdminCalendar::CalendarDate($fieldName, $value, $size, ($size > 10));
 	}
 
-	return '<input type="text" name="' . $sFromName . '" id="' . $sFromName . '" size="' . $size . '" value="' . htmlspecialcharsbx($sFromVal) . '" ' . $param . ' /> ' . "\n" . Calendar($sFromName, $sFormName) . "\n";
+	return '<input type="text" name="' . $fieldName . '" id="' . $fieldName . '" size="' . $size . '" value="' . htmlspecialcharsbx($value) . '" ' . $param . ' /> ' . "\n" . Calendar($fieldName, $formName) . "\n";
 }
 
 function CalendarPeriod($sFromName, $sFromVal, $sToName, $sToVal, $sFormName = "skform", $show_select = "N", $field_select = "class=\"typeselect\"", $field_input = "class=\"typeinput\"", $size = "10")
 {
-	if (defined("ADMIN_SECTION") && ADMIN_SECTION == true)
+	if (defined("ADMIN_SECTION") && ADMIN_SECTION)
 	{
 		return CAdminCalendar::CalendarPeriod($sFromName, $sToName, $sFromVal, $sToVal, ($show_select == "Y"), $size, ($size > 10));
 	}
@@ -396,9 +385,9 @@ function " . $sFromName . "_SetDate()
 	}
 	$str .=
 		'<input ' . $ds . ' ' . $field_input . ' type="text" name="' . $sFromName . '" id="' . $sFromName . '" size="' . $size . '" value="' . htmlspecialcharsbx($sFromVal) . '" /> ' . "\n" .
-		Calendar($sFromName, $sFormName, $sFromName, $sToName) . ' ... ' . "\n" .
+		Calendar($sFromName, $sFormName) . ' ... ' . "\n" .
 		'<input ' . $field_input . ' type="text" name="' . $sToName . '" id="' . $sToName . '" size="' . $size . '" value="' . htmlspecialcharsbx($sToVal) . '" /> ' . "\n" .
-		Calendar($sToName, $sFormName, $sFromName, $sToName) . "\n";
+		Calendar($sToName, $sFormName) . "\n";
 
 	return '<span style="white-space: nowrap;">' . $str . '</span>';
 }
@@ -505,6 +494,12 @@ function CheckDateTime($datetime, $format = false)
 	if ($hour > 24 || $hour < 0 || $min < 0 || $min > 59 || $sec < 0 || $sec > 59)
 	{
 		return false;
+	}
+
+	if (!isset($ar["SS"]))
+	{
+		// skip seconds
+		$format = str_replace(':SS', '', $format);
 	}
 
 	$s1 = preg_replace("~([^:\\\\/\\s.,0-9-]+|[^:\\\\/\\s.,a-z-]+)[\n\r\t ]*~iu", "P", $datetime);
@@ -1132,7 +1127,7 @@ function FormatDate($format = "", $timestamp = false, $now = false, ?string $lan
 	$arFormatParts = preg_split("/(?<!\\\\)(
 		sago|iago|isago|Hago|dago|mago|Yago|
 		sdiff|idiff|Hdiff|ddiff|mdiff|Ydiff|
-		sshort|ishort|Hshort|dshort|mhort|Yshort|
+		sshort|ishort|Hshort|dshort|mshort|Yshort|
 		yesterday|today|tomorrow|tommorow|
 		X|x|j|F|f|Y|Q|M|l|D
 	)/x", $format, 0, PREG_SPLIT_DELIM_CAPTURE);
@@ -2825,14 +2820,19 @@ function CopyDirFiles($path_from, $path_to, $ReWrite = true, $Recursive = false,
 	return false;
 }
 
-function DeleteDirFilesEx($path)
+function DeleteDirFilesEx($path, $root = null)
 {
 	if ($path == '' || $path == '/')
 	{
 		return false;
 	}
 
-	$full_path = $_SERVER["DOCUMENT_ROOT"] . "/" . $path;
+	if ($root === null)
+	{
+		$root = $_SERVER["DOCUMENT_ROOT"];
+	}
+
+	$full_path = $root . "/" . $path;
 	$full_path = preg_replace("#[\\\\\\/]+#", "/", $full_path);
 
 	$f = true;
@@ -2855,7 +2855,7 @@ function DeleteDirFilesEx($path)
 					continue;
 				}
 
-				if (!DeleteDirFilesEx($path . "/" . $file))
+				if (!DeleteDirFilesEx($path . "/" . $file, $root))
 				{
 					$f = false;
 				}
@@ -3025,6 +3025,25 @@ function IsFileUnsafe($name)
 	return in_array(mb_strtolower(TrimUnsafe($name)), $arFiles);
 }
 
+function IsConfigFile(string $path): bool
+{
+	$path = TrimUnsafe($path);
+
+	static $list = [
+		"/bitrix/.settings.php",
+		"/.access.php",
+	];
+
+	foreach ($list as $file)
+	{
+		if (str_ends_with($path, $file))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 function GetFileType($path)
 {
 	$extension = GetFileExtension(mb_strtolower($path));
@@ -3186,7 +3205,7 @@ function GetRequestUri()
 		}
 	}
 
-	$queryString = DeleteParam(["bxrand", "SEF_APPLICATION_CUR_PAGE_URL"]);
+	$queryString = DeleteParam(["bxrand"]);
 	if ($queryString != "")
 	{
 		$uriPath = $uriPath . "?" . $queryString;
@@ -3299,7 +3318,7 @@ function Rel2Abs($curdir, $relpath)
 		$res = $curdir . $relpath;
 	}
 
-	if (($p = mb_strpos($res, "\0")) !== false)
+	if ((mb_strpos($res, "\0")) !== false)
 	{
 		throw new Main\IO\InvalidPathException($res);
 	}
@@ -3934,7 +3953,7 @@ function AddMessage2Log($text, $module = '', $traceDepth = 6, $showArgs = false)
 		$trace = '';
 		if ($traceDepth > 0)
 		{
-			$trace = Main\Diag\Helper::getBackTrace($traceDepth, ($showArgs ? null : DEBUG_BACKTRACE_IGNORE_ARGS), 2);
+			$trace = Main\Diag\Helper::getBackTrace($traceDepth, ($showArgs ? null : DEBUG_BACKTRACE_IGNORE_ARGS));
 		}
 
 		$context = [
@@ -3957,8 +3976,10 @@ function AddMessage2Log($text, $module = '', $traceDepth = 6, $showArgs = false)
 function AddEventToStatFile($module, $action, $tag, $label, $action_type = '', $user_id = null)
 {
 	global $USER;
+
 	static $search = ["\t", "\n", "\r"];
 	static $replace = " ";
+
 	if (defined('ANALYTICS_FILENAME') && is_writable(ANALYTICS_FILENAME))
 	{
 		if ($user_id === null && is_object($USER) && !defined("BX_CHECK_AGENT_START"))
@@ -3966,8 +3987,8 @@ function AddEventToStatFile($module, $action, $tag, $label, $action_type = '', $
 			$user_id = $USER->GetID();
 		}
 		$content =
-			date('Y-m-d H:i:s')
-			. "\t" . str_replace($search, $replace, $_SERVER["HTTP_HOST"])
+			'{date}'
+			. "\t" . '{host}'
 			. "\t" . str_replace($search, $replace, $module)
 			. "\t" . str_replace($search, $replace, $action)
 			. "\t" . str_replace($search, $replace, $tag)
@@ -3975,17 +3996,9 @@ function AddEventToStatFile($module, $action, $tag, $label, $action_type = '', $
 			. "\t" . str_replace($search, $replace, $action_type)
 			. "\t" . intval($user_id)
 			. "\n";
-		$fp = @fopen(ANALYTICS_FILENAME, "ab");
-		if ($fp)
-		{
-			if (flock($fp, LOCK_EX))
-			{
-				@fwrite($fp, $content);
-				@fflush($fp);
-				@flock($fp, LOCK_UN);
-				@fclose($fp);
-			}
-		}
+
+		$logger = new Diag\FileLogger(ANALYTICS_FILENAME, 0);
+		$logger->debug($content);
 	}
 }
 
@@ -4202,6 +4215,7 @@ function FormDecode()
 		'_GET' => 1, '_SESSION' => 1, '_POST' => 1, '_COOKIE' => 1, '_REQUEST' => 1, '_FILES' => 1, '_SERVER' => 1, 'GLOBALS' => 1, '_ENV' => 1,
 		'DBType' => 1, 'DBDebug' => 1, 'DBDebugToFile' => 1, 'DBHost' => 1, 'DBName' => 1, 'DBLogin' => 1, 'DBPassword' => 1,
 		'HTTP_ENV_VARS' => 1, 'HTTP_GET_VARS' => 1, 'HTTP_POST_VARS' => 1, 'HTTP_POST_FILES' => 1, 'HTTP_COOKIE_VARS' => 1, 'HTTP_SERVER_VARS' => 1,
+		'this' => 1,
 	];
 
 	foreach ($superglobals as $gl => $t)
@@ -5135,7 +5149,7 @@ function ShowImage($PICTURE_ID, $iMaxW = 0, $iMaxH = 0, $sParams = false, $strIm
 
 function BXClearCache($full = false, $initdir = '')
 {
-	return CPHPCache::ClearCache($full, $initdir);
+	CPHPCache::ClearCache($full, $initdir);
 }
 
 function RegisterModule($id)

@@ -275,7 +275,7 @@ class CPgCheckStep extends CBasePgWizardStep
 	public function ShowStep()
 	{
 		parent::ShowStep();
-		if (count($this->GetErrors()) == 0)
+		if (!$this->GetErrors())
 		{
 			$this->content .= GetMessage('PGWIZ_REQUIRES_KEY');
 			$this->ShowCheckList($this->checkList);
@@ -318,25 +318,22 @@ class CPgCreateDatabaseStep extends CBasePgWizardStep
 		$this->content .= $this->ShowRadioField('create', 'by_wizard', [
 			'id' => 'create_by_wizard',
 		]) . '<label for="create_by_wizard">' . GetMessage('PGWIZ_CREATE_BY_WIZARD') . '</label><br>';
+		$size = [
+			'size' => '30',
+		];
 		$this->content .= '
 		<table border="0" class="data-table">
 		<tr>
 			<td nowrap align="right" valign="top" width="40%" >' . GetMessage('PGWIZ_HOST') . '</td>
-			<td width="60%" valign="top">' . $this->ShowInputField('text', 'host', [
-				'size' => '30',
-			]) . '</td>
+			<td width="60%" valign="top">' . $this->ShowInputField('text', 'host', $size) . '</td>
 		</tr>
 		<tr>
 			<td nowrap align="right" valign="top">' . GetMessage('PGWIZ_ROOT_USER') . '</td>
-			<td valign="top">' . $this->ShowInputField('text', 'root_user', [
-				'size' => '30',
-			]) . '</td>
+			<td valign="top">' . $this->ShowInputField('text', 'root_user', $size) . '</td>
 		</tr>
 		<tr>
 			<td nowrap align="right" valign="top">' . GetMessage('PGWIZ_ROOT_PASSWORD') . '</td>
-			<td valign="top">' . $this->ShowInputField('password', 'root_password', [
-				'size' => '30',
-			]) . '</td>
+			<td valign="top">' . $this->ShowInputField('password', 'root_password', $size) . '</td>
 		</tr>
 		</table>
 		';
@@ -377,28 +374,27 @@ class CPgUserStep extends CBasePgWizardStep
 	public function ShowStep()
 	{
 		$wizard = $this->GetWizard();
+		$size = [
+			'size' => '30',
+		];
+
 		parent::ShowStep();
+
 		if ($wizard->GetVar('create') === 'by_wizard')
 		{
 			$this->content .= '
 			<table border="0" class="data-table">
 			<tr>
 				<td nowrap align="right" valign="top">' . GetMessage('PGWIZ_USER') . '</td>
-				<td valign="top">' . $this->ShowInputField('text', 'user', [
-					'size' => '30',
-				]) . '</td>
+				<td valign="top">' . $this->ShowInputField('text', 'user', $size) . '</td>
 			</tr>
 			<tr>
 				<td nowrap align="right" valign="top">' . GetMessage('PGWIZ_PASSWORD') . '</td>
-				<td valign="top">' . $this->ShowInputField('password', 'password', [
-					'size' => '30',
-				]) . '</td>
+				<td valign="top">' . $this->ShowInputField('password', 'password', $size) . '</td>
 			</tr>
 			<tr>
 				<td nowrap align="right" valign="top">' . GetMessage('PGWIZ_DATABASE') . '</td>
-				<td valign="top">' . $this->ShowInputField('text', 'database', [
-					'size' => '30',
-				]) . '</td>
+				<td valign="top">' . $this->ShowInputField('text', 'database', $size) . '</td>
 			</tr>
 			</table>
 			';
@@ -409,27 +405,19 @@ class CPgUserStep extends CBasePgWizardStep
 			<table border="0" class="data-table">
 			<tr>
 				<td nowrap align="right" valign="top">' . GetMessage('PGWIZ_HOST') . '</td>
-				<td valign="top">' . $this->ShowInputField('text', 'host', [
-					'size' => '30',
-				]) . '</td>
+				<td valign="top">' . $this->ShowInputField('text', 'host', $size) . '</td>
 			</tr>
 			<tr>
 				<td nowrap align="right" valign="top">' . GetMessage('PGWIZ_USER') . '</td>
-				<td valign="top">' . $this->ShowInputField('text', 'user', [
-					'size' => '30',
-				]) . '</td>
+				<td valign="top">' . $this->ShowInputField('text', 'user', $size) . '</td>
 			</tr>
 			<tr>
 				<td nowrap align="right" valign="top">' . GetMessage('PGWIZ_PASSWORD') . '</td>
-				<td valign="top">' . $this->ShowInputField('password', 'password', [
-					'size' => '30',
-				]) . '</td>
+				<td valign="top">' . $this->ShowInputField('password', 'password', $size) . '</td>
 			</tr>
 			<tr>
 				<td nowrap align="right" valign="top">' . GetMessage('PGWIZ_DATABASE') . '</td>
-				<td valign="top">' . $this->ShowInputField('text', 'database', [
-					'size' => '30',
-				]) . '</td>
+				<td valign="top">' . $this->ShowInputField('text', 'database', $size) . '</td>
 			</tr>
 			</table>
 			';
@@ -449,7 +437,6 @@ class CPgUserStep extends CBasePgWizardStep
 			if (!function_exists('pg_pconnect'))
 			{
 				$this->SetError(GetMessage('PGWIZ_ERRROR_EXTENSION'));
-				return;
 			}
 
 			$config = [
@@ -459,17 +446,42 @@ class CPgUserStep extends CBasePgWizardStep
 			{
 				$config['login'] = $wizard->GetVar('root_user');
 				$config['password'] = $wizard->GetVar('root_password');
+				if ($wizard->GetVar('database') !== mb_strtolower($wizard->GetVar('database')))
+				{
+					$this->SetError(GetMessage('PGWIZ_ERROR_WRONG_DATABASE_NAME'));
+				}
 			}
 			elseif ($wizard->GetVar('create') === 'by_user')
 			{
 				$config['login'] = $wizard->GetVar('user');
 				$config['password'] = $wizard->GetVar('password');
 				$config['database'] = $wizard->GetVar('database');
+				if ($wizard->GetVar('database') !== mb_strtolower($wizard->GetVar('database')))
+				{
+					$this->SetError(GetMessage('PGWIZ_ERROR_WRONG_DATABASE_NAME'));
+				}
 			}
 			else
 			{
 				$configParams = \Bitrix\Main\Config\Configuration::getValue('connections');
 				$config = $configParams[$wizard->GetVar('connection')];
+				if ($config['database'] !== mb_strtolower($config['database']))
+				{
+					$this->SetError(GetMessage('PGWIZ_ERROR_WRONG_DATABASE_NAME'));
+				}
+			}
+
+			if (
+				$config['login'] !== mb_strtolower($config['login'])
+				|| (string)$wizard->GetVar('user') !== mb_strtolower($wizard->GetVar('user'))
+			)
+			{
+				$this->SetError(GetMessage('PGWIZ_ERROR_WRONG_LOGIN'));
+			}
+
+			if ($this->GetErrors())
+			{
+				return;
 			}
 
 			$conn = new \Bitrix\Main\DB\PgsqlConnection($config);
@@ -488,10 +500,25 @@ class CPgUserStep extends CBasePgWizardStep
 			$pgVersionMin = '11.0.0';
 			if (version_compare($version[0], $pgVersionMin, '<'))
 			{
-				return $this->SetError(GetMessage('PGWIZ_ERROR_VERSION', [
+				$this->SetError(GetMessage('PGWIZ_ERROR_VERSION', [
 					'#CUR#' => $version[0],
 					'#REQ#' => $pgVersionMin,
 				]));
+				return;
+			}
+
+			$option = $conn->query("select setting from pg_settings where name = 'standard_conforming_strings'")->fetch();
+			if (!isset($option['SETTING']) || $option['SETTING'] != 'on')
+			{
+				$this->SetError(GetMessage("PGWIZ_ERROR_PGSQL_CONFIG_ER"));
+				return;
+			}
+
+			$option = $conn->query("select setting from pg_settings where name = 'ac_ignore_maclabel'")->fetch();
+			if (isset($option['SETTING']) && $option['SETTING'] == 'false')
+			{
+				$this->SetError(GetMessage("PGWIZ_ERROR_PGSQL_CONFIG_MAC_ER"));
+				return;
 			}
 
 			if ($wizard->GetVar('create') === 'by_wizard')
@@ -563,7 +590,7 @@ class CPgUserStep extends CBasePgWizardStep
 				}
 
 				$grantPrivileges = [
-					'grant all privileges on database  ' . $conn->getSqlHelper()->quote($wizard->GetVar('database')) . ' to ' . $conn->getSqlHelper()->quote($wizard->GetVar('user')),
+					'grant all privileges on database ' . $conn->getSqlHelper()->quote($wizard->GetVar('database')) . ' to ' . $conn->getSqlHelper()->quote($wizard->GetVar('user')),
 					'grant create on schema public to ' . $conn->getSqlHelper()->quote($wizard->GetVar('user')),
 				];
 				foreach ($grantPrivileges as $grant)
@@ -665,10 +692,11 @@ class CPgConnectionStep extends CBasePgWizardStep
 			$pgVersionMin = '11.0.0';
 			if (version_compare($version[0], $pgVersionMin, '<'))
 			{
-				return $this->SetError(GetMessage('PGWIZ_ERROR_VERSION', [
+				$this->SetError(GetMessage('PGWIZ_ERROR_VERSION', [
 					'#CUR#' => $version[0],
 					'#REQ#' => $pgVersionMin,
 				]));
+				return;
 			}
 		}
 	}

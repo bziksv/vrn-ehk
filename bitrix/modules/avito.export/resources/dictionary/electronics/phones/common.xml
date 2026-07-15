@@ -1,0 +1,12 @@
+<root>
+	<Set name="Коробка"/>
+	<Set name="Блок зарядки"/>
+	<Set name="Провод зарядки"/>
+	<Condition name="Новое">
+		<BoxSealed name="Да"/>
+		<BoxSealed name="Нет"/>
+	</Condition>
+	<Condition name="Б/у">
+		<TagsUsed file="condition_other.xml"/>
+	</Condition>
+</root>

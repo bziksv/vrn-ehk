@@ -15,6 +15,7 @@ Disallow: /bitrix/
 Disallow: /basket/
 Disallow: /workshop/
 Disallow: /about/
+Disallow: /avito_photo/
 Disallow: /constructor/
 Disallow: /*?print=
 Disallow: /*&print=
@@ -62,6 +63,12 @@ Disallow: /*from=adwords
 Disallow: /?
 Disallow: /*%E2%84%96
 Disallow: /*?
+Disallow: /news/*
+Disallow: /catalog/elementy-khudozhestvennoy-kovki/
+#дубль подкатегорий
+Disallow: /catalog/rozetki-i-paneli/
+Disallow: /catalog/terrasnaya-doska-ograzhdeniya-iz-dpk/
+#закрываем фотогалерею не нужна для продвижения
+Disallow: /gallery/*
 Host: https://vrn-ehk.ru/
 Sitemap: https://vrn-ehk.ru/sitemap.xml
-

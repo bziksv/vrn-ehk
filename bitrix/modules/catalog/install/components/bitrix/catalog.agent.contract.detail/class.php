@@ -320,9 +320,9 @@ class CatalogAgentContractDetail
 	private function getEntityData(array $documentData = []): array
 	{
 		$entityData = [
-			'ID' => $this->arResult['ID'],
+			'ID' => $this->arResult['ID'] ?? null,
 			'TITLE' => '',
-			'IBLOCK_ID' => $this->arResult['IBLOCK_ID'],
+			'IBLOCK_ID' => $this->arResult['IBLOCK_ID'] ?? null,
 			'CONTRACTOR_ID' => null,
 			'DATE_MODIFY' => null,
 			'DATE_CREATE' => null,
@@ -359,7 +359,7 @@ class CatalogAgentContractDetail
 			{
 				$entityData = array_merge($entityData, $this->getUserDataToEntity($documentData['MODIFIED_BY'], 'MODIFIED_BY'));
 			}
-			
+
 			if ($documentData['CREATED_BY'])
 			{
 				$entityData = array_merge($entityData, $this->getUserDataToEntity($documentData['CREATED_BY'], 'CREATED_BY'));
@@ -638,7 +638,13 @@ class CatalogAgentContractDetail
 			$fields['TITLE'] = $data['TITLE'];
 		}
 
-		$fields['FILES'] = $data['FILES'];
+		if (!empty($data['FILES']))
+		{
+			$fields['FILES'] = \Bitrix\Main\UI\FileInputUtility::instance()->checkFiles(
+				'files_uploader',
+				$data['FILES']
+			);
+		}
 
 		if (!empty($data['CONTRACTOR_ID']))
 		{
@@ -666,12 +672,26 @@ class CatalogAgentContractDetail
 			$productFields
 		);
 
+		$id = (int)($this->arParams['ID'] ?? 0);
 		$contractorProviderSaveResult = null;
 		if ($this->contractorsProvider)
 		{
 			$clientData = $data['CLIENT_DATA'] ?: [];
 			if ($clientData)
 			{
+				$contractorProviderAccessResult = $this->contractorsProvider::checkAccessRights(
+					$id,
+					$fields + ['CLIENT_DATA' => $clientData],
+				);
+				if (!$contractorProviderAccessResult->isSuccess())
+				{
+					$error = $contractorProviderAccessResult->getError();
+					$this->errorCollection->setError($error);
+					$response['ERROR'] = $error->getMessage();
+
+					return $response;
+				}
+
 				$contractorProviderSaveResult = $this->contractorsProvider::onBeforeDocumentSave(
 					$fields + ['CLIENT_DATA' => $clientData]
 				);
@@ -680,7 +700,6 @@ class CatalogAgentContractDetail
 
 		$response = [];
 
-		$id = (int)($this->arParams['ID'] ?? 0);
 		if ($id > 0)
 		{
 			$fields['FILES_del'] = $data['FILES_del'] ?? [];

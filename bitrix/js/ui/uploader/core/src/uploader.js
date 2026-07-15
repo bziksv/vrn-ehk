@@ -503,20 +503,23 @@ export default class Uploader extends EventEmitter
 		}
 	}
 
-	// stop(): void
-	// {
-	// 	this.#status = UploaderStatus.STOPPED;
-	//
-	// 	this.getFiles().forEach((file: UploaderFile) => {
-	// 		if (file.isUploading())
-	// 		{
-	// 			file.abort();
-	// 			file.setStatus(FileStatus.PENDING);
-	// 		}
-	// 	});
-	//
-	// 	this.emit('onStop');
-	// }
+	stop(): void
+	{
+		if (this.#status !== UploaderStatus.STOPPED)
+		{
+			this.#status = UploaderStatus.STOPPED;
+
+			// this.getFiles().forEach((file: UploaderFile) => {
+			// 	if (file.isUploading())
+			// 	{
+			// 		file.abort();
+			// 		file.setStatus(FileStatus.PENDING);
+			// 	}
+			// });
+
+			this.emit('onStop');
+		}
+	}
 
 	destroy(options?: DestroyOptions): void
 	{
@@ -582,6 +585,11 @@ export default class Uploader extends EventEmitter
 	getFiles(): UploaderFile[]
 	{
 		return [...this.#files];
+	}
+
+	getFileCount(): number
+	{
+		return this.#files.length;
 	}
 
 	getId(): string
@@ -1009,7 +1017,7 @@ export default class Uploader extends EventEmitter
 
 	getUploadingFileCount(): number
 	{
-		return this.#files.filter((file: UploaderFile): boolean => file.isUploading()).length;
+		return this.#files.filter((file: UploaderFile): boolean => file.isUploading() || file.isPreparing()).length;
 	}
 
 	getPendingFileCount(): number
@@ -1021,7 +1029,15 @@ export default class Uploader extends EventEmitter
 	{
 		return this.getGlobalOption(
 			'imageExtensions',
-			['.jpg', '.bmp', '.jpeg', '.jpe', '.gif', '.png', '.webp'],
+			['jpg', 'bmp', 'jpeg', 'jpe', 'gif', 'png', 'webp'],
+		);
+	}
+
+	static getVideoExtensions(): Array<string>
+	{
+		return this.getGlobalOption(
+			'videoExtensions',
+			['avi', 'wmv', 'mp4', 'mov', 'webm', 'flv', 'm4v', 'mkv', 'vob', '3gp', 'ogv', 'h264'],
 		);
 	}
 
@@ -1039,7 +1055,10 @@ export default class Uploader extends EventEmitter
 
 	acceptOnlyImages(): void
 	{
-		const imageExtensions: string[] = Uploader.getImageExtensions();
+		const imageExtensions: string[] = Uploader.getImageExtensions().map((extension: string): string => {
+			return `.${extension}`;
+		});
+
 		this.setAcceptedFileTypes(imageExtensions);
 		this.#acceptOnlyImages = true;
 	}

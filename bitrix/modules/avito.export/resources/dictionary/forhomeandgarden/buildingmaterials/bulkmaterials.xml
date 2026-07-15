@@ -1,0 +1,89 @@
+<BulkMaterials>
+	<BulkMaterialType name="Щебень, гравий">
+		<BulkMaterialSubType name="Щебень">
+			<RubbleType name="Гранитный"/>
+			<RubbleType name="Гравийный"/>
+			<RubbleType name="Известняковый"/>
+			<RubbleType name="Вторичный"/>
+			<RubbleType name="Бутовый"/>
+			<RubbleType name="Мраморный"/>
+			<RubbleType name="Другой"/>
+		</BulkMaterialSubType>
+		<BulkMaterialSubType name="Гравий"/>
+		<Fraction name="5–20 мм"/>
+		<Fraction name="20–40 мм"/>
+		<Fraction name="40–70 мм"/>
+		<Fraction name="5–10 мм"/>
+		<Fraction name="3–10 мм"/>
+		<Fraction name="10–20 мм"/>
+		<Fraction name="1–4 мм"/>
+		<Fraction name="2–5 мм"/>
+		<Fraction name="3–6 мм"/>
+		<Fraction name="6–10 мм"/>
+		<Fraction name="8–12 мм"/>
+		<Fraction name="40–60 мм"/>
+		<Fraction name="40–100 мм"/>
+		<Fraction name="70–250 мм"/>
+	</BulkMaterialType>
+	<BulkMaterialType name="Песок">
+		<BulkMaterialSubType name="Речной"/>
+		<BulkMaterialSubType name="Карьерный"/>
+		<BulkMaterialSubType name="Морской"/>
+		<BulkMaterialSubType name="Кварцевый"/>
+		<BulkMaterialSubType name="Перлитовый"/>
+		<BulkMaterialSubType name="Керамзитовый"/>
+		<BulkMaterialSubType name="Мраморный"/>
+		<BulkMaterialSubType name="Доломитовый"/>
+		<BulkMaterialSubType name="Термозитный"/>
+		<PackagingType name="В мешках">
+			<Weight name="1 кг" multiple="true"/>
+			<Weight name="3 кг"/>
+			<Weight name="5 кг"/>
+			<Weight name="10 кг"/>
+			<Weight name="14 кг"/>
+			<Weight name="15 кг"/>
+			<Weight name="20 кг"/>
+			<Weight name="25 кг"/>
+			<Weight name="30 кг"/>
+			<Weight name="40 кг"/>
+			<Weight name="50 кг"/>
+		</PackagingType>
+		<PackagingType name="В биг-бегах"/>
+		<PackagingType name="Россыпью"/>
+	</BulkMaterialType>
+	<BulkMaterialType name="Песчаные смеси"/>
+	<BulkMaterialType name="Грунт, чернозем, органические удобрения">
+		<SoilType name="Грунт"/>
+		<SoilType name="Чернозем"/>
+		<SoilType name="Органические удобрения"/>
+	</BulkMaterialType>
+	<BulkMaterialType name="Асфальт и асфальтная крошка" oldNames="Асфальт">
+		<BulkMaterialSubType name="Асфальт">
+			<LayingType name="Холодный"/>
+			<LayingType name="Горячий"/>
+		</BulkMaterialSubType>
+		<BulkMaterialSubType name="Асфальтная крошка"/>
+		<BulkMaterialSubType name="Битум"/>
+	</BulkMaterialType>
+	<BulkMaterialType name="Бой">
+		<BulkMaterialSubType name="Кирпичный"/>
+		<BulkMaterialSubType name="Бетонный"/>
+		<BulkMaterialSubType name="Асфальтный"/>
+		<BulkMaterialSubType name="Плиточный"/>
+	</BulkMaterialType>
+	<BulkMaterialType name="Крошка, отсев"/>
+	<BulkMaterialType name="Керамзит"/>
+	<BulkMaterialType name="Камень, галька"/>
+	<BulkMaterialType name="Глина"/>
+	<BulkMaterialType name="Другое"/>
+	<PriceType name="за тонну"/>
+	<PriceType name="за килограмм"/>
+	<PriceType name="за м3"/>
+	<PriceType name="за мешок">
+		<BagValue variable="text"/>
+		<BagUnits name="кг"/>
+		<BagUnits name="литры"/>
+	</PriceType>
+	<PriceType name="за штуку"/>
+	<PriceType name="за всё"/>
+</BulkMaterials>

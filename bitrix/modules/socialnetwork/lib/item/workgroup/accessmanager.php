@@ -9,9 +9,12 @@
 namespace Bitrix\Socialnetwork\Item\Workgroup;
 
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\Loader;
+use Bitrix\Socialnetwork\Collab\Converter\ConverterFeature;
 use Bitrix\Socialnetwork\EO_UserToGroup;
 use Bitrix\Socialnetwork\EO_Workgroup;
 use Bitrix\Socialnetwork\EO_WorkgroupFavorites;
+use Bitrix\Socialnetwork\Permission\User\UserModel;
 use Bitrix\Socialnetwork\UserToGroupTable;
 
 class AccessManager
@@ -22,6 +25,7 @@ class AccessManager
 	protected ?EO_WorkgroupFavorites $currentUserFavorites = null;
 	protected bool $isCurrentUserModuleAdmin = false;
 	protected int $currentUserId = 0;
+	private UserModel $user;
 
 	public function __construct(
 		EO_Workgroup $group,
@@ -34,8 +38,21 @@ class AccessManager
 		$this->group = $group;
 		$this->targetUserRelation = $targetUserRelation;
 		$this->currentUserRelation = $currentUserRelation;
-		$this->isCurrentUserModuleAdmin = self::isCurrentUserModuleAdmin((bool)($additionalParams['checkAdminSession'] ?? true));
-		$this->currentUserId = \Bitrix\Socialnetwork\Helper\User::getCurrentUserId();
+
+		if (isset($additionalParams['userId']))
+		{
+			$this->currentUserId = (int)$additionalParams['userId'];
+			$this->isCurrentUserModuleAdmin = \CSocNetUser::IsUserModuleAdmin($this->currentUserId);
+
+		}
+		else
+		{
+			$this->isCurrentUserModuleAdmin = self::isCurrentUserModuleAdmin((bool)($additionalParams['checkAdminSession'] ?? true));
+			$this->currentUserId = \Bitrix\Socialnetwork\Helper\User::getCurrentUserId();
+		}
+
+		$this->user = UserModel::createFromId($this->currentUserId);
+
 		if (is_array($additionalEntityList) && !empty($additionalEntityList))
 		{
 			if (
@@ -76,12 +93,34 @@ class AccessManager
 			'ROLE',
 		]);
 
+		static $visibilityCache = [];
+
+		$groupId = $this->group->getId();
+
+		if (!isset($visibilityCache[$groupId]))
+		{
+			$isVisible = $this->group->get('VISIBLE');
+			if (!$this->isExtranetGroup($groupId))
+			{
+				$isVisible = ($isVisible && !$this->user->isExtranet());
+			}
+			$visibilityCache[$groupId] = $isVisible;
+		}
+		else
+		{
+			$isVisible = $visibilityCache[$groupId];
+		}
+
 		return (
 			$this->isCurrentUserModuleAdmin
-			|| $this->group->get('VISIBLE')
+			|| $isVisible
 			|| (
 				$this->currentUserRelation
-				&& in_array($this->currentUserRelation->get('ROLE'), UserToGroupTable::getRolesMember(), true)
+				&& in_array(
+					$this->currentUserRelation->get('ROLE'),
+					UserToGroupTable::getRolesMember(),
+					true,
+				)
 			)
 		);
 	}
@@ -623,6 +662,16 @@ class AccessManager
 		return true;
 	}
 
+	public function canConvertToCollab(): bool
+	{
+		return
+			ConverterFeature::isOn()
+			&& $this->currentUserRelation
+			&& $this->group->getType() === Type::Group->value
+			&& $this->checkOwner($this->currentUserRelation)
+		;
+	}
+
 	protected function checkGroupEntityFields(array $fieldsList = []): void
 	{
 		if (!$this->group)
@@ -776,4 +825,13 @@ class AccessManager
 		);
 	}
 
+	private function isExtranetGroup(int $groupId): bool
+	{
+		if (!Loader::includeModule('extranet'))
+		{
+			return false;
+		}
+
+		return \CExtranet::IsExtranetSocNetGroup($groupId);
+	}
 }

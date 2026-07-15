@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DiameterValues>
+	<Diameter>DN 6 (1/8 дюйма)</Diameter>
+	<Diameter>DN 8 (1/4 дюйма)</Diameter>
+	<Diameter>DN 10 (3/8 дюйма)</Diameter>
+	<Diameter>DN 15 (1/2 дюйма)</Diameter>
+	<Diameter>DN 20 (3/4 дюйма)</Diameter>
+	<Diameter>DN 25 (1 дюйм)</Diameter>
+	<Diameter>DN 32 (1 1/4 дюйма)</Diameter>
+	<Diameter>DN 40 (1 1/2 дюйма)</Diameter>
+	<Diameter>DN 50 (2 дюйма)</Diameter>
+	<Diameter>DN 65 (2 1/2 дюйма)</Diameter>
+	<Diameter>DN 80 (3 дюйма)</Diameter>
+	<Diameter>DN 100 (4 дюйма)</Diameter>
+	<Diameter>DN 125 (5 дюймов)</Diameter>
+	<Diameter>DN 150 (6 дюймов)</Diameter>
+	<Diameter>DN 200 (8 дюймов)</Diameter>
+	<Diameter>DN 250 (10 дюймов)</Diameter>
+	<Diameter>DN 300 (12 дюймов)</Diameter>
+	<Diameter>DN 350 (14 дюймов)</Diameter>
+	<Diameter>DN 400 (16 дюймов)</Diameter>
+	<Diameter>DN 450 (18 дюймов)</Diameter>
+	<Diameter>DN 500 (20 дюймов)</Diameter>
+	<Diameter>DN 600 (24 дюйма)</Diameter>
+	<Diameter>DN 700 (28 дюймов)</Diameter>
+	<Diameter>DN 800 (32 дюйма)</Diameter>
+	<Diameter>DN 900 (36 дюймов)</Diameter>
+	<Diameter>DN 1000 (40 дюймов)</Diameter>
+	<Diameter>DN 1100 (44 дюйма)</Diameter>
+	<Diameter>DN 1200 (48 дюймов)</Diameter>
+	<Diameter>DN 1400 (56 дюймов)</Diameter>
+	<Diameter>DN 1600 (64 дюйма)</Diameter>
+	<Diameter>DN 1800 (72 дюйма)</Diameter>
+	<Diameter>DN 2000 (80 дюймов)</Diameter>
+	<Diameter>DN 2200 (88 дюймов)</Diameter>
+	<Diameter>DN 2400 (96 дюймов)</Diameter>
+</DiameterValues>

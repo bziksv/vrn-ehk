@@ -1,17 +1,18 @@
-import { ImModelMessage } from 'im.v2.model';
 import { Type } from 'main.core';
-import { SocialVideo } from 'ui.vue3.components.socialvideo';
 
 import { Utils } from 'im.v2.lib.utils';
-import { ProgressBar } from './progress-bar';
+import { FileViewerContext, FileStatus } from 'im.v2.const';
+import { VideoPlayer } from	'im.v2.component.elements.videoplayer';
+import { ProgressBar } from 'im.v2.component.elements.progressbar';
+import { Outline } from 'ui.icon-set.api.vue';
 
 import '../../css/items/video.css';
 
-import type { ImModelFile } from 'im.v2.model';
+import type { ImModelFile, ImModelMessage } from 'im.v2.model';
 
 const VIDEO_SIZE_TO_AUTOPLAY = 5_000_000;
-const MAX_WIDTH = 420;
-const MAX_HEIGHT = 340;
+const MAX_WIDTH = 460;
+const MAX_HEIGHT = 380;
 const MIN_WIDTH = 200;
 const MIN_HEIGHT = 100;
 const DEFAULT_WIDTH = 320;
@@ -20,7 +21,7 @@ const DEFAULT_HEIGHT = 180;
 // @vue/component
 export const VideoItem = {
 	name: 'VideoItem',
-	components: { SocialVideo, ProgressBar },
+	components: { VideoPlayer, ProgressBar },
 	props:
 	{
 		id: {
@@ -32,6 +33,7 @@ export const VideoItem = {
 			required: true,
 		},
 	},
+	emits: ['cancelClick'],
 	computed:
 	{
 		messageItem(): ImModelMessage
@@ -52,7 +54,11 @@ export const VideoItem = {
 		},
 		viewerAttributes(): Object
 		{
-			return Utils.file.getViewerDataAttributes(this.file.viewerAttrs);
+			return Utils.file.getViewerDataAttributes({
+				viewerAttributes: this.file.viewerAttrs,
+				previewImageSrc: this.file.urlPreview,
+				context: FileViewerContext.dialog,
+			});
 		},
 		imageSize(): {width: string, height: string, backgroundSize: string}
 		{
@@ -113,35 +119,50 @@ export const VideoItem = {
 				return;
 			}
 
-			const url = this.file.urlDownload ?? this.file.urlShow;
-			window.open(url, '_blank');
+			window.open(this.file.urlDownload, '_blank');
 		},
-		getPlayCallback()
+		onCancelClick(event)
 		{
-			if (this.autoplay)
-			{
-				return null;
-			}
-
-			return () => {};
+			this.$emit('cancelClick', event);
+		},
+		getHandleStatus(): Array<string>
+		{
+			return [
+				FileStatus.preparing,
+				FileStatus.progress,
+				FileStatus.upload,
+			];
+		},
+		getStatusMap(): { [key: string]: { iconClass: string, labelText: string } }
+		{
+			return {
+				[FileStatus.preparing]: {
+					iconClass: Outline.CLOUD,
+					labelText: this.$Bitrix.Loc.getMessage('IM_MESSAGE_FILE_PREPARING_PROGRESS_LABEL'),
+				},
+			};
 		},
 	},
 	template: `
 		<div
-			@click="download"
 			class="bx-im-video-item__container bx-im-video-item__scope"
 			:class="{'--with-forward': isForward}"
+			@click="download"
 		>
-			<ProgressBar v-if="!isLoaded" :item="file" :messageId="message.id" />
-			<SocialVideo
-				v-bind="viewerAttributes"
-				:id="file.id"
-				:src="file.urlShow"
-				:preview="file.urlPreview"
+			<ProgressBar 
+				:item="file"
+				:handleStatus="getHandleStatus()"
+				:statusMap="getStatusMap()"
+				@cancelClick="onCancelClick"
+			/>
+			<VideoPlayer
+				:fileId="file.id"
+				:src="file.urlDownload"
+				:previewImageUrl="file.urlPreview"
 				:elementStyle="imageSize"
-				:autoplay="autoplay"
-				:showControls="isLoaded"
-				:playCallback="getPlayCallback()"
+				:withAutoplay="autoplay"
+				:withPlayerControls="isLoaded"
+				:viewerAttributes="viewerAttributes"
 			/>
 		</div>
 	`,

@@ -1,15 +1,10 @@
-// @flow
-'use strict';
-
 import { Dom, Loc, Tag } from 'main.core';
 import { Popup } from 'main.popup';
-import SyncStatusPopup from './syncstatuspopup';
+import { Button, ButtonSize, ButtonIcon, ButtonColor, AirButtonStyle } from 'ui.buttons';
+import SyncStatusPopupV2 from './syncstatuspopup-v2';
 
 export default class SyncButton
 {
-	BUTTON_SIZE = BX.UI.Button.Size.EXTRA_SMALL;
-	BUTTON_ROUND = true;
-
 	constructor(options)
 	{
 		this.connectionsProviders = options.connectionsProviders;
@@ -17,12 +12,14 @@ export default class SyncButton
 		this.userId = options.userId;
 		this.status = options.status;
 		this.isGoogleApplicationRefused = options.isGoogleApplicationRefused;
+		this.counters = options.counters;
+		this.payAttentionToNewSharingFeature = options.payAttentionToNewSharingFeature;
+		this.useAirDesign = options.useAirDesign;
 
 		this.buttonEnterTimeout = null;
-		this.buttonLeaveTimeout = null;
 	}
 
-	static createInstance(options)
+	static createInstance(options): SyncButton
 	{
 		return new this(options);
 	}
@@ -30,22 +27,52 @@ export default class SyncButton
 	show()
 	{
 		const buttonData = this.getButtonData();
-		this.button = new BX.UI.Button({
+
+		this.button = new Button({
 			text: buttonData.text,
-			round: this.BUTTON_ROUND,
-			size: this.BUTTON_SIZE,
-			color: buttonData.color,
-			className: 'ui-btn-themes ' + (buttonData.iconClass || ''),
-			onclick: () => {
-				this.handleClick();
-			},
-			events: {
-				mouseenter: this.handlerMouseEnter.bind(this),
-				mouseleave: this.handlerMouseLeave.bind(this),
+			size: ButtonSize.EXTRA_SMALL,
+			counter: buttonData.counter ?? 0,
+			leftCounter: buttonData.counter ? { value: buttonData.counter ?? 0 } : '',
+			className: 'ui-btn-themes',
+			onclick: this.handleClick,
+			dataset: {
+				id: 'calendar_sync_button',
 			},
 		});
 
 		this.button.renderTo(this.wrapper);
+
+		if (this.useAirDesign)
+		{
+			this.button.setAirDesign(true);
+			this.button.setStyle(buttonData.style);
+			this.button.setIcon(buttonData.icon || '');
+		}
+		else
+		{
+			this.button.setRound();
+			this.button.addClass(buttonData.iconClass || '');
+			this.button.setColor(buttonData.color);
+		}
+
+		if (!this.payAttentionToNewSharingFeature)
+		{
+			this.showAhaMoment(this.button);
+		}
+	}
+
+	showAhaMoment(button)
+	{
+		setTimeout(() => {
+			SyncStatusPopupV2.createInstance({
+				status: this.status,
+				syncErrors: this.counters.sync_errors ?? 0,
+				connectionsProviders: this.connectionsProviders,
+				node: button.getContainer(),
+				id: 'calendar-sync-v2__dialog',
+				onSyncPanelOpen: this.handleClick,
+			});
+		}, 1000);
 	}
 
 	showGoogleApplicationRefusedPopup()
@@ -79,69 +106,32 @@ export default class SyncButton
 		}, 1000);
 	}
 
-	showPopup(button)
-	{
-		if(this.status !== 'not_connected')
-		{
-			const connections = [];
-			const providersCollection = Object.values(this.connectionsProviders);
-
-			providersCollection.forEach(provider => {
-				const providerConnections = provider.getConnections();
-				if(providerConnections.length > 0)
-				{
-					providerConnections.forEach(connection =>
-						{
-							if (connection.getConnectStatus() === true)
-							{
-								connections.push(connection);
-							}
-						}
-					)
-				}
-			});
-
-			this.popup = SyncStatusPopup.createInstance({
-				connections: connections,
-				withUpdateButton: true,
-				node: button.getContainer(),
-				id: 'calendar-sync-button-status',
-				isGoogleApplicationRefused: this.isGoogleApplicationRefused,
-			});
-			this.popup.show();
-
-			this.popup.getPopup().getPopupContainer().addEventListener('mouseenter', e => {
-				clearTimeout(this.buttonEnterTimeout);
-				clearTimeout(this.buttonLeaveTimeout);
-			});
-			this.popup.getPopup().getPopupContainer().addEventListener('mouseleave', () => {
-				this.hidePopup();
-			});
-		}
-	}
-
-	hidePopup()
-	{
-		if (this.popup)
-		{
-			this.popup.hide();
-		}
-	}
-
-	refresh(status)
+	refresh(status, counters = null)
 	{
 		this.status = status;
+		this.counters = counters ?? this.counters;
 
 		const buttonData = this.getButtonData();
-		this.button.setColor(buttonData.color);
+
+		if (this.useAirDesign)
+		{
+			this.button.setStyle(buttonData.style);
+			this.button.setIcon(buttonData.icon || '');
+		}
+		else
+		{
+			this.button.setColor(buttonData.color);
+			this.button.removeClass('ui-btn-icon-fail ui-btn-icon-success ui-btn-clock calendar-sync-btn-icon-refused calendar-sync-btn-counter');
+			this.button.addClass(buttonData.iconClass);
+		}
+
 		this.button.setText(buttonData.text);
-		this.button.removeClass('ui-btn-icon-fail ui-btn-icon-success ui-btn-clock calendar-sync-btn-icon-refused');
-		this.button.addClass(buttonData.iconClass);
+		this.button.setCounter(buttonData.counter ?? 0);
 	}
 
-	handleClick()
-	{
+	handleClick = () => {
 		clearTimeout(this.buttonEnterTimeout);
+		// eslint-disable-next-line promise/catch-or-return
 		(window.top.BX || window.BX).Runtime.loadExtension('calendar.sync.interface').then((exports) => {
 			if (!Dom.hasClass(this.button.button, 'ui-btn-clock'))
 			{
@@ -153,77 +143,59 @@ export default class SyncButton
 				this.syncPanel.openSlider();
 			}
 		});
-	}
+	};
 
-	handlerMouseEnter(button)
-	{
-		clearTimeout(this.buttonEnterTimeout);
-		this.buttonEnterTimeout = setTimeout(() =>
-			{
-				this.buttonEnterTimeout = null;
-				if (!Dom.hasClass(button.button, 'ui-btn-clock'))
-				{
-					this.showPopup(button);
-				}
-			}, 500
-		);
-	}
-
-	handlerMouseLeave()
-	{
-		if (this.buttonEnterTimeout !== null)
-		{
-			clearTimeout(this.buttonEnterTimeout);
-			this.buttonEnterTimeout = null;
-			return;
-		}
-
-		this.buttonLeaveTimeout = setTimeout(() =>
-			{
-				this.hidePopup();
-			}, 500
-		);
-	}
-
-	getButtonData()
+	getButtonData(): Object
 	{
 		if (this.status === 'refused')
 		{
 			return {
-				text: Loc.getMessage('STATUS_BUTTON_SYNCHRONIZATION'),
-				color: BX.UI.Button.Color.LIGHT_BORDER,
+				text: Loc.getMessage('CAL_BUTTON_STATUS_FAILED_RECONNECT'),
+				color: ButtonColor.LIGHT_BORDER,
+				style: AirButtonStyle.OUTLINE,
+				icon: ButtonIcon.REFRESH,
 				iconClass: 'calendar-sync-btn-icon-refused',
 			};
 		}
 
-		if (this.status === 'success')
+		switch (this.status)
 		{
-			return {
-				text: Loc.getMessage('STATUS_BUTTON_SYNCHRONIZATION'),
-				color: BX.UI.Button.Color.LIGHT_BORDER,
-				iconClass: 'ui-btn-icon-success',
-			};
-		}
-		else if (this.status === 'failed')
-		{
-			return {
-				text: Loc.getMessage('STATUS_BUTTON_FAILED'),
-				color: BX.UI.Button.Color.LIGHT_BORDER,
-				iconClass: 'ui-btn-icon-fail',
+			case 'success': {
+				return {
+					text: Loc.getMessage('STATUS_BUTTON_SYNCHRONIZATION'),
+					color: ButtonColor.LIGHT_BORDER,
+					style: AirButtonStyle.OUTLINE,
+					icon: ButtonIcon.CHECK,
+					iconClass: 'ui-btn-icon-success',
+				};
 			}
-		}
-		else if (this.status === 'synchronizing')
-		{
-			return {
-				text: Loc.getMessage('STATUS_BUTTON_SYNCHRONIZATION'),
-				color: BX.UI.Button.Color.LIGHT_BORDER,
-				iconClass: 'ui-btn-clock',
-			}
-		}
 
-		return {
-			text: Loc.getMessage('STATUS_BUTTON_SYNC_CALENDAR_NEW'),
-			color: BX.UI.Button.Color.PRIMARY,
+			case 'failed': {
+				return {
+					text: Loc.getMessage('STATUS_BUTTON_FAILED'),
+					color: ButtonColor.LIGHT_BORDER,
+					style: AirButtonStyle.OUTLINE,
+					counter: this.counters.sync_errors || 1,
+					iconClass: 'calendar-sync-btn-counter',
+				};
+			}
+
+			case 'synchronizing': {
+				return {
+					text: Loc.getMessage('STATUS_BUTTON_SYNCHRONIZATION'),
+					color: ButtonColor.LIGHT_BORDER,
+					style: AirButtonStyle.OUTLINE,
+					iconClass: 'ui-btn-clock',
+				};
+			}
+
+			default: {
+				return {
+					text: Loc.getMessage('STATUS_BUTTON_SYNC_CALENDAR_NEW'),
+					style: AirButtonStyle.FILLED,
+					color: ButtonColor.PRIMARY,
+				};
+			}
 		}
 	}
 
@@ -231,8 +203,8 @@ export default class SyncButton
 	{
 		return this.syncPanel;
 	}
-	
-	setConnectionProviders(connectionsProviders)
+
+	setConnectionProviders(connectionsProviders): void
 	{
 		this.connectionsProviders = connectionsProviders;
 	}

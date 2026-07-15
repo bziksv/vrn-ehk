@@ -134,7 +134,7 @@ abstract class Base extends \CBitrixComponent
 				if ($code == self::ERROR_404)
 				{
 					Tools::process404(
-						trim($this->arParams['MESSAGE_404']) ?: $error->getMessage(),
+						$this->arParams['MESSAGE_404'] ?: $error->getMessage(),
 						true,
 						$this->arParams['SET_STATUS_404'] === 'Y',
 						$this->arParams['SHOW_404'] === 'Y',
@@ -523,6 +523,11 @@ abstract class Base extends \CBitrixComponent
 		{
 			$params['FILTER_IDS'] = [$params['FILTER_IDS']];
 		}
+
+		$params['MESSAGE_404'] = trim((string)($params['MESSAGE_404'] ?? ''));
+		$params['SET_STATUS_404'] = ($params['SET_STATUS_404'] ?? 'N') === 'Y' ? 'Y' : 'N';
+		$params['SHOW_404'] = ($params['SHOW_404'] ?? 'N') === 'Y' ? 'Y' : 'N';
+		$params['FILE_404'] = trim((string)($params['FILE_404'] ?? ''));
 
 		return $params;
 	}
@@ -2636,7 +2641,7 @@ abstract class Base extends \CBitrixComponent
 				$items[$index]['ITEM_MEASURE'] = array(
 					'ID' => null,
 					'TITLE' => $this->storage['DEFAULT_MEASURE']['SYMBOL_RUS'],
-					'~TITLE' => $this->storage['DEFAULT_MEASURE']['~SYMBOL_RUS']
+					'~TITLE' => $this->storage['DEFAULT_MEASURE']['~SYMBOL_RUS'],
 				);
 			}
 		}
@@ -2852,6 +2857,7 @@ abstract class Base extends \CBitrixComponent
 		foreach (array_keys($items) as $index)
 		{
 			$id = $items[$index]['ID'];
+			$items[$index]['CAN_BUY'] = false;
 			if (!isset($this->calculatePrices[$id]))
 				continue;
 			if (empty($this->prices[$id]))
@@ -3366,8 +3372,8 @@ abstract class Base extends \CBitrixComponent
 						);
 						$fullPrices[$priceType]['RATIO_'.$fieldName] = $fullPrices[$priceType][$fieldName]*$ratio;
 						$fullPrices[$priceType]['PRINT_RATIO_'.$fieldName] = \CCurrencyLang::CurrencyFormat(
-							$minimalPrice['RATIO_'.$fieldName],
-							$minimalPrice['CURRENCY'],
+							$fullPrices['RATIO_'.$fieldName],
+							$fullPrices['CURRENCY'],
 							true
 						);
 					}
@@ -4292,7 +4298,12 @@ abstract class Base extends \CBitrixComponent
 		}
 		else
 		{
-			$action = mb_strtoupper($this->request->get($this->arParams['ACTION_VARIABLE']));
+			$action = $this->request->get($this->arParams['ACTION_VARIABLE']);
+			$action =
+				is_string($action)
+					? mb_strtoupper(trim($action))
+					: ''
+			;
 		}
 
 		$productId = (int)$this->request->get($this->arParams['PRODUCT_ID_VARIABLE']);
@@ -4769,7 +4780,7 @@ abstract class Base extends \CBitrixComponent
 	{
 		$currencies = array();
 
-		if ($this->arResult['MODULES']['currency'])
+		if (!empty($this->arResult['MODULES']['currency']))
 		{
 			if (isset($this->arResult['CONVERT_CURRENCY']['CURRENCY_ID']))
 			{
@@ -4819,9 +4830,10 @@ abstract class Base extends \CBitrixComponent
 	/**
 	 * Send answer for AJAX request.
 	 *
-	 * @param array $result
+	 * @param array $result Ajax result.
+	 * @return void
 	 */
-	public static function sendJsonAnswer(array $result = array())
+	public static function sendJsonAnswer(array $result = [])
 	{
 		global $APPLICATION;
 
@@ -4902,6 +4914,11 @@ abstract class Base extends \CBitrixComponent
 		return $this->arResult['ID'] ?? false;
 	}
 
+	/**
+	 * Returns prepared all component parameters after verify template parameters .
+	 *
+	 * @return array
+	 */
 	public function applyTemplateModifications()
 	{
 		$this->prepareTemplateParams();
@@ -5018,6 +5035,13 @@ abstract class Base extends \CBitrixComponent
 		//
 	}
 
+	/**
+	 * Check item properties for enlarge images.
+	 *
+	 * @param array $item Element description.
+	 * @param string $propertyCode Image property code.
+	 * @return void
+	 */
 	public static function checkEnlargedData(&$item, $propertyCode)
 	{
 		if (!empty($item) && is_array($item))
@@ -5106,7 +5130,7 @@ abstract class Base extends \CBitrixComponent
 
 			if ($skuPropList[$code]['USER_TYPE'] === 'directory')
 			{
-				$intValue = $skuPropList[$code]['XML_MAP'][$offer['DISPLAY_PROPERTIES'][$code]['VALUE']];
+				$intValue = $skuPropList[$code]['XML_MAP'][$offer['DISPLAY_PROPERTIES'][$code]['VALUE']] ?? 0;
 				$cell['VALUE'] = $intValue;
 			}
 			elseif ($skuPropList[$code]['PROPERTY_TYPE'] === 'L')

@@ -4,14 +4,14 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 use Bitrix\Main\DB\SqlExpression;
 
-class CDatabase extends CAllDatabase
+class CDatabasePgSql extends CAllDatabase
 {
-	/** @var resource */
+	/** @var \PgSql\Connection */
 	var $db_Conn;
 
 	public
@@ -20,14 +20,9 @@ class CDatabase extends CAllDatabase
 
 	public $type = "PGSQL";
 
-	protected function ConnectInternal()
-	{
-		throw new \Bitrix\Main\NotImplementedException("Use d7 connection.");
-	}
-
 	public function ToNumber($expr)
 	{
-		return "CASE WHEN " . $expr . "~E'^\\d+$' THEN " . $expr . "::integer ELSE 0 END";
+		return "CASE WHEN " . $expr . "~E'^[0-9]+$' THEN " . $expr . "::integer ELSE 0 END";
 	}
 
 	public function DateFormatToDB($format, $field = false)
@@ -81,12 +76,30 @@ class CDatabase extends CAllDatabase
 
 	protected function QueryInternal($strSql)
 	{
-		return pg_query($this->db_Conn, $strSql);
+		// Handle E_WARNING
+		set_error_handler(function () {
+			// noop
+		});
+
+		$result = pg_query($this->db_Conn, $strSql);
+
+		restore_error_handler();
+
+		return $result;
 	}
 
 	protected function GetError()
 	{
 		return pg_last_error($this->db_Conn);
+	}
+
+	protected function GetErrorCode()
+	{
+		if (preg_match("/ERROR:\\s*([^:]+):/i", $this->getError(), $matches))
+		{
+			return $matches[1];
+		}
+		return '';
 	}
 
 	public function GetTableFields($table)
@@ -97,6 +110,9 @@ class CDatabase extends CAllDatabase
 			$this->DoConnect();
 
 			$sqlHelper = $this->connection->getSqlHelper();
+
+			$fullTextColumns = $this->connection->getTableFullTextFields($table);
+
 			$dbResult = $this->query("
 				SELECT
 					column_name,
@@ -161,7 +177,7 @@ class CDatabase extends CAllDatabase
 						$type = "bytes";
 						break;
 					default:
-						$type = "string";
+						$type = array_key_exists($fieldName, $fullTextColumns) ? "fulltext" : "string";
 						break;
 				}
 
@@ -241,6 +257,9 @@ class CDatabase extends CAllDatabase
 							break;
 						case "bytes":
 							$strInsert2 .= "decode('".bin2hex($value)."', 'hex')";
+							break;
+						case "fulltext":
+							$strInsert2 .= "safe_text_for_tsvector('".$sqlHelper->forSql($value, (int)$arColumnInfo['MAX_LENGTH'])."')";
 							break;
 						default:
 							if ($arColumnInfo['MAX_LENGTH'])
@@ -342,6 +361,9 @@ class CDatabase extends CAllDatabase
 						case "bytes":
 							$value = "decode('".bin2hex($value)."', 'hex')";
 							break;
+						case "fulltext":
+							$value = "safe_text_for_tsvector('".$sqlHelper->forSql($value, (int)$arColumnInfo['MAX_LENGTH'])."')";
+							break;
 						default:
 							if ($arColumnInfo['MAX_LENGTH'])
 							{
@@ -437,7 +459,7 @@ class CDatabase extends CAllDatabase
 		}
 		else
 		{
-			$arInsert = $this->PrepareInsert($tablename, $arFields, $strFileDir);
+			$arInsert = $this->PrepareInsert($tablename, $arFields);
 			if (!isset($arFields["ID"]) || intval($arFields["ID"]) <= 0)
 			{
 				$strSql = "INSERT INTO ".$tablename."(".$arInsert[0].") VALUES (".$arInsert[1].") RETURNING ID";
@@ -478,4 +500,8 @@ class CDatabase extends CAllDatabase
 	{
 		return pg_get_pid($this->db_Conn);
 	}
+}
+
+class CDatabase extends CDatabasePgSql
+{
 }

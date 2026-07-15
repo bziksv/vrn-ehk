@@ -1,17 +1,10 @@
 <?
-##############################################
-# Bitrix Site Manager                        #
-# Copyright (c) 2002-2007 Bitrix             #
-# https://www.bitrixsoft.com                 #
-# mailto:admin@bitrixsoft.com                #
-##############################################
 require_once(__DIR__."/../include/prolog_admin_before.php");
 define("HELP_FILE", "settings/mail_events/messagetype_admin.php");
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Mail\Internal\EventTypeTable;
 
-$err_mess = "File: ".__FILE__."<br>Line: ";
 $arFilter = array();
 $error = false;
 
@@ -138,7 +131,7 @@ $runtimeList = array();
 $arFilter['!EVENT_NAME'] = null;
 if(isset($arFilter['MESSAGE_ID']))
 {
-	$runtimeList[] = new \Bitrix\Main\Entity\ReferenceField(
+	$runtimeList[] = new \Bitrix\Main\ORM\Fields\Relations\Reference(
 		'MESSAGE',
 		'Bitrix\Main\Mail\Internal\EventMessageTable',
 		array('=this.EVENT_NAME' => 'ref.EVENT_NAME')

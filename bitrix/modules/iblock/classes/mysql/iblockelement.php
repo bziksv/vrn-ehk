@@ -3,10 +3,11 @@
 use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Iblock;
+use Bitrix\Iblock\IblockTable;
 
 class CIBlockElement extends CAllIBlockElement
 {
-	function prepareSql($arSelectFields=array(), $arFilter=array(), $arGroupBy=false, $arOrder=array("SORT"=>"ASC"))
+	public function prepareSql($arSelectFields=array(), $arFilter=array(), $arGroupBy=false, $arOrder=array("SORT"=>"ASC"))
 	{
 		global $DB;
 		$connection = Main\Application::getConnection();
@@ -126,30 +127,61 @@ class CIBlockElement extends CAllIBlockElement
 		$this->arFilterIBlocks = isset($arFilter["IBLOCK_ID"])? array($arFilter["IBLOCK_ID"]): array();
 		//******************FROM PART********************************************
 		$sFrom = "";
-		foreach($arJoinProps["FPS"] as $iblock_id => $iPropCnt)
+		$countFrom = '';
+		foreach ($arJoinProps["FPS"] as $iblock_id => $iPropCnt)
 		{
-			$sFrom .= "\t\t\tINNER JOIN b_iblock_element_prop_s".$iblock_id." FPS".$iPropCnt." ON FPS".$iPropCnt.".IBLOCK_ELEMENT_ID = BE.ID\n";
+			/*
+			 * 123 - Iblock Identifier
+			 * INNER JOIN b_iblock_element_prop_s123 FPS123 ON FPS123.IBLOCK_ELEMENT_ID = BE.ID
+			 */
+			$tableAlias = 'FPS' . $iPropCnt;
+			$tableJoin = "\t\t\tINNER JOIN b_iblock_element_prop_s" . $iblock_id . " " . $tableAlias
+				. " ON " . $tableAlias . ".IBLOCK_ELEMENT_ID = BE.ID\n"
+			;
+			$sFrom .= $tableJoin;
+			$countFrom .= $tableJoin;
+
+			unset($tableJoin);
+			unset($tableAlias);
 			$this->arFilterIBlocks[$iblock_id] = $iblock_id;
 		}
 
-		foreach($arJoinProps["FP"] as $propID => $db_prop)
+		foreach ($arJoinProps["FP"] as $propID => $db_prop)
 		{
-			$i = $db_prop["CNT"];
+			/*
+			 * 123 - $db_prop['CNT']
+			 *
+			 * $db_prop['bFullJoin'] === true and
+			 * 		$propID is int (property id)
+			 * 			INNER JOIN b_iblock_property FP123 ON FP123.IBLOCK_ID = D.ID AND FP123.ID = $propID
+			 * 		$propID is string (property code)
+			 * 			INNER JOIN b_iblock_property FP123 ON FP123.IBLOCK_ID = D.ID AND FP123.CODE = '$propID'
+			 *
+			 * $db_prop['bFullJoin'] === false and
+			 * 		$propID is int (property id)
+			 * 			LEFT JOIN b_iblock_property FP123 ON FP123.IBLOCK_ID = D.ID AND FP123.ID = $propID
+			 * 		$propID is string (property code)
+			 * 			LEFT JOIN b_iblock_property FP123 ON FP123.IBLOCK_ID = D.ID AND FP123.CODE = '$propID'
+			 */
+			$tableAlias = 'FP' . $db_prop['CNT'];
+			$joinType = $db_prop['bFullJoin'] ? 'INNER JOIN' : 'LEFT JOIN';
+			$tableJoin = "\t\t\t" . $joinType . " b_iblock_property " . $tableAlias
+				. " ON " . $tableAlias . ".IBLOCK_ID = B.ID AND "
+				. (
+					(int)$propID > 0
+						? $tableAlias . ".ID=" . (int)$propID . "\n"
+						: $tableAlias . ".CODE='" . $DB->ForSQL($propID, 200) . "'\n"
+				)
+			;
+			$sFrom .= $tableJoin;
+			if (self::useCountJoin($db_prop))
+			{
+				$countFrom .= $tableJoin;
+			}
 
-			if($db_prop["bFullJoin"])
-				$sFrom .= "\t\t\tINNER JOIN b_iblock_property FP".$i." ON FP".$i.".IBLOCK_ID = B.ID AND ".
-					(
-						(int)$propID > 0
-							? " FP".$i.".ID=".(int)$propID."\n"
-							: " FP".$i.".CODE='".$DB->ForSQL($propID, 200)."'\n"
-					);
-			else
-				$sFrom .= "\t\t\tLEFT JOIN b_iblock_property FP".$i." ON FP".$i.".IBLOCK_ID = B.ID AND ".
-					(
-						(int)$propID > 0
-							? " FP".$i.".ID=".(int)$propID."\n"
-							: " FP".$i.".CODE='".$DB->ForSQL($propID, 200)."'\n"
-					);
+			unset($tableJoin);
+			unset($joinType);
+			unset($tableAlias);
 
 			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
 			{
@@ -157,22 +189,49 @@ class CIBlockElement extends CAllIBlockElement
 			}
 		}
 
-		foreach($arJoinProps["FPV"] as $propID => $db_prop)
+		foreach ($arJoinProps['FPV'] as $db_prop)
 		{
-			$i = $db_prop["CNT"];
-
-			if($db_prop["MULTIPLE"]=="Y")
+			if ($db_prop['MULTIPLE'] === 'Y')
+			{
 				$this->bDistinct = true;
+			}
 
-			if($db_prop["VERSION"]==2)
-				$strTable = "b_iblock_element_prop_m".$db_prop["IBLOCK_ID"];
+			if ($db_prop['VERSION'] == IblockTable::PROPERTY_STORAGE_SEPARATE) // 'VESRION' is string
+			{
+				$tableName = 'b_iblock_element_prop_m' . $db_prop['IBLOCK_ID'];
+			}
 			else
-				$strTable = "b_iblock_element_property";
+			{
+				$tableName = 'b_iblock_element_property';
+			}
 
-			if($db_prop["bFullJoin"])
-				$sFrom .= "\t\t\tINNER JOIN ".$strTable." FPV".$i." ON FPV".$i.".IBLOCK_PROPERTY_ID = FP".$db_prop["JOIN"].".ID AND FPV".$i.".IBLOCK_ELEMENT_ID = BE.ID\n";
-			else
-				$sFrom .= "\t\t\tLEFT JOIN ".$strTable." FPV".$i." ON FPV".$i.".IBLOCK_PROPERTY_ID = FP".$db_prop["JOIN"].".ID AND FPV".$i.".IBLOCK_ELEMENT_ID = BE.ID\n";
+			/*
+			 * 123 - $db_prop['CNT']
+			 * $strTable - b_iblock_element_property or b_iblock_element_prop_m{IBLOCK_ID}
+			 *
+			 * $db_prop['bFullJoin'] === true
+			 * 		INNER JOIN {$strTable} FPV123 ON FPV123.IBLOCK_PROPERTY_ID = FP{$db_prop['JOIN']}.ID
+						AND FPV123.IBLOCK_ELEMENT_ID = BE.ID
+			 * $db_prop['bFullJoin'] === false
+			 * 		LEFT JOIN {$strTable} FPV123 ON FPV123.IBLOCK_PROPERTY_ID = FP{$db_prop['JOIN']}.ID
+						AND FPV123.IBLOCK_ELEMENT_ID = BE.ID
+			 */
+			$tableAlias = 'FPV' . $db_prop['CNT'];
+			$joinType = $db_prop['bFullJoin'] ? 'INNER JOIN' : 'LEFT JOIN';
+			$tableJoin = "\t\t\t" . $joinType . " " . $tableName . " " . $tableAlias
+				. " ON " . $tableAlias . ".IBLOCK_PROPERTY_ID = FP" . $db_prop["JOIN"] . ".ID"
+				. " AND " . $tableAlias .".IBLOCK_ELEMENT_ID = BE.ID\n"
+			;
+			$sFrom .= $tableJoin;
+			if (self::useCountJoin($db_prop))
+			{
+				$countFrom .= $tableJoin;
+			}
+
+			unset($tableJoin);
+			unset($joinType);
+			unset($tableAlias);
+			unset($tableName);
 
 			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
 			{
@@ -180,24 +239,51 @@ class CIBlockElement extends CAllIBlockElement
 			}
 		}
 
-		foreach($arJoinProps["FPEN"] as $propID => $db_prop)
+		foreach ($arJoinProps["FPEN"] as $db_prop)
 		{
-			$i = $db_prop["CNT"];
-
-			if($db_prop["VERSION"] == 2 && $db_prop["MULTIPLE"] == "N")
+			/*
+			 * 123 - $db_prop['CNT']
+			 * if commont storage and single property
+			 * 		$db_prop['bFullJoin'] === true
+			 * 			INNER JOIN b_iblock_property_enum FPEN123 ON FPEN123.PROPERTY_ID = {$db_prop['ORIG_ID']}
+			 * 				AND FPS{$db_prop['JOIN']}.PROPERTY_{$db_prop['ORIG_ID']} = FPEN123.ID
+			 * 		$db_prop['bFullJoin'] === false
+			 * 			LEFT JOIN b_iblock_property_enum FPEN123 ON FPEN123.PROPERTY_ID = {$db_prop['ORIG_ID']}
+			 * 				AND FPS{$db_prop['JOIN']}.PROPERTY_{$db_prop['ORIG_ID']} = FPEN123.ID
+			 * else
+			 * 		$db_prop['bFullJoin'] === true
+			 * 			INNER JOIN b_iblock_property_enum FPEN123 ON FPEN123.PROPERTY_ID = FPV{$db_prop['JOIN']}.IBLOCK_PROPERTY_ID
+			 * 				AND FPV{$db_prop['JOIN']}.VALUE_ENUM = FPEN123.ID
+			 * 		$db_prop['bFullJoin'] === false
+			 * 			LEFT JOIN b_iblock_property_enum FPEN123 ON FPEN123.PROPERTY_ID = FPV{$db_prop['JOIN']}.IBLOCK_PROPERTY_ID
+			 * 				AND FPV{$db_prop['JOIN']}.VALUE_ENUM = FPEN123.ID
+			 */
+			$tableName = Iblock\PropertyEnumerationTable::getTableName();
+			$tableAlias = 'FPEN' . $db_prop['CNT'];
+			$joinType = $db_prop['bFullJoin'] ? 'INNER JOIN' : 'LEFT JOIN';
+			if ($db_prop['VERSION'] == IblockTable::PROPERTY_STORAGE_SEPARATE && $db_prop['MULTIPLE'] === 'N') // 'VESRION' is string
 			{
-				if($db_prop["bFullJoin"])
-					$sFrom .= "\t\t\tINNER JOIN b_iblock_property_enum FPEN".$i." ON FPEN".$i.".PROPERTY_ID = ".$db_prop["ORIG_ID"]." AND FPS".$db_prop["JOIN"].".PROPERTY_".$db_prop["ORIG_ID"]." = FPEN".$i.".ID\n";
-				else
-					$sFrom .= "\t\t\tLEFT JOIN b_iblock_property_enum FPEN".$i." ON FPEN".$i.".PROPERTY_ID = ".$db_prop["ORIG_ID"]." AND FPS".$db_prop["JOIN"].".PROPERTY_".$db_prop["ORIG_ID"]." = FPEN".$i.".ID\n";
+				$tableJoin = "\t\t\t" . $joinType . " " . $tableName . " " . $tableAlias
+					. " ON " . $tableAlias . ".PROPERTY_ID = " . $db_prop["ORIG_ID"]
+					. " AND FPS" . $db_prop["JOIN"] . ".PROPERTY_" . $db_prop["ORIG_ID"] . " = " . $tableAlias . ".ID\n"
+				;
 			}
 			else
 			{
-				if($db_prop["bFullJoin"])
-					$sFrom .= "\t\t\tINNER JOIN b_iblock_property_enum FPEN".$i." ON FPEN".$i.".PROPERTY_ID = FPV".$db_prop["JOIN"].".IBLOCK_PROPERTY_ID AND FPV".$db_prop["JOIN"].".VALUE_ENUM = FPEN".$i.".ID\n";
-				else
-					$sFrom .= "\t\t\tLEFT JOIN b_iblock_property_enum FPEN".$i." ON FPEN".$i.".PROPERTY_ID = FPV".$db_prop["JOIN"].".IBLOCK_PROPERTY_ID AND FPV".$db_prop["JOIN"].".VALUE_ENUM = FPEN".$i.".ID\n";
+				$tableJoin = "\t\t\t" . $joinType . " " . $tableName . " " . $tableAlias
+					." ON " . $tableAlias . ".PROPERTY_ID = FPV" . $db_prop["JOIN"] . ".IBLOCK_PROPERTY_ID"
+					. " AND FPV".$db_prop["JOIN"].".VALUE_ENUM = " . $tableAlias . ".ID\n"
+				;
 			}
+			$sFrom .= $tableJoin;
+			if (self::useCountJoin($db_prop))
+			{
+				$countFrom .= $tableJoin;
+			}
+
+			unset($tableJoin);
+			unset($joinType);
+			unset($tableAlias);
 
 			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
 			{
@@ -205,13 +291,13 @@ class CIBlockElement extends CAllIBlockElement
 			}
 		}
 
-		$showHistory = isset($arFilter["SHOW_HISTORY"]) && $arFilter["SHOW_HISTORY"] === 'Y';
-		$showNew = isset($arFilter["SHOW_NEW"]) && $arFilter["SHOW_NEW"] === 'Y';
-		foreach($arJoinProps["BE"] as $propID => $db_prop)
+		$showHistory = ($arFilter['SHOW_HISTORY'] ?? null) === 'Y';
+		$showNew = ($arFilter['SHOW_NEW'] ?? null) === 'Y';
+		foreach($arJoinProps["BE"] as $db_prop)
 		{
 			$i = $db_prop["CNT"];
 
-			$sFrom .= "\t\t\tLEFT JOIN b_iblock_element BE".$i." ON BE".$i.".ID = ".
+			$tableJoin = "\t\t\tLEFT JOIN b_iblock_element BE".$i." ON BE".$i.".ID = ".
 				(
 					$db_prop["VERSION"]==2 && $db_prop["MULTIPLE"]=="N"?
 					"FPS".$db_prop["JOIN"].".PROPERTY_".$db_prop["ORIG_ID"]
@@ -223,11 +309,25 @@ class CIBlockElement extends CAllIBlockElement
 					""
 				)."\n";
 
-			if($db_prop["bJoinIBlock"])
-				$sFrom .= "\t\t\tLEFT JOIN b_iblock B".$i." ON B".$i.".ID = BE".$i.".IBLOCK_ID\n";
+			if ($db_prop["bJoinIBlock"])
+			{
+				$tableJoin .= "\t\t\tLEFT JOIN b_iblock B".$i." ON B".$i.".ID = BE".$i.".IBLOCK_ID\n";
+			}
 
-			if($db_prop["bJoinSection"])
-				$sFrom .= "\t\t\tLEFT JOIN b_iblock_section BS".$i." ON BS".$i.".ID = BE".$i.".IBLOCK_SECTION_ID\n";
+			if ($db_prop["bJoinSection"])
+			{
+				$tableJoin .= "\t\t\tLEFT JOIN b_iblock_section BS".$i." ON BS".$i.".ID = BE".$i.".IBLOCK_SECTION_ID\n";
+			}
+
+			$sFrom .= $tableJoin;
+			if (self::useCountJoin($db_prop))
+			{
+				$countFrom .= $tableJoin;
+			}
+
+			unset($tableJoin);
+			unset($joinType);
+			unset($tableAlias);
 
 			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
 			{
@@ -241,7 +341,17 @@ class CIBlockElement extends CAllIBlockElement
 			{
 				[$iblock_id, ] = explode("~", $iblock_id, 2);
 			}
-			$sFrom .= "\t\t\tLEFT JOIN b_iblock_element_prop_s".$iblock_id." JFPS".$db_prop["CNT"]." ON JFPS".$db_prop["CNT"].".IBLOCK_ELEMENT_ID = BE".$db_prop["JOIN"].".ID\n";
+			$tableJoin = "\t\t\tLEFT JOIN b_iblock_element_prop_s" . $iblock_id . " JFPS" . $db_prop["CNT"]
+				. " ON JFPS" . $db_prop["CNT"] . ".IBLOCK_ELEMENT_ID = BE" . $db_prop["JOIN"] . ".ID\n"
+			;
+
+			$sFrom .= $tableJoin;
+			if (self::useCountJoin($db_prop))
+			{
+				$countFrom .= $tableJoin;
+			}
+
+			unset($tableJoin);
 
 			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
 			{
@@ -251,26 +361,31 @@ class CIBlockElement extends CAllIBlockElement
 
 		foreach($arJoinProps["BE_FP"] as $propID => $db_prop)
 		{
-			$i = $db_prop["CNT"];
+			$tableName = Iblock\PropertyTable::getTableName();
+			$tableAlias = 'JFP' . $db_prop['CNT'];
+			$joinType = $db_prop['bFullJoin'] ? 'INNER JOIN' : 'LEFT JOIN';
+
 			if (str_contains($propID, '~'))
 			{
 				[$propID, ] = explode("~", $propID, 2);
 			}
 
-			if($db_prop["bFullJoin"])
-				$sFrom .= "\t\t\tINNER JOIN b_iblock_property JFP".$i." ON JFP".$i.".IBLOCK_ID = BE".$db_prop["JOIN"].".IBLOCK_ID AND ".
-					(
-						(int)$propID > 0
-							? " JFP".$i.".ID=".(int)$propID."\n"
-							: " JFP".$i.".CODE='".$DB->ForSQL($propID, 200)."'\n"
-					);
-			else
-				$sFrom .= "\t\t\tLEFT JOIN b_iblock_property JFP".$i." ON JFP".$i.".IBLOCK_ID = BE".$db_prop["JOIN"].".IBLOCK_ID AND ".
-					(
-						(int)$propID > 0
-							? " JFP".$i.".ID=".(int)$propID."\n"
-							: " JFP".$i.".CODE='".$DB->ForSQL($propID, 200)."'\n"
-					);
+			$tableJoin = "\t\t\t" . $joinType . " " . $tableName . " " . $tableAlias
+				. " ON " . $tableAlias . ".IBLOCK_ID = BE". $db_prop["JOIN"] . ".IBLOCK_ID AND "
+				. (
+					(int)$propID > 0
+						? $tableAlias . ".ID=" . (int)$propID . "\n"
+						: $tableAlias . ".CODE='" . $DB->ForSQL($propID, 200) . "'\n"
+				)
+			;
+
+			$sFrom .= $tableJoin;
+			if (self::useCountJoin($db_prop))
+			{
+				$countFrom .= $tableJoin;
+			}
+
+			unset($tableJoin);
 
 			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
 			{
@@ -280,7 +395,6 @@ class CIBlockElement extends CAllIBlockElement
 
 		foreach($arJoinProps["BE_FPV"] as $propID => $db_prop)
 		{
-			$i = $db_prop["CNT"];
 			if (str_contains($propID, '~'))
 			{
 				[$propID, ] = explode("~", $propID, 2);
@@ -289,15 +403,33 @@ class CIBlockElement extends CAllIBlockElement
 			if($db_prop["MULTIPLE"]=="Y")
 				$this->bDistinct = true;
 
-			if($db_prop["VERSION"]==2)
-				$strTable = "b_iblock_element_prop_m".$db_prop["IBLOCK_ID"];
+			if ($db_prop["VERSION"] == IblockTable::PROPERTY_STORAGE_SEPARATE)
+			{
+				$tableName = 'b_iblock_element_prop_m' . $db_prop['IBLOCK_ID'];
+			}
 			else
-				$strTable = "b_iblock_element_property";
+			{
+				$tableName = 'b_iblock_element_property';
+			}
 
-			if($db_prop["bFullJoin"])
-				$sFrom .= "\t\t\tINNER JOIN ".$strTable." JFPV".$i." ON JFPV".$i.".IBLOCK_PROPERTY_ID = JFP".$db_prop["JOIN"].".ID AND JFPV".$i.".IBLOCK_ELEMENT_ID = BE".$db_prop["BE_JOIN"].".ID\n";
-			else
-				$sFrom .= "\t\t\tLEFT JOIN ".$strTable." JFPV".$i." ON JFPV".$i.".IBLOCK_PROPERTY_ID = JFP".$db_prop["JOIN"].".ID AND JFPV".$i.".IBLOCK_ELEMENT_ID = BE".$db_prop["BE_JOIN"].".ID\n";
+			$tableAlias = 'JFPV' . $db_prop['CNT'];
+			$joinType = $db_prop['bFullJoin'] ? 'INNER JOIN' : 'LEFT JOIN';
+
+			$tableJoin = "\t\t\t" . $joinType . " " . $tableName . " " . $tableAlias
+				. " ON " . $tableAlias .".IBLOCK_PROPERTY_ID = JFP"  .$db_prop["JOIN"] . ".ID"
+				. " AND " . $tableAlias . ".IBLOCK_ELEMENT_ID = BE" . $db_prop["BE_JOIN"] . ".ID\n"
+			;
+
+			$sFrom .= $tableJoin;
+			if (self::useCountJoin($db_prop))
+			{
+				$countFrom .= $tableJoin;
+			}
+
+			unset($tableJoin);
+			unset($joinType);
+			unset($tableAlias);
+			unset($tableName);
 
 			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
 			{
@@ -307,26 +439,39 @@ class CIBlockElement extends CAllIBlockElement
 
 		foreach($arJoinProps["BE_FPEN"] as $propID => $db_prop)
 		{
-			$i = $db_prop["CNT"];
 			if (str_contains($propID, '~'))
 			{
 				[$propID, ] = explode("~", $propID, 2);
 			}
 
-			if($db_prop["VERSION"] == 2 && $db_prop["MULTIPLE"] == "N")
+			$tableName = Iblock\PropertyEnumerationTable::getTableName();
+			$tableAlias = 'JFPEN' . $db_prop['CNT'];
+			$joinType = $db_prop['bFullJoin'] ? 'INNER JOIN' : 'LEFT JOIN';
+			if ($db_prop['VERSION'] == IblockTable::PROPERTY_STORAGE_SEPARATE && $db_prop['MULTIPLE'] === 'N') // VERSION is string
 			{
-				if($db_prop["bFullJoin"])
-					$sFrom .= "\t\t\tINNER JOIN b_iblock_property_enum JFPEN".$i." ON JFPEN".$i.".PROPERTY_ID = ".$db_prop["ORIG_ID"]." AND JFPS".$db_prop["JOIN"].".PROPERTY_".$db_prop["ORIG_ID"]." = JFPEN".$i.".ID\n";
-				else
-					$sFrom .= "\t\t\tLEFT JOIN b_iblock_property_enum JFPEN".$i." ON JFPEN".$i.".PROPERTY_ID = ".$db_prop["ORIG_ID"]." AND JFPS".$db_prop["JOIN"].".PROPERTY_".$db_prop["ORIG_ID"]." = JFPEN".$i.".ID\n";
+				$tableJoin = "\t\t\t" . $joinType . " " . $tableName . " " .$tableAlias
+					. " ON " . $tableAlias . ".PROPERTY_ID = " . $db_prop["ORIG_ID"]
+					. " AND JFPS" . $db_prop["JOIN"] . ".PROPERTY_" . $db_prop["ORIG_ID"] ." =  " . $tableAlias.".ID\n"
+				;
 			}
 			else
 			{
-				if($db_prop["bFullJoin"])
-					$sFrom .= "\t\t\tINNER JOIN b_iblock_property_enum JFPEN".$i." ON JFPEN".$i.".PROPERTY_ID = JFPV".$db_prop["JOIN"].".IBLOCK_PROPERTY_ID AND JFPV".$db_prop["JOIN"].".VALUE_ENUM = JFPEN".$i.".ID\n";
-				else
-					$sFrom .= "\t\t\tLEFT JOIN b_iblock_property_enum JFPEN".$i." ON JFPEN".$i.".PROPERTY_ID = JFPV".$db_prop["JOIN"].".IBLOCK_PROPERTY_ID AND JFPV".$db_prop["JOIN"].".VALUE_ENUM = JFPEN".$i.".ID\n";
+				$tableJoin = "\t\t\t" . $joinType . " " . $tableName ." " . $tableAlias
+					. " ON " . $tableAlias . ".PROPERTY_ID = JFPV" . $db_prop["JOIN"] . ".IBLOCK_PROPERTY_ID"
+					. " AND JFPV" . $db_prop["JOIN"].".VALUE_ENUM = " . $tableAlias . ".ID\n"
+				;
 			}
+
+			$sFrom .= $tableJoin;
+			if (self::useCountJoin($db_prop))
+			{
+				$countFrom .= $tableJoin;
+			}
+
+			unset($tableJoin);
+			unset($joinType);
+			unset($tableAlias);
+			unset($tableName);
 
 			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
 			{
@@ -334,23 +479,45 @@ class CIBlockElement extends CAllIBlockElement
 			}
 		}
 
-		if($arJoinProps["BES"] <> '')
+		if($arJoinProps["BES"] !== '')
 		{
 			$sFrom .= "\t\t\t".$arJoinProps["BES"]."\n";
+			$countFrom .= "\t\t\t".$arJoinProps["BES"]."\n";
 		}
 
-		if($arJoinProps["FC"] <> '')
+		if(!empty($arJoinProps["BESI"]))
+		{
+			$sFrom .= "\t\t\t".$arJoinProps["BESI"]."\n";
+			$countFrom .= "\t\t\t".$arJoinProps["BESI"]."\n";
+		}
+
+		if($arJoinProps["FC"] !== '')
 		{
 			$sFrom .= "\t\t\t".$arJoinProps["FC"]."\n";
+			$countFrom .= "\t\t\t".$arJoinProps["FC"]."\n";
 			$this->bDistinct = $this->bDistinct || (isset($arJoinProps["FC_DISTINCT"]) && $arJoinProps["FC_DISTINCT"] == "Y");
 		}
 
 		if($arJoinProps["RV"])
+		{
 			$sFrom .= "\t\t\tLEFT JOIN b_rating_voting RV ON RV.ENTITY_TYPE_ID = 'IBLOCK_ELEMENT' AND RV.ENTITY_ID = BE.ID\n";
+		}
 		if($arJoinProps["RVU"])
+		{
 			$sFrom .= "\t\t\tLEFT JOIN b_rating_vote RVU ON RVU.ENTITY_TYPE_ID = 'IBLOCK_ELEMENT' AND RVU.ENTITY_ID = BE.ID AND RVU.USER_ID = ".$uid."\n";
-		if($arJoinProps["RVV"])
-			$sFrom .= "\t\t\t".($arJoinProps["RVV"]["bFullJoin"]? "INNER": "LEFT")." JOIN b_rating_vote RVV ON RVV.ENTITY_TYPE_ID = 'IBLOCK_ELEMENT' AND RVV.ENTITY_ID = BE.ID\n";
+		}
+		if (is_array($arJoinProps["RVV"]))
+		{
+			$joinType = $arJoinProps['RVV']['bFullJoin'] ? 'INNER JOIN' : 'LEFT JOIN';
+			$tableJoin = "\t\t\t" . $joinType . " b_rating_vote RVV ON RVV.ENTITY_TYPE_ID = 'IBLOCK_ELEMENT' AND RVV.ENTITY_ID = BE.ID\n";
+			$sFrom .= $tableJoin;
+			if (self::useCountJoin($arJoinProps['RVV']))
+			{
+				$countFrom .= $tableJoin;
+			}
+			unset($tableJoin);
+			unset($joinType);
+		}
 
 		//******************END OF FROM PART********************************************
 
@@ -390,6 +557,19 @@ class CIBlockElement extends CAllIBlockElement
 					}
 				}
 				unset($catalogQueryResult);
+				if (!empty($arAddWhereFields))
+				{
+					// join for count with product filter
+					$catalogQueryResult = \CProductQueryBuilder::makeFilter($arAddWhereFields);
+					if (
+						!empty($catalogQueryResult['filter'])
+						&& !empty($catalogQueryResult['join'])
+					)
+					{
+						$countFrom .= "\n\t\t\t".implode("\n\t\t\t", $catalogQueryResult['join'])."\n";
+					}
+					unset($catalogQueryResult);
+				}
 			}
 		}
 
@@ -450,12 +630,19 @@ class CIBlockElement extends CAllIBlockElement
 			.(in_array("CREATED_USER_NAME", $arSelectFields) || in_array("CREATED_BY_FORMATTED", $arSelectFields)? "\t\t\tLEFT JOIN b_user UC ON UC.ID=BE.CREATED_BY\n": "")."
 		";
 
+		$countFrom = "
+			b_iblock B
+			INNER JOIN b_lang L ON B.LID=L.LID
+			INNER JOIN b_iblock_element BE ON BE.IBLOCK_ID = B.ID
+			".ltrim($countFrom, "\t\n")
+		;
 
 		$this->sSelect = $sSelect;
 		$this->sFrom = $sFrom;
 		$this->sWhere = $sWhere;
 		$this->sGroupBy = $sGroupBy;
 		$this->sOrderBy = $sOrderBy;
+		$this->countFrom = $countFrom;
 	}
 
 	/**
@@ -477,40 +664,34 @@ class CIBlockElement extends CAllIBlockElement
 			&& $arFilter['CHECK_PERMISSIONS'] === 'Y'
 		)
 		{
-			$filterIblockId = null;
-			if (isset($arFilter['IBLOCK_ID']) && is_numeric($arFilter['IBLOCK_ID']))
+			$filterIblockId = static::getSingleIblockIdFromFilter($arFilter);
+			if (
+				$filterIblockId !== null
+				&& CIBlock::GetArrayByID($filterIblockId, 'RIGHTS_MODE') === Iblock\IblockTable::RIGHTS_SIMPLE)
 			{
-				$arFilter['IBLOCK_ID'] = (int)$arFilter['IBLOCK_ID'];
-				$filterIblockId = $arFilter['IBLOCK_ID'];
-			}
-			elseif (isset($arFilter['=IBLOCK_ID']) && is_numeric($arFilter['IBLOCK_ID']))
-			{
-				$arFilter['=IBLOCK_ID'] = (int)$arFilter['=IBLOCK_ID'];
-				$filterIblockId = $arFilter['=IBLOCK_ID'];
-			}
-
-			if (\CIBlock::GetArrayByID($filterIblockId, 'RIGHTS_MODE') === Iblock\IblockTable::RIGHTS_SIMPLE)
-			{
-				$min_permission =
-					isset($arFilter['MIN_PERMISSION']) && mb_strlen($arFilter['MIN_PERMISSION']) === 1
-						? $arFilter['MIN_PERMISSION']
-						: 'R'
-				;
+				$minPermission = (string)($arFilter['MIN_PERMISSION'] ?? CIBlockRights::PUBLIC_READ);
+				if (strlen($minPermission) !== 1)
+				{
+					$minPermission = CIBlockRights::PUBLIC_READ;
+				}
 				$currentPermission = CIBlock::GetPermission($filterIblockId, $arFilter['PERMISSIONS_BY'] ?? false);
-				if ($currentPermission < $min_permission)
+				if ($currentPermission < $minPermission)
 				{
 					return new CIBlockResult();
 				}
 				if (
 					!defined('ADMIN_SECTION')
-					&& $currentPermission !== 'X'
+					&& $currentPermission < CIBlockRights::FULL_ACCESS
 					&& CIBlock::GetArrayByID($filterIblockId, 'ACTIVE') !== 'Y'
 				)
 				{
 					return new CIBlockResult();
 				}
 
-				unset($arFilter['CHECK_PERMISSIONS'], $arFilter['MIN_PERMISSION']);
+				unset(
+					$arFilter['CHECK_PERMISSIONS'],
+					$arFilter['MIN_PERMISSION'],
+				);
 			}
 		}
 
@@ -650,7 +831,7 @@ class CIBlockElement extends CAllIBlockElement
 				{
 					$res_cnt = $DB->Query("
 						SELECT COUNT(".($el->bDistinct? "DISTINCT BE.ID": "'x'").") as C
-						FROM ".$el->sFrom."
+						FROM ".$el->countFrom."
 						WHERE 1=1 ".$el->sWhere."
 						".$el->sGroupBy."
 					");
@@ -661,7 +842,7 @@ class CIBlockElement extends CAllIBlockElement
 				{
 					$res_cnt = $DB->Query("
 						SELECT 'x'
-						FROM ".$el->sFrom."
+						FROM ".$el->countFrom."
 						WHERE 1=1 ".$el->sWhere."
 						".$el->sGroupBy."
 					");
@@ -688,7 +869,7 @@ class CIBlockElement extends CAllIBlockElement
 				".$el->sGroupBy."
 				".$el->sOrderBy."
 			";
-			$res = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$res = $DB->Query($strSql);
 		}
 
 		$res = new CIBlockResult($res);
@@ -1479,7 +1660,7 @@ class CIBlockElement extends CAllIBlockElement
 				$strUpdate .= ", ";
 
 			$strSql = "UPDATE b_iblock_element SET ".$strUpdate.($bTimeStampNA?"TIMESTAMP_X=TIMESTAMP_X":"TIMESTAMP_X=now()")." WHERE ID=".$ID;
-			$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$DB->Query($strSql);
 
 			$existFields['PROPERTY_VALUES'] = (
 				!empty($arFields['PROPERTY_VALUES'])
@@ -1526,6 +1707,16 @@ class CIBlockElement extends CAllIBlockElement
 					}
 					$arFields['SEARCHABLE_CONTENT'] = $this->getSearchableContent($ID, $elementFields, $arIBlock);
 					unset($elementFields);
+
+					if (Iblock\FullIndex\FullText::doesIblockSupportByData($arIBlock))
+					{
+						$searchIndexParams = [
+							"SEARCH_CONTENT" => $arFields['SEARCHABLE_CONTENT'],
+						];
+
+						Iblock\FullIndex\FullText::update($arIBlock['ID'], $ID, $searchIndexParams);
+					}
+
 					$updateFields = array(
 						'SEARCHABLE_CONTENT' => $arFields['SEARCHABLE_CONTENT']
 					);
@@ -1666,7 +1857,6 @@ class CIBlockElement extends CAllIBlockElement
 
 	public static function SetPropertyValues($ELEMENT_ID, $IBLOCK_ID, $PROPERTY_VALUES, $PROPERTY_CODE = false)
 	{
-		global $DB;
 		global $BX_IBLOCK_PROP_CACHE;
 
 		$ELEMENT_ID = (int)$ELEMENT_ID;
@@ -1716,62 +1906,72 @@ class CIBlockElement extends CAllIBlockElement
 
 		$bRecalcSections = false;
 
+		$connection = Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
 		//Read current property values from database
 		$tableFields = [];
 		$arDBProps = array();
-		if (CIBlock::GetArrayByID($IBLOCK_ID, "VERSION") == 2)
+		if ((int)CIBlock::GetArrayByID($IBLOCK_ID, 'VERSION') === IblockTable::PROPERTY_STORAGE_SEPARATE)
 		{
-			$tableFields = $DB->GetTableFields('b_iblock_element_prop_s' . $IBLOCK_ID);
+			$tableFields = $connection->getTableFields('b_iblock_element_prop_s' . $IBLOCK_ID);
 
-			$rs = $DB->Query("
+			$rs = $connection->query("
 				select *
 				from b_iblock_element_prop_m".$IBLOCK_ID."
 				where IBLOCK_ELEMENT_ID = ".$ELEMENT_ID."
 				order by ID asc
 			");
-			while ($ar = $rs->Fetch())
+			while ($ar = $rs->fetch())
 			{
-				$property_id = $ar["IBLOCK_PROPERTY_ID"];
-				if (!isset($arDBProps[$property_id]))
-					$arDBProps[$property_id] = array();
+				$propertyId = (int)$ar["IBLOCK_PROPERTY_ID"];
+				if (!isset($arDBProps[$propertyId]))
+				{
+					$arDBProps[$propertyId] = [];
+				}
 
-				$arDBProps[$property_id][$ar["ID"]] = $ar;
+				$arDBProps[$propertyId][$ar["ID"]] = $ar;
 			}
 			unset($ar);
 			unset($rs);
 
-			$rs = $DB->Query("
+			$rs = $connection->query("
 				select *
 				from b_iblock_element_prop_s".$IBLOCK_ID."
 				where IBLOCK_ELEMENT_ID = ".$ELEMENT_ID."
 			");
-			if ($ar = $rs->Fetch())
+			$ar = $rs->fetch();
+			if ($ar)
 			{
-				foreach($ar_prop as $property)
+				foreach ($ar_prop as $property)
 				{
-					$property_id = $property["ID"];
-					if(
-						$property["MULTIPLE"] == "N"
-						&& isset($ar["PROPERTY_".$property_id])
-						&& mb_strlen($ar["PROPERTY_".$property_id])
+					$propertyId = (int)$property["ID"];
+					$valueKey = 'PROPERTY_' . $propertyId;
+					$valueIdKey = $ELEMENT_ID .':' . $propertyId;
+					if (
+						$property["MULTIPLE"] === "N"
+						&& isset($ar[$valueKey])
+						&& $ar[$valueKey] !== ''
 					)
 					{
-						if (!isset($arDBProps[$property_id]))
-							$arDBProps[$property_id] = array();
+						if (!isset($arDBProps[$propertyId]))
+						{
+							$arDBProps[$propertyId] = [];
+						}
 
-						$arDBProps[$property_id][$ELEMENT_ID.":".$property_id] = array(
-							"ID" => $ELEMENT_ID.":".$property_id,
-							"IBLOCK_PROPERTY_ID" => $property_id,
-							"VALUE" => $ar["PROPERTY_".$property_id],
-							"DESCRIPTION" => $ar["DESCRIPTION_".$property_id] ?? '',
-						);
+						$arDBProps[$propertyId][$valueIdKey] = [
+							'ID' => $valueIdKey,
+							'IBLOCK_PROPERTY_ID' => $propertyId,
+							'VALUE' => $ar[$valueKey],
+							'DESCRIPTION' => $ar['DESCRIPTION_' . $propertyId] ?? '',
+						];
 					}
 				}
 				unset($property);
 			}
 			else
 			{
-				$DB->Query("
+				$connection->queryExecute("
 					insert into b_iblock_element_prop_s".$IBLOCK_ID."
 					(IBLOCK_ELEMENT_ID) values (".$ELEMENT_ID.")
 				");
@@ -1781,19 +1981,21 @@ class CIBlockElement extends CAllIBlockElement
 		}
 		else
 		{
-			$rs = $DB->Query("
+			$rs = $connection->query("
 				select *
 				from b_iblock_element_property
 				where IBLOCK_ELEMENT_ID = ".$ELEMENT_ID."
 				order by ID asc
 			");
-			while ($ar = $rs->Fetch())
+			while ($ar = $rs->fetch())
 			{
-				$property_id = $ar["IBLOCK_PROPERTY_ID"];
-				if (!isset($arDBProps[$property_id]))
-					$arDBProps[$property_id] = array();
+				$propertyId = (int)$ar["IBLOCK_PROPERTY_ID"];
+				if (!isset($arDBProps[$propertyId]))
+				{
+					$arDBProps[$propertyId] = [];
+				}
 
-				$arDBProps[$property_id][$ar["ID"]] = $ar;
+				$arDBProps[$propertyId][$ar["ID"]] = $ar;
 			}
 			unset($ar);
 			unset($rs);
@@ -1804,13 +2006,17 @@ class CIBlockElement extends CAllIBlockElement
 		if (isset($arEvent))
 			unset($arEvent);
 
-		$connection = Main\Application::getConnection();
-		$helper = $connection->getSqlHelper();
-
 		$arFilesToDelete = array();
 		$arV2ClearCache = array();
 		foreach ($ar_prop as $prop)
 		{
+			$propertyId = (int)$prop['ID'];
+			$isMultiple = $prop['MULTIPLE'] === 'Y';
+			$isSingle = !$isMultiple;
+			$separateStorage = (int)$prop['VERSION'] === IblockTable::PROPERTY_STORAGE_SEPARATE;
+			$separateSingle = $separateStorage && !$isMultiple;
+			$separateMultiple = $separateStorage && $isMultiple;
+			$clearSeparateCache = false;
 			if ($PROPERTY_CODE)
 			{
 				$PROP = $PROPERTY_VALUES;
@@ -1826,7 +2032,7 @@ class CIBlockElement extends CAllIBlockElement
 			if (
 				!is_array($PROP)
 				|| (
-					$prop["PROPERTY_TYPE"] == "F"
+					$prop['PROPERTY_TYPE'] === Iblock\PropertyTable::TYPE_FILE
 					&& (
 						array_key_exists("tmp_name", $PROP)
 						|| array_key_exists("del", $PROP)
@@ -1845,7 +2051,7 @@ class CIBlockElement extends CAllIBlockElement
 			if ($prop["USER_TYPE"] != "")
 			{
 				$arUserType = CIBlockProperty::GetUserType($prop["USER_TYPE"]);
-				if (array_key_exists("ConvertToDB", $arUserType))
+				if (isset($arUserType['ConvertToDB']))
 				{
 					foreach ($PROP as $key => $value)
 					{
@@ -1862,28 +2068,26 @@ class CIBlockElement extends CAllIBlockElement
 				}
 			}
 
-			if ($prop["VERSION"] == 2)
+			if ($separateStorage)
 			{
-				if ($prop["MULTIPLE"] == "Y")
-					$strTable = "b_iblock_element_prop_m".$prop["IBLOCK_ID"];
-				else
-					$strTable = "b_iblock_element_prop_s".$prop["IBLOCK_ID"];
+				$strTable =
+					$isMultiple
+						? 'b_iblock_element_prop_m' . $prop['IBLOCK_ID']
+						: 'b_iblock_element_prop_s' . $prop['IBLOCK_ID']
+				;
 			}
 			else
 			{
-				$strTable = "b_iblock_element_property";
+				$strTable = 'b_iblock_element_property';
 			}
 
-			if ($prop["PROPERTY_TYPE"] == "L")
+			if ($prop['PROPERTY_TYPE'] === Iblock\PropertyTable::TYPE_LIST)
 			{
-				$DB->Query(CIBlockElement::DeletePropertySQL($prop, $ELEMENT_ID));
-				if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "Y")
+				if (isset($arDBProps[$propertyId]) || $separateSingle)
 				{
-					$arV2ClearCache[$prop["ID"]] =
-						"PROPERTY_".$prop["ID"]." = NULL"
-						.self::__GetDescriptionUpdateSql($prop["IBLOCK_ID"], $prop["ID"])
-					;
+					$connection->queryExecute(CIBlockElement::DeletePropertySQL($prop, $ELEMENT_ID));
 				}
+				$clearSeparateCache = true;
 
 				$ids = [];
 				foreach ($PROP as $value)
@@ -1898,42 +2102,41 @@ class CIBlockElement extends CAllIBlockElement
 
 					$ids[] = $value;
 
-					if ($prop["MULTIPLE"] != "Y")
+					if ($isSingle)
+					{
 						break;
+					}
 				}
 
 				if (!empty($ids))
 				{
 					$flatIds = implode(',', $ids);
-					if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "N")
+					if ($separateSingle)
 					{
-						$DB->Query($helper->prepareCorrelatedUpdate(
+						$connection->queryExecute($helper->prepareCorrelatedUpdate(
 							'b_iblock_element_prop_s' . $prop['IBLOCK_ID'],
 							'E',
 							[
 								'PROPERTY_' . $prop['ID'] => 'PEN.ID',
 							],
-							'b_iblock_property as P, b_iblock_property_enum as PEN',
+							'b_iblock_property_enum as PEN',
 							"
-								E.IBLOCK_ELEMENT_ID = ".$ELEMENT_ID."
-								AND P.ID = ".$prop["ID"]."
-								AND P.ID = PEN.PROPERTY_ID
+								E.IBLOCK_ELEMENT_ID = " . $ELEMENT_ID."
+								AND PEN.PROPERTY_ID = " . $propertyId . "
 								AND PEN.ID IN (" . $flatIds . ")
 							"
 						));
 					}
 					else
 					{
-						$DB->Query("
-							INSERT INTO ".$strTable."
+						$connection->queryExecute("
+							INSERT INTO " . $strTable . "
 							(IBLOCK_ELEMENT_ID, IBLOCK_PROPERTY_ID, VALUE, VALUE_ENUM)
-							SELECT ".$ELEMENT_ID." as IBLOCK_ELEMENT_ID, P.ID as IBLOCK_PROPERTY_ID, PEN.ID as VALUE, PEN.ID as VALUE_ENUM
+							SELECT " . $ELEMENT_ID . " as IBLOCK_ELEMENT_ID, " . $propertyId . " as IBLOCK_PROPERTY_ID, PEN.ID as VALUE, PEN.ID as VALUE_ENUM
 							FROM
-								b_iblock_property P
-								,b_iblock_property_enum PEN
+								b_iblock_property_enum PEN
 							WHERE
-								P.ID = ".$prop["ID"]."
-								AND P.ID = PEN.PROPERTY_ID
+								PEN.PROPERTY_ID = " . $propertyId . "
 								AND PEN.ID IN (" . $flatIds . ")
 						");
 					}
@@ -1941,18 +2144,16 @@ class CIBlockElement extends CAllIBlockElement
 				}
 				unset($ids);
 			}
-			elseif ($prop["PROPERTY_TYPE"] == "G")
+			elseif ($prop['PROPERTY_TYPE'] === Iblock\PropertyTable::TYPE_SECTION)
 			{
 				$bRecalcSections = true;
-				$DB->Query(CIBlockElement::DeletePropertySQL($prop, $ELEMENT_ID));
-				if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "Y")
+				if (isset($arDBProps[$propertyId]) || $separateSingle)
 				{
-					$arV2ClearCache[$prop["ID"]] =
-						"PROPERTY_".$prop["ID"]." = NULL"
-						.self::__GetDescriptionUpdateSql($prop["IBLOCK_ID"], $prop["ID"])
-					;
+					$connection->queryExecute(CIBlockElement::DeletePropertySQL($prop, $ELEMENT_ID));
 				}
-				$DB->Query("
+				$clearSeparateCache = true;
+
+				$connection->queryExecute("
 					DELETE FROM b_iblock_section_element
 					WHERE ADDITIONAL_PROPERTY_ID = ".$prop["ID"]."
 					AND IBLOCK_ELEMENT_ID = ".$ELEMENT_ID."
@@ -1971,14 +2172,17 @@ class CIBlockElement extends CAllIBlockElement
 
 					$ids[] = $value;
 
-					if ($prop["MULTIPLE"] != "Y")
+					if ($isSingle)
+					{
 						break;
+					}
 				}
 
 				if (!empty($ids))
 				{
+					$linkIblockId = (int)$prop['LINK_IBLOCK_ID'];
 					$flatIds = implode(',', $ids);
-					if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "N")
+					if ($separateSingle)
 					{
 						$fields = [
 							'PROPERTY_' . $prop['ID'] => 'S.ID',
@@ -1989,64 +2193,52 @@ class CIBlockElement extends CAllIBlockElement
 							$fields[$fieldName] = 'null';
 						}
 						unset($fieldName);
-						$DB->Query($helper->prepareCorrelatedUpdate(
+
+						$connection->queryExecute($helper->prepareCorrelatedUpdate(
 							'b_iblock_element_prop_s' . $prop['IBLOCK_ID'],
 							'E',
 							$fields,
-							'b_iblock_property as P, b_iblock_section as S',
+							'b_iblock_section as S',
 							"
 								E.IBLOCK_ELEMENT_ID = " . $ELEMENT_ID . "
-								AND P.ID = " . $prop['ID'] . "
-								AND (
-									P.LINK_IBLOCK_ID IS NULL
-									OR P.LINK_IBLOCK_ID = 0
-									OR S.IBLOCK_ID = P.LINK_IBLOCK_ID
-								)
-								AND S.ID IN (". $flatIds . ")
+								AND S.ID IN (". $flatIds . ")"
+								. ($linkIblockId > 0 ? 'AND S.IBLOCK_ID = ' . $linkIblockId : '') . "
 							"
 						));
 						unset($fields);
 					}
 					else
 					{
-						$DB->Query("
-							INSERT INTO ".$strTable."
+						$connection->queryExecute("
+							INSERT INTO " . $strTable . "
 							(IBLOCK_ELEMENT_ID, IBLOCK_PROPERTY_ID, VALUE, VALUE_NUM)
-							SELECT ".$ELEMENT_ID.", P.ID, S.ID, S.ID
+							SELECT " . $ELEMENT_ID  .", " . $propertyId . ", S.ID, S.ID
 							FROM
-								b_iblock_property P
-								,b_iblock_section S
+								b_iblock_section S
 							WHERE
-								P.ID=".$prop["ID"]."
-								AND (
-									P.LINK_IBLOCK_ID IS NULL
-									OR P.LINK_IBLOCK_ID = 0
-									OR S.IBLOCK_ID = P.LINK_IBLOCK_ID
-								)
-								AND S.ID IN (". $flatIds . ")
+								S.ID IN (" . $flatIds . ")"
+								. ($linkIblockId > 0 ? 'AND S.IBLOCK_ID = ' . $linkIblockId : '') . "
 						");
 					}
-					$DB->Query("
+
+					$connection->queryExecute("
 						INSERT INTO b_iblock_section_element
 						(IBLOCK_ELEMENT_ID, IBLOCK_SECTION_ID, ADDITIONAL_PROPERTY_ID)
-						SELECT ".$ELEMENT_ID.", S.ID, P.ID
+						SELECT " . $ELEMENT_ID . ", S.ID, " . $propertyId . "
 						FROM
-							b_iblock_property P
-							,b_iblock_section S
+							b_iblock_section S
 						WHERE
-							P.ID = ".$prop["ID"]."
-							AND (
-								P.LINK_IBLOCK_ID IS NULL
-								OR P.LINK_IBLOCK_ID = 0
-								OR S.IBLOCK_ID = P.LINK_IBLOCK_ID
-							)
-							AND S.ID IN (" . $flatIds . ")
+							S.ID IN (" . $flatIds . ")"
+							. ($linkIblockId > 0 ? 'AND S.IBLOCK_ID = ' . $linkIblockId : '') . "
 					");
-					unset($flatIds);
+					unset(
+						$flatIds,
+						$linkIblockId,
+					);
 				}
 				unset($ids);
 			}
-			elseif ($prop["PROPERTY_TYPE"] == "E")
+			elseif ($prop['PROPERTY_TYPE'] === Iblock\PropertyTable::TYPE_ELEMENT)
 			{
 				$arWas = array();
 				if (isset($arDBProps[$prop["ID"]]))
@@ -2069,11 +2261,11 @@ class CIBlockElement extends CAllIBlockElement
 						else
 							$arWas[$val] = true;
 
-						if ((string)$val == '') //Delete property value
+						if ((string)$val === '') //Delete property value
 						{
-							if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "N")
+							if ($separateSingle)
 							{
-								$DB->Query("
+								$connection->queryExecute("
 									UPDATE b_iblock_element_prop_s".$prop["IBLOCK_ID"]."
 									SET PROPERTY_".$prop["ID"]." = null
 									".self::__GetDescriptionUpdateSql($prop["IBLOCK_ID"], $prop["ID"])."
@@ -2082,58 +2274,47 @@ class CIBlockElement extends CAllIBlockElement
 							}
 							else
 							{
-								$DB->Query("
+								$connection->queryExecute("
 									DELETE FROM ".$strTable."
 									WHERE ID=".$res["ID"]."
 								");
 							}
 
-							if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "Y")
-							{
-								$arV2ClearCache[$prop["ID"]] =
-									"PROPERTY_".$prop["ID"]." = NULL"
-									.self::__GetDescriptionUpdateSql($prop["IBLOCK_ID"], $prop["ID"])
-								;
-							}
+							$clearSeparateCache = true;
 						}
 						elseif (
 							$res["VALUE"] !== $val
 							|| $res["DESCRIPTION"].'' !== $val_desc.''
 						) //Update property value
 						{
-							if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "N")
+							if ($separateSingle)
 							{
-								$DB->Query("
+								$connection->queryExecute("
 									UPDATE b_iblock_element_prop_s".$prop["IBLOCK_ID"]."
-									SET PROPERTY_".$prop["ID"]." = '".$DB->ForSql($val)."'
+									SET PROPERTY_".$prop["ID"]." = '".$helper->forSql($val)."'
 									".self::__GetDescriptionUpdateSql($prop["IBLOCK_ID"], $prop["ID"], $val_desc)."
 									WHERE IBLOCK_ELEMENT_ID = ".$ELEMENT_ID."
 								");
 							}
 							else
 							{
-								$DB->Query("
+								$connection->queryExecute("
 									UPDATE ".$strTable."
-									SET VALUE = '".$DB->ForSql($val)."'
+									SET VALUE = '".$helper->forSql($val)."'
 										,VALUE_NUM = ".CIBlock::roundDB($val)."
-										".($val_desc!==false ? ",DESCRIPTION = '".$DB->ForSql($val_desc, 255)."'" : "")."
+										".($val_desc!==false ? ",DESCRIPTION = '".$helper->forSql($val_desc, 255)."'" : "")."
 									WHERE ID=".$res["ID"]."
 								");
 							}
 
-							if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "Y")
-							{
-								$arV2ClearCache[$prop["ID"]] =
-									"PROPERTY_".$prop["ID"]." = NULL"
-									.self::__GetDescriptionUpdateSql($prop["IBLOCK_ID"], $prop["ID"])
-								;
-							}
+							$clearSeparateCache = true;
 						}
 
 						unset($PROP[$res["ID"]]);
 					} //foreach($arDBProps[$prop["ID"]] as $res)
 				}
 
+				$insertValues = [];
 				foreach ($PROP as $val)
 				{
 					if (is_array($val))
@@ -2151,58 +2332,64 @@ class CIBlockElement extends CAllIBlockElement
 					else
 						$arWas[$val] = true;
 
-					if ((string)$val == '')
-						continue;
-
-					if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "N")
+					if ((string)$val === '')
 					{
-						$DB->Query("
+						continue;
+					}
+
+					if ($separateSingle)
+					{
+						$connection->queryExecute("
 							UPDATE b_iblock_element_prop_s".$prop["IBLOCK_ID"]."
 							SET
-								PROPERTY_".$prop["ID"]." = '".$DB->ForSql($val)."'
+								PROPERTY_".$prop["ID"]." = '".$helper->forSql($val)."'
 								".self::__GetDescriptionUpdateSql($prop["IBLOCK_ID"], $prop["ID"], $val_desc)."
 							WHERE IBLOCK_ELEMENT_ID=".$ELEMENT_ID."
 						");
 					}
 					else
 					{
-						$DB->Query("
-							INSERT INTO ".$strTable."
-							(IBLOCK_ELEMENT_ID, IBLOCK_PROPERTY_ID, VALUE, VALUE_NUM".($val_desc!==false?", DESCRIPTION":"").")
-							SELECT
-								".$ELEMENT_ID."
-								,P.ID
-								,'".$DB->ForSql($val)."'
-								,".CIBlock::roundDB($val)."
-								".($val_desc!==false?", '".$DB->ForSQL($val_desc, 255)."'":"")."
-							FROM
-								b_iblock_property P
-							WHERE
-								ID = ".(int)$prop["ID"]."
-						");
-					}
-
-					if($prop["VERSION"]==2 && $prop["MULTIPLE"]=="Y")
-					{
-						$arV2ClearCache[$prop["ID"]] =
-							"PROPERTY_".$prop["ID"]." = NULL"
-							.self::__GetDescriptionUpdateSql($prop["IBLOCK_ID"], $prop["ID"])
+						$insertValues[] =
+							'('
+							. $ELEMENT_ID . ', '
+							. $propertyId . ', '
+							. "'" . $helper->forSql((string)$val) . "', "
+							. CIBlock::roundDB($val) . ', '
+							. ($val_desc !== false ? "'" . $helper->forSql((string)$val_desc, 255) . "'" : 'NULL')
+							. ')'
 						;
 					}
 
-					if ($prop["MULTIPLE"] != "Y")
+					$clearSeparateCache = true;
+
+					if ($isSingle)
+					{
 						break;
+					}
 				} //foreach($PROP as $value)
+				if (!empty($insertValues))
+				{
+					$connection->queryExecute("
+						INSERT INTO " . $strTable . "
+						(IBLOCK_ELEMENT_ID, IBLOCK_PROPERTY_ID, VALUE, VALUE_NUM, DESCRIPTION)
+						VALUES
+						" . implode(', ', $insertValues)
+					);
+				}
+				unset(
+					$insertValues,
+				);
 			}
-			elseif ($prop["PROPERTY_TYPE"] == "F")
+			elseif ($prop['PROPERTY_TYPE'] === Iblock\PropertyTable::TYPE_FILE)
 			{
 				//We'll be adding values from the database into the head
 				//for multiple values and into tje tail for single
 				//these values were not passed into API call.
-				if ($prop["MULTIPLE"] == "Y")
-					$orderedPROP = array_reverse($PROP, true);
-				else
-					$orderedPROP = $PROP;
+				$orderedPROP =
+					$isMultiple
+						? array_reverse($PROP, true)
+						: $PROP
+				;
 
 				if (isset($arDBProps[$prop["ID"]]))
 				{
@@ -2265,8 +2452,10 @@ class CIBlockElement extends CAllIBlockElement
 				}
 
 				//Restore original order
-				if ($prop["MULTIPLE"] == "Y")
+				if ($isMultiple)
+				{
 					$orderedPROP = array_reverse($orderedPROP, true);
+				}
 
 				$preserveID = array();
 				//Now delete from database all marked for deletion  records
@@ -2286,8 +2475,7 @@ class CIBlockElement extends CAllIBlockElement
 
 						if (
 							is_array($val)
-							&& array_key_exists('del', $val)
-							&& mb_strlen($val["del"])
+							&& (string)($val['del'] ?? '') !== ''
 						)
 						{
 							unset($orderedPROP[$res["ID"]]);
@@ -2298,7 +2486,7 @@ class CIBlockElement extends CAllIBlockElement
 							);
 						}
 						elseif (
-							$prop["MULTIPLE"] != "Y"
+							$isSingle
 							|| (
 								is_array($val) && isset($val["tmp_name"]) && $val["tmp_name"] != ''
 							)
@@ -2312,9 +2500,9 @@ class CIBlockElement extends CAllIBlockElement
 							);
 						}
 
-						if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "N")
+						if ($separateSingle)
 						{
-							$DB->Query("
+							$connection->queryExecute("
 								UPDATE b_iblock_element_prop_s".$prop["IBLOCK_ID"]."
 								SET PROPERTY_".$prop["ID"]." = null
 								".self::__GetDescriptionUpdateSql($prop["IBLOCK_ID"], $prop["ID"])."
@@ -2323,17 +2511,11 @@ class CIBlockElement extends CAllIBlockElement
 						}
 						else
 						{
-							$DB->Query("DELETE FROM ".$strTable." WHERE ID = ".$res["ID"]);
+							$connection->queryExecute("DELETE FROM ".$strTable." WHERE ID = ".$res["ID"]);
 							$preserveID[$res["ID"]] = $res["ID"];
 						}
 
-						if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "Y")
-						{
-							$arV2ClearCache[$prop["ID"]] =
-								"PROPERTY_".$prop["ID"]." = NULL"
-								.self::__GetDescriptionUpdateSql($prop["IBLOCK_ID"], $prop["ID"])
-							;
-						}
+						$clearSeparateCache = true;
 					} //foreach($arDBProps[$prop["ID"]] as $res)
 				}
 
@@ -2372,67 +2554,57 @@ class CIBlockElement extends CAllIBlockElement
 					if ((int)$val <= 0)
 						continue;
 
-					if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "N")
+					if ($separateSingle)
 					{
-						$DB->Query("
+						$connection->queryExecute("
 							UPDATE b_iblock_element_prop_s".$prop["IBLOCK_ID"]."
 							SET
-								PROPERTY_".$prop["ID"]." = '".$DB->ForSql($val)."'
+								PROPERTY_".$prop["ID"]." = '".$helper->forSql($val)."'
 								".self::__GetDescriptionUpdateSql($prop["IBLOCK_ID"], $prop["ID"], $val_desc)."
 							WHERE IBLOCK_ELEMENT_ID=".$ELEMENT_ID."
 						");
 					}
 					elseif ($preserveID)
 					{
-						$DB->Query("
-							INSERT INTO ".$strTable."
-							(ID, IBLOCK_ELEMENT_ID, IBLOCK_PROPERTY_ID, VALUE, VALUE_NUM".($val_desc!==false?", DESCRIPTION":"").")
-							SELECT
-								".array_shift($preserveID)."
-								,".$ELEMENT_ID."
-								,P.ID
-								,'".$DB->ForSql($val)."'
-								,".CIBlock::roundDB($val)."
-								".($val_desc!==false?", '".$DB->ForSQL($val_desc, 255)."'":"")."
-							FROM
-								b_iblock_property P
-							WHERE
-								ID = ".(int)$prop["ID"]."
+						$connection->queryExecute("
+							INSERT INTO " . $strTable . "
+							(ID, IBLOCK_ELEMENT_ID, IBLOCK_PROPERTY_ID, VALUE, VALUE_NUM" . ($val_desc !== false ? ", DESCRIPTION" : "") . ")
+							VALUES (
+								" . array_shift($preserveID) . "
+								, " . $ELEMENT_ID . "
+								, " . $propertyId . "
+								,'" . $helper->forSql((string)$val) . "'
+								," . CIBlock::roundDB($val) . "
+								" . ($val_desc !== false ? ", '" . $helper->forSql((string)$val_desc, 255) . "'" : "") . "
+							)
 						");
 					}
 					else
 					{
-						$DB->Query("
-							INSERT INTO ".$strTable."
-							(IBLOCK_ELEMENT_ID, IBLOCK_PROPERTY_ID, VALUE, VALUE_NUM".($val_desc!==false?", DESCRIPTION":"").")
-							SELECT
-								".$ELEMENT_ID."
-								,P.ID
-								,'".$DB->ForSql($val)."'
-								,".CIBlock::roundDB($val)."
-								".($val_desc!==false?", '".$DB->ForSQL($val_desc, 255)."'":"")."
-							FROM
-								b_iblock_property P
-							WHERE
-								ID = ".(int)$prop["ID"]."
+						$connection->queryExecute("
+							INSERT INTO " . $strTable . "
+							(IBLOCK_ELEMENT_ID, IBLOCK_PROPERTY_ID, VALUE, VALUE_NUM" . ($val_desc !== false ? ", DESCRIPTION" : "") . ")
+							VALUES (
+								" . $ELEMENT_ID . "
+								, " . $propertyId . "
+								, '" . $helper->forSql((string)$val) . "'
+								, " . CIBlock::roundDB($val) ."
+								" . ($val_desc !== false ? ", '" . $helper->forSql((string)$val_desc, 255) . "'" : "") . "
+							)
 						");
 					}
 
-					if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "Y")
+					$clearSeparateCache = true;
+
+					if ($isSingle)
 					{
-						$arV2ClearCache[$prop["ID"]] =
-							"PROPERTY_".$prop["ID"]." = NULL"
-							.self::__GetDescriptionUpdateSql($prop["IBLOCK_ID"], $prop["ID"])
-						;
-					}
-
-					if ($prop["MULTIPLE"] != "Y")
 						break;
-
+					}
 				} //foreach($PROP as $value)
 			}
 			else //if($prop["PROPERTY_TYPE"] == "S" || $prop["PROPERTY_TYPE"] == "N")
 			{
+				$isNumberProperty = $prop['PROPERTY_TYPE'] === Iblock\PropertyTable::TYPE_NUMBER;
 				if (isset($arDBProps[$prop["ID"]]))
 				{
 					foreach ($arDBProps[$prop["ID"]] as $res)
@@ -2448,11 +2620,11 @@ class CIBlockElement extends CAllIBlockElement
 							$val_desc = false;
 						}
 
-						if ((string)$val == '')
+						if ((string)$val === '')
 						{
-							if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "N")
+							if ($separateSingle)
 							{
-								$DB->Query("
+								$connection->queryExecute("
 									UPDATE b_iblock_element_prop_s".$prop["IBLOCK_ID"]."
 									SET
 										PROPERTY_".$prop["ID"]." = null
@@ -2462,57 +2634,49 @@ class CIBlockElement extends CAllIBlockElement
 							}
 							else
 							{
-								$DB->Query("DELETE FROM ".$strTable." WHERE ID=".$res["ID"]);
+								$connection->queryExecute("DELETE FROM ".$strTable." WHERE ID=".$res["ID"]);
 							}
 
-							if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "Y")
-							{
-								$arV2ClearCache[$prop["ID"]] =
-									"PROPERTY_".$prop["ID"]." = NULL"
-									.self::__GetDescriptionUpdateSql($prop["IBLOCK_ID"], $prop["ID"])
-								;
-							}
+							$clearSeparateCache = true;
 						}
 						else
 						{
-							if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "N")
+							if ($separateSingle)
 							{
-								if($prop["PROPERTY_TYPE"]=="N")
+								if ($isNumberProperty)
+								{
 									$val = CIBlock::roundDB($val);
+								}
 
-								$DB->Query("
+								$connection->queryExecute("
 									UPDATE b_iblock_element_prop_s".$prop["IBLOCK_ID"]."
-									SET PROPERTY_".$prop["ID"]."='".$DB->ForSql($val)."'
+									SET PROPERTY_".$prop["ID"]."='".$helper->forSql($val)."'
 									".self::__GetDescriptionUpdateSql($prop["IBLOCK_ID"], $prop["ID"], $val_desc)."
 									WHERE IBLOCK_ELEMENT_ID=".$ELEMENT_ID."
 								");
 							}
 							else
 							{
-								$DB->Query("
+								$connection->queryExecute("
 									UPDATE ".$strTable."
-									SET 	VALUE='".$DB->ForSql($val)."'
+									SET
+										VALUE='".$helper->forSql($val)."'
 										,VALUE_NUM=".CIBlock::roundDB($val)."
-										".($val_desc!==false ? ",DESCRIPTION='".$DB->ForSql($val_desc, 255)."'" : "")."
+										".($val_desc!==false ? ",DESCRIPTION='".$helper->forSql($val_desc, 255)."'" : "")."
 									WHERE ID=".$res["ID"]."
 								");
 							}
 
-							if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "Y")
-							{
-								$arV2ClearCache[$prop["ID"]] =
-									"PROPERTY_".$prop["ID"]." = NULL"
-									.self::__GetDescriptionUpdateSql($prop["IBLOCK_ID"], $prop["ID"])
-								;
-							}
+							$clearSeparateCache = true;
 						}
 						unset($PROP[$res["ID"]]);
 					} //foreach ($arDBProps[$prop["ID"]] as $res)
 				}
 
+				$insertValues = [];
 				foreach($PROP as $val)
 				{
-					if(is_array($val) && !is_set($val, "tmp_name"))
+					if (is_array($val) && !array_key_exists('tmp_name', $val))
 					{
 						$val_desc = $val["DESCRIPTION"] ?? '';
 						$val = $val["VALUE"];
@@ -2522,68 +2686,91 @@ class CIBlockElement extends CAllIBlockElement
 						$val_desc = false;
 					}
 
-					if ((string)$val == '')
-						continue;
-
-					if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "N")
+					if (!is_scalar($val) || (string)$val === '')
 					{
-						if ($prop["PROPERTY_TYPE"]=="N")
-							$val = CIBlock::roundDB($val);
+						continue;
+					}
 
-						$DB->Query("
+					if ($separateSingle)
+					{
+						if ($isNumberProperty)
+						{
+							$val = CIBlock::roundDB($val);
+						}
+
+						$connection->queryExecute("
 							UPDATE b_iblock_element_prop_s".$prop["IBLOCK_ID"]."
 							SET
-								PROPERTY_".$prop["ID"]." = '".$DB->ForSql($val)."'
+								PROPERTY_".$prop["ID"]." = '".$helper->forSql($val)."'
 								".self::__GetDescriptionUpdateSql($prop["IBLOCK_ID"], $prop["ID"], $val_desc)."
 							WHERE IBLOCK_ELEMENT_ID=".$ELEMENT_ID."
 						");
 					}
 					else
 					{
-						$DB->Query("
-							INSERT INTO ".$strTable."
-							(IBLOCK_ELEMENT_ID, IBLOCK_PROPERTY_ID, VALUE, VALUE_NUM".($val_desc!==false?", DESCRIPTION":"").")
-							SELECT
-								".$ELEMENT_ID."
-								,P.ID
-								,'".$DB->ForSql($val)."'
-								,".CIBlock::roundDB($val)."
-								".($val_desc!==false?", '".$DB->ForSQL($val_desc, 255)."'":"")."
-							FROM
-								b_iblock_property P
-							WHERE
-								ID = ".(int)$prop["ID"]."
-						");
-					}
-
-					if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "Y")
-					{
-						$arV2ClearCache[$prop["ID"]] =
-							"PROPERTY_".$prop["ID"]." = NULL"
-							.self::__GetDescriptionUpdateSql($prop["IBLOCK_ID"], $prop["ID"])
+						$insertValues[] =
+							'('
+							. $ELEMENT_ID . ', '
+							. $propertyId . ', '
+							. "'" . $helper->forSql((string)$val) . "', "
+							. CIBlock::roundDB($val) . ', '
+							. ($val_desc !== false ? "'" . $helper->forSql((string)$val_desc, 255) . "'" : 'NULL')
+							. ')'
 						;
 					}
 
-					if ($prop["MULTIPLE"] != "Y")
+					$clearSeparateCache = true;
+
+					if ($isSingle)
+					{
 						break;
+					}
 				} //foreach($PROP as $value)
-			} //if($prop["PROPERTY_TYPE"]=="F")
+				if (!empty($insertValues))
+				{
+					$connection->queryExecute("
+						INSERT INTO " . $strTable . "
+						(IBLOCK_ELEMENT_ID, IBLOCK_PROPERTY_ID, VALUE, VALUE_NUM, DESCRIPTION)
+						VALUES
+						" . implode(', ', $insertValues)
+					);
+				}
+				unset(
+					$insertValues,
+				);
+			} //if($prop["PROPERTY_TYPE"] == "S" || $prop["PROPERTY_TYPE"] == "N")
+
+			if ($clearSeparateCache && $separateMultiple)
+			{
+				$arV2ClearCache[$propertyId] =
+					'PROPERTY_' . $propertyId . ' = NULL'
+					. self::__GetDescriptionUpdateSql($prop["IBLOCK_ID"], $propertyId)
+				;
+			}
+			unset(
+				$separateMultiple,
+				$separateSingle,
+				$separateStorage,
+				$isMultiple,
+				$propertyId,
+			);
+		}
+
+		unset($tableFields);
+
+		if ($arV2ClearCache)
+		{
+			$connection->queryExecute("
+				UPDATE b_iblock_element_prop_s".$IBLOCK_ID."
+				SET ".implode(",", $arV2ClearCache)."
+				WHERE IBLOCK_ELEMENT_ID = ".$ELEMENT_ID."
+			");
 		}
 
 		unset(
 			$helper,
 			$connection,
 		);
-		unset($tableFields);
-
-		if ($arV2ClearCache)
-		{
-			$DB->Query("
-				UPDATE b_iblock_element_prop_s".$IBLOCK_ID."
-				SET ".implode(",", $arV2ClearCache)."
-				WHERE IBLOCK_ELEMENT_ID = ".$ELEMENT_ID."
-			");
-		}
 
 		foreach ($arFilesToDelete as $deleteTask)
 		{
@@ -2639,7 +2826,7 @@ class CIBlockElement extends CAllIBlockElement
 			WHERE 1=1 ".$element->sWhere."
 		";
 
-		return $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		return $DB->Query($strSql);
 	}
 
 	private static function getUserNameSql(string $tableAlias): string

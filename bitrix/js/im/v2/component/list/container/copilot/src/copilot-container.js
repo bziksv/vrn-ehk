@@ -1,10 +1,11 @@
 import { Messenger } from 'im.public';
-import { CopilotRolesDialog } from 'im.v2.component.elements';
+import { CopilotRolesDialog } from 'im.v2.component.elements.copilot-roles-dialog';
 import { CopilotList } from 'im.v2.component.list.items.copilot';
-import { ChatType, Layout } from 'im.v2.const';
+import { ActionByUserType, ChatType, Layout } from 'im.v2.const';
 import { Analytics } from 'im.v2.lib.analytics';
 import { Logger } from 'im.v2.lib.logger';
-import { CopilotService } from 'im.v2.provider.service';
+import { CopilotService } from 'im.v2.provider.service.copilot';
+import { PermissionManager } from 'im.v2.lib.permission';
 
 import { RoleSelectorMini } from './components/role-selector-mini/role-selector-mini';
 
@@ -25,6 +26,13 @@ export const CopilotListContainer = {
 			isCreatingChat: false,
 		};
 	},
+	computed:
+	{
+		canCreate(): boolean
+		{
+			return PermissionManager.getInstance().canPerformActionByUserType(ActionByUserType.createCopilot);
+		},
+	},
 	created()
 	{
 		Logger.warn('List: Copilot container created');
@@ -38,18 +46,12 @@ export const CopilotListContainer = {
 	{
 		async onCreateChatClick()
 		{
-			Analytics.getInstance().onStartCreateNewChat(ChatType.copilot);
+			Analytics.getInstance().chatCreate.onStartClick(ChatType.copilot);
 			this.showRoleSelector = true;
 		},
 		onChatClick(dialogId)
 		{
-			this.$emit('selectEntity', { layoutName: Layout.copilot.name, entityId: dialogId });
-		},
-		showCreateChatError()
-		{
-			BX.UI.Notification.Center.notify({
-				content: this.loc('IM_LIST_CONTAINER_COPILOT_CREATE_CHAT_ERROR'),
-			});
+			this.$emit('selectEntity', { layoutName: Layout.copilot, entityId: dialogId });
 		},
 		getCopilotService(): CopilotService
 		{
@@ -69,7 +71,6 @@ export const CopilotListContainer = {
 			const newDialogId = await this.getCopilotService().createChat({ roleCode })
 				.catch(() => {
 					this.isCreatingChat = false;
-					this.showCreateChatError();
 				});
 
 			this.isCreatingChat = false;
@@ -94,6 +95,7 @@ export const CopilotListContainer = {
 			<div class="bx-im-list-container-copilot__header_container">
 				<div class="bx-im-list-container-copilot__header_title">CoPilot</div>
 				<div
+					v-if="canCreate"
 					class="bx-im-list-container-copilot__create-chat"
 					:class="{'--loading': isCreatingChat}"
 					ref="createChatButton"

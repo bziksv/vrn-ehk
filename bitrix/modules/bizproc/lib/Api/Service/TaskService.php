@@ -9,9 +9,11 @@ use Bitrix\Bizproc\Api\Request\TaskService\DoInlineTasksRequest;
 use Bitrix\Bizproc\Api\Request\TaskService\DoTaskRequest;
 use Bitrix\Bizproc\Api\Request\TaskService\GetUserTaskRequest;
 use Bitrix\Bizproc\Api\Request\TaskService\GetUserTaskListRequest;
+use Bitrix\Bizproc\Api\Request\TaskService\GetUserTaskByWorkflowIdRequest;
 use Bitrix\Bizproc\Api\Response;
 use Bitrix\Bizproc\Api\Response\TaskService\DelegateTasksResponse;
 use Bitrix\Bizproc\Api\Response\TaskService\GetUserTaskListResponse;
+use Bitrix\Bizproc\Api\Response\TaskService\GetUserTaskByWorkflowIdResponse;
 use Bitrix\Bizproc\Result;
 use Bitrix\Bizproc\Workflow\Task\TaskTable;
 use Bitrix\Main\ArgumentException;
@@ -140,7 +142,7 @@ class TaskService
 		$taskList = [];
 		while ($task = $tasksIterator->fetch())
 		{
-			$taskList[] = $this->prepareTaskInfo($task);
+			$taskList[] = $this->prepareTaskInfo($task, $tasksToGet->getTargetUserId());
 		}
 
 		return $getTasksResponse->setData(['tasks' => $taskList]);
@@ -151,7 +153,7 @@ class TaskService
 		$result = new Response\TaskService\DoTaskResponse();
 		$task = false;
 
-		$checkAccessResult = $this->accessService->checkViewTasks($request->userId);
+		$checkAccessResult = $this->accessService->checkDoTasks($request->userId);
 		if (!$checkAccessResult->isSuccess())
 		{
 			return $result->addErrors($checkAccessResult->getErrors());
@@ -302,9 +304,95 @@ class TaskService
 			return $response;
 		}
 
-		$task = $this->prepareTaskInfo($task);
+		$task = $this->prepareTaskInfo($task, $request->userId);
 
 		return $response->setTask($task);
+	}
+
+	public function getUserTaskByWorkflowId(GetUserTaskByWorkflowIdRequest $request): GetUserTaskByWorkflowIdResponse
+	{
+		$response = new GetUserTaskByWorkflowIdResponse();
+		$renderer = new \Bitrix\Bizproc\Controller\Response\RenderControlCollectionContent();
+		$task = false;
+		$taskQuery = null;
+
+		if ($request->workflowId)
+		{
+			$taskQuery =
+				\Bitrix\Bizproc\Workflow\Task\TaskTable::query()
+					->setSelect([
+						'ID',
+						'ACTIVITY',
+						'ACTIVITY_NAME',
+						'NAME',
+						'DESCRIPTION',
+						'PARAMETERS',
+						'TEMPLATE_ID' => 'WORKFLOW_STATE.WORKFLOW_TEMPLATE_ID',
+					])
+					->setFilter([
+						'=WORKFLOW_ID' => $request->workflowId,
+						'=TASK_USERS.USER_ID' => $request->userId,
+						'=TASK_USERS.STATUS' => \CBPTaskUserStatus::Waiting,
+					])
+					->setOrder(['ID' => 'DESC'])
+					->exec()
+			;
+			$task = $taskQuery->fetch();
+		}
+
+		if (!$task)
+		{
+			$response->setContent($renderer);
+
+			return $response;
+		}
+
+		$task['saveVariables'] = $task['PARAMETERS']['SaveVariables'] ?? false;
+		$controls = \CBPDocument::getTaskControls($task, $request->userId);
+
+		$task['BUTTONS'] = $controls['BUTTONS'] ?? null;
+		$task['FIELDS'] = $controls['FIELDS'] ?? null;
+		if (isset($task['DESCRIPTION']))
+		{
+			$task['DESCRIPTION'] = \CBPViewHelper::prepareTaskDescription(
+				\CBPHelper::convertBBtoText(
+					preg_replace('|\n+|', "\n", trim($task['DESCRIPTION']))
+				)
+			);
+		}
+
+		if ($taskQuery?->fetch())
+		{
+			$task['IS_LAST_TASK_FOR_USER'] = false;
+		}
+		else
+		{
+			$task['IS_LAST_TASK_FOR_USER'] = \CBPTaskService::isLastTaskForUserByActivity(
+				$task['ACTIVITY_NAME'],
+				$request->userId,
+				$task['TEMPLATE_ID'],
+				$task['ACTIVITY']
+			);
+		}
+		$response->setTask($task);
+
+		$documentService = \CBPRuntime::getRuntime()->getDocumentService();
+		$documentType = $documentService->getDocumentType($task['PARAMETERS']['DOCUMENT_ID']);
+		if (isset($task['FIELDS']) && is_array($task['FIELDS']))
+		{
+			foreach ($task['FIELDS'] as $parameter)
+			{
+				$params['Field'] = $parameter['FieldId'] ?? $parameter['Id'];
+				$params['Value'] = $parameter['Default'] ?? null;
+				$params['Als'] = false;
+				$params['RenderMode'] = 'public';
+
+				$renderer->addProperty($documentType, $parameter, $params);
+			}
+		}
+		$response->setContent($renderer);
+
+		return $response;
 	}
 
 	private function addUserTaskNotFoundError(Result $response, int $taskId, int $userId): void
@@ -354,7 +442,7 @@ class TaskService
 		);
 	}
 
-	private function prepareTaskInfo(array $task): array
+	private function prepareTaskInfo(array $task, int $userId = 0): array
 	{
 		$task['STATUS'] = (int)$task['STATUS'];
 
@@ -375,16 +463,16 @@ class TaskService
 		$task['DOCUMENT_ID'] = $documentId ? $documentId[2] : '';
 		$task['COMPLEX_DOCUMENT_ID'] = $documentId;
 
-		if (isset($arRecord['WORKFLOW_TEMPLATE_NAME']))
+		if (isset($task['WORKFLOW_TEMPLATE_NAME']))
 		{
 			$task['WORKFLOW_NAME'] = $task['WORKFLOW_TEMPLATE_NAME']; // compatibility
 		}
-		if (isset($arRecord['WORKFLOW_STARTED']))
+		if (isset($task['WORKFLOW_STARTED']))
 		{
 			$task['WORKFLOW_STARTED'] = FormatDateFromDB($task['WORKFLOW_STARTED']);
 		}
 
-		$controls = \CBPDocument::getTaskControls($task);
+		$controls = \CBPDocument::getTaskControls($task, $userId);
 
 		$task['BUTTONS'] = $controls['BUTTONS'] ?? null;
 		$task['FIELDS'] = $controls['FIELDS'] ?? null;

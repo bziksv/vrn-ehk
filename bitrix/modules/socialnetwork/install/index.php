@@ -183,12 +183,17 @@ Class socialnetwork extends CModule
 		$eventManager->registerEventHandler('main', 'onUserCounterGetValuesFromDb', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\UserCounter', 'onUserCounterGetValuesFromDb');
 		$eventManager->registerEventHandler('main', 'onUserCounterProcessCategory', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\UserCounter', 'onUserCounterProcessCategory');
 		$eventManager->registerEventHandler('main', 'onUserCounterClean', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\UserCounter', 'onUserCounterClean');
+		$eventManager->registerEventHandler('main', 'OnAfterUserDelete', 'socialnetwork', '\Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher', 'onAfterUserDelete');
 
+		$eventManager->registerEventHandler('tasks', 'OnTaskAdd', 'socialnetwork', '\Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher', 'OnTaskAdd');
+		$eventManager->registerEventHandler('tasks', 'OnTaskUpdate', 'socialnetwork', '\Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher', 'OnTaskUpdate');
+		$eventManager->registerEventHandler('tasks', 'OnTaskDelete', 'socialnetwork', '\Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher', 'OnTaskDelete');
 		$eventManager->registerEventHandler('tasks', 'onTaskUpdateViewed', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Tasks\Task', 'onTaskUpdateViewed');
 		$eventManager->registerEventHandler('calendar', 'onViewEvent', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Calendar\CalendarEvent', 'onViewEvent');
 		$eventManager->registerEventHandler('main', 'onRatingListViewed', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\RatingVoteList', 'onViewed');
 		$eventManager->registerEventHandler('mobile', 'onSetContentView', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Mobile\LogEntry', 'onSetContentView');
 		$eventManager->registerEventHandler('mobile', 'onGetContentId', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Mobile\LogEntry', 'onGetContentId');
+		$eventManager->registerEventHandler('mobile', 'onTariffRestrictionsCollect', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Mobile\TariffPlanRestriction', 'getTariffPlanRestrictions');
 		$eventManager->registerEventHandler('pull', 'onGetMobileCounter', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Pull\Counter', 'onGetMobileCounter');
 		$eventManager->registerEventHandler('pull', 'onGetMobileCounterTypes', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Pull\Counter', 'onGetMobileCounterTypes');
 		$eventManager->registerEventHandler('intranet', 'onEmployeeDepartmentsChanged', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Intranet\Structure\Employee', 'onEmployeeDepartmentsChanged');
@@ -204,6 +209,117 @@ Class socialnetwork extends CModule
 		$eventManager->registerEventHandler('socialnetwork', 'OnSocNetUserToGroupAdd', 'socialnetwork', '\Bitrix\Socialnetwork\Internals\Space\Counter\Cache', 'invalidateCache');
 		$eventManager->registerEventHandler('socialnetwork', 'OnSocNetUserToGroupUpdate', 'socialnetwork', '\Bitrix\Socialnetwork\Internals\Space\Counter\Cache', 'invalidateCache');
 		$eventManager->registerEventHandler('socialnetwork', 'OnSocNetUserToGroupDelete', 'socialnetwork', '\Bitrix\Socialnetwork\Internals\Space\Counter\Cache', 'invalidateCache');
+		$eventManager->registerEventHandler('intranet', 'onCopyCollabInviteLink', 'socialnetwork', '\Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher', 'onCopyCollabInviteLink');
+		$eventManager->registerEventHandler('forum', 'OnAfterCommentAdd', 'socialnetwork', '\Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher', 'OnAfterCommentAdd');
+		$eventManager->registerEventHandler('calendar', 'OnAfterCalendarEventEdit', 'socialnetwork', '\Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher', 'OnAfterCalendarEventEdit');
+		$eventManager->registerEventHandler('disk', 'onAfterAddFile', 'socialnetwork', '\Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher', 'onAfterAddFile');
+		$eventManager->registerEventHandler('disk', 'onAfterDeleteFile', 'socialnetwork', '\Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher', 'onAfterDeleteFile');
+		$eventManager->registerEventHandler('disk', 'onAfterAddExternalLinkToObject', 'socialnetwork', '\Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher', 'onAfterAddExternalLinkToObject');
+
+		// collab
+		$eventManager->registerEventHandler(
+			'tasks',
+			'OnTaskAdd',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher',
+			'OnTaskAdd',
+		);
+
+		$eventManager->registerEventHandler(
+			'tasks',
+			'OnTaskUpdate',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher',
+			'OnTaskUpdate',
+		);
+
+		$eventManager->registerEventHandler(
+			'tasks',
+			'OnTaskDelete',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher',
+			'OnTaskDelete',
+		);
+
+		$eventManager->registerEventHandler(
+			'main',
+			'OnAfterUserDelete',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher',
+			'onAfterUserDelete',
+		);
+
+		$eventManager->registerEventHandler(
+			'intranet',
+			'onCopyCollabInviteLink',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher',
+			'onCopyCollabInviteLink',
+		);
+
+		$eventManager->registerEventHandler(
+			'calendar',
+			'OnAfterCalendarEventDelete',
+			'socialnetwork',
+			'Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher',
+			'OnAfterCalendarEventDelete',
+		);
+
+		$eventManager->registerEventHandler(
+			'intranet',
+			'onRegenerateCollabInviteLink',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher',
+			'onRegenerateCollabInviteLink',
+		);
+
+		$eventManager->registerEventHandler(
+			'main',
+			'OnAfterUserUpdate',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Onboarding\Event\EventDispatcher',
+			'OnAfterUserFired',
+		);
+
+		$eventManager->registerEventHandler(
+			'main',
+			'OnAfterUserDelete',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Onboarding\Event\EventDispatcher',
+			'OnAfterUserDelete',
+		);
+
+		$eventManager->registerEventHandler(
+			'humanresources',
+			'OnRelationAdded',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Integration\Humanresources\EventHandler',
+			'OnRelationAdded',
+		);
+
+		$eventManager->registerEventHandler(
+			'humanresources',
+			'OnRelationDeleted',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Integration\Humanresources\EventHandler',
+			'OnRelationDeleted',
+		);
+
+		$eventManager->registerEventHandler(
+			'humanresources',
+			'OnMemberAdded',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Integration\Humanresources\EventHandler',
+			'onMemberAdded'
+		);
+
+		$eventManager->registerEventHandler(
+			'humanresources',
+			'OnMemberDeleted',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Integration\Humanresources\EventHandler',
+			'onMemberDeleted'
+		);
 
 		CAgent::AddAgent("CSocNetMessages::SendEventAgent();", "socialnetwork", "N", 600);
 		CAgent::AddAgent(
@@ -447,12 +563,12 @@ Class socialnetwork extends CModule
 		$eventManager->unregisterEventHandler('main', 'onUserCounterGetValuesFromDb', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\UserCounter', 'onUserCounterGetValuesFromDb');
 		$eventManager->unregisterEventHandler('main', 'onUserCounterProcessCategory', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\UserCounter', 'onUserCounterProcessCategory');
 		$eventManager->unregisterEventHandler('main', 'onUserCounterClean', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\UserCounter', 'onUserCounterClean');
-
 		$eventManager->unregisterEventHandler('tasks', 'onTaskUpdateViewed', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Tasks\Task', 'onTaskUpdateViewed');
 		$eventManager->unregisterEventHandler('calendar', 'onViewEvent', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Calendar\CalendarEvent', 'onViewEvent');
 		$eventManager->unregisterEventHandler('main', 'onRatingListViewed', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\RatingVoteList', 'onViewed');
 		$eventManager->unregisterEventHandler('mobile', 'onSetContentView', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Mobile\LogEntry', 'onSetContentView');
 		$eventManager->unregisterEventHandler('mobile', 'onGetContentId', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Mobile\LogEntry', 'onGetContentId');
+		$eventManager->unregisterEventHandler('mobile', 'onTariffRestrictionsCollect', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Mobile\TariffPlanRestriction', 'getTariffPlanRestrictions');
 		$eventManager->unregisterEventHandler('pull', 'onGetMobileCounter', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Pull\Counter', 'onGetMobileCounter');
 		$eventManager->unregisterEventHandler('pull', 'onGetMobileCounterTypes', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Pull\Counter', 'onGetMobileCounterTypes');
 		$eventManager->unregisterEventHandler('intranet', 'onEmployeeDepartmentsChanged', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Intranet\Structure\Employee', 'onEmployeeDepartmentsChanged');
@@ -466,6 +582,133 @@ Class socialnetwork extends CModule
 		$eventManager->unregisterEventHandler('ai', 'onContextGetMessages', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\AI\Controller', 'onContextGetMessages');
 		$eventManager->unregisterEventHandler('ai', 'onTuningLoad', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\AI\Settings', 'onTuningLoad');
 
+		// collab
+		$eventManager->unregisterEventHandler(
+			'intranet',
+			'onRegenerateCollabInviteLink',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher',
+			'onRegenerateCollabInviteLink',
+		);
+
+		$eventManager->unRegisterEventHandler(
+			'tasks',
+			'OnTaskAdd',
+			'socialnetwork',
+			'Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher',
+			'OnTaskAdd'
+		);
+		$eventManager->unRegisterEventHandler(
+			'tasks',
+			'OnTaskUpdate',
+			'socialnetwork',
+			'Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher',
+			'OnTaskUpdate'
+		);
+		$eventManager->unRegisterEventHandler(
+			'tasks',
+			'OnTaskDelete',
+			'socialnetwork',
+			'Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher',
+			'OnTaskDelete'
+		);
+		$eventManager->unRegisterEventHandler(
+			'main',
+			'OnAfterUserDelete',
+			'socialnetwork',
+			'Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher',
+			'onAfterUserDelete'
+		);
+		$eventManager->unRegisterEventHandler(
+			'intranet',
+			'onCopyCollabInviteLink',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher',
+			'onCopyCollabInviteLink'
+		);
+		$eventManager->unRegisterEventHandler(
+			'forum',
+			'OnAfterCommentAdd',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher',
+			'OnAfterCommentAdd'
+		);
+		$eventManager->unRegisterEventHandler(
+			'disk',
+			'onAfterAddFile',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher',
+			'onAfterAddFile'
+		);
+		$eventManager->unRegisterEventHandler(
+			'disk',
+			'onAfterDeleteFile',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher',
+			'onAfterDeleteFile',
+		);
+		$eventManager->unRegisterEventHandler(
+			'disk',
+			'onAfterAddExternalLinkToObject',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher',
+			'onAfterAddExternalLinkToObject',
+		);
+		$eventManager->unRegisterEventHandler(
+			'calendar',
+			'OnAfterCalendarEventEdit',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Entity\Event\EventDispatcher',
+			'OnAfterCalendarEventEdit'
+		);
+
+		$eventManager->unRegisterEventHandler(
+			'main',
+			'OnAfterUserUpdate',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Onboarding\Event\EventDispatcher',
+			'OnAfterUserFired',
+		);
+
+		$eventManager->unRegisterEventHandler(
+			'main',
+			'OnAfterUserDelete',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Onboarding\Event\EventDispatcher',
+			'OnAfterUserDelete',
+		);
+
+		$eventManager->unRegisterEventHandler(
+			'humanresources',
+			'OnRelationAdded',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Integration\Humanresources\EventHandler',
+			'OnRelationAdded',
+		);
+
+		$eventManager->unRegisterEventHandler(
+			'humanresources',
+			'OnRelationDeleted',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Integration\Humanresources\EventHandler',
+			'OnRelationDeleted',
+		);
+
+		$eventManager->unRegisterEventHandler(
+			'humanresources',
+			'OnMemberAdded',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Integration\Humanresources\EventHandler',
+			'onMemberAdded'
+		);
+
+		$eventManager->unRegisterEventHandler(
+			'humanresources',
+			'OnMemberDeleted',
+			'socialnetwork',
+			'\Bitrix\Socialnetwork\Collab\Integration\Humanresources\EventHandler',
+			'onMemberDeleted'
+		);
 
 		UnRegisterModule("socialnetwork");
 		return true;
@@ -480,7 +723,6 @@ Class socialnetwork extends CModule
 		if (!!$id)
 		{
 			$USER_FIELD_MANAGER->CleanCache();
-			$USER_FIELD_MANAGER->arUserTypes = '';
 
 			$createIndex = false;
 			$arFields = array();
@@ -942,18 +1184,15 @@ Class socialnetwork extends CModule
 
 	function InstallFiles()
 	{
-		if($_ENV["COMPUTERNAME"]!='BX')
-		{
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin", true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/images",  $_SERVER["DOCUMENT_ROOT"]."/bitrix/images/socialnetwork", true, True);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/sounds",  $_SERVER["DOCUMENT_ROOT"]."/bitrix/sounds", true, True);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/themes", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/gadgets", $_SERVER["DOCUMENT_ROOT"]."/bitrix/gadgets", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/tools", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/activities", $_SERVER["DOCUMENT_ROOT"]."/bitrix/activities", true, true);
-		}
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin", true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/images",  $_SERVER["DOCUMENT_ROOT"]."/bitrix/images/socialnetwork", true, True);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/sounds",  $_SERVER["DOCUMENT_ROOT"]."/bitrix/sounds", true, True);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/themes", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/gadgets", $_SERVER["DOCUMENT_ROOT"]."/bitrix/gadgets", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/tools", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/activities", $_SERVER["DOCUMENT_ROOT"]."/bitrix/activities", true, true);
 		return true;
 	}
 

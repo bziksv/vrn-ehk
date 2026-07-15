@@ -1,0 +1,31 @@
+<ShelvingAndBookcase>
+	<Model variable="string"/>
+	<ColorName variable="string"/>
+	<ShelvingType name="Стеллаж"/>
+	<ShelvingType name="Этажерка"/>
+	<ShelvingType name="Другой"/>
+	<FixtureType name="К полу"/>
+	<FixtureType name="К стене"/>
+	<FixtureType name="Нет"/>
+	<Material name="Дерево"/>
+	<Material name="ДСП"/>
+	<Material name="ЛДСП"/>
+	<Material name="МДФ"/>
+	<Material name="Металл"/>
+	<Material name="Пластик"/>
+	<Material name="Стекло"/>
+	<Material name="Шпон"/>
+	<Material name="Другой"/>
+	<Width variable="int"/>
+	<Height variable="int"/>
+	<Depth variable="int"/>
+	<FurnitureAdditions name="Задняя стенка"/>
+	<FurnitureAdditions name="Колёсики"/>
+	<FurnitureAdditions name="Ящики"/>
+	<Purpose name="Балкон"/>
+	<Purpose name="Ванная"/>
+	<Purpose name="Гараж"/>
+	<Purpose name="Гостиная"/>
+	<Purpose name="Детская"/>
+	<Purpose name="Офис"/>
+</ShelvingAndBookcase>

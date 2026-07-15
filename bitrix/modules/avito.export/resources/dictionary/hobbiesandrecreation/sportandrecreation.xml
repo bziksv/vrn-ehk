@@ -1,0 +1,360 @@
+<root>
+	<GoodsType name="Ролики и скейтбординг"/>
+	<GoodsType name="Настольные игры"/>
+	<GoodsType name="Теннис, бадминтон, пинг-понг"/>
+	<GoodsType name="Пейнтбол и страйкбол"/>
+	<GoodsType name="Единоборства"/>
+	<GoodsType name="Бильярд и боулинг"/>
+	<GoodsType name="Другое"/>
+	<GoodsType name="Фитнес и тренажёры">
+		<FitnessType name="Кардиотренажёры">
+			<TrainerType name="Беговая дорожка"/>
+			<TrainerType name="Велотренажёр"/>
+			<TrainerType name="Велостанок"/>
+			<TrainerType name="Аэробайк"/>
+			<TrainerType name="Эллиптический тренажёр"/>
+			<TrainerType name="Степпер"/>
+			<TrainerType name="Гребной тренажёр"/>
+			<TrainerType name="Лестничный тренажёр"/>
+			<TrainerType name="Кросстренер"/>
+			<TrainerType name="Виброплатформа"/>
+			<TrainerType name="Другой"/>
+			<Location name="Для дома"/>
+			<Location name="Для спортзала"/>
+			<Location name="Универсальный"/>
+			<Brand file="sportandrecreation/kardiotrenazhyory.xml" rename="true"/>
+			<Resistance name="Механическая"/>
+			<Resistance name="Магнитная"/>
+			<Resistance name="Электромагнитная"/>
+			<Resistance name="Инерционная"/>
+			<Resistance name="Воздушная"/>
+			<Resistance name="Водная"/>
+		</FitnessType>
+		<FitnessType name="Силовые тренажёры и инвентарь">
+			<GoodsSubType name="Тренажёры">
+				<TrainerType name="Мультистанция"/>
+				<TrainerType name="Грузоблочный тренажёр"/>
+				<TrainerType name="Кроссовер"/>
+				<TrainerType name="Силовая рама"/>
+				<TrainerType name="Смит-машина"/>
+				<TrainerType name="Тренажёр для кинезитерапии"/>
+				<TrainerType name="Вертикальная тяга"/>
+				<TrainerType name="Дельта-машина"/>
+				<TrainerType name="Гравитрон"/>
+				<TrainerType name="Вращение торса"/>
+				<TrainerType name="Трицепс-машина"/>
+				<TrainerType name="Бицепс-машина"/>
+				<TrainerType name="Армрестлинг-тренажёр"/>
+				<TrainerType name="Тренажёр для пресса"/>
+				<TrainerType name="Инверсионный стол"/>
+				<TrainerType name="Гиперэкстензия"/>
+				<TrainerType name="Жим ногами"/>
+				<TrainerType name="Сгибание/разгибание ног"/>
+				<TrainerType name="Платформа для приседаний"/>
+				<TrainerType name="Гакк-машина"/>
+				<TrainerType name="Ягодичный мост"/>
+				<TrainerType name="Тренажёр для голени"/>
+				<TrainerType name="Горнолыжный тренажёр"/>
+				<Location name="Для дома"/>
+				<Location name="Для спортзала"/>
+				<Location name="Универсальный"/>
+				<Muscle name="Все тело" multiple="true"/>
+				<Muscle name="Спина"/>
+				<Muscle name="Грудь"/>
+				<Muscle name="Плечи"/>
+				<Muscle name="Руки"/>
+				<Muscle name="Пресс"/>
+				<Muscle name="Ягодицы"/>
+				<Muscle name="Ноги"/>
+				<Brand file="sportandrecreation/brendov_silovye_trenazhyory_i_inventar_or_trenazhyory.xml" rename="true"/>
+			</GoodsSubType>
+			<GoodsSubType name="Скамьи и стойки">
+				<TrainerType name="Скамья для жима"/>
+				<TrainerType name="Скамья для пресса"/>
+				<TrainerType name="Универсальная скамья"/>
+				<TrainerType name="Скамья Скотта"/>
+				<TrainerType name="Скамья для ног"/>
+				<TrainerType name="Олимпийская скамья"/>
+				<TrainerType name="Римский стул"/>
+				<TrainerType name="Скамья для гиперэкстензии"/>
+				<TrainerType name="Силовая стойка"/>
+				<TrainerType name="Стойка для штанги"/>
+				<TrainerType name="Стойка для приседаний"/>
+				<TrainerType name="Стойка для гантелей"/>
+				<TrainerType name="Стойка для аксессуаров"/>
+				<Construction name="Регулируемая" multiple="true"/>
+				<Construction name="Фиксированная"/>
+				<Construction name="Складная"/>
+				<Construction name="Универсальная"/>
+				<Construction name="Модульная"/>
+				<Brand file="sportandrecreation/brendov_silovye_trenazhyory_i_inventar_or_trenazhyory.xml" rename="true"/>
+			</GoodsSubType>
+			<GoodsSubType name="Турники, брусья и стенки"/>
+			<GoodsSubType name="Гантели">
+				<Complect name="Гантель"/>
+				<Complect name="Пара гантелей"/>
+				<Complect name="Набор гантелей"/>
+				<Complect name="Гантельный ряд"/>
+				<Complect name="Гантели со штангой"/>
+				<Complect name="Диски"/>
+				<Complect name="Гриф"/>
+				<Construction name="Разборная"/>
+				<Construction name="Неразборная"/>
+				<Construction name="Регулируемая"/>
+				<Construction name="Литая"/>
+				<Weight file="sportandrecreation/dumbbells_weight.xml" multiple="true"/>
+				<Material name="Сталь"/>
+				<Material name="Хромированная сталь"/>
+				<Material name="Резина"/>
+				<Material name="Неопрен"/>
+				<Material name="Винил"/>
+				<Material name="Полиуретан"/>
+				<Material name="Пластик"/>
+				<Material name="Чугун"/>
+				<Material name="Силикон"/>
+			</GoodsSubType>
+			<GoodsSubType name="Штанги">
+				<Complect name="Штанга"/>
+				<Complect name="Набор штанг"/>
+				<Complect name="Гриф с замками"/>
+				<Complect name="Гриф без замков"/>
+				<Complect name="Диски"/>
+				<Complect name="Замки"/>
+				<Construction name="Разборная"/>
+				<Construction name="Неразборная"/>
+				<Construction name="Трансформер"/>
+				<Construction name="Складная"/>
+				<Weight file="sportandrecreation/bars_weight.xml" multiple="true"/>
+				<BarbellType name="Олимпийская"/>
+				<BarbellType name="Тренировочная"/>
+				<BarbellType name="Для фитнеса"/>
+				<BarbellType name="Для пауэрлифтинга"/>
+			</GoodsSubType>
+			<GoodsSubType name="Гири"/>
+			<GoodsSubType name="Уличные площадки"/>
+			<GoodsSubType name="Аксессуары для тренировок"/>
+		</FitnessType>
+		<FitnessType name="Аксессуары для фитнеса"/>
+		<FitnessType name="Детские спорткомплексы"/>
+		<FitnessType name="Карты и абонементы">
+			<GymType name="Фитнес клуб"/>
+			<GymType name="Тренажёрный зал"/>
+			<GymType name="Бассейн"/>
+			<GymType name="Растяжка"/>
+			<GymType name="Йога"/>
+			<GymType name="Пилатес"/>
+			<GymType name="Кроссфит"/>
+			<GymType name="Бокс"/>
+			<GymType name="Единоборства"/>
+			<GymType name="Аэробика"/>
+			<GymType name="Танцы"/>
+			<GymType name="Джампинг"/>
+			<GymType name="Сайклинг"/>
+			<GymType name="Бег"/>
+			<GymType name="Персональные тренировки"/>
+			<GymType name="Другое"/>
+			<VisitMode name="Безлимитный"/>
+			<VisitMode name="Утренний"/>
+			<VisitMode name="Дневной"/>
+			<VisitMode name="Вечерний"/>
+			<VisitMode name="Выходной день"/>
+			<VisitMode name="Разовое посещение"/>
+			<VisitMode name="Пробный период"/>
+			<Expiration name="до 1 месяца"/>
+			<Expiration name="1 месяц"/>
+			<Expiration name="2 месяца"/>
+			<Expiration name="3 месяца"/>
+			<Expiration name="4 месяца"/>
+			<Expiration name="5 месяцев"/>
+			<Expiration name="6 месяцев"/>
+			<Expiration name="7 месяцев"/>
+			<Expiration name="8 месяцев"/>
+			<Expiration name="9 месяцев"/>
+			<Expiration name="10 месяцев"/>
+			<Expiration name="11 месяцев"/>
+			<Expiration name="12 месяцев"/>
+			<Expiration name="более 12 месяцев"/>
+		</FitnessType>
+		<FitnessType name="Батуты"/>
+	</GoodsType>
+	<GoodsType name="Туризм и отдых на природе" oldNames="Туризм">
+		<TourismType name="Мангалы, плитки, горелки"/>
+		<TourismType name="Надувные матрасы и коврики"/>
+		<TourismType name="Палатки, тенты, шатры" oldNames="Палатки, тенты, спальники"/>
+		<TourismType name="Походная мебель"/>
+		<TourismType name="Походная посуда"/>
+		<TourismType name="Рюкзаки и экипировка"/>
+		<TourismType name="Спальные мешки"/>
+		<TourismType name="Туристические аксессуары"/>
+		<TourismType name="Фонари и лампы"/>
+	</GoodsType>
+	<GoodsType name="Игры с мячом"/>
+	<GoodsType name="Зимний спорт" oldNames="Зимние виды спорта">
+		<WinterSportType name="Хоккей">
+			<GoodsSubType name="Коньки">
+				<Age name="Дети (YTH)"/>
+				<Age name="Юниоры (JR)"/>
+				<Age name="Подростки (INT)"/>
+				<Age name="Взрослые (SR)"/>
+				<SizeRU file="sportandrecreation/konki_size.xml"/>
+				<Player name="Полевой игрок"/>
+				<Player name="Вратарь"/>
+			</GoodsSubType>
+			<GoodsSubType name="Клюшки">
+				<Age name="Дети (YTH)"/>
+				<Age name="Юниоры (JR)"/>
+				<Age name="Подростки (INT)"/>
+				<Age name="Взрослые (SR)"/>
+				<Handedness name="Правый"/>
+				<Handedness name="Левый"/>
+				<Handedness name="Прямой"/>
+				<Flex file="sportandrecreation/klyushki_flex.xml"/>
+				<Curve file="sportandrecreation/klyushki_curve.xml"/>
+				<Grip name="Без покрытия"/>
+				<Grip name="Противоскользящее (Grip)"/>
+				<Grip name="Комбинированное (Dual Grip)"/>
+				<Grip name="Гладкое (Clear)"/>
+				<Grip name="Матовое (Matte)"/>
+				<Grip name="Матовое с захватом (Matte Grip)"/>
+				<Player name="Полевой игрок"/>
+				<Player name="Вратарь"/>
+				<StickLength file="sportandrecreation/klyushki_stick_length.xml"/>
+			</GoodsSubType>
+			<GoodsSubType name="Форма и экипировка">
+				<Complect name="Нагрудник" multiple="true"/>
+				<Complect name="Шорты"/>
+				<Complect name="Щитки"/>
+				<Complect name="Налокотники"/>
+				<Complect name="Наколенники"/>
+				<Complect name="Джерси/Майка"/>
+				<Complect name="Гамаши"/>
+				<Complect name="Хоккейное бельё"/>
+				<Complect name="Носки"/>
+				<Complect name="Защита шеи"/>
+				<Complect name="Защита паха"/>
+				<Complect name="Другое"/>
+				<Brand file="sportandrecreation/forma_i_ekipirovka.xml" rename="true"/>
+				<Age name="Дети (YTH)"/>
+				<Age name="Юниоры (JR)"/>
+				<Age name="Подростки (INT)"/>
+				<Age name="Взрослые (SR)"/>
+				<Size name="XS" multiple="true"/>
+				<Size name="S"/>
+				<Size name="M"/>
+				<Size name="L"/>
+				<Size name="XL"/>
+				<Size name="XXL"/>
+				<Size name="Универсальный"/>
+				<Player name="Полевой игрок"/>
+				<Player name="Вратарь"/>
+				<Player name="Судья"/>
+			</GoodsSubType>
+			<GoodsSubType name="Шлемы"/>
+			<GoodsSubType name="Перчатки"/>
+			<GoodsSubType name="Аксессуары"/>
+		</WinterSportType>
+		<WinterSportType name="Фигурное катание">
+			<GoodsSubType name="Чехлы и запчасти для коньков"/>
+			<GoodsSubType name="Коньки фигурные"/>
+			<GoodsSubType name="Коньки раздвижные"/>
+			<GoodsSubType name="Одежда для фигуристов"/>
+			<GoodsSubType name="Аксессуары"/>
+		</WinterSportType>
+		<WinterSportType name="Лыжи и сноуборды">
+			<GoodsSubType name="Беговые лыжи">
+				<Brand file="sportandrecreation/lifestyle_katalog_brendov_begovye_lyzhi.xml" rename="true"/>
+				<RidingStyle name="Классический"/>
+				<RidingStyle name="Коньковый"/>
+				<RidingStyle name="Комбинированный"/>
+				<Age name="Для взрослых"/>
+				<Age name="Для детей"/>
+				<Length file="sportandrecreation/begovyelyzhi_length.xml"/>
+				<Complect name="Крепления" multiple="true"/>
+				<Complect name="Ботинки"/>
+				<Complect name="Палки"/>
+				<Complect name="Чехол"/>
+			</GoodsSubType>
+			<GoodsSubType name="Горные лыжи">
+				<Brand file="sportandrecreation/gornye_lyzhi.xml" rename="true"/>
+				<RidingStyle name="Универсальный"/>
+				<RidingStyle name="Фрирайд"/>
+				<RidingStyle name="Фристайл"/>
+				<RidingStyle name="Карвинг"/>
+				<RidingStyle name="Слалом"/>
+				<RidingStyle name="Гигантский слалом"/>
+				<Gender name="Мужской"/>
+				<Gender name="Женский"/>
+				<Gender name="Подходит всем"/>
+				<Age name="Для взрослых"/>
+				<Age name="Для детей"/>
+				<Length file="sportandrecreation/gornyelyzhi_length.xml"/>
+				<Complect name="Крепления" multiple="true"/>
+				<Complect name="Ботинки"/>
+				<Complect name="Палки"/>
+				<Complect name="Чехол"/>
+			</GoodsSubType>
+			<GoodsSubType name="Лыжные палки"/>
+			<GoodsSubType name="Сноуборды">
+				<Brand file="sportandrecreation/lifestyle_katalog_brendov_snoubordy.xml" rename="true"/>
+				<RidingStyle name="Универсальный"/>
+				<RidingStyle name="Фрирайд"/>
+				<RidingStyle name="Фристайл"/>
+				<RidingStyle name="Карвинг"/>
+				<Age name="Для взрослых"/>
+				<Age name="Для детей"/>
+				<Gender name="Мужской"/>
+				<Gender name="Женский"/>
+				<Gender name="Подходит всем"/>
+				<Length file="sportandrecreation/snoubordy_length.xml"/>
+				<Flex name="Мягкий"/>
+				<Flex name="Средний"/>
+				<Flex name="Жёсткий"/>
+				<Complect name="Крепления" multiple="true"/>
+				<Complect name="Ботинки"/>
+				<Complect name="Чехол"/>
+			</GoodsSubType>
+			<GoodsSubType name="Ботинки и крепления">
+				<ProductType name="Ботинки горнолыжные">
+					<SizeRU file="sportandrecreation/boots_size.xml"/>
+				</ProductType>
+				<ProductType name="Крепления горнолыжные"/>
+				<ProductType name="Ботинки лыжные">
+					<SizeRU file="sportandrecreation/boots_size.xml"/>
+				</ProductType>
+				<ProductType name="Крепления лыжные"/>
+				<ProductType name="Ботинки для сноуборда">
+					<SizeRU file="sportandrecreation/boots_size.xml"/>
+				</ProductType>
+				<ProductType name="Крепления для сноуборда"/>
+				<Brand file="sportandrecreation/lifestyle_katalog_brendov_botinki_i_krepleniya.xml" rename="true"/>
+				<RidingStyle name="Универсальный"/>
+				<RidingStyle name="Классический ход"/>
+				<RidingStyle name="Коньковый ход"/>
+				<RidingStyle name="Комбинированный ход"/>
+				<RidingStyle name="Фрирайд"/>
+				<RidingStyle name="Фристайл"/>
+				<RidingStyle name="Карвинг"/>
+				<RidingStyle name="Слалом"/>
+				<Gender name="Мужской"/>
+				<Gender name="Женский"/>
+				<Gender name="Подходит всем"/>
+				<Age name="Для взрослых"/>
+				<Age name="Для детей"/>
+			</GoodsSubType>
+			<GoodsSubType name="Одежда"/>
+			<GoodsSubType name="Защита и экипировка"/>
+			<GoodsSubType name="Аксессуары"/>
+		</WinterSportType>
+		<WinterSportType name="Сани, снегокаты и тюбинги"/>
+		<WinterSportType name="Аксессуары и запчасти"/>
+	</GoodsType>
+	<GoodsType name="Дайвинг и водный спорт">
+		<WaterSportType name="Сёрфы и сапборды"/>
+		<WaterSportType name="Гидрокостюмы"/>
+		<WaterSportType name="Аксессуары для плавания"/>
+		<WaterSportType name="Инвентарь для водного спорта"/>
+		<WaterSportType name="Бассейны и комплектующие"/>
+		<WaterSportType name="Вёсельные лодки"/>
+	</GoodsType>
+	<GoodsType name="Спортивное питание"/>
+</root>

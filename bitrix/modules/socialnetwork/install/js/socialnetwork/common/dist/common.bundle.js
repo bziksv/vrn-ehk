@@ -1,6 +1,7 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Socialnetwork = this.BX.Socialnetwork || {};
-(function (exports,im_public,main_popup,ui_buttons,ui_popupcomponentsmaker,main_core) {
+(function (exports,main_core_events,im_public,main_popup,ui_buttons,ui_popupcomponentsmaker,main_core) {
 	'use strict';
 
 	var Waiter = /*#__PURE__*/function () {
@@ -370,11 +371,36 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	            if (params.editFeaturesAllowed) {
 	              featuresItem.href = params.urls.features;
 	            } else {
+	              featuresItem.className = 'menu-popup-item menu-popup-no-icon sonet-common-tariff-lock';
 	              featuresItem.onclick = function () {
-	                B24.licenseInfoPopup.show('sonetGroupFeatures', main_core.Loc.getMessage('SONET_EXT_COMMON_B24_SONET_GROUP_FEATURES_TITLE'), "<span>".concat(main_core.Loc.getMessage('SONET_EXT_COMMON_B24_SONET_GROUP_FEATURES_TEXT'), "</span>"), true);
+	                main_core.Runtime.loadExtension('socialnetwork.limit').then(function (exports) {
+	                  var Limit = exports.Limit;
+	                  Limit.showInstance({
+	                    featureId: 'socialnetwork_projects_access_permissions'
+	                  });
+	                });
 	              };
 	            }
 	            menu.push(featuresItem);
+	          }
+	          var isCollabConverterEnabled = main_core.Extension.getSettings('socialnetwork.common').isCollabConverterEnabled;
+	          if (isCollabConverterEnabled && params.userRole === main_core.Loc.getMessage('USER_TO_GROUP_ROLE_OWNER') && !params.isProject && !params.isScrumProject) {
+	            menu.push({
+	              text: main_core.Loc.getMessage('SONET_EXT_COMMON_GROUP_MENU_CONVERT_TO_COLLAB'),
+	              title: main_core.Loc.getMessage('SONET_EXT_COMMON_GROUP_MENU_CONVERT_TO_COLLAB'),
+	              onclick: function onclick(event, menuItem) {
+	                menuItem.getMenuWindow().close();
+	                main_core.Runtime.loadExtension('socialnetwork.collab.converter').then(function (exports) {
+	                  var ConverterClass = exports.Converter;
+	                  var id = parseInt(main_core.Type.isUndefined(params.groupId) ? 0 : params.groupId, 10);
+	                  new ConverterClass({
+	                    redirectAfterSuccess: true
+	                  }).convertToCollab(id);
+	                })["catch"](function (error) {
+	                  console.error(error);
+	                });
+	              }
+	            });
 	          }
 	          itemTitle = main_core.Loc.getMessage('SONET_EXT_COMMON_GROUP_MENU_DELETE');
 	          if (!!params.isScrumProject) {
@@ -413,7 +439,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	            href: params.urls.requestsOut
 	          });
 	        }
-	        if (params.perms.canModify) {
+	        if (params.perms.canCreate) {
 	          itemTitle = main_core.Loc.getMessage('SONET_EXT_COMMON_GROUP_MENU_COPY');
 	          if (!!params.isScrumProject) {
 	            itemTitle = main_core.Loc.getMessage('SONET_EXT_COMMON_GROUP_MENU_COPY_SCRUM');
@@ -427,24 +453,18 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	          if (params.copyFeatureAllowed) {
 	            copyGroupItem.href = params.urls.copy;
 	          } else {
+	            copyGroupItem.className = 'menu-popup-item menu-popup-no-icon sonet-common-tariff-lock';
 	            copyGroupItem.onclick = function () {
-	              if (!!params.isProject) {
-	                BX.UI.InfoHelper.show('limit_task_copy_project', {
-	                  isLimit: true,
+	              main_core.Runtime.loadExtension('socialnetwork.limit').then(function (exports) {
+	                var Limit = exports.Limit;
+	                Limit.showInstance({
+	                  featureId: 'socialnetwork_copy_project',
 	                  limitAnalyticsLabels: {
 	                    module: 'socialnetwork',
 	                    source: 'projectCardActions'
 	                  }
 	                });
-	              } else {
-	                BX.UI.InfoHelper.show('limit_task_copy_group', {
-	                  isLimit: true,
-	                  limitAnalyticsLabels: {
-	                    module: 'socialnetwork',
-	                    source: 'projectCardActions'
-	                  }
-	                });
-	              }
+	              });
 	            };
 	          }
 	          if (!params.isScrumProject)
@@ -755,6 +775,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    _this.projectTypeCode = main_core.Type.isStringFilled(params.projectTypeCode) ? params.projectTypeCode : '';
 	    _this.urls = main_core.Type.isPlainObject(params.urls) ? params.urls : {};
 	    _this.perms = main_core.Type.isPlainObject(params.perms) ? params.perms : {};
+	    _this.editRolesAllowed = main_core.Type.isBoolean(params.editRolesAllowed) ? params.editRolesAllowed : false;
 	    return _this;
 	  }
 	  babelHelpers.createClass(WorkgroupWidget, [{
@@ -863,15 +884,31 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      var _this4 = this;
 	      var canOpen = main_core.Type.isBoolean(this.perms.canModify) && this.perms.canModify;
 	      var hint = !canOpen ? "data-hint=\"".concat(main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ROLES_TITLE_NO_PERMISSIONS'), "\" data-hint-no-icon") : '';
-	      var node = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"sonet-common-widget-item\" ", ">\n\t\t\t\t<div class=\"sonet-common-widget-item-container\">\n\t\t\t\t\t<div class=\"sonet-common-widget-icon ui-icon ui-icon-service-light-roles-rights\"><i></i></div>\n\t\t\t\t\t<div class=\"sonet-common-widget-item-content\">\n\t\t\t\t\t\t<div class=\"sonet-common-widget-item-title\">", "</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), hint, main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ROLES_TITLE'));
+	      var contentClass = this.editRolesAllowed ? 'sonet-common-widget-item-content' : 'sonet-common-widget-item-content-lock';
+	      var hiddenClass = this.editRolesAllowed ? '--hidden' : '';
+	      var node = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"sonet-common-widget-item\" ", ">\n\t\t\t\t<div class=\"sonet-common-widget-item-container\">\n\t\t\t\t\t<div class=\"sonet-common-widget-icon ui-icon ui-icon-service-light-roles-rights\"><i></i></div>\n\t\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t\t<div class=\"sonet-common-widget-item-title\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"sonet-common-widget-item-tariff-lock ", "\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), hint, contentClass, main_core.Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ROLES_TITLE'), hiddenClass);
 	      main_core.Event.bind(node, 'click', function () {
 	        if (!canOpen || !main_core.Type.isStringFilled(_this4.urls.features)) {
 	          return;
 	        }
-	        BX.SidePanel.Instance.open(_this4.urls.features, {
-	          width: 800,
-	          loader: 'group-features-loader'
-	        });
+	        if (_this4.editRolesAllowed) {
+	          BX.SidePanel.Instance.open(_this4.urls.features, {
+	            width: 800,
+	            loader: 'group-features-loader'
+	          });
+	        } else {
+	          // eslint-disable-next-line promise/catch-or-return
+	          main_core.Runtime.loadExtension('socialnetwork.limit').then(function (exports) {
+	            var Limit = exports.Limit;
+	            Limit.showInstance({
+	              featureId: 'socialnetwork_projects_access_permissions',
+	              limitAnalyticsLabels: {
+	                module: 'socialnetwork',
+	                source: 'projectWidget'
+	              }
+	            });
+	          });
+	        }
 	        _this4.hide();
 	      });
 	      return node;
@@ -898,5 +935,5 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	exports.WorkgroupWidget = WorkgroupWidget;
 	exports.RecallJoinRequest = RecallJoinRequest;
 
-}((this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {}),BX.Messenger.v2.Lib,BX.Main,BX.UI,BX.UI,BX));
+}((this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {}),BX.Event,BX.Messenger.v2.Lib,BX.Main,BX.UI,BX.UI,BX));
 //# sourceMappingURL=common.bundle.js.map

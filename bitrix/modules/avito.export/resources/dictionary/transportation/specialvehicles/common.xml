@@ -1,0 +1,24 @@
+<root>
+	<Currency name="RUB"/>
+	<Currency name="USD"/>
+	<Currency name="EUR"/>
+	<Currency name="CNY"/>
+	<Currency name="JPY"/>
+	<Condition name="Б/у"/>
+	<Condition name="На запчасти"/>
+	<Condition name="Новое">
+		<AdditionalEquipment name="Да"/>
+		<AdditionalEquipment name="Нет"/>
+		<CurrencyPrice variable="text"/>
+		<DeliveryPrice variable="text"/>
+		<LeasingDiscount variable="text"/>
+		<PriceWithScrapCollection name="Да"/>
+		<PriceWithScrapCollection name="Нет"/>
+		<VolumeDiscount name="Да"/>
+		<VolumeDiscount name="Нет"/>
+		<WarrantyFee variable="text"/>
+		<Year name="2023"/>
+		<Year name="2024"/>
+		<Year name="2025"/>
+	</Condition>
+</root>

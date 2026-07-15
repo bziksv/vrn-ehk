@@ -1,15 +1,16 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetPageProperty("title", "Доставка кованых изделий");
+$APPLICATION->SetPageProperty("description", "Доставка элементов художественной ковки по городу, области и всей России. Подробные условия: сроки, стоимость, самовывоз. Оптовые поставки по России. Гарантия сохранности груза.");
+$APPLICATION->SetPageProperty("title", "Условия доставки кованых элементов | ЭХК");
 $APPLICATION->SetTitle("Доставка");
 ?><div class="payment_delivery_page">
 	<div class="inn">
 		<div class="delivery tabs_change">
  <noindex> <span>
 			<ul class="man">
-				<li class="active change_tab"> <a href="#">Город</a> </li>
+				<li class="active change_tab"> <a href="#">Россия</a> </li>
+				<li class="change_tab"> <a href="#">Город</a> </li>
 				<li class="change_tab"> <a href="#">Область</a> </li>
-				<li class="change_tab"> <a href="#">Россия</a> </li>
 			</ul>
 			<div class="clear">
 			</div>
@@ -17,7 +18,50 @@ $APPLICATION->SetTitle("Доставка");
 			<div class="tabs">
 				<div class="tab active">
 					<div class="container">
-						<p class="preview">
+						<p>
+							 Мы осуществляем доставку заказов в любой регион России через транспортные компании. Вы можете выбрать любого перевозчика, с которым вам удобно работать (главное, чтобы его терминал был в вашем городе).
+						</p>
+						<p>
+ <b>Условия доставки:</b>
+						</p>
+						<ul>
+							<li> <b>Бесплатно</b> доставляем ваш заказ до терминала транспортной компании в нашем городе.</li>
+							<li>Стоимость перевозки зависит от тарифов выбранной ТК и дальности региона — оплачивается при получении груза.</li>
+							<li>Отправка заказов в регионы осуществляется только по 100% предоплате стоимости товара.</li>
+							<li>Передача заказа перевозчику производится в течение 2–3 рабочих дней после поступления оплаты.</li>
+						</ul>
+						<p>
+ <b>Как получить груз:</b>
+						</p>
+						<ul>
+							<li>
+							Когда заказ поступит на терминал в вашем городе, транспортная компания уведомит вас по телефону.</li>
+							<li>Для получения груза физическому лицу необходим паспорт, представителю организации — доверенность.</li>
+						</ul>
+						<p>
+						</p>
+						<div class="del_comp">
+ 
+
+<a target="_blank" title="ПЭК" href="http://www.pecom.ru/ru/services/send/warehouses/voronezh/"> <img width="125" alt="2.jpg" src="http://polimer-vrn.ru/upload/medialibrary/0a8/0a8832f2254fa79b690e4b01d68818d3.jpg" height="40" title="пэк.jpg" hspace="2" border="0" align="left"> </a> <a target="_blank" title="Деловые линии" href="https://www.dellin.ru/"><img width="144" alt="4.jpg" src="http://polimer-vrn.ru/upload/medialibrary/5e7/5e79f7d15c55a1e037f3fee3ce6e1351.jpg" height="30" title="Деловые линии.jpg" hspace="2" border="0" align="left"> </a> <a target="_blank" title="Байкал сервис" href="http://www.baikalsr.ru/"> <img width="195" alt="5.png" src="http://polimer-vrn.ru/upload/medialibrary/38f/38fddbde384ae486954e509d2d20daf9.png" height="25" title="байкал сервис.png" hspace="2" border="0" align="left"> </a> <!--<a target="_blank" title="Желдорэкспедиция" href="http://www.jde.ru/"> <img width="84" alt="6.jpg" src="http://polimer-vrn.ru/upload/medialibrary/942/942bffc3a573a657380a7289dc7a7912.jpg" height="35" title="желдор.jpg" hspace="2" border="0" align="left"> </a>--> <a target="_blank" title="Энергия" href="https://nrg-tk.ru/contacts/russia/voronezh/"> <img width="100" alt="6.jpg" src="/bitrix/templates/main/images/del_logo_1.png" title="желдор.jpg" hspace="2" border="0" align="left"> </a> <a target="_blank" title="ПЭК" href="https://www.cdek.ru/"> <img width="120" alt="logo-sdek.jpg" src="/upload/medialibrary/logo-sdek.jpg" height="26" hspace="2" border="0" align="left"> </a>
+							<div class="clear">
+							</div>
+						</div>
+						<p>
+ <b>Минимальная сумма заказа</b> для отправки в регионы – от 2000 руб.
+						</p>
+						<p>
+ <b>Важно! </b>Неоплаченный заказ резервируется на 3 рабочих дня. Если оплата не поступит в этот срок, товары автоматически снимаются с резерва.
+						</p>
+						<p>
+ <b>Претензии:</b> Мы принимаем претензии по составу заказа в течение 7 дней с момента получения груза из транспортной компании (при условии сохранности упаковки).<br>
+ <b>Внимание:</b> При получении груза в терминале ТК обязательно проверяйте целостность упаковки. Если она повреждена, требуйте составления акта расхождения сразу на месте — это необходимо для решения возможных проблем с недостачей или повреждением товара.
+						</p>
+					</div>
+				</div>
+				<div class="tab">
+					<div class="container">
+						<p>
 							 Сделав заказ в нашей компании, Вы можете забрать товар 2-мя способами:
 						</p>
 						<ul class="del_items">
@@ -85,39 +129,17 @@ $APPLICATION->SetTitle("Доставка");
  <i>Срочная доставка по городу осуществляется также после обсуждения с менеджером. </i> <br>
 							 Эта информация несёт общий информационный характер. При Вашем заказе товара, его доставка нашими менеджерами будет рассчитана индивидуально.
 						</p>
+
+
 						<div class="image">
- <img width="700" alt="ДОСТАВКА 2023 ПОЛИМЕР область" src="/upload/medialibrary/8c1/mv4dprht48o1nms0e54d7zaovjhsotjo/DOSTAVKA-2023-POLIMER-oblast.png">
+ <img width="700" alt="ДОСТАВКА 2023 ПОЛИМЕР область" src="/upload/medialibrary/07a/1vgu7vvc0yzpmdencl1uhtfb2pkmprkd/DOSTAVKA_2026_POLIMER_oblast.jpg">
 						</div>
+
 						<ul class="common">
 							<li>Перевозку по области нужно оплатить наличными в офисе отдельно, или включить в стоимость заказа при безналичном способе расчёта. Если габариты кованого изделия превышают объёмы транспорта, следует заранее уточнять условия у менеджера.</li>
 							<li>Претензии к качеству или комплектации груза нужно формировать в присутствии водителя до оплаты, который проверяется при получении. Проверять и оплачивать груз можно в течение 10 минут после получения. Принятие претензии к заказу возможно только в присутствии водителя. </li>
 							<li>Водитель занимается исключительно грузоперевозками, а не консультациями по вопросам, не связанным с этим.</li>
 						</ul>
-					</div>
-				</div>
-				<div class="tab">
-					<div class="container">
-						<p>
-							 Кроме доставки по городу и области, существует возможность транспортировки по России. По российским регионам грузы доставляют с помощью транспортных компаний.
-						</p>
-						<p>
-							 Для этого можно выбрать любую транспортную компанию, терминал которой присутствует в городе. Конечное значение стоимости будет зависеть от выбранной транспортной компании и дальности транспортировки. Транспортирование из компании к терминалу <span class="red">бесплатно</span>. Транспортировка в регионы Российской Федерации осуществляется только по предоплате. Передача заказа транспортным компаниям осуществляется в течение 2-3 суток после получения оплаты.
-						</p>
-						<p>
-							 Когда груз поступает в терминал транспортной компании в городе заказчика, грузоперевозчик сообщает по телефону о готовности к выдаче. Чтобы забрать товар, физическим лицам нужен документ, удостоверяющий личность; юридическим лицам нужно иметь на руках доверенность на получение груза. Оплата доставки осуществляется за счет покупателя во время забора товара из транспортной компании.
-						</p>
-						<div class="del_comp">
- <a target="_blank" title="ПЭК" href="http://www.pecom.ru/ru/services/send/warehouses/voronezh/"> <img width="125" alt="2.jpg" src="http://polimer-vrn.ru/upload/medialibrary/0a8/0a8832f2254fa79b690e4b01d68818d3.jpg" height="40" title="пэк.jpg" hspace="2" border="0" align="left"> </a> <a target="_blank" title="Деловые линии" href="https://www.dellin.ru/"><img width="144" alt="4.jpg" src="http://polimer-vrn.ru/upload/medialibrary/5e7/5e79f7d15c55a1e037f3fee3ce6e1351.jpg" height="30" title="Деловые линии.jpg" hspace="2" border="0" align="left"> </a> <a target="_blank" title="Байкал сервис" href="http://www.baikalsr.ru/"> <img width="195" alt="5.png" src="http://polimer-vrn.ru/upload/medialibrary/38f/38fddbde384ae486954e509d2d20daf9.png" height="25" title="байкал сервис.png" hspace="2" border="0" align="left"> </a> <!--<a target="_blank" title="Желдорэкспедиция" href="http://www.jde.ru/"> <img width="84" alt="6.jpg" src="http://polimer-vrn.ru/upload/medialibrary/942/942bffc3a573a657380a7289dc7a7912.jpg" height="35" title="желдор.jpg" hspace="2" border="0" align="left"> </a>--> <a target="_blank" title="Энергия" href="https://nrg-tk.ru/contacts/russia/voronezh/"> <img width="100" alt="6.jpg" src="/bitrix/templates/main/images/del_logo_1.png" title="желдор.jpg" hspace="2" border="0" align="left"> </a>  <a target="_blank" title="ПЭК" href="https://www.cdek.ru/"> <img width="120" alt="logo-sdek.jpg" src="/upload/medialibrary/logo-sdek.jpg" height="26" hspace="2" border="0" align="left"> </a>
-							<div class="clear">
-							</div>
-						</div>
-						<p>
-							 Обработка и отправка заказов в регионы осуществляется от 2000руб.
-						</p>
-						<p>
- <b>Внимание!</b> Товар по заказам без оплаты резервируется на 3 рабочих дня. В случае отсутствия оплаты товары автоматически снимаются с резерва. <br>
-							 Наша компания принимает претензии по отгруженным товарам в течение 7 дней с момента получения груза из Транспортной компании, при условии получения целого груза (без нарушения упаковки). В случае нарушения целостности упаковки при получении в транспортной компании, нужно составить акт расхождения на получение груза сразу в ТК., это позволит облегчить выяснение причин и решению проблемы в случае недостачи.
-						</p>
 					</div>
 				</div>
 			</div>

@@ -1,0 +1,20 @@
+<HallwaysAndShoeRacks>
+	<Model variable="string"/>
+	<ColorName variable="string"/>
+	<OutwearDresserType name="Прихожая"/>
+	<OutwearDresserType name="Обувница"/>
+	<OutwearDresserType name="Другой"/>
+	<Material name="Дерево"/>
+	<Material name="ДСП"/>
+	<Material name="ЛДСП"/>
+	<Material name="МДФ"/>
+	<Material name="Металл"/>
+	<Material name="Пластик"/>
+	<Material name="Стекло"/>
+	<Material name="Шпон"/>
+	<Material name="Другой"/>
+	<Width variable="int"/>
+	<Height variable="int"/>
+	<Depth variable="int"/>
+	<FurnitureAdditions name="Зеркало"/>
+</HallwaysAndShoeRacks>

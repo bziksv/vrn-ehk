@@ -428,7 +428,8 @@ if (!function_exists('__SLEGetLogRecord'))
 									"TOOLTIP_FIELDS",
 									"FORMATTED",
 									"URL",
-									"IS_EXTRANET"
+									"IS_EXTRANET",
+									"IS_COLLAB",
 								);
 								foreach ($arEvent["FIELDS_FORMATTED"]["CREATED_BY"] as $field => $value)
 								{
@@ -867,7 +868,7 @@ if (!function_exists('__SLEGetLogRecord'))
 									!CModule::IncludeModule("crm")
 									|| (
 										in_array($arDestination["TYPE"], array("CRMCOMPANY", "CRMLEAD", "CRMCONTACT"))
-										&& !\Bitrix\Crm\Security\EntityAuthorization::checkReadPermission(
+										&& !\Bitrix\Crm\Service\Container::getInstance()->getUserPermissions()->item()->canRead(
 											CCrmLiveFeedEntity::ResolveEntityTypeID($arDestination["TYPE"]),
 											$arDestination["ID"]
 										)

@@ -6,7 +6,6 @@ use Bitrix\Main\IO\Directory;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Config\Option;
-use Bitrix\Main\ModuleManager;
 
 Loc::loadMessages(__FILE__);
 
@@ -56,17 +55,6 @@ class SiteSpeed
 				"items" => array($siteSpeedItem),
 			);
 		}
-	}
-
-	/**
-	 * @return bool
-	 */
-	public static function isRussianSiteManager()
-	{
-		return (
-			Directory::isDirectoryExists(Application::getDocumentRoot()."/bitrix/modules/main/lang/ru")
-			|| Directory::isDirectoryExists(Application::getDocumentRoot()."/bitrix/modules/main/lang/ua")
-		);
 	}
 
 	/**
@@ -126,6 +114,6 @@ class SiteSpeed
 
 	public static function isOn()
 	{
-		return self::isRussianSiteManager() && self::canGatherStat();
+		return false;
 	}
 }

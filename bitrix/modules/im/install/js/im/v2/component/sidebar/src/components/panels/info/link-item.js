@@ -1,5 +1,9 @@
-import { MessageAvatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
+import { Text } from 'main.core';
+
+import { ChatTitle } from 'im.v2.component.elements.chat-title';
+import { MessageAvatar, AvatarSize } from 'im.v2.component.elements.avatar';
 import { Utils } from 'im.v2.lib.utils';
+import { highlightText } from 'im.v2.lib.text-highlighter';
 
 import './css/link-item.css';
 
@@ -19,9 +23,13 @@ export const LinkItem = {
 			type: String,
 			required: true,
 		},
+		searchQuery: {
+			type: String,
+			default: '',
+		},
 	},
 	emits: ['contextMenuClick'],
-	data() {
+	data(): { showContextButton: boolean } {
 		return {
 			showContextButton: false,
 		};
@@ -57,7 +65,12 @@ export const LinkItem = {
 			const { name, description } = this.linkItem.richData;
 			const descriptionToShow = description || name || this.source;
 
-			return Utils.text.convertHtmlEntities(descriptionToShow);
+			if (this.searchQuery.length === 0)
+			{
+				return Utils.text.convertHtmlEntities(descriptionToShow);
+			}
+
+			return highlightText(Text.encode(descriptionToShow), this.searchQuery);
 		},
 		authorDialogId(): string
 		{
@@ -98,6 +111,7 @@ export const LinkItem = {
 		{
 			this.$emit('contextMenuClick', {
 				id: this.linkItem.id,
+				authorId: this.linkItem.authorId,
 				messageId: this.linkItem.messageId,
 				source: this.source,
 				target: event.currentTarget,
@@ -120,9 +134,7 @@ export const LinkItem = {
 			</template>
 			<div class="bx-im-link-item__content">
 				<div class="bx-im-link-item__short-description-text">{{ shortDescription }}</div>
-				<a :href="source" :title="description" target="_blank" class="bx-im-link-item__description-text">
-					{{ description }}
-				</a>
+				<a :href="source" :title="source" target="_blank" class="bx-im-link-item__description-text" v-html="description"></a>
 				<div class="bx-im-link-item__author-container">
 					<MessageAvatar 
 						:messageId="linkItem.messageId" 

@@ -12,13 +12,19 @@ if(CModule::IncludeModule("iblock")){
         echo "Возникли проблемы попробуйте еще раз.";
         return false;
     }
+	
+	 if(!$APPLICATION->CaptchaCheckCode($_POST["captcha_word"], $_POST["captcha_code"]))
+	{
+		// Неправильное значение
+		echo "Переданы неправильные данные.";
+	} else {
+		// Правильное значение
+			$el = new CIBlockElement;
 
-	$el = new CIBlockElement;
-
-			$name = trim(strip_tags($_POST['name']));
-			$sity = trim(strip_tags($_POST['sity']));
-			$text = trim(strip_tags($_POST['text']));
-			$chek = trim(strip_tags($_POST['CHEK']));
+	$name = trim(strip_tags($_POST['name']));
+	$sity = trim(strip_tags($_POST['sity']));
+	$text = trim(strip_tags($_POST['text']));
+	$chek = trim(strip_tags($_POST['CHEK']));
 
 	$PROP = array();
 	$PROP[47] = array(
@@ -43,19 +49,20 @@ if(CModule::IncludeModule("iblock")){
 	}
 	if( $PRODUCT_ID ){
 
-$arEventFields= array(
-		"NAME" => $name,
-		"SITY" => $sity,
-		"TEXT" => $text
-			);
+			$arEventFields= array(
+					"NAME" => $name,
+					"SITY" => $sity,
+					"TEXT" => $text
+						);
 
 
-CEvent::Send("send_reviews", SITE_ID, $arEventFields, "N", 78);
+			CEvent::Send("send_reviews", SITE_ID, $arEventFields, "N", 78);
 
-		echo "Спасибо ваш отзыв отправлен, после проверки администратором отзыв будет размещен на сайте.";
-	}else{
-		echo "Возникли проблемы попробуйте еще раз.";
+			echo "Спасибо ваш отзыв отправлен, после проверки администратором отзыв будет размещен на сайте.";
+		}else{
+			echo "Возникли проблемы попробуйте еще раз.";
+		}
+		
 	}
-
 
 }

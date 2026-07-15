@@ -1,0 +1,101 @@
+<root>
+	<Toys name="Мягкие игрушки"/>
+	<Toys name="Игрушечный транспорт">
+		<TypeOfToy name="Машинки и мотоциклы"/>
+		<TypeOfToy name="Железные дороги и поезда"/>
+		<TypeOfToy name="Спецтехника и общественный транспорт"/>
+		<TypeOfToy name="Коллекционные модели"/>
+		<TypeOfToy name="Треки, гаражи, парковки"/>
+		<TypeOfToy name="Военная техника"/>
+		<TypeOfToy name="Воздушный и космический транспорт"/>
+		<TypeOfToy name="Корабли, катера, лодки"/>
+		<TypeOfToy name="Аксессуары и запчасти для машинок"/>
+		<TypeOfToy name="Другое"/>
+		<Age name="Любой"/>
+		<Age name="0-3 года"/>
+		<Age name="4-6 лет"/>
+		<Age name="7-12 лет"/>
+		<Age name="13-18 лет"/>
+		<Age name="Взрослые"/>
+	</Toys>
+	<Toys name="Игрушки для малышей">
+		<TypeOfToy name="Бизиборд"/>
+		<TypeOfToy name="Бизидом"/>
+		<TypeOfToy name="Глобус"/>
+		<TypeOfToy name="Головоломка"/>
+		<TypeOfToy name="Игра-рыбалка"/>
+		<TypeOfToy name="Книжка"/>
+		<TypeOfToy name="Кубики"/>
+		<TypeOfToy name="Лабиринт"/>
+		<TypeOfToy name="Мобиль"/>
+		<TypeOfToy name="Неваляшки"/>
+		<TypeOfToy name="Пазл"/>
+		<TypeOfToy name="Планшет"/>
+		<TypeOfToy name="Погремушка"/>
+		<TypeOfToy name="Подвесная игрушка"/>
+		<TypeOfToy name="Развивающая игрушка"/>
+		<TypeOfToy name="Шарики"/>
+		<TypeOfToy name="Юла"/>
+		<TypeOfToy name="Другой"/>
+		<Thematics file="toys/toys_Thematics.xml" multiple="true"/>
+	</Toys>
+	<Toys name="Детский транспорт" oldNames="Электромобили">
+		<TypeOfTransport name="Электроквадроцикл"/>
+		<TypeOfTransport name="Электромобиль"/>
+		<TypeOfTransport name="Электромотоцикл"/>
+		<TypeOfTransport name="Каталка"/>
+		<TypeOfTransport name="Каталка-ходунки"/>
+		<TypeOfTransport name="Толокар"/>
+		<TypeOfTransport name="Качалка"/>
+		<TypeOfTransport name="Аксессуары"/>
+		<TypeOfTransport name="Запчасти"/>
+		<TypeOfTransport name="Другое"/>
+		<Age name="Любой"/>
+		<Age name="0-3 года"/>
+		<Age name="4-6 лет"/>
+		<Age name="7-12 лет"/>
+		<Age name="13-18 лет"/>
+		<Age name="Взрослые"/>
+	</Toys>
+	<Toys name="Конструкторы">
+		<Brand file="toys/brendov_konstruktory.xml" rename="true"/>
+		<SeriesLEGO file="toys/serieslego.xml"/>
+		<Thematics file="toys/thematics.xml" multiple="true"/>
+		<Age name="Любой"/>
+		<Age name="0-3 года"/>
+		<Age name="4-6 лет"/>
+		<Age name="7-12 лет"/>
+		<Age name="13-18 лет"/>
+		<Age name="Взрослые"/>
+	</Toys>
+	<Toys name="Фигурки и наборы">
+		<Brand file="toys/brendov_igrushki_figurki_i_nabory.xml" rename="true"/>
+		<Character file="toys/personazhej_igrushki_figurki_i_nabory.xml" rename="true"/>
+		<Age name="Любой"/>
+		<Age name="0-3 года"/>
+		<Age name="4-6 лет"/>
+		<Age name="7-12 лет"/>
+		<Age name="13-18 лет"/>
+		<Age name="Взрослые"/>
+	</Toys>
+	<Toys name="Куклы и аксессуары">
+		<TypeOfToy name="Куклы"/>
+		<TypeOfToy name="Пупсы"/>
+		<TypeOfToy name="Домики и мебель"/>
+		<TypeOfToy name="Транспорт для кукол"/>
+		<TypeOfToy name="Одежда и аксессуары"/>
+		<TypeOfToy name="Кукольный театр"/>
+		<TypeOfToy name="Коляски для кукол"/>
+		<TypeOfToy name="Другой"/>
+		<Age name="Любой"/>
+		<Age name="0-3 года"/>
+		<Age name="4-6 лет"/>
+		<Age name="7-12 лет"/>
+		<Age name="13-18 лет"/>
+		<Age name="Взрослые"/>
+		<Brand file="toys/brendov_kukly_i_aksessuary.xml" rename="true"/>
+	</Toys>
+	<Toys name="Детские площадки"/>
+	<Toys name="Игрушечное оружие" oldNames="Электронные игрушки"/>
+	<Toys name="Игровые и развивающие коврики" oldNames="Другое"/>
+</root>

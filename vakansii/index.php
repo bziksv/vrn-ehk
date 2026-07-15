@@ -1,9 +1,9 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetPageProperty("description", "Вакансии");
+$APPLICATION->SetPageProperty("title", "Вакансии в ЭХК | Компания «Элементы Художественной Ковки»");
+$APPLICATION->SetPageProperty("description", "Актуальные вакансии для специалистов по металлу: менеджеры по продажам ковки, кладовщики, логисты, монтажники. Официальное оформление, соцпакет, обучение. Присылайте резюме на hr@vrn-ehk.ru");
 $APPLICATION->SetTitle("Вакансии");
-?>
-<h2 style="text-align: center;">На данный момент вакансий нет!</h2>
+?><h2 style="text-align: center;">На данный момент вакансий нет!</h2>
 <!--<p><strong><span style="font-size: 14pt;">Менеджер по развитию направления (Элементы художественной ковки)</span></strong><br>
 от 30 000 руб. до вычета налогов
 </p>
@@ -80,5 +80,4 @@ $APPLICATION->SetTitle("Вакансии");
 </ul>
 <p><strong>Адрес: </strong>Воронеж, Монтажный проезд, 26
 </p>
--->
-<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>
+--><?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>

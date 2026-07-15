@@ -243,11 +243,14 @@ export class Backend
 					BX.Landing.UI.Panel.StatusPanel.getInstance().update();
 				}
 
-				BX.onCustomEvent(
-					BX.Landing.PageObject.getRootWindow(),
-					'BX.Landing.Backend:action',
-					[action, data]
-				);
+				if (typeof BX.Landing.PageObject !== 'undefined')
+				{
+					BX.onCustomEvent(
+						BX.Landing.PageObject.getRootWindow(),
+						'BX.Landing.Backend:action',
+						[action, data]
+					);
+				}
 
 				/*if (!response.result) {
 					BX.Landing.ErrorManager.getInstance().add({
@@ -314,11 +317,14 @@ export class Backend
 				// eslint-disable-next-line
 				BX.Landing.UI.Panel.StatusPanel.getInstance().update();
 
-				BX.onCustomEvent(
-					BX.Landing.PageObject.getRootWindow(),
-					'BX.Landing.Backend:batch',
-					[action, data]
-				);
+				if (typeof BX.Landing.PageObject !== 'undefined')
+				{
+					BX.onCustomEvent(
+						BX.Landing.PageObject.getRootWindow(),
+						'BX.Landing.Backend:batch',
+						[action, data]
+					);
+				}
 
 				/*if (!response.result) {
 					BX.Landing.ErrorManager.getInstance().add({

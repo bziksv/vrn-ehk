@@ -1,0 +1,119 @@
+<root>
+	<Condition name="Новое">
+		<Make file="truck_catalog_new.xml"/>
+		<Parking variable="text"/>
+	</Condition>
+	<Condition name="Б/у">
+		<Make file="/transportation/specialvehicles/truck_catalog.xml"/>
+		<Kilometrage variable="text"/>
+		<EngineHours variable="text"/>
+	</Condition>
+	<Condition name="На запчасти">
+		<Make file="/transportation/specialvehicles/truck_catalog.xml"/>
+		<Kilometrage variable="text"/>
+		<EngineHours variable="text"/>
+	</Condition>
+	<TechnicalPassport name="В наличии"/>
+	<TechnicalPassport name="Дубликат"/>
+	<TechnicalPassport name="Нет"/>
+	<ChassisAndBodySameBrand name="Да"/>
+	<ChassisAndBodySameBrand name="Нет">
+		<BodyTypeAddOn name="Автовоз"/>
+		<BodyTypeAddOn name="Автоцистерна">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Баллоновоз"/>
+		<BodyTypeAddOn name="Бортовой грузовик">
+			<SideLength variable="text"/>
+			<SideWidth variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Зерновоз">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Изотермический фургон">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Контейнеровоз"/>
+		<BodyTypeAddOn name="Кунг"/>
+		<BodyTypeAddOn name="Лесовоз (сортиментовоз)"/>
+		<BodyTypeAddOn name="Ломовоз">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Промтоварный фургон">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Рефрижератор">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Самосвал">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Скотовоз">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Тентованный грузовик">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Топливозаправщик">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Трубовоз">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Мусоровоз">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Бункеровоз">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Хлебовоз">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Щеповоз">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Коневоз">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Птицевоз">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Цистерна для перевозки пищевых жидкостей">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Цистерна для перевозки светлых нефтепродуктов">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Цистерна для перевозки тёмных нефтепродуктов">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Цистерна для перевоза газа">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Цистерна для перевозки хим. жидкостей">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Цистерна для перевозки сыпучих грузов">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Цистерна (автогудронаторы)">
+			<BodyVolume variable="text"/>
+		</BodyTypeAddOn>
+		<BodyTypeAddOn name="Эвакуатор"/>
+		<BodyTypeAddOn name="Площадка без бортов"/>
+		<BodyTypeAddOn name="Ломаная платформа"/>
+		<BodyTypeAddOn name="Сдвижная платформа"/>
+		<BodyBuilderBrand file="add_ons_chassis.xml" rename="true"/>
+	</ChassisAndBodySameBrand>
+	<VIN variable="text"/>
+	<GrossVehicleWeight variable="text"/>
+	<PermissibleGrossVehicleWeight variable="text"/>
+	<EngineCapacity variable="text"/>
+	<EmissionClass name="Евро 0"/>
+	<EmissionClass name="Евро 1"/>
+	<EmissionClass name="Евро 2"/>
+	<EmissionClass name="Евро 3"/>
+	<EmissionClass name="Евро 4"/>
+	<EmissionClass name="Евро 5"/>
+	<EmissionClass name="Евро 6"/>
+</root>

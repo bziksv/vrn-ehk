@@ -1,3 +1,3 @@
 <?php
-$MESS["BPIMMA_DESCR_DESCR"] = "Sendet eine Nachricht von einem Mitarbeiter an einen anderen.";
-$MESS["BPIMMA_DESCR_NAME"] = "Nachricht an einen Privatchat senden";
+$MESS["BPIMMA_DESCR_DESCR_1"] = "Sendet eine Nachricht an Mitarbeiter in den individuellen Chat.";
+$MESS["BPIMMA_DESCR_NAME_1"] = "Eine Nachricht an Mitarbeiter senden";

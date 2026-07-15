@@ -4,6 +4,7 @@ namespace Bitrix\UI\EntitySelector;
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Fields\ExpressionField;
+use Bitrix\Main\Type\Dictionary;
 use Bitrix\Main\UI\EntitySelector\EntityUsageTable;
 
 class Dialog implements \JsonSerializable
@@ -28,6 +29,9 @@ class Dialog implements \JsonSerializable
 	/** @var PreselectedCollection */
 	protected $preselectedItems;
 
+	/** @var EntityErrorCollection */
+	protected $errors;
+
 	/** @var string */
 	protected $context;
 
@@ -48,6 +52,9 @@ class Dialog implements \JsonSerializable
 
 	/** @var int */
 	protected int $recentItemsLimit = 50;
+
+	/** @var Dictionary */
+	protected $customData;
 
 	protected const MAX_RECENT_ITEMS_LIMIT = 50;
 
@@ -87,6 +94,7 @@ class Dialog implements \JsonSerializable
 		$this->recentItems = new RecentCollection();
 		$this->globalRecentItems = new RecentCollection();
 		$this->preselectedItems = new PreselectedCollection();
+		$this->errors = new EntityErrorCollection();
 
 		if (isset($options['preselectedItems']) && is_array($options['preselectedItems']))
 		{
@@ -96,6 +104,11 @@ class Dialog implements \JsonSerializable
 		if (isset($options['recentItemsLimit']) && is_int($options['recentItemsLimit']))
 		{
 			$this->recentItemsLimit = max(1, min($options['recentItemsLimit'], static::MAX_RECENT_ITEMS_LIMIT));
+		}
+
+		if (isset($options['customData']) && is_array($options['customData']))
+		{
+			$this->setCustomData($options['customData']);
 		}
 	}
 
@@ -161,6 +174,13 @@ class Dialog implements \JsonSerializable
 		{
 			$this->addRecentItem($item);
 		}
+	}
+
+	public function cleanRecentItems(): RecentCollection
+	{
+		$this->recentItems = new RecentCollection();
+
+		return $this->recentItems;
 	}
 
 	public function setHeader(string $header, array $options = [])
@@ -287,6 +307,26 @@ class Dialog implements \JsonSerializable
 	public function getEntity(string $entityId): ?Entity
 	{
 		return $this->entities[$entityId] ?? null;
+	}
+
+	public function setCustomData(array $customData): self
+	{
+		$this->getCustomData()->setValues($customData);
+
+		return $this;
+	}
+
+	/**
+	 * @return Dictionary
+	 */
+	public function getCustomData(): Dictionary
+	{
+		if ($this->customData === null)
+		{
+			$this->customData = new Dictionary();
+		}
+
+		return $this->customData;
 	}
 
 	/**
@@ -467,7 +507,7 @@ class Dialog implements \JsonSerializable
 			'saveable' => false,
 			'link' => '',
 			'avatar' => '',
-			'availableInRecentTab' => false
+			'availableInRecentTab' => false,
 		]);
 	}
 
@@ -503,6 +543,16 @@ class Dialog implements \JsonSerializable
 		return $dialog->getItemCollection();
 	}
 
+	public function getErrors(): EntityErrorCollection
+	{
+		return $this->errors;
+	}
+
+	public function addError(EntityError $error): void
+	{
+		$this->errors->add($error);
+	}
+
 	public function saveRecentItems(array $recentItems)
 	{
 		if ($this->getContext() === null)
@@ -529,7 +579,7 @@ class Dialog implements \JsonSerializable
 						'USER_ID' => $GLOBALS['USER']->getId(),
 						'CONTEXT' => $this->getContext(),
 						'ENTITY_ID' => $recentItem->getEntityId(),
-						'ITEM_ID' => $recentItem->getId()
+						'ITEM_ID' => $recentItem->getId(),
 					]);
 				}
 			}
@@ -553,7 +603,7 @@ class Dialog implements \JsonSerializable
 						[
 							'id' => $usage['ITEM_ID'],
 							'entityId' => $usage['ENTITY_ID'],
-							'lastUseDate' => $usage['MAX_LAST_USE_DATE']->getTimestamp()
+							'lastUseDate' => $usage['MAX_LAST_USE_DATE']->getTimestamp(),
 						]
 					)
 				);
@@ -569,7 +619,7 @@ class Dialog implements \JsonSerializable
 						[
 							'id' => $usage->getItemId(),
 							'entityId' => $usage->getEntityId(),
-							'lastUseDate' => $usage->getLastUseDate()->getTimestamp()
+							'lastUseDate' => $usage->getLastUseDate()->getTimestamp(),
 						]
 					)
 				);
@@ -592,7 +642,7 @@ class Dialog implements \JsonSerializable
 					[
 						'id' => $usage['ITEM_ID'],
 						'entityId' => $usage['ENTITY_ID'],
-						'lastUseDate' => $usage['MAX_LAST_USE_DATE']->getTimestamp()
+						'lastUseDate' => $usage['MAX_LAST_USE_DATE']->getTimestamp(),
 					]
 				)
 			);
@@ -607,12 +657,12 @@ class Dialog implements \JsonSerializable
 				'filter' => [
 					'=USER_ID' => $this->getCurrentUserId(),
 					'=CONTEXT' => $this->getContext(),
-					'@ENTITY_ID' => $entities
+					'@ENTITY_ID' => $entities,
 				],
 				'limit' => $limit,
 				'order' => [
-					'LAST_USE_DATE' => 'DESC'
-				]
+					'LAST_USE_DATE' => 'DESC',
+				],
 			]
 		)->fetchCollection();
 	}
@@ -688,7 +738,7 @@ class Dialog implements \JsonSerializable
 					'=USER_ID' => $this->getCurrentUserId(),
 					'=CONTEXT' => $this->getContext(),
 					'=ENTITY_ID' => $entity->getId(),
-					'@ITEM_ID' => $unavailableIds
+					'@ITEM_ID' => $unavailableIds,
 				]);
 			}
 		}
@@ -722,7 +772,7 @@ class Dialog implements \JsonSerializable
 		return $this->jsonSerialize();
 	}
 
-	public function jsonSerialize()
+	public function jsonSerialize(): array
 	{
 		$json = [
 			'id' => $this->getId(),
@@ -753,6 +803,21 @@ class Dialog implements \JsonSerializable
 			$json['preselectedItems'] = $this->getPreselectedCollection();
 		}
 
+		if ($this->customData !== null && $this->getCustomData()->count() > 0)
+		{
+			$json['customData'] = $this->getCustomData()->getValues();
+		}
+
+		if ($this->getErrors()->count() > 0)
+		{
+			$json['errors'] = $this->getErrors();
+		}
+
 		return $json;
+	}
+
+	public function removeTab(string $id): void
+	{
+		unset($this->tabs[$id]);
 	}
 }

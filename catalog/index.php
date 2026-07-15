@@ -1,10 +1,10 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetPageProperty("description", "Декоративная художественная ковка элементов и изделий");
-$APPLICATION->SetPageProperty("keywords", "Декоративная художественная ковка элементов и изделий");
-$APPLICATION->SetPageProperty("title", "Декоративная художественная ковка элементов и изделий");
-$APPLICATION->SetTitle("Декоративная ");
+$APPLICATION->SetPageProperty("description", "Полный каталог элементов художественной ковки от «ЭХК» – крупного поставщика в РФ. Розничная и оптовая продажа балясин, столбов, декора и аксессуаров с фото, артикулами и наличием.");
+$APPLICATION->SetPageProperty("title", "Каталог элементов ковки | Компания ЭХК");
+$APPLICATION->SetTitle("Каталог");
 ?>
+
 <?if(isset($_GET["LIST"]) && !empty($_GET["LIST"]))
 {
 	$_SESSION["LIST_VIEW"]=$_GET["LIST"];
@@ -45,7 +45,7 @@ if(isset($_GET["SHOW"]) && !empty($_GET["SHOW"]))
     {
         case "NEW":
             $GLOBALS["arrFilter"]["PROPERTY_NEW_VALUE"]="да";
-            $APPLICATION->SetTitle("Новинки");
+            $APPLICATION->SetTitle("Каталог");
             break;
 		case "NEW_RAZDEL":
 			if(empty($_GET["sort"])){
@@ -77,14 +77,11 @@ if(isset($_GET["SHOW"]) && !empty($_GET["SHOW"]))
 }
 else
 {
-    $APPLICATION->SetTitle("Каталог товаров");
     $GLOBALS["BY_LINK"]="N";
 }
 
-
-
-
 ?>
+
 <?$APPLICATION->IncludeComponent(
 	"bitrix:catalog", 
 	"my_catalog", 
@@ -280,4 +277,6 @@ else
 		)
 	),
 	false
-);?><br><?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>
+);?>
+
+<br><?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>

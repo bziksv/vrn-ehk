@@ -5,16 +5,22 @@ namespace Bitrix\Bizproc\UI;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowUserCommentTable;
 use Bitrix\Bizproc\Workflow\WorkflowState;
 use Bitrix\Bizproc\WorkflowInstanceTable;
-use Bitrix\Main\Application;
+use Bitrix\Main\EO_User;
 use Bitrix\Main\SystemException;
+use Bitrix\Main\Type\Collection;
 use Bitrix\Main\Type\DateTime;
+use Bitrix\Main\UserTable;
 
 class WorkflowUserView implements \JsonSerializable
 {
-	private WorkflowState $workflow;
+	protected WorkflowState $workflow;
 	private array $tasks;
-	private array $myTasks;
-	private int $userId;
+	private array $myRunningTasks;
+	private array $myCompletedTasks;
+	protected int $userId;
+
+	protected ?WorkflowFacesView $faces = null;
+	protected ?bool $isCompleted = null;
 
 	public function __construct(WorkflowState $workflow, int $userId)
 	{
@@ -22,7 +28,13 @@ class WorkflowUserView implements \JsonSerializable
 		$this->userId = $userId;
 
 		$this->tasks = \CBPViewHelper::getWorkflowTasks($workflow['ID'], true, true);
-		$this->myTasks = $this->getMyTasks();
+		$this->myRunningTasks = $this->getMyWaitingTasks();
+		$this->myCompletedTasks = $this->getMyCompletedTasks();
+	}
+
+	public function toArray(): array
+	{
+		return $this->jsonSerialize();
 	}
 
 	public function jsonSerialize(): array
@@ -40,6 +52,7 @@ class WorkflowUserView implements \JsonSerializable
 				'tasks' => $this->getTasks(),
 				'authorId' => $this->getAuthorId(),
 				'newCommentsCounter' => $this->getCommentCounter(),
+				'result' => $this->getIsCompleted() ? $this->getWorkflowResult() : null,
 			],
 		];
 	}
@@ -58,15 +71,10 @@ class WorkflowUserView implements \JsonSerializable
 
 		if (!$this->isWorkflowAuthorView())
 		{
-			foreach (['RUNNING', 'COMPLETED'] as $taskState)
+			$task = current($this->getCompletedTasks());
+			if ($task)
 			{
-				foreach ($this->tasks[$taskState] as $task)
-				{
-					if (in_array($this->userId, array_column($task['USERS'], 'USER_ID')))
-					{
-						return html_entity_decode($task['~NAME']);
-					}
-				}
+				return $task['name'];
 			}
 		}
 
@@ -79,14 +87,19 @@ class WorkflowUserView implements \JsonSerializable
 
 	public function getDescription(): ?string
 	{
-		$task = $this->getTasks()[0] ?? null;
+		$task = false;
+		if ($this->getTasks())
+		{
+			$task = current($this->getTasks());
+		}
+		elseif (!$this->isWorkflowAuthorView() && $this->getCompletedTasks())
+		{
+			$task = current($this->getCompletedTasks());
+		}
+
 		if ($task)
 		{
-			return \CBPViewHelper::prepareTaskDescription(
-				\CBPHelper::convertBBtoText(
-					preg_replace('|\n+|', "\n", trim($task['description']))
-				)
-			);
+			return trim($task['description']);
 		}
 
 		return null;
@@ -99,7 +112,12 @@ class WorkflowUserView implements \JsonSerializable
 
 	public function getIsCompleted(): bool
 	{
-		return !WorkflowInstanceTable::exists($this->getId());
+		if ($this->isCompleted === null)
+		{
+			$this->isCompleted = !WorkflowInstanceTable::exists($this->getId());
+		}
+
+		return $this->isCompleted;
 	}
 
 	public function getCommentCounter(): int
@@ -117,7 +135,62 @@ class WorkflowUserView implements \JsonSerializable
 
 	public function getTasks(): array
 	{
-		return $this->myTasks;
+		return $this->myRunningTasks;
+	}
+
+	public function getTaskById(int $taskId): ?array
+	{
+		foreach ($this->getTasks() as $task)
+		{
+			if ($task['id'] === $taskId)
+			{
+				return $task;
+			}
+		}
+
+		foreach ($this->getCompletedTasks() as $task)
+		{
+			if ($task['id'] === $taskId)
+			{
+				return $task;
+			}
+		}
+
+		$task = \CBPTaskService::getList(
+			[],
+			['ID' => $taskId, 'USER_ID' => $this->userId],
+			false,
+			false,
+			[
+				'ID',
+				'MODIFIED',
+				'NAME',
+				'DESCRIPTION',
+				'PARAMETERS',
+				'STATUS',
+				'IS_INLINE',
+				'ACTIVITY',
+				'ACTIVITY_NAME',
+				'CREATED_DATE',
+				'DELEGATION_TYPE',
+				'OVERDUE_DATE',
+			],
+		)->getNext();
+
+		if ($task)
+		{
+			$task['USERS'] = \CBPTaskService::getTaskUsers($taskId)[$taskId] ?? [];
+			$preparedTasks = $this->prepareTasks([$task]);
+
+			return $preparedTasks[0] ?? null;
+		}
+
+		return null;
+	}
+
+	public function getCompletedTasks(): array
+	{
+		return $this->myCompletedTasks;
 	}
 
 	public function getAuthorId(): mixed
@@ -125,53 +198,57 @@ class WorkflowUserView implements \JsonSerializable
 		return $this->workflow->getStartedBy();
 	}
 
-	private function getTime(): ?string
+	protected function getTime(): string
 	{
-		$culture = Application::getInstance()->getContext()->getCulture();
-		$dateTimeFormat =
-			$culture
-				? $culture->getLongDateFormat() . ' ' . $culture->getShortTimeFormat()
-				: 'j F Y G:i'
-		;
+		return \CBPViewHelper::formatDateTime($this->workflow->getModified());
+	}
 
-		if ($this->getTasks())
+	public function getOverdueDate(): ?DateTime
+	{
+		$task = $this->getTasks()[0] ?? null;
+		if (!$task || !isset($task['overdueDate']))
 		{
-			return $this->formatDateTime($dateTimeFormat, current($this->getTasks())['createdDate'] ?? null);
+			return null;
 		}
 
-		if ($this->isWorkflowAuthorView())
+		return DateTime::createFromUserTime($task['overdueDate']);
+	}
+
+	public function getStartedBy(): ?EO_User
+	{
+		$currentUser = \Bitrix\Main\Engine\CurrentUser::get();
+		$currentUserId = $currentUser->getId();
+		if (!is_null($currentUserId) && (int)$currentUserId === $this->workflow->getStartedBy())
 		{
-			return $this->formatDateTime($dateTimeFormat, $this->workflow->getStarted());
+			$rows = [
+				'ID' => $currentUser->getId(),
+				'LOGIN' => $currentUser->getLogin(),
+				'NAME' => $currentUser->getFirstName(),
+				'SECOND_NAME' => $currentUser->getSecondName(),
+				'LAST_NAME' => $currentUser->getLastName(),
+			];
+
+			return UserTable::wakeUpObject($rows);
 		}
 
-		foreach (['RUNNING', 'COMPLETED'] as $taskState)
-		{
-			foreach ($this->tasks[$taskState] as $task)
-			{
-				foreach ($task['USERS'] as $taskUser)
-				{
-					if ((int)$taskUser['USER_ID'] === $this->userId)
-					{
-						return $this->formatDateTime($dateTimeFormat, $taskUser['DATE_UPDATE'] ?? null);
-					}
-				}
-			}
-		}
-
-		return $this->formatDateTime($dateTimeFormat, $this->workflow->getStarted());
+		return \Bitrix\Main\UserTable::getByPrimary(
+			$this->workflow->getStartedBy(),
+			['select' => ['ID', 'LOGIN', 'NAME', 'SECOND_NAME', 'LAST_NAME']]
+		)->fetchObject();
 	}
 
 	public function getFaces(): WorkflowFacesView
 	{
-		return new WorkflowFacesView($this->getId(), $this->myTasks[0]['id'] ?? null);
+		if (!$this->faces)
+		{
+			$task = $this->getFirstRunningTask();
+			$this->faces = new WorkflowFacesView($this->getId(), $task ? $task['id'] : null);
+		}
+
+		return $this->faces;
 	}
 
-	public function getWorkflowState(): WorkflowState
-	{
-		return $this->workflow;
-	}
-
-	private function getMyTasks(): array
+	private function getMyWaitingTasks(): array
 	{
 		$userId = $this->userId;
 
@@ -187,59 +264,107 @@ class WorkflowUserView implements \JsonSerializable
 			},
 		);
 
-		return $this->prepareMyTasks(array_map(
-			static function($task) {
-				$controls = \CBPDocument::getTaskControls($task);
-
-				return [
-					'id' => (int)$task['ID'],
-					'name' => html_entity_decode($task['~NAME']),
-					'description' => $task['~DESCRIPTION'],
-					'isInline' => \CBPHelper::getBool($task['IS_INLINE']),
-					'controls' => [
-						'buttons' => $controls['BUTTONS'] ?? null,
-						'fields' => $controls['FIELDS'] ?? null,
-					],
-					'createdDate' => $task['~CREATED_DATE'] ?? null,
-					'delegationType' => $task['~DELEGATION_TYPE'] ?? null,
-				];
-			},
-			array_values($myTasks),
-		));
+		return $this->prepareTasks(array_values($myTasks));
 	}
 
-	private function prepareMyTasks(array $myTasks): array
+	private function getMyCompletedTasks(): array
+	{
+		$userId = $this->userId;
+
+		$completedRunningTasks = array_filter(
+			$this->tasks['RUNNING'],
+			static function ($task) use ($userId) {
+				$completedUsers = array_filter(
+					$task['USERS'],
+					static fn ($user) => ((int)$user['STATUS'] !== \CBPTaskUserStatus::Waiting),
+				);
+
+				$taskUserIds = array_column($completedUsers, 'USER_ID');
+				Collection::normalizeArrayValuesByInt($taskUserIds);
+
+				return in_array($userId, $taskUserIds, true);
+			}
+		);
+
+		$completedTasks = array_filter(
+			$this->tasks['COMPLETED'],
+			static function ($task) use ($userId) {
+				$taskUserIds = array_column($task['USERS'], 'USER_ID');
+				Collection::normalizeArrayValuesByInt($taskUserIds);
+
+				return in_array($userId, $taskUserIds, true);
+			}
+		);
+
+		return $this->prepareTasks(array_values(array_merge($completedRunningTasks, $completedTasks)));
+	}
+
+	protected function prepareTasks(array $myTasks): array
 	{
 		$isRpa = $this->workflow->getModuleId() === 'rpa';
-		$workflowId = $this->getId();
+		$userId = $this->userId;
 
-		foreach ($myTasks as &$task)
+		$tasks = [];
+		foreach ($myTasks as $task)
 		{
-			if (!empty($task['controls']['buttons']))
+			$isRunning = (int)$task['STATUS'] === \CBPTaskStatus::Running;
+			if ($isRunning)
 			{
-				foreach ($task['controls']['buttons'] as &$button)
+				$users = array_filter(
+					$task['USERS'] ?? [],
+					static function ($user) use ($userId) {
+						return (int)$user['USER_ID'] === $userId;
+					},
+				);
+				if ($users)
+				{
+					$user = current($users);
+					$isRunning = (int)$user['STATUS'] === \CBPTaskUserStatus::Waiting;
+				}
+			}
+
+			$controls = $isRunning ? \CBPDocument::getTaskControls($task, $userId) : [];
+			$buttons = $controls['BUTTONS'] ?? null;
+			if (!empty($buttons))
+			{
+				foreach ($buttons as &$button)
 				{
 					if (!empty($button['TEXT']))
 					{
 						$button['TEXT'] = html_entity_decode(htmlspecialcharsback($button['TEXT']));
 					}
 				}
+
+				unset($button);
 			}
 
-			$task['url'] = $isRpa
-				? "/rpa/task/id/{$task['id']}/"
-				: sprintf(
-					'/bitrix/components/bitrix/bizproc.workflow.info/?workflow=%s&task=%s&user=%d',
-					$workflowId,
-					$task['id'],
-					$this->userId
-				)
-			;
-
-			$task['userId'] = $this->userId;
+			$taskId = (int)$task['ID'];
+			$tasks[] = [
+				'id' => $taskId,
+				'name' => html_entity_decode($task['~NAME']),
+				'description' => $task['~DESCRIPTION'],
+				'isInline' => \CBPHelper::getBool($task['IS_INLINE']),
+				'controls' => [
+					'buttons' => $buttons,
+					'fields' => $controls['FIELDS'] ?? null,
+				],
+				'createdDate' => $task['~CREATED_DATE'] ?? null,
+				'delegationType' => $task['~DELEGATION_TYPE'] ?? null,
+				'overdueDate' => $task['~OVERDUE_DATE'] ?? null,
+				'url' => $isRpa
+					? "/rpa/task/id/$taskId/"
+					: sprintf(
+						'/company/personal/bizproc/%s/?USER_ID=%d',
+						$taskId,
+						$this->userId
+					)
+				,
+				'userId' => $userId,
+				'isRunning' => $isRunning,
+			];
 		}
 
-		return $myTasks;
+		return $tasks;
 	}
 
 	public function getTypeName(): mixed
@@ -266,7 +391,12 @@ class WorkflowUserView implements \JsonSerializable
 		return $complexDocumentType ? $documentService->getDocumentTypeCaption($complexDocumentType) : null;
 	}
 
-	private function isWorkflowAuthorView(): bool
+	public function getWorkflowResult(): ?array
+	{
+		return \CBPViewHelper::getWorkflowResult($this->getId(), $this->userId);
+	}
+
+	protected function isWorkflowAuthorView(): bool
 	{
 		return $this->getAuthorId() === $this->userId;
 	}
@@ -286,5 +416,60 @@ class WorkflowUserView implements \JsonSerializable
 		}
 
 		return null;
+	}
+
+	protected function getAuthorView(): ?UserView
+	{
+		return \Bitrix\Bizproc\UI\UserView::createFromId($this->getAuthorId());
+	}
+
+	protected function getDocumentUrl(): ?string
+	{
+		$complexDocumentId = $this->workflow->getComplexDocumentId();
+
+		return \CBPDocument::getDocumentAdminPage($complexDocumentId);
+	}
+
+	public function getFirstRunningTask(): ?array
+	{
+		return $this->getTasks()[0] ?? null;
+	}
+
+	protected function isRunningTaskUser(array $task): bool
+	{
+		$taskUsers = $task['USERS'] ?? [];
+
+		foreach ($taskUsers as $user)
+		{
+			if ((int)$user['USER_ID'] === $this->userId)
+			{
+				return (int)$user['STATUS'] === \CBPTaskUserStatus::Waiting;
+			}
+		}
+
+		return false;
+	}
+
+	protected function getTaskControls(array $task): array
+	{
+		$controls = \CBPDocument::getTaskControls($task, $this->userId);
+		$buttons = $controls['BUTTONS'] ?? null;
+		if (!empty($buttons))
+		{
+			foreach ($buttons as &$button)
+			{
+				if (!empty($button['TEXT']))
+				{
+					$button['TEXT'] = html_entity_decode(htmlspecialcharsback($button['TEXT']));
+				}
+			}
+
+			unset($button);
+		}
+
+		return [
+			'buttons' => $buttons,
+			'fields' => $controls['FIELDS'] ?? null,
+		];
 	}
 }

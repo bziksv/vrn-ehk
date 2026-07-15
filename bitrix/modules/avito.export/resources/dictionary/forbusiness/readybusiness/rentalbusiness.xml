@@ -1,0 +1,6 @@
+<root>
+	<BusinessSubType name="Аренда недвижимости"/>
+	<BusinessSubType name="Аренда спецтехники"/>
+	<BusinessSubType name="Прокатные компании"/>
+	<BusinessSubType name="Таксопарки и автопрокат"/>
+</root>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VoltageValues>
+	<Voltage>5 В</Voltage>
+	<Voltage>5,5 В</Voltage>
+	<Voltage>6 В</Voltage>
+	<Voltage>12 В</Voltage>
+	<Voltage>17,1 В</Voltage>
+	<Voltage>18 В</Voltage>
+	<Voltage>18,5 В</Voltage>
+	<Voltage>19 В</Voltage>
+	<Voltage>19,8 В</Voltage>
+	<Voltage>20 В</Voltage>
+	<Voltage>21,4 В</Voltage>
+	<Voltage>21,7 В</Voltage>
+	<Voltage>22 В</Voltage>
+	<Voltage>24 В</Voltage>
+	<Voltage>24,5 В</Voltage>
+	<Voltage>26,1 В</Voltage>
+	<Voltage>27,2 В</Voltage>
+	<Voltage>31,5 В</Voltage>
+	<Voltage>33 В</Voltage>
+	<Voltage>34,4 В</Voltage>
+	<Voltage>38,4 В</Voltage>
+	<Voltage>39,4 В</Voltage>
+	<Voltage>40,6 В</Voltage>
+	<Voltage>41 В</Voltage>
+	<Voltage>43,3 В</Voltage>
+	<Voltage>44 В</Voltage>
+	<Voltage>48 В</Voltage>
+	<Voltage>52,4 В</Voltage>
+	<Voltage>53,24 В</Voltage>
+	<Voltage>55 В</Voltage>
+	<Voltage>96 В</Voltage>
+	<Voltage>220 В</Voltage>
+	<Voltage>380 В</Voltage>
+</VoltageValues>

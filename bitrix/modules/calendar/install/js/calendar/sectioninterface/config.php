@@ -13,12 +13,14 @@ return [
 	'rel' => [
 		'calendar.sync.interface',
 		'main.popup',
+		'ui.info-helper',
 		'main.core.events',
 		'ui.entity-selector',
 		'main.core',
 		'calendar.util',
 		'calendar.sectionmanager',
 		'ui.dialogs.messagebox',
+		'ui.buttons',
 	],
 	'skip_core' => false,
 	'lang' => '/bitrix/modules/calendar/classes/general/calendar_js.php'

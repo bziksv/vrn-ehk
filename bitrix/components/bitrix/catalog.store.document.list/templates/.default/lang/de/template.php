@@ -12,5 +12,3 @@ $MESS["CATALOG_DOCUMENT_LIST_TITLE_SHIPMENT"] = "Bestellungen";
 $MESS["DOCUMENT_CONDUCT_SUCCESSFUL"] = "Elemente verarbeitet";
 $MESS["DOCUMENT_CONDUCT_SUCCESSFUL_VIEW"] = "Anzeigen";
 $MESS["DOC_CREATE_FIRST_TIME_GUIDE_TEXT"] = "Erstellen Sie Ihre erste Bestandskorrektur";
-$MESS["PROFIT_TOUR_TEXT"] = "Behalten Sie den Überblick über die verkauften Waren, die Höhe des Umsatzes und den jeweiligen Gewinn und die Marge.";
-$MESS["PROFIT_TOUR_TITLE"] = "Neuer Bericht";

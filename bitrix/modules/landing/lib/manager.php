@@ -240,7 +240,13 @@ class Manager
 
 		if (!array_key_exists($siteId, $sites))
 		{
-			$sites[$siteId] = \Bitrix\Main\SiteTable::getById($siteId)->fetch();
+			$sites[$siteId] = \Bitrix\Main\SiteTable::query()
+				->setSelect(['*'])
+				->where('LID', '=', $siteId)
+				->setCacheTtl(86400)
+				->exec()
+				->fetch()
+			;
 		}
 
 		return $sites[$siteId];
@@ -313,18 +319,18 @@ class Manager
 			// and add template rules for main
 			if ($siteId)
 			{
-				$fields = array(
+				$fields = [
 					'SORT' => 0,
 					'SITE_ID' => $siteId,
 					'CONDITION' => 'CSite::inDir(\'' . $subDirSite . $basePathOriginal . '\')',
-					'TEMPLATE' => self::getTemplateId($siteId)
-				);
+					'TEMPLATE' => self::getTemplateId($siteId),
+				];
 				$check = \Bitrix\Main\SiteTemplateTable::getList(array(
-					 'filter' => array(
+					 'filter' => [
 						 '=SITE_ID' => $fields['SITE_ID'],
 						 '=CONDITION' => $fields['CONDITION'],
-						 '=TEMPLATE' => $fields['TEMPLATE']
-					 )
+						 '=TEMPLATE' => $fields['TEMPLATE'],
+					 ],
 				 ))->fetch();
 				if (!$check)
 				{
@@ -333,11 +339,11 @@ class Manager
 					);
 					\Bitrix\Main\UrlRewriter::add(
 						$siteId,
-						array(
+						[
 							'ID' => 'bitrix:landing.pub',
 							'PATH' => $subDirSite. $basePathOriginal . 'index.php',
-							'CONDITION' => '#^' . $subDirSite. $basePathOriginal . '#'
-						)
+							'CONDITION' => '#^' . $subDirSite. $basePathOriginal . '#',
+						]
 					);
 				}
 			}
@@ -394,9 +400,9 @@ class Manager
 	 */
 	public static function getPublicationPath($siteCode = null, $siteId = null, $createPubPath = false)
 	{
-		$tyePublicationPath = Site\Type::getPublicationPath();
+		$typePublicationPath = Site\Type::getPublicationPath();
 
-		$basePath = $tyePublicationPath;
+		$basePath = $typePublicationPath;
 		if ($basePath === null)
 		{
 			$basePath = self::getOption(
@@ -984,7 +990,7 @@ class Manager
 
 		if ($zone === 'ru')
 		{
-			if (!in_array(self::getZone(), ['ru', 'by', 'kz']))
+			if (!in_array(self::getZone(), ['ru', 'by', 'kz', 'uz']))
 			{
 				$available = false;
 			}
@@ -1006,6 +1012,7 @@ class Manager
 			case 'form_minisite':
 				$minisites = [
 					'ru' => 18108954,
+					'uz' => 18108954,
 					'by' => 18108962,
 					'kz' => 18108964,
 					'en' => 18108970,
@@ -1033,6 +1040,15 @@ class Manager
 		}
 
 		return $isHttps;
+	}
+
+	/**
+	 * Check is current hit is ajax
+	 * @return bool
+	 */
+	public static function isAjaxRequest(): bool
+	{
+		return Application::getInstance()->getContext()->getRequest()->isAjaxRequest();
 	}
 
 	/**
@@ -1082,6 +1098,37 @@ class Manager
 	}
 
 	/**
+	 * Get URL of external template preview server.
+	 * Can be rewrite by LANDING_PREVIEW_URL constant.
+	 * @return string
+	 */
+	public static function getPreviewHost(): string
+	{
+		if (!defined('LANDING_PREVIEW_URL'))
+		{
+			define('LANDING_PREVIEW_URL', self::getPreviewDomain());
+		}
+
+		return LANDING_PREVIEW_URL;
+	}
+
+	/**
+	 * Get webhook to the external template preview server.
+	 * Can be rewrite by LANDING_PREVIEW_WEBHOOK constant.
+	 * @return string
+	 */
+	public static function getPreviewWebhook(): string
+	{
+		if (!defined('LANDING_PREVIEW_WEBHOOK'))
+		{
+			$host = self::getPreviewDomain();
+			define('LANDING_PREVIEW_WEBHOOK', $host . '/rest/1/gvsn3ngrn7vb4t1m/');
+		}
+
+		return LANDING_PREVIEW_WEBHOOK;
+	}
+
+	/**
 	 * Is B24 portal?
 	 * @return bool
 	 */
@@ -1112,6 +1159,15 @@ class Manager
 		}
 
 		return $return;
+	}
+
+	/**
+	 * Is b24 portal hosted no cloud (not box)
+	 * @return bool
+	 */
+	public static function isB24Cloud(): bool
+	{
+		return self::isB24() && ModuleManager::isModuleInstalled('bitrix24');
 	}
 
 
@@ -1241,7 +1297,7 @@ class Manager
 
 	public static function isFreePublicAllowed(): bool
 	{
-		return in_array(self::getZone(), ['ru', 'by', 'kz', 'es', 'la', 'mx', 'co', 'br', 'in', 'hi']);
+		return in_array(self::getZone(), ['ru', 'by', 'kz', 'uz', 'es', 'la', 'mx', 'co', 'br', 'in', 'hi']);
 	}
 
 	/**
@@ -1425,9 +1481,9 @@ class Manager
 				'SITE_ID',
 			],
 			'filter' => [
-				'ACTIVE' => 'Y',
-				'DELETED' => 'N',
-				'ID' => $lid,
+				'=ACTIVE' => 'Y',
+				'=DELETED' => 'N',
+				'=ID' => $lid,
 			],
 		]);
 		if ($row = $res->fetch())
@@ -1483,5 +1539,23 @@ class Manager
 	 */
 	public static function setTheme()
 	{
+	}
+
+
+	/**
+	 * Get preview domain based on region.
+	 * @return string
+	 */
+	private static function getPreviewDomain(): string
+	{
+		$region = Application::getInstance()->getLicense()->getRegion();
+
+		if (in_array($region, ['ru', 'by', 'kz', 'uz'], true))
+		{
+			return 'https://preview.bitrix24.tech';
+		}
+
+		// Default global domain
+		return 'https://preview.bitrix24.site';
 	}
 }

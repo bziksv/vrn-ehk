@@ -1,7 +1,7 @@
 /* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
-(function (exports,main_popup,main_core_collections,main_core_events,main_core,main_loader) {
+(function (exports,main_popup,main_core_collections,main_core_events,ui_iconSet_outline,ui_iconSet_api_core,main_core,main_loader) {
 	'use strict';
 
 	let ItemNodeComparator = /*#__PURE__*/function () {
@@ -210,11 +210,13 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "title", null);
 	    babelHelpers.defineProperty(this, "textColor", null);
 	    babelHelpers.defineProperty(this, "bgColor", null);
+	    babelHelpers.defineProperty(this, "border", null);
 	    babelHelpers.defineProperty(this, "containers", new WeakMap());
 	    const options = main_core.Type.isPlainObject(badgeOptions) ? badgeOptions : {};
 	    this.setTitle(options.title);
 	    this.setTextColor(options.textColor);
 	    this.setBgColor(options.bgColor);
+	    this.setBorder(options.border);
 	  }
 	  babelHelpers.createClass(ItemBadge, [{
 	    key: "getTitle",
@@ -259,6 +261,18 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    }
 	  }, {
+	    key: "getBorder",
+	    value: function getBorder() {
+	      return this.border;
+	    }
+	  }, {
+	    key: "setBorder",
+	    value: function setBorder(border) {
+	      if (main_core.Type.isString(border) || border === null) {
+	        this.border = border;
+	      }
+	    }
+	  }, {
 	    key: "getContainer",
 	    value: function getContainer(target) {
 	      let container = this.containers.get(target);
@@ -281,6 +295,7 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	      main_core.Dom.style(container, 'color', this.getTextColor());
 	      main_core.Dom.style(container, 'background-color', this.getBgColor());
+	      main_core.Dom.style(container, 'border', this.getBorder());
 	      main_core.Dom.append(container, target);
 	    }
 	  }, {
@@ -289,7 +304,8 @@ this.BX.UI = this.BX.UI || {};
 	      return {
 	        title: this.getTitleNode(),
 	        textColor: this.getTextColor(),
-	        bgColor: this.getBgColor()
+	        bgColor: this.getBgColor(),
+	        border: this.getBorder()
 	      };
 	    }
 	  }]);
@@ -577,7 +593,11 @@ this.BX.UI = this.BX.UI || {};
 	        bgColor: null,
 	        bgImage: null,
 	        border: null,
-	        borderRadius: null
+	        borderRadius: null,
+	        outline: null,
+	        outlineOffset: null,
+	        icon: null,
+	        iconColor: null
 	      };
 	      this.textColor = '';
 	      this.link = '';
@@ -975,6 +995,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "render",
 	    value: function render(appendChildren = false) {
+	      var _this$getAvatarOption;
 	      if (this.isRoot()) {
 	        this.renderRoot(appendChildren);
 	        return;
@@ -1023,6 +1044,7 @@ this.BX.UI = this.BX.UI || {};
 	      } else {
 	        this.getTitleContainer().style.removeProperty('color');
 	      }
+	      main_core.Dom.clean(this.getAvatarContainer());
 	      const avatar = this.getAvatar();
 	      if (main_core.Type.isStringFilled(avatar)) {
 	        this.getAvatarContainer().style.backgroundImage = `url('${encodeUrl(avatar)}')`;
@@ -1057,6 +1079,19 @@ this.BX.UI = this.BX.UI || {};
 	        this.getAvatarContainer().style.borderRadius = borderRadius;
 	      } else {
 	        this.getAvatarContainer().style.removeProperty('border-radius');
+	      }
+	      const outline = this.getAvatarOption('outline');
+	      main_core.Dom.style(this.getAvatarContainer(), 'outline', outline);
+	      const outlineOffset = this.getAvatarOption('outlineOffset');
+	      main_core.Dom.style(this.getAvatarContainer(), 'outline-offset', outlineOffset);
+	      const icon = {
+	        icon: this.getAvatarOption('icon'),
+	        size: bgSize !== null && bgSize !== void 0 ? bgSize : undefined,
+	        color: (_this$getAvatarOption = this.getAvatarOption('iconColor')) !== null && _this$getAvatarOption !== void 0 ? _this$getAvatarOption : undefined
+	      };
+	      if (ui_iconSet_api_core.Icon.isValid(icon)) {
+	        main_core.Dom.style(this.getAvatarContainer(), 'background-image', 'none');
+	        main_core.Dom.append(new ui_iconSet_api_core.Icon(icon).render(), this.getAvatarContainer());
 	      }
 	      main_core.Dom.clean(this.getBadgeContainer());
 	      this.getBadges().forEach(badge => {
@@ -1227,6 +1262,22 @@ this.BX.UI = this.BX.UI || {};
 	      } else if (this.getOuterContainer().classList.contains('--hidden')) {
 	        main_core.Dom.removeClass(this.getOuterContainer(), '--hidden');
 	      }
+	    }
+	  }, {
+	    key: "lock",
+	    value: function lock() {
+	      if (this.hasChildren() || this.isDynamic()) {
+	        return;
+	      }
+	      main_core.Dom.addClass(this.getOuterContainer(), 'ui-selector-item-box-locked');
+	    }
+	  }, {
+	    key: "unlock",
+	    value: function unlock() {
+	      if (this.hasChildren() || this.isDynamic()) {
+	        return;
+	      }
+	      main_core.Dom.removeClass(this.getOuterContainer(), 'ui-selector-item-box-locked');
 	    }
 	  }, {
 	    key: "getTitle",
@@ -1463,6 +1514,8 @@ this.BX.UI = this.BX.UI || {};
 	          if (this.getDepthLevel() >= this.getTab().getItemMaxDepth()) {
 	            className += ' ui-selector-item-box-max-depth';
 	          }
+	        } else if (this.getItem().isLocked()) {
+	          className += ' ui-selector-item-box-locked';
 	        } else if (this.getItem().isSelected()) {
 	          className += ' ui-selector-item-box-selected';
 	        }
@@ -1493,7 +1546,7 @@ this.BX.UI = this.BX.UI || {};
 	    value: function getContainer() {
 	      return this.cache.remember('container', () => {
 	        const div = document.createElement('div');
-	        div.className = 'ui-selector-item';
+	        div.className = 'ui-selector-item --ui-hoverable';
 	        main_core.Event.bind(div, 'click', this.handleClick.bind(this));
 	        main_core.Event.bind(div, 'mouseenter', this.handleMouseEnter.bind(this));
 	        main_core.Event.bind(div, 'mouseleave', this.handleMouseLeave.bind(this));
@@ -1580,7 +1633,7 @@ this.BX.UI = this.BX.UI || {};
 	    value: function getIndicatorContainer() {
 	      return this.cache.remember('indicator', () => {
 	        const div = document.createElement('div');
-	        div.className = 'ui-selector-item-indicator';
+	        div.className = 'ui-selector-item-indicator ui-icon-set__scope';
 	        return div;
 	      });
 	    }
@@ -1719,22 +1772,24 @@ this.BX.UI = this.BX.UI || {};
 	        } else {
 	          this.expand();
 	        }
+	      } else if (this.getItem().isSelected()) {
+	        if (this.getItem().isDeselectable()) {
+	          this.getItem().deselect({
+	            node: this
+	          });
+	        }
+	        if (!this.getItem().isSelected() && this.getDialog().shouldHideOnDeselect()) {
+	          this.getDialog().hide();
+	        }
 	      } else {
-	        if (this.getItem().isSelected()) {
-	          if (this.getItem().isDeselectable()) {
-	            this.getItem().deselect();
-	          }
-	          if (this.getDialog().shouldHideOnDeselect()) {
-	            this.getDialog().hide();
-	          }
-	        } else {
-	          this.getItem().select();
-	          if (this.getDialog().shouldClearSearchOnSelect()) {
-	            this.getDialog().clearSearch();
-	          }
-	          if (this.getDialog().shouldHideOnSelect()) {
-	            this.getDialog().hide();
-	          }
+	        this.getItem().select({
+	          node: this
+	        });
+	        if (this.getDialog().shouldClearSearchOnSelect()) {
+	          this.getDialog().clearSearch();
+	        }
+	        if (this.getItem().isSelected() && this.getDialog().shouldHideOnSelect()) {
+	          this.getDialog().hide();
 	        }
 	      }
 	      this.getDialog().focusSearch();
@@ -2600,6 +2655,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "saveable", true);
 	    babelHelpers.defineProperty(this, "deselectable", true);
 	    babelHelpers.defineProperty(this, "hidden", false);
+	    babelHelpers.defineProperty(this, "locked", false);
 	    babelHelpers.defineProperty(this, "searchIndex", null);
 	    babelHelpers.defineProperty(this, "customData", null);
 	    babelHelpers.defineProperty(this, "sort", null);
@@ -2615,7 +2671,8 @@ this.BX.UI = this.BX.UI || {};
 	    this.id = options.id;
 	    this.entityId = options.entityId.toLowerCase();
 	    this.entityType = main_core.Type.isStringFilled(options.entityType) ? options.entityType : 'default';
-	    this.selected = main_core.Type.isBoolean(options.selected) ? options.selected : false;
+	    this.locked = main_core.Type.isBoolean(options.locked) ? options.locked : false;
+	    this.selected = main_core.Type.isBoolean(options.selected) && !this.locked ? options.selected : false;
 	    this.customData = TypeUtils.createMapFromOptions(options.customData);
 	    this.tagOptions = TypeUtils.createMapFromOptions(options.tagOptions);
 	    this.setTitle(options.title);
@@ -2954,16 +3011,31 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }, {
 	    key: "select",
-	    value: function select(preselectedMode = false) {
+	    value: function select(selectOptions = {}) {
 	      if (this.selected) {
 	        return;
 	      }
+	      const options = main_core.Type.isBoolean(selectOptions) // Compatibility signature select(preselectedMode: boolean = false)
+	      ? {
+	        emitEvents: !selectOptions,
+	        animate: !selectOptions
+	      } : selectOptions;
+	      const {
+	        emitEvents,
+	        animate,
+	        node
+	      } = {
+	        emitEvents: true,
+	        animate: true,
+	        node: null,
+	        ...options
+	      };
 	      const dialog = this.getDialog();
-	      const emitEvents = dialog && !preselectedMode;
-	      if (emitEvents) {
+	      if (dialog && emitEvents) {
 	        const event = new main_core_events.BaseEvent({
 	          data: {
-	            item: this
+	            item: this,
+	            node
 	          }
 	        });
 	        dialog.emit('Item:onBeforeSelect', event);
@@ -2971,33 +3043,53 @@ this.BX.UI = this.BX.UI || {};
 	          return;
 	        }
 	      }
+	      if (this.isLocked()) {
+	        return;
+	      }
 	      this.selected = true;
 	      if (dialog) {
-	        dialog.handleItemSelect(this, !preselectedMode);
+	        dialog.handleItemSelect(this, animate);
 	      }
 	      if (this.isRendered()) {
-	        this.getNodes().forEach(node => {
-	          node.select();
+	        this.getNodes().forEach(itemNode => {
+	          itemNode.select();
 	        });
 	      }
-	      if (emitEvents) {
+	      if (dialog && emitEvents) {
 	        dialog.emit('Item:onSelect', {
-	          item: this
+	          item: this,
+	          node
 	        });
 	        dialog.saveRecentItem(this);
 	      }
 	    }
 	  }, {
 	    key: "deselect",
-	    value: function deselect() {
+	    value: function deselect(deselectOptions = {}) {
 	      if (!this.selected) {
 	        return;
 	      }
+	      const options = main_core.Type.isBoolean(deselectOptions) // Compatibility signature select(preselectedMode: boolean = false)
+	      ? {
+	        emitEvents: !deselectOptions,
+	        animate: !deselectOptions
+	      } : deselectOptions;
+	      const {
+	        emitEvents,
+	        animate,
+	        node
+	      } = {
+	        emitEvents: true,
+	        animate: true,
+	        node: null,
+	        ...options
+	      };
 	      const dialog = this.getDialog();
-	      if (dialog) {
+	      if (dialog && emitEvents) {
 	        const event = new main_core_events.BaseEvent({
 	          data: {
-	            item: this
+	            item: this,
+	            node
 	          }
 	        });
 	        dialog.emit('Item:onBeforeDeselect', event);
@@ -3007,14 +3099,17 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	      this.selected = false;
 	      if (this.isRendered()) {
-	        this.getNodes().forEach(node => {
-	          node.deselect();
+	        this.getNodes().forEach(itemNode => {
+	          itemNode.deselect();
 	        });
 	      }
 	      if (dialog) {
-	        dialog.handleItemDeselect(this);
+	        dialog.handleItemDeselect(this, animate);
+	      }
+	      if (dialog && emitEvents) {
 	        dialog.emit('Item:onDeselect', {
-	          item: this
+	          item: this,
+	          node
 	        });
 	      }
 	    }
@@ -3086,6 +3181,74 @@ this.BX.UI = this.BX.UI || {};
 	      return this.hidden;
 	    }
 	  }, {
+	    key: "lock",
+	    value: function lock() {
+	      if (this.locked) {
+	        return;
+	      }
+	      const dialog = this.getDialog();
+	      if (dialog) {
+	        const event = new main_core_events.BaseEvent({
+	          data: {
+	            item: this
+	          }
+	        });
+	        dialog.emit('Item:onBeforeLock', event);
+	        if (event.isDefaultPrevented()) {
+	          return;
+	        }
+	      }
+	      if (this.isSelected()) {
+	        return;
+	      }
+	      this.locked = true;
+	      if (this.isRendered()) {
+	        this.getNodes().forEach(node => {
+	          node.lock();
+	        });
+	      }
+	      if (dialog) {
+	        dialog.emit('Item:onLock', {
+	          item: this
+	        });
+	      }
+	    }
+	  }, {
+	    key: "unlock",
+	    value: function unlock() {
+	      if (!this.locked) {
+	        return;
+	      }
+	      const dialog = this.getDialog();
+	      if (dialog) {
+	        const event = new main_core_events.BaseEvent({
+	          data: {
+	            item: this
+	          }
+	        });
+	        dialog.emit('Item:onBeforeUnlock', event);
+	        if (event.isDefaultPrevented()) {
+	          return;
+	        }
+	      }
+	      this.locked = false;
+	      if (this.isRendered()) {
+	        this.getNodes().forEach(node => {
+	          node.unlock();
+	        });
+	      }
+	      if (dialog) {
+	        dialog.emit('Item:onUnlock', {
+	          item: this
+	        });
+	      }
+	    }
+	  }, {
+	    key: "isLocked",
+	    value: function isLocked() {
+	      return this.locked;
+	    }
+	  }, {
 	    key: "setContextSort",
 	    value: function setContextSort(sort) {
 	      if (main_core.Type.isNumber(sort) || sort === null) {
@@ -3138,6 +3301,28 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getCustomData",
 	    value: function getCustomData() {
 	      return this.customData;
+	    }
+	  }, {
+	    key: "setCustomData",
+	    value: function setCustomData(property, value) {
+	      if (main_core.Type.isNull(property)) {
+	        this.customData = new Map();
+	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
+	      } else if (main_core.Type.isPlainObject(property)) {
+	        Object.entries(property).forEach(item => {
+	          const [currentKey, currentValue] = item;
+	          this.customData.set(currentKey, currentValue);
+	        });
+	        _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
+	      } else if (main_core.Type.isString(property)) {
+	        if (main_core.Type.isNull(value)) {
+	          this.customData.delete(property);
+	          _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
+	        } else if (!main_core.Type.isUndefined(value)) {
+	          this.customData.set(property, value);
+	          _classPrivateMethodGet$1(this, _renderNodes, _renderNodes2).call(this);
+	        }
+	      }
 	    }
 	  }, {
 	    key: "isRendered",
@@ -3261,7 +3446,8 @@ this.BX.UI = this.BX.UI || {};
 	        maxWidth: this.getTagMaxWidth(),
 	        textColor: this.getTagTextColor(),
 	        bgColor: this.getTagBgColor(),
-	        fontWeight: this.getTagFontWeight()
+	        fontWeight: this.getTagFontWeight(),
+	        onclick: this.getTagOption('onclick')
 	      };
 	    }
 	  }, {
@@ -3281,6 +3467,7 @@ this.BX.UI = this.BX.UI || {};
 	        searchable: this.isSearchable(),
 	        saveable: this.isSaveable(),
 	        hidden: this.isHidden(),
+	        locked: this.isLocked(),
 	        title: this.getTitleNode(),
 	        link: this.getLink(),
 	        linkTitle: this.getLinkTitleNode(),
@@ -3407,7 +3594,9 @@ this.BX.UI = this.BX.UI || {};
 	        if (main_core.Type.isNumber(this.getOption('iconOpacity'))) {
 	          iconOpacity = Math.min(100, Math.max(0, this.getOption('iconOpacity')));
 	        }
-	        const iconStyle = main_core.Type.isStringFilled(icon) ? `style="background-image: url('${encodeUrl(icon)}'); opacity: ${iconOpacity / 100};"` : '';
+	        const iconStyle = main_core.Type.isStringFilled(icon) && !ui_iconSet_api_core.Icon.isValid({
+	          icon
+	        }) ? `style="background-image: url('${encodeUrl(icon)}'); opacity: ${iconOpacity / 100};"` : '';
 	        const arrow = this.getOption('arrow', false) && this.getTab().getDialog().getActiveFooter() !== null;
 	        return main_core.Tag.render(_t$1 || (_t$1 = _$1`
 				<div class="ui-selector-tab-default-stub">
@@ -3416,7 +3605,6 @@ this.BX.UI = this.BX.UI || {};
 						<div class="ui-selector-tab-default-stub-title">${0}</div>
 						${0}
 					</div>
-					
 					${0}
 				</div>
 			`), iconStyle, title, subtitle ? main_core.Tag.render(_t2 || (_t2 = _$1`<div class="ui-selector-tab-default-stub-subtitle">${0}</div>`), subtitle) : '', arrow ? main_core.Tag.render(_t3 || (_t3 = _$1`<div class="ui-selector-tab-default-stub-arrow"></div>`)) : '');
@@ -3601,6 +3789,7 @@ this.BX.UI = this.BX.UI || {};
 	 */
 	let Tab = /*#__PURE__*/function () {
 	  function Tab(dialog, tabOptions) {
+	    var _options$icon;
 	    babelHelpers.classCallCheck(this, Tab);
 	    babelHelpers.defineProperty(this, "id", null);
 	    babelHelpers.defineProperty(this, "title", null);
@@ -3637,7 +3826,7 @@ this.BX.UI = this.BX.UI || {};
 	    this.setVisible(options.visible);
 	    this.setTitle(options.title);
 	    this.setItemMaxDepth(options.itemMaxDepth);
-	    this.setIcon(options.icon);
+	    this.setIcon((_options$icon = options.icon) !== null && _options$icon !== void 0 ? _options$icon : ui_iconSet_api_core.Outline.ARROW_RIGHT_L);
 	    this.setTextColor(options.textColor);
 	    this.setBgColor(options.bgColor);
 	    this.setStub(options.stub, options.stubOptions);
@@ -3925,7 +4114,7 @@ this.BX.UI = this.BX.UI || {};
 	        const className = this.isVisible() ? '' : ' ui-selector-tab-label-hidden';
 	        return main_core.Tag.render(_t2$1 || (_t2$1 = _$4`
 				<div
-					class="ui-selector-tab-label${0}"
+					class="ui-selector-tab-label${0} --ui-hoverable"
 					onclick="${0}"
 					onmouseenter="${0}"
 					onmouseleave="${0}"
@@ -3975,7 +4164,16 @@ this.BX.UI = this.BX.UI || {};
 	      main_core.Dom.style(this.getTitleContainer(), 'color', this.getPropertyByCurrentState('textColor'));
 	      main_core.Dom.style(this.getLabelContainer(), 'background-color', this.getPropertyByCurrentState('bgColor'));
 	      const icon = this.getPropertyByCurrentState('icon');
-	      main_core.Dom.style(this.getIconContainer(), 'background-image', icon ? `url('${encodeUrl(icon)}')` : null);
+	      main_core.Dom.clean(this.getIconContainer());
+	      try {
+	        main_core.Dom.append(new ui_iconSet_api_core.Icon({
+	          icon
+	        }).render(), this.getIconContainer());
+	        main_core.Dom.style(this.getIconContainer(), 'mask-image', 'none');
+	        main_core.Dom.style(this.getIconContainer(), 'background-color', 'transparent');
+	      } catch {
+	        main_core.Dom.style(this.getIconContainer(), 'mask-image', icon ? `url('${encodeUrl(icon)}')` : null);
+	      }
 	      const titleNode = this.getTitleNode();
 	      if (titleNode) {
 	        this.getTitleNode().renderTo(this.getTitleContainer());
@@ -4138,6 +4336,123 @@ this.BX.UI = this.BX.UI || {};
 	  return Tab;
 	}();
 
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration$2(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$2(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
+	/**
+	 * @namespace BX.UI.Uploader
+	 */
+	var _entityId = /*#__PURE__*/new WeakMap();
+	let EntityError = /*#__PURE__*/function (_BaseError) {
+	  babelHelpers.inherits(EntityError, _BaseError);
+	  function EntityError(...args) {
+	    var _this;
+	    babelHelpers.classCallCheck(this, EntityError);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(EntityError).call(this, ...args));
+	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _entityId, {
+	      writable: true,
+	      value: void 0
+	    });
+	    return _this;
+	  }
+	  babelHelpers.createClass(EntityError, [{
+	    key: "setEntityId",
+	    value: function setEntityId(entityId) {
+	      if (main_core.Type.isStringFilled(entityId)) {
+	        babelHelpers.classPrivateFieldSet(this, _entityId, entityId);
+	      }
+	    }
+	  }, {
+	    key: "getEntityId",
+	    value: function getEntityId() {
+	      return babelHelpers.classPrivateFieldGet(this, _entityId);
+	    }
+	  }]);
+	  return EntityError;
+	}(main_core.BaseError);
+
+	let _Symbol$iterator;
+	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$3(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$3(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	var _errors = /*#__PURE__*/new WeakMap();
+	_Symbol$iterator = Symbol.iterator;
+	/**
+	 * @namespace BX.UI.Uploader
+	 */
+	let EntityErrorCollection = /*#__PURE__*/function () {
+	  function EntityErrorCollection() {
+	    babelHelpers.classCallCheck(this, EntityErrorCollection);
+	    _classPrivateFieldInitSpec$1(this, _errors, {
+	      writable: true,
+	      value: []
+	    });
+	  }
+	  babelHelpers.createClass(EntityErrorCollection, [{
+	    key: "getByEntityId",
+	    value: function getByEntityId(entityId) {
+	      return babelHelpers.classPrivateFieldGet(this, _errors).filter(error => error.getEntityId() === entityId);
+	    }
+	  }, {
+	    key: "add",
+	    value: function add(item) {
+	      babelHelpers.classPrivateFieldGet(this, _errors).push(item);
+	    }
+	  }, {
+	    key: "has",
+	    value: function has(item) {
+	      return babelHelpers.classPrivateFieldGet(this, _errors).includes(item);
+	    }
+	  }, {
+	    key: "clear",
+	    value: function clear() {
+	      babelHelpers.classPrivateFieldSet(this, _errors, []);
+	    }
+	  }, {
+	    key: "getIndex",
+	    value: function getIndex(item) {
+	      return babelHelpers.classPrivateFieldGet(this, _errors).indexOf(item);
+	    }
+	  }, {
+	    key: "getByIndex",
+	    value: function getByIndex(index) {
+	      if (main_core.Type.isNumber(index) && index >= 0) {
+	        const error = babelHelpers.classPrivateFieldGet(this, _errors)[index];
+	        return main_core.Type.isUndefined(error) ? null : error;
+	      }
+	      return null;
+	    }
+	  }, {
+	    key: _Symbol$iterator,
+	    value: function () {
+	      return babelHelpers.classPrivateFieldGet(this, _errors)[Symbol.iterator]();
+	    }
+	  }], [{
+	    key: "create",
+	    value: function create(errorOptions) {
+	      const errorCollection = new this();
+	      errorOptions.forEach(errorOption => {
+	        if (!main_core.Type.isStringFilled(errorOption.entityId)) {
+	          return;
+	        }
+	        const error = new EntityError();
+	        error.setEntityId(errorOption.entityId);
+	        if (main_core.Type.isStringFilled(errorOption.message)) {
+	          error.setMessage(errorOption.message);
+	        }
+	        if (!main_core.Type.isNil(errorOption.code)) {
+	          error.setCode(errorOption.code);
+	        }
+	        if (main_core.Type.isArrayFilled(errorOption.customData)) {
+	          error.setCustomData(errorOption.customData);
+	        }
+	        errorCollection.add(error);
+	      });
+	      return errorCollection;
+	    }
+	  }]);
+	  return EntityErrorCollection;
+	}();
+
 	let _$5 = t => t,
 	  _t$5,
 	  _t2$2,
@@ -4145,6 +4460,8 @@ this.BX.UI = this.BX.UI || {};
 	  _t4$2,
 	  _t5$1,
 	  _t6;
+	function _classStaticPrivateMethodGet$1(receiver, classConstructor, method) { _classCheckPrivateStaticAccess$1(receiver, classConstructor); return method; }
+	function _classCheckPrivateStaticAccess$1(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
 	let TagItem = /*#__PURE__*/function () {
 	  function TagItem(itemOptions) {
 	    babelHelpers.classCallCheck(this, TagItem);
@@ -4160,6 +4477,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "fontWeight", null);
 	    babelHelpers.defineProperty(this, "link", null);
 	    babelHelpers.defineProperty(this, "onclick", null);
+	    babelHelpers.defineProperty(this, "clickable", null);
 	    babelHelpers.defineProperty(this, "deselectable", null);
 	    babelHelpers.defineProperty(this, "customData", null);
 	    babelHelpers.defineProperty(this, "cache", new main_core.Cache.MemoryCache());
@@ -4186,6 +4504,7 @@ this.BX.UI = this.BX.UI || {};
 	    this.setTextColor(options.textColor);
 	    this.setBgColor(options.bgColor);
 	    this.setFontWeight(options.fontWeight);
+	    this.setClickable(options.clickable);
 	  }
 	  babelHelpers.createClass(TagItem, [{
 	    key: "getId",
@@ -4234,9 +4553,11 @@ this.BX.UI = this.BX.UI || {};
 	    value: function getAvatar() {
 	      if (this.avatar !== null) {
 	        return this.avatar;
-	      } else if (this.getSelector().getTagAvatar() !== null) {
+	      }
+	      if (this.getSelector().getTagAvatar() !== null) {
 	        return this.getSelector().getTagAvatar();
-	      } else if (this.getEntityTagOption('avatar') !== null) {
+	      }
+	      if (this.getEntityTagOption('avatar') !== null) {
 	        return this.getEntityTagOption('avatar');
 	      }
 	      return this.getEntityItemOption('avatar');
@@ -4292,7 +4613,8 @@ this.BX.UI = this.BX.UI || {};
 	    value: function getTextColor() {
 	      if (this.textColor !== null) {
 	        return this.textColor;
-	      } else if (this.getSelector().getTagTextColor() !== null) {
+	      }
+	      if (this.getSelector().getTagTextColor() !== null) {
 	        return this.getSelector().getTagTextColor();
 	      }
 	      return this.getEntityTagOption('textColor');
@@ -4309,7 +4631,8 @@ this.BX.UI = this.BX.UI || {};
 	    value: function getBgColor() {
 	      if (this.bgColor !== null) {
 	        return this.bgColor;
-	      } else if (this.getSelector().getTagBgColor() !== null) {
+	      }
+	      if (this.getSelector().getTagBgColor() !== null) {
 	        return this.getSelector().getTagBgColor();
 	      }
 	      return this.getEntityTagOption('bgColor');
@@ -4326,7 +4649,8 @@ this.BX.UI = this.BX.UI || {};
 	    value: function getFontWeight() {
 	      if (this.fontWeight !== null) {
 	        return this.fontWeight;
-	      } else if (this.getSelector().getTagFontWeight() !== null) {
+	      }
+	      if (this.getSelector().getTagFontWeight() !== null) {
 	        return this.getSelector().getTagFontWeight();
 	      }
 	      return this.getEntityTagOption('fontWeight');
@@ -4343,7 +4667,8 @@ this.BX.UI = this.BX.UI || {};
 	    value: function getMaxWidth() {
 	      if (this.maxWidth !== null) {
 	        return this.maxWidth;
-	      } else if (this.getSelector().getTagMaxWidth() !== null) {
+	      }
+	      if (this.getSelector().getTagMaxWidth() !== null) {
 	        return this.getSelector().getTagMaxWidth();
 	      }
 	      return this.getEntityTagOption('maxWidth');
@@ -4360,12 +4685,15 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setDeselectable(flag) {
 	      if (main_core.Type.isBoolean(flag)) {
 	        this.deselectable = flag;
+	        if (this.isRendered()) {
+	          main_core.Dom.toggleClass(this.getContainer(), 'ui-tag-selector-tag-readonly', !flag);
+	        }
 	      }
 	    }
 	  }, {
 	    key: "isDeselectable",
 	    value: function isDeselectable() {
-	      return this.deselectable !== null ? this.deselectable : this.getSelector().isDeselectable();
+	      return this.deselectable === null ? this.getSelector().isDeselectable() : this.deselectable;
 	    }
 	  }, {
 	    key: "getCustomData",
@@ -4383,16 +4711,42 @@ this.BX.UI = this.BX.UI || {};
 	      return this.onclick;
 	    }
 	  }, {
+	    key: "setClickable",
+	    value: function setClickable(flag) {
+	      if (main_core.Type.isBoolean(flag)) {
+	        this.clickable = flag;
+	      }
+	    }
+	  }, {
+	    key: "isClickable",
+	    value: function isClickable() {
+	      if (this.clickable !== null) {
+	        return this.clickable;
+	      }
+	      if (this.getSelector().getTagClickable() !== null) {
+	        return this.getSelector().getTagClickable();
+	      }
+	      if (this.getEntityTagOption('clickable') !== null) {
+	        return this.getEntityTagOption('clickable');
+	      }
+	      if (this.getEntityItemOption('clickable') !== null) {
+	        return this.getEntityItemOption('clickable');
+	      }
+	      return false;
+	    }
+	  }, {
 	    key: "render",
 	    value: function render() {
+	      var _this$getAvatarOption;
 	      const titleNode = this.getTitleNode();
 	      if (titleNode) {
+	        var _this$constructor;
 	        titleNode.renderTo(this.getTitleContainer());
-
-	        //Dom.attr(this.getContentContainer(), 'title', this.getTitle());
+	        const title = this.getTitleContainer().textContent;
+	        this.getContentContainer().setAttribute('title', _classStaticPrivateMethodGet$1(_this$constructor = this.constructor, TagItem, _sanitizeTitle$1).call(_this$constructor, title));
 	      } else {
 	        this.getTitleContainer().textContent = '';
-	        main_core.Dom.attr(this.getContentContainer(), 'title', '');
+	        main_core.Dom.attr(this.getContentContainer(), 'title', null);
 	      }
 	      const avatar = this.getAvatar();
 	      const bgImage = this.getAvatarOption('bgImage');
@@ -4405,11 +4759,25 @@ this.BX.UI = this.BX.UI || {};
 	      const bgSize = this.getAvatarOption('bgSize');
 	      const border = this.getAvatarOption('border');
 	      const borderRadius = this.getAvatarOption('borderRadius');
+	      const outline = this.getAvatarOption('outline');
+	      const outlineOffset = this.getAvatarOption('outlineOffset');
+	      main_core.Dom.clean(this.getAvatarContainer());
 	      main_core.Dom.style(this.getAvatarContainer(), 'background-color', bgColor);
 	      main_core.Dom.style(this.getAvatarContainer(), 'background-size', bgSize);
 	      main_core.Dom.style(this.getAvatarContainer(), 'border', border);
 	      main_core.Dom.style(this.getAvatarContainer(), 'border-radius', borderRadius);
-	      const hasAvatar = avatar || bgColor && bgColor !== 'none' || bgImage && bgImage !== 'none';
+	      main_core.Dom.style(this.getAvatarContainer(), 'outline', outline);
+	      main_core.Dom.style(this.getAvatarContainer(), 'outline-offset', outlineOffset);
+	      const icon = {
+	        icon: this.getAvatarOption('icon'),
+	        size: bgSize !== null && bgSize !== void 0 ? bgSize : undefined,
+	        color: (_this$getAvatarOption = this.getAvatarOption('iconColor')) !== null && _this$getAvatarOption !== void 0 ? _this$getAvatarOption : undefined
+	      };
+	      if (ui_iconSet_api_core.Icon.isValid(icon)) {
+	        main_core.Dom.style(this.getAvatarContainer(), 'background-image', 'none');
+	        main_core.Dom.append(new ui_iconSet_api_core.Icon(icon).render(), this.getAvatarContainer());
+	      }
+	      const hasAvatar = avatar || bgColor && bgColor !== 'none' || bgImage && bgImage !== 'none' || ui_iconSet_api_core.Icon.isValid(icon);
 	      if (hasAvatar) {
 	        main_core.Dom.addClass(this.getContainer(), 'ui-tag-selector-tag--has-avatar');
 	      } else {
@@ -4439,7 +4807,8 @@ this.BX.UI = this.BX.UI || {};
 				<div class="ui-tag-selector-item ui-tag-selector-tag">
 					${0}
 					${0}
-				</div>`), this.getContentContainer(), this.getRemoveIcon());
+				</div>
+			`), this.getContentContainer(), this.getRemoveIcon());
 	      });
 	    }
 	  }, {
@@ -4458,19 +4827,17 @@ this.BX.UI = this.BX.UI || {};
 						${0}
 					</a>
 				`), this.handleContainerClick.bind(this), this.getLink(), this.getAvatarContainer(), this.getTitleContainer());
-	        } else {
-	          const className = main_core.Type.isFunction(this.getOnclick()) ? ' ui-tag-selector-tag-content--clickable' : '';
-	          return main_core.Tag.render(_t3$2 || (_t3$2 = _$5`
-					<div 
-						class="ui-tag-selector-tag-content${0}" 
-						onclick="${0}"
-					>
-						${0}
-						${0}
-					</div>
-					
-				`), className, this.handleContainerClick.bind(this), this.getAvatarContainer(), this.getTitleContainer());
 	        }
+	        const className = this.isClickable() || this.getOnclick() !== null ? ' ui-tag-selector-tag-content--clickable' : '';
+	        return main_core.Tag.render(_t3$2 || (_t3$2 = _$5`
+				<div
+					class="ui-tag-selector-tag-content${0}"
+					onclick="${0}"
+				>
+					${0}
+					${0}
+				</div>
+			`), className, this.handleContainerClick.bind(this), this.getAvatarContainer(), this.getTitleContainer());
 	      });
 	    }
 	  }, {
@@ -4496,7 +4863,7 @@ this.BX.UI = this.BX.UI || {};
 	    value: function getRemoveIcon() {
 	      return this.cache.remember('remove-icon', () => {
 	        return main_core.Tag.render(_t6 || (_t6 = _$5`
-				<div class="ui-tag-selector-tag-remove" onclick="${0}"></div>
+				<div class="ui-tag-selector-tag-remove ui-icon-set__scope" onclick="${0}"></div>
 			`), this.handleRemoveIconClick.bind(this));
 	      });
 	    }
@@ -4528,6 +4895,8 @@ this.BX.UI = this.BX.UI || {};
 	        Animation.handleAnimationEnd(this.getContainer(), 'ui-tag-selector-tag-remove').then(() => {
 	          main_core.Dom.remove(this.getContainer());
 	          resolve();
+	        }).catch(() => {
+	          // Fail silently
 	        });
 	      });
 	    }
@@ -4539,6 +4908,8 @@ this.BX.UI = this.BX.UI || {};
 	        Animation.handleAnimationEnd(this.getContainer(), 'ui-tag-selector-tag-show').then(() => {
 	          main_core.Dom.removeClass(this.getContainer(), 'ui-tag-selector-tag--show');
 	          resolve();
+	        }).catch(() => {
+	          // Fail silently
 	        });
 	      });
 	    }
@@ -4549,6 +4920,10 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isFunction(fn)) {
 	        fn(this);
 	      }
+	      const selector = this.getSelector();
+	      selector.emit('TagItem:onClick', {
+	        item: this
+	      });
 	    }
 	  }, {
 	    key: "handleRemoveIconClick",
@@ -4561,6 +4936,9 @@ this.BX.UI = this.BX.UI || {};
 	  }]);
 	  return TagItem;
 	}();
+	function _sanitizeTitle$1(text) {
+	  return text.replaceAll(/[\t ]+/gm, ' ').replaceAll(/\n+/gm, '\n').trim();
+	}
 
 	let _$6 = t => t,
 	  _t$6,
@@ -4602,6 +4980,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "tagBgColor", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "tagFontWeight", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "tagMaxWidth", null);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "tagClickable", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "dialog", null);
 	    _this.setEventNamespace('BX.UI.EntitySelector.TagSelector');
 	    const options = main_core.Type.isPlainObject(selectorOptions) ? selectorOptions : {};
@@ -4626,6 +5005,7 @@ this.BX.UI = this.BX.UI || {};
 	    _this.setTagTextColor(options.tagTextColor);
 	    _this.setTagBgColor(options.tagBgColor);
 	    _this.setTagFontWeight(options.tagFontWeight);
+	    _this.setTagClickable(options.tagClickable);
 	    if (main_core.Type.isPlainObject(options.dialogOptions)) {
 	      let selectedItems = main_core.Type.isArray(options.items) ? options.items : [];
 	      if (main_core.Type.isArray(options.dialogOptions.selectedItems)) {
@@ -4878,7 +5258,7 @@ this.BX.UI = this.BX.UI || {};
 	        let className = this.isReadonly() ? ' ui-tag-selector-container-readonly' : '';
 	        className += this.isLocked() ? ' ui-tag-selector-container-locked' : '';
 	        return main_core.Tag.render(_t$6 || (_t$6 = _$6`
-				<div class="ui-tag-selector-outer-container${0}">${0}</div>
+				<div class="ui-tag-selector-outer-container --air --ui-context-content-light${0}">${0}</div>
 			`), className, this.getContainer());
 	      });
 	    }
@@ -4931,7 +5311,7 @@ this.BX.UI = this.BX.UI || {};
 			`), className, main_core.Text.encode(this.getPlaceholder()), this.handleTextBoxInput.bind(this), this.handleTextBoxBlur.bind(this), this.handleTextBoxKeyUp.bind(this), this.handleTextBoxKeyDown.bind(this));
 	        const width = this.getTextBoxWidth();
 	        if (width !== null) {
-	          main_core.Dom.style(input, 'width', main_core.Type.isStringFilled(width) ? width : `${width}px`);
+	          main_core.Dom.style(input, 'min-width', main_core.Type.isStringFilled(width) ? width : `${width}px`);
 	        }
 	        if (this.isLocked()) {
 	          input.disabled = true;
@@ -4998,12 +5378,12 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isStringFilled(width) || width === null) {
 	        this.textBoxWidth = width;
 	        if (this.isRendered()) {
-	          main_core.Dom.style(this.getTextBox(), 'width', width);
+	          main_core.Dom.style(this.getTextBox(), 'min-width', width);
 	        }
 	      } else if (main_core.Type.isNumber(width) && width > 0) {
 	        this.textBoxWidth = width;
 	        if (this.isRendered()) {
-	          main_core.Dom.style(this.getTextBox(), 'width', `${width}px`);
+	          main_core.Dom.style(this.getTextBox(), 'min-width', `${width}px`);
 	        }
 	      }
 	    }
@@ -5030,6 +5410,19 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setTagAvatar(tagAvatar) {
 	      if (main_core.Type.isString(tagAvatar) || tagAvatar === null) {
 	        this.tagAvatar = tagAvatar;
+	        this.updateTags();
+	      }
+	    }
+	  }, {
+	    key: "getTagClickable",
+	    value: function getTagClickable() {
+	      return this.tagClickable;
+	    }
+	  }, {
+	    key: "setTagClickable",
+	    value: function setTagClickable(flag) {
+	      if (main_core.Type.isBoolean(flag) || flag === null) {
+	        this.tagClickable = flag;
 	        this.updateTags();
 	      }
 	    }
@@ -5843,7 +6236,6 @@ this.BX.UI = this.BX.UI || {};
 	  babelHelpers.inherits(RecentTab, _Tab);
 	  function RecentTab(dialog, tabOptions) {
 	    babelHelpers.classCallCheck(this, RecentTab);
-	    const icon = 'data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2223%22%20height%3D%2223%22%20fill%3D%' + '22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M14.432%2013.985a.96.' + '96%200%2000-.96-.96H8.505a.96.96%200%20000%201.92h4.967c.53%200%20.96-.43.96-.96zM14.432%2011.' + '009a.96.96%200%2000-.96-.96H8.505a.96.96%200%20000%201.92h4.967c.53%200%20.96-.43.96-.96zM14.' + '432%208.033a.96.96%200%2000-.96-.96H8.505a.96.96%200%20000%201.92h4.967c.53%200%20.96-.43.96-.' + '96z%22%20fill%3D%22%23ABB1B8%22/%3E%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd' + '%22%20d%3D%22M10.988%2019.52c1.8%200%203.469-.558%204.844-1.51l2.205%202.204a1.525%201.525%200%20' + '102.157-2.157l-2.205-2.205a8.512%208.512%200%2010-7%203.668zm0-2.403a6.108%206.108%200%20100-12.2' + '16%206.108%206.108%200%20000%2012.216z%22%20fill%3D%22%23ABB1B8%22/%3E%3C/svg%3E';
 	    const defaults = {
 	      title: main_core.Loc.getMessage('UI_SELECTOR_RECENT_TAB_TITLE'),
 	      itemOrder: {
@@ -5851,12 +6243,7 @@ this.BX.UI = this.BX.UI || {};
 	      },
 	      visible: !dialog.isDropdownMode(),
 	      stub: !dialog.isDropdownMode(),
-	      icon: {
-	        //default: '/bitrix/js/ui/entity-selector/src/css/images/recent-tab-icon.svg',
-	        //selected: '/bitrix/js/ui/entity-selector/src/css/images/recent-tab-icon-selected.svg'
-	        default: icon,
-	        selected: icon.replace(/ABB1B8/g, 'fff')
-	      }
+	      icon: ui_iconSet_api_core.Outline.SEARCH
 	    };
 	    const options = Object.assign({}, defaults, tabOptions);
 	    options.id = 'recents';
@@ -6365,10 +6752,15 @@ this.BX.UI = this.BX.UI || {};
 	        subtitle: main_core.Loc.getMessage('UI_SELECTOR_SEARCH_STUB_SUBTITLE_MSGVER_1')
 	      }
 	    };
-	    const options = Object.assign({}, defaults, tabOptions);
+	    const options = {
+	      ...defaults,
+	      ...tabOptions
+	    };
 	    options.id = 'search';
 	    options.stubOptions.autoShow = false;
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(SearchTab).call(this, dialog, options));
+
+	    // eslint-disable-next-line no-param-reassign
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "lastSearchQuery", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "queryCache", new Set());
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "queryXhr", null);
@@ -6403,10 +6795,8 @@ this.BX.UI = this.BX.UI || {};
 	        if (!this.isEmptyResult()) {
 	          this.getStub().hide();
 	        }
-	      } else {
-	        if (!this.getSearchLoader().isShown()) {
-	          this.toggleEmptyResult();
-	        }
+	      } else if (!this.getSearchLoader().isShown()) {
+	        this.toggleEmptyResult();
 	      }
 	    }
 	  }, {
@@ -6442,29 +6832,33 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	        if (matchSortA !== null && matchSortB === null) {
 	          return -1;
-	        } else if (matchSortA === null && matchSortB !== null) {
+	        }
+	        if (matchSortA === null && matchSortB !== null) {
 	          return 1;
 	        }
 	        const contextSortA = a.getItem().getContextSort();
 	        const contextSortB = b.getItem().getContextSort();
 	        if (contextSortA !== null && contextSortB === null) {
 	          return -1;
-	        } else if (contextSortA === null && contextSortB !== null) {
-	          return 1;
-	        } else if (contextSortA !== null && contextSortB !== null) {
-	          return contextSortB - contextSortA;
-	        } else {
-	          const globalSortA = a.getItem().getGlobalSort();
-	          const globalSortB = b.getItem().getGlobalSort();
-	          if (globalSortA !== null && globalSortB === null) {
-	            return -1;
-	          } else if (globalSortA === null && globalSortB !== null) {
-	            return 1;
-	          } else if (globalSortA !== null && globalSortB !== null) {
-	            return globalSortB - globalSortA;
-	          }
-	          return 0;
 	        }
+	        if (contextSortA === null && contextSortB !== null) {
+	          return 1;
+	        }
+	        if (contextSortA !== null && contextSortB !== null) {
+	          return contextSortB - contextSortA;
+	        }
+	        const globalSortA = a.getItem().getGlobalSort();
+	        const globalSortB = b.getItem().getGlobalSort();
+	        if (globalSortA !== null && globalSortB === null) {
+	          return -1;
+	        }
+	        if (globalSortA === null && globalSortB !== null) {
+	          return 1;
+	        }
+	        if (globalSortA !== null && globalSortB !== null) {
+	          return globalSortB - globalSortA;
+	        }
+	        return 0;
 	      });
 	      this.getRootNode().disableRender();
 	      matchResults.forEach(matchResult => {
@@ -6538,10 +6932,11 @@ this.BX.UI = this.BX.UI || {};
 	      if (!this.shouldLoad(searchQuery)) {
 	        return;
 	      }
-	      /*if (this.queryXhr)
-	      {
-	      	this.queryXhr.abort();
-	      }*/
+
+	      // if (this.queryXhr)
+	      // {
+	      // 	this.queryXhr.abort();
+	      // }
 
 	      this.addCacheQuery(searchQuery);
 	      this.getStub().hide();
@@ -6568,7 +6963,11 @@ this.BX.UI = this.BX.UI || {};
 	          return;
 	        }
 	        if (response.data.searchQuery && response.data.searchQuery.cacheable === false) {
+	          var _this$getLastSearchQu;
 	          this.removeCacheQuery(searchQuery);
+	          if (((_this$getLastSearchQu = this.getLastSearchQuery()) === null || _this$getLastSearchQu === void 0 ? void 0 : _this$getLastSearchQu.getQuery()) !== searchQuery.getQuery()) {
+	            this.loadWithDebounce();
+	          }
 	        }
 	        if (main_core.Type.isArrayFilled(response.data.dialog.items)) {
 	          const items = new Set();
@@ -6579,11 +6978,14 @@ this.BX.UI = this.BX.UI || {};
 	            items.add(item);
 	          });
 	          const isTabEmpty = this.isEmptyResult();
-	          const matchResults = SearchEngine.matchItems(Array.from(items.values()), this.getLastSearchQuery());
+	          const matchResults = SearchEngine.matchItems([...items.values()], this.getLastSearchQuery());
 	          this.appendResults(matchResults);
 	          if (isTabEmpty && this.getDialog().shouldFocusOnFirst()) {
 	            this.getDialog().focusOnFirstNode();
 	          }
+	        }
+	        if (main_core.Type.isArrayFilled(response.data.dialog.errors)) {
+	          this.getDialog().emitEntityErrors(response.data.dialog.errors);
 	        }
 	        this.toggleEmptyResult();
 	        this.getDialog().emit('SearchTab:onLoad', {
@@ -6693,7 +7095,8 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "width", 565);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "height", 420);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "maxLabelWidth", 160);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "minLabelWidth", 45);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "minLabelWidth", 38);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "alwaysShowLabels", false);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "showAvatars", true);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "compactView", false);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "activeTab", null);
@@ -6717,6 +7120,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "clearUnavailableItems", false);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "overlappingObserver", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "offsetAnimation", true);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "customData", Object.create(null));
 	    _this.setEventNamespace('BX.UI.EntitySelector.Dialog');
 	    const options = main_core.Type.isPlainObject(dialogOptions) ? dialogOptions : {};
 	    _this.id = main_core.Type.isStringFilled(options.id) ? options.id : `ui-selector-${main_core.Text.getRandom().toLowerCase()}`;
@@ -6725,6 +7129,7 @@ this.BX.UI = this.BX.UI || {};
 	    _this.clearUnavailableItems = options.clearUnavailableItems === true;
 	    _this.compactView = options.compactView === true;
 	    _this.dropdownMode = main_core.Type.isBoolean(options.dropdownMode) ? options.dropdownMode : false;
+	    _this.alwaysShowLabels = main_core.Type.isBoolean(options.alwaysShowLabels) ? options.alwaysShowLabels : false;
 	    if (main_core.Type.isArray(options.entities)) {
 	      options.entities.forEach(entity => {
 	        _this.addEntity(entity);
@@ -6813,10 +7218,10 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "destroy",
 	    value: function destroy() {
-	      if (this.destroying) {
+	      if (this.destroyed) {
 	        return;
 	      }
-	      this.destroying = true;
+	      this.destroyed = true;
 	      this.emit('onDestroy');
 	      this.disconnectTabOverlapping();
 	      instances.delete(this.getId());
@@ -6829,6 +7234,7 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	      }
 	      Object.setPrototypeOf(this, null);
+	      this.destroyed = true;
 	    }
 	  }, {
 	    key: "isOpen",
@@ -7739,6 +8145,35 @@ this.BX.UI = this.BX.UI || {};
 	    value: function getUndeselectedItems() {
 	      return this.undeselectedItems;
 	    }
+	  }, {
+	    key: "setCustomData",
+	    value: function setCustomData(property, value) {
+	      if (main_core.Type.isNull(property)) {
+	        this.customData = Object.create(null);
+	      } else if (main_core.Type.isPlainObject(property)) {
+	        Object.entries(property).forEach(item => {
+	          const [currentKey, currentValue] = item;
+	          this.setCustomData(currentKey, currentValue);
+	        });
+	      } else if (main_core.Type.isString(property)) {
+	        if (main_core.Type.isNull(value)) {
+	          delete this.customData[property];
+	        } else if (!main_core.Type.isUndefined(value)) {
+	          this.customData[property] = value;
+	        }
+	      }
+	    }
+	  }, {
+	    key: "getCustomData",
+	    value: function getCustomData(property) {
+	      if (main_core.Type.isUndefined(property)) {
+	        return this.customData;
+	      }
+	      if (main_core.Type.isStringFilled(property)) {
+	        return this.customData[property];
+	      }
+	      return undefined;
+	    }
 	    /**
 	     * @private
 	     */
@@ -7746,6 +8181,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "setOptions",
 	    value: function setOptions(dialogOptions) {
 	      const options = main_core.Type.isPlainObject(dialogOptions) ? dialogOptions : {};
+	      this.setCustomData(options.customData);
 	      if (main_core.Type.isArray(options.tabs)) {
 	        options.tabs.forEach(tab => {
 	          this.addTab(tab);
@@ -7775,6 +8211,43 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getMinLabelWidth",
 	    value: function getMinLabelWidth() {
 	      return this.minLabelWidth;
+	    }
+	  }, {
+	    key: "expandLabels",
+	    value: function expandLabels(animate = true) {
+	      const freeSpace = parseInt(this.getPopup().getPopupContainer().style.left, 10);
+	      if (freeSpace > this.getMinLabelWidth()) {
+	        main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
+	        if (animate) {
+	          main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
+	          main_core.Dom.style(this.getLabelsContainer(), 'max-width', `${Math.min(freeSpace, this.getMaxLabelWidth())}px`);
+	          Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(() => {
+	            main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
+	            main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
+	          }).catch(() => {
+	            // fail silently
+	          });
+	        } else {
+	          main_core.Dom.style(this.getLabelsContainer(), 'max-width', `${Math.min(freeSpace, this.getMaxLabelWidth())}px`);
+	        }
+	      } else {
+	        main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
+	      }
+	    }
+	  }, {
+	    key: "collapseLabels",
+	    value: function collapseLabels(animate = true) {
+	      main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
+	      main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
+	      if (animate) {
+	        main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
+	        Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(() => {
+	          main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
+	        }).catch(() => {
+	          // fail silently
+	        });
+	      }
+	      main_core.Dom.style(this.getLabelsContainer(), 'max-width', null);
 	    }
 	  }, {
 	    key: "getTagSelector",
@@ -7971,7 +8444,7 @@ this.BX.UI = this.BX.UI || {};
 					onmouseenter="${0}"
 					onmouseleave="${0}"
 				></div>
-			`), this.handleLabelsMouseEnter.bind(this), this.handleLabelsMouseLeave.bind(this));
+			`), this.alwaysShowLabels ? null : this.handleLabelsMouseEnter.bind(this), this.alwaysShowLabels ? null : this.handleLabelsMouseLeave.bind(this));
 	      });
 	    }
 	  }, {
@@ -8055,6 +8528,9 @@ this.BX.UI = this.BX.UI || {};
 	        this.getTagSelector().lock();
 	      }
 	      setTimeout(() => {
+	        if (this.destroyed) {
+	          return;
+	        }
 	        if (this.isLoading()) {
 	          this.showLoader();
 	        }
@@ -8068,6 +8544,9 @@ this.BX.UI = this.BX.UI || {};
 	          context: this.getContext()
 	        }
 	      }).then(response => {
+	        if (this.destroyed) {
+	          return;
+	        }
 	        if (response && response.data && main_core.Type.isPlainObject(response.data.dialog)) {
 	          this.loadState = LoadState.DONE;
 	          const entities = main_core.Type.isArrayFilled(response.data.dialog.entities) ? response.data.dialog.entities : [];
@@ -8121,6 +8600,9 @@ this.BX.UI = this.BX.UI || {};
 	          this.destroyLoader();
 	          if (this.shouldFocusOnFirst()) {
 	            this.focusOnFirstNode();
+	          }
+	          if (main_core.Type.isArrayFilled(response.data.dialog.errors)) {
+	            this.emitEntityErrors(response.data.dialog.errors);
 	          }
 	          this.emit('onLoad');
 	        }
@@ -8212,6 +8694,7 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	      const query = this.getTagSelector().getTextBoxValue();
 	      this.search(query);
+	      this.adjustByTagSelector();
 	    }
 	    /**
 	     * @private
@@ -8310,8 +8793,8 @@ this.BX.UI = this.BX.UI || {};
 	     */
 	  }, {
 	    key: "handleItemDeselect",
-	    value: function handleItemDeselect(item) {
-	      const shouldAnimate = this.isMultiple();
+	    value: function handleItemDeselect(item, animate = true) {
+	      const shouldAnimate = animate && this.isMultiple();
 	      this.selectedItems.delete(item);
 	      if (this.getTagSelector()) {
 	        this.getTagSelector().removeTag({
@@ -8352,6 +8835,12 @@ this.BX.UI = this.BX.UI || {};
 	          });
 	        });
 	      }
+	      if (this.alwaysShowLabels) {
+	        setTimeout(() => {
+	          // We have to call the method after adjustPosition()
+	          this.expandLabels(false);
+	        }, 0);
+	      }
 	    }
 	    /**
 	     * @private
@@ -8387,6 +8876,9 @@ this.BX.UI = this.BX.UI || {};
 	          const left = parseInt(this.getPopup().getPopupContainer().style.left, 10);
 	          if (left < this.getMinLabelWidth()) {
 	            main_core.Dom.style(this.getPopup().getPopupContainer(), 'left', `${this.getMinLabelWidth()}px`);
+	            this.collapseLabels(false);
+	          } else if (this.alwaysShowLabels) {
+	            this.expandLabels(false);
 	          }
 	        }
 	      });
@@ -8438,19 +8930,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleLabelsMouseEnter",
 	    value: function handleLabelsMouseEnter() {
-	      const rect = main_core.Dom.getRelativePosition(this.getLabelsContainer(), this.getPopup().getTargetContainer());
-	      const freeSpace = rect.right;
-	      if (freeSpace > this.getMinLabelWidth()) {
-	        main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
-	        main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
-	        main_core.Dom.style(this.getLabelsContainer(), 'max-width', `${Math.min(freeSpace, this.getMaxLabelWidth())}px`);
-	        Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(() => {
-	          main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
-	          main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
-	        });
-	      } else {
-	        main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
-	      }
+	      this.expandLabels();
 	    }
 	    /**
 	     * @private
@@ -8458,13 +8938,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleLabelsMouseLeave",
 	    value: function handleLabelsMouseLeave() {
-	      main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
-	      main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
-	      main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
-	      Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(() => {
-	        main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
-	      });
-	      main_core.Dom.style(this.getLabelsContainer(), 'max-width', null);
+	      this.collapseLabels();
 	    }
 	    /**
 	     * @private
@@ -8500,6 +8974,20 @@ this.BX.UI = this.BX.UI || {};
 	        recentItemsLimit: this.getRecentItemsLimit(),
 	        clearUnavailableItems: this.shouldClearUnavailableItems()
 	      };
+	    } /** @internal */
+	  }, {
+	    key: "emitEntityErrors",
+	    value: function emitEntityErrors(errorOptions) {
+	      const errorCollection = EntityErrorCollection.create(errorOptions);
+	      this.emit('Entity:onError', {
+	        errors: [...errorCollection]
+	      });
+	      this.getEntities().forEach(entity => {
+	        const entityId = entity.getId();
+	        this.emit(`Entity:${entityId}:onError`, {
+	          errors: errorCollection.getByEntityId(entityId)
+	        });
+	      });
 	    }
 	  }], [{
 	    key: "createHeader",
@@ -8565,12 +9053,14 @@ this.BX.UI = this.BX.UI || {};
 	  Tab,
 	  Entity,
 	  TagSelector,
+	  TagItem,
 	  BaseHeader,
 	  DefaultHeader,
 	  BaseFooter,
 	  DefaultFooter,
 	  BaseStub,
-	  DefaultStub
+	  DefaultStub,
+	  EntityError
 	};
 
 	exports.EntitySelector = EntitySelector;
@@ -8579,12 +9069,14 @@ this.BX.UI = this.BX.UI || {};
 	exports.Tab = Tab;
 	exports.Entity = Entity;
 	exports.TagSelector = TagSelector;
+	exports.TagItem = TagItem;
 	exports.BaseHeader = BaseHeader;
 	exports.DefaultHeader = DefaultHeader;
 	exports.BaseFooter = BaseFooter;
 	exports.DefaultFooter = DefaultFooter;
 	exports.BaseStub = BaseStub;
 	exports.DefaultStub = DefaultStub;
+	exports.EntityError = EntityError;
 
-}((this.BX.UI.EntitySelector = this.BX.UI.EntitySelector || {}),BX.Main,BX.Collections,BX.Event,BX,BX));
+}((this.BX.UI.EntitySelector = this.BX.UI.EntitySelector || {}),BX.Main,BX.Collections,BX.Event,BX,BX.UI.IconSet,BX,BX));
 //# sourceMappingURL=entity-selector.bundle.js.map

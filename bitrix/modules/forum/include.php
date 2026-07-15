@@ -2,6 +2,8 @@
 
 global $APPLICATION;
 
+$dbType = \Bitrix\Main\Application::getConnection()->getType();
+
 IncludeModuleLangFile(__FILE__);
 
 if (file_exists(__DIR__."/deprecated.php"))
@@ -70,8 +72,8 @@ if(!defined("CACHED_b_forum_user"))
 		"textParser" => "classes/general/functions.php",
 		"forumTextParser" => "classes/general/functions.php",
 
-		"CForumNew" =>   "classes/mysql/forum_new.php",
-		"CForumGroup" => "classes/mysql/forum_new.php",
+		"CForumNew" =>   "classes/" . $dbType . "/forum_new.php",
+		"CForumGroup" => "classes/" . $dbType . "/forum_new.php",
 		"CForumSmile" => "classes/general/forum_new.php",
 		"_CForumDBResult"=>"classes/general/forum_new.php",
 
@@ -326,8 +328,6 @@ function ForumAddMessage(
 		//region 0. CAPTCHA
 		if (!$USER->IsAuthorized() && $forum["USE_CAPTCHA"]=="Y")
 		{
-			include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
-
 			$cpt = new CCaptcha();
 			if ($captcha_code <> '')
 			{
@@ -1478,8 +1478,8 @@ function ShowActiveUser($arFields = array())
 				$OnLineUser["GUEST"] = intval($res["COUNT_USER"]);
 		}while ($res = $db_res->GetNext());
 
-		$CountAllUsers = count($OnLineUser["USER"]) + $UserHideOnLine + $OnLineUser["GUEST"];
-		$result["GUEST"] = $OnLineUser["GUEST"];
+		$CountAllUsers = count($OnLineUser["USER"]) + $UserHideOnLine + ($OnLineUser["GUEST"] ?? 0);
+		$result["GUEST"] = ($OnLineUser["GUEST"] ?? 0);
 		$result["HIDE"] = $UserHideOnLine;
 		$result["REGISTER"] = intval(count($OnLineUser["USER"])+$UserHideOnLine);
 		$result["ALL"] = $CountAllUsers;
@@ -1492,7 +1492,7 @@ function ShowActiveUser($arFields = array())
 				$result["HEAD"] = str_replace("##", "<b>".round($period/60)."</b>", GetMessage("FORUM_AT_LAST_PERIOD"))." ".
 				GetMessage("FORUM_COUNT_ALL_USER").": <b>".$CountAllUsers."</b><br/>";
 			}
-			$OnLineUserStr = GetMessage("FORUM_COUNT_GUEST").": <b>".intval($OnLineUser["GUEST"])."</b>, ".
+			$OnLineUserStr = GetMessage("FORUM_COUNT_GUEST").": <b>".intval($OnLineUser["GUEST"] ?? 0)."</b>, ".
 				GetMessage("FORUM_COUNT_USER").": <b>".intval(count($OnLineUser["USER"])+$UserHideOnLine)."</b>,
 				".GetMessage("FORUM_FROM_THIS")." ".GetMessage("FORUM_COUNT_USER_HIDEFROMONLINE").": <b>".$UserHideOnLine."</b>";
 

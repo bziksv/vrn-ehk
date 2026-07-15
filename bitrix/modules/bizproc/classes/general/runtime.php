@@ -20,11 +20,12 @@ use Bitrix\Bizproc\RestActivityTable;
  */
 class CBPRuntime
 {
-	const EXCEPTION_CODE_INSTANCE_NOT_FOUND = 404;
-	const EXCEPTION_CODE_INSTANCE_LOCKED = 423;
-	const EXCEPTION_CODE_INSTANCE_TERMINATED = 499;
+	public const EXCEPTION_CODE_INSTANCE_TARIFF_LIMIT_EXCEED = 402;
+	public const EXCEPTION_CODE_INSTANCE_NOT_FOUND = 404;
+	public const EXCEPTION_CODE_INSTANCE_LOCKED = 423;
+	public const EXCEPTION_CODE_INSTANCE_TERMINATED = 499;
 
-	const REST_ACTIVITY_PREFIX = 'rest_';
+	public const REST_ACTIVITY_PREFIX = 'rest_';
 
 	public const ACTIVITY_API_VERSION = 1;
 
@@ -170,12 +171,6 @@ class CBPRuntime
 			return;
 		}
 
-		/** @var CBPWorkflow $workflow */
-		foreach ($this->workflows as $key => $workflow)
-		{
-			$workflow->OnRuntimeStopped();
-		}
-
 		foreach ($this->services as $serviceId => $service)
 		{
 			$service->stop();
@@ -246,11 +241,11 @@ class CBPRuntime
 		{
 			if (!array_key_exists($parameterName, $workflowParameters))
 			{
-				$workflowParameters[$parameterName] = $parametersProperty['Default'];
+				$workflowParameters[$parameterName] = $parametersProperty['Default'] ?? null;
 			}
 		}
 
-		if ($rootActivity == null)
+		if (!$rootActivity)
 		{
 			throw new Exception("EmptyRootActivity");
 		}
@@ -260,15 +255,15 @@ class CBPRuntime
 			ExecuteModuleEventEx($arEvent, [$workflowTemplateId, $documentId, &$workflowParameters, $workflowId]);
 		}
 
-		$workflow->Initialize($rootActivity, $arDocumentId, $workflowParameters, $workflowVariablesTypes, $workflowParametersTypes, $workflowTemplateId);
+		$workflow->initialize($rootActivity, $arDocumentId, $workflowParameters, $workflowVariablesTypes, $workflowParametersTypes, $workflowTemplateId);
 
 		$starterUserId = 0;
 		if (isset($workflowParameters[CBPDocument::PARAM_TAGRET_USER]))
 		{
-			$starterUserId = intval(mb_substr($workflowParameters[CBPDocument::PARAM_TAGRET_USER], mb_strlen("user_")));
+			$starterUserId = (int)CBPHelper::stripUserPrefix($workflowParameters[CBPDocument::PARAM_TAGRET_USER]);
 		}
 
-		$this->GetService("StateService")->AddWorkflow($workflowId, $workflowTemplateId, $arDocumentId, $starterUserId);
+		$this->getStateService()->addWorkflow($workflowId, $workflowTemplateId, $arDocumentId, $starterUserId);
 
 		$this->workflows[$workflowId] = $workflow;
 
@@ -352,6 +347,21 @@ class CBPRuntime
 
 		$this->workflows[$workflowId] = $workflow;
 		return $workflow;
+	}
+
+	public function hasWorkflow(string $workflowId): bool
+	{
+		if (!$workflowId)
+		{
+			return false;
+		}
+
+		return array_key_exists($workflowId, $this->workflows);
+	}
+
+	public function getWorkflows(): array
+	{
+		return $this->workflows;
 	}
 
 	protected function getWorkflowInstance(string $workflowId): CBPWorkflow
@@ -453,10 +463,10 @@ class CBPRuntime
 	* @param mixed $eventName - Event name.
 	* @param mixed $arEventParameters - Event parameters.
 	*/
-	public static function sendExternalEvent($workflowId, $eventName, $arEventParameters = array())
+	public static function sendExternalEvent($workflowId, $eventName, $arEventParameters = [])
 	{
 		$runtime = CBPRuntime::GetRuntime();
-		$workflow = $runtime->GetWorkflow($workflowId);
+		$workflow = $runtime->getWorkflow($workflowId);
 		if ($workflow)
 		{
 			//check if state exists
@@ -471,12 +481,12 @@ class CBPRuntime
 
 			if (!$stateExists || !$documentExists)
 			{
-				$workflow->Terminate();
+				$workflow->terminate();
 
 				return false;
 			}
 
-			$workflow->SendExternalEvent($eventName, $arEventParameters);
+			$workflow->sendExternalEvent($eventName, (array)$arEventParameters);
 		}
 	}
 
@@ -530,7 +540,7 @@ class CBPRuntime
 			$code = mb_substr($code, mb_strlen(static::REST_ACTIVITY_PREFIX));
 			$result = RestActivityTable::getList(array(
 				'select' => array('ID'),
-				'filter' => array('=INTERNAL_CODE' => $code)
+				'filter' => array('=INTERNAL_CODE' => $code),
 			));
 			$activity = $result->fetch();
 			eval('class CBP'.static::REST_ACTIVITY_PREFIX.$code.' extends CBPRestActivity {const REST_ACTIVITY_ID = '.($activity? $activity['ID'] : 0).';}');
@@ -583,7 +593,7 @@ class CBPRuntime
 		{
 			$code = mb_substr($code, mb_strlen(static::REST_ACTIVITY_PREFIX));
 			$result = RestActivityTable::getList(array(
-				'filter' => array('=INTERNAL_CODE' => $code)
+				'filter' => array('=INTERNAL_CODE' => $code),
 			));
 			$activity = $result->fetch();
 			if ($activity)
@@ -757,7 +767,7 @@ class CBPRuntime
 	{
 		$result = array();
 		$iterator = RestActivityTable::getList(array(
-			'filter' => array('=IS_ROBOT' => 'N')
+			'filter' => array('=IS_ROBOT' => 'N'),
 		));
 
 		while ($activity = $iterator->fetch())
@@ -777,9 +787,10 @@ class CBPRuntime
 	public function getRestRobots($lang = false, $documentType = null)
 	{
 		$result = array();
-		$iterator = RestActivityTable::getList(array(
-			'filter' => array('=IS_ROBOT' => 'Y')
-		));
+		$iterator = RestActivityTable::getList([
+			'filter' => ['=IS_ROBOT' => 'Y'],
+			'cache' => ['ttl' => 3600],
+		]);
 
 		while ($activity = $iterator->fetch())
 		{
@@ -850,7 +861,7 @@ class CBPRuntime
 			),
 			'RETURN' => array(),
 			//compatibility
-			'PATH_TO_ACTIVITY' => ''
+			'PATH_TO_ACTIVITY' => '',
 		);
 
 		if (
@@ -865,14 +876,14 @@ class CBPRuntime
 			{
 				$result['RETURN'][$name] = array(
 					'NAME' => RestActivityTable::getLocalization($property['NAME'], $lang),
-					'TYPE' => isset($property['TYPE']) ? $property['TYPE'] : \Bitrix\Bizproc\FieldType::STRING
+					'TYPE' => isset($property['TYPE']) ? $property['TYPE'] : \Bitrix\Bizproc\FieldType::STRING,
 				);
 			}
 		}
 		if ($activity['USE_SUBSCRIPTION'] != 'N')
 			$result['RETURN']['IsTimeout'] = array(
 				'NAME' => GetMessage('BPRA_IS_TIMEOUT'),
-				'TYPE' => \Bitrix\Bizproc\FieldType::INT
+				'TYPE' => \Bitrix\Bizproc\FieldType::INT,
 			);
 
 		return $result;
@@ -898,8 +909,8 @@ class CBPRuntime
 			//compatibility
 			'PATH_TO_ACTIVITY' => '',
 			'ROBOT_SETTINGS' => array(
-				'CATEGORY' => 'other'
-			)
+				'CATEGORY' => 'other',
+			),
 		);
 
 		if (
@@ -923,7 +934,7 @@ class CBPRuntime
 		{
 			$result['RETURN']['IsTimeout'] = array(
 				'NAME' => GetMessage('BPRA_IS_TIMEOUT'),
-				'TYPE' => \Bitrix\Bizproc\FieldType::INT
+				'TYPE' => \Bitrix\Bizproc\FieldType::INT,
 			);
 		}
 

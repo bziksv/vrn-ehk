@@ -1,24 +1,35 @@
-import {Type, Loc, ajax, Uri} from 'main.core';
-import {BaseEvent, EventEmitter} from 'main.core.events';
+import { Type, Loc, Tag, ajax, Uri, Text, Event } from 'main.core';
+import { BaseEvent, EventEmitter } from 'main.core.events';
+import { Popup } from 'main.popup';
+import { Scrum } from './scrum';
+import { Avatar } from './avatar';
+import { DateCorrector } from './date.corrector';
+import { ThemePicker } from './themepicker';
+import { Tags } from './tags';
+import { Util } from './util';
+import { TypePresetSelector } from './typepresetselector';
+import { ConfidentialitySelector } from './confidentialityselector';
+import { Buttons } from './buttons';
+import { Wizard } from './wizard';
+import { AlertManager } from './alert';
+import { TeamManager } from './team';
+import { FeaturesManager } from './features';
+import { UFManager } from './uf';
+import { Lottie } from 'ui.lottie';
+import projectLottieIconInfo from '../lottie/project-info-icon.json';
+import scrumLottieIconInfo from '../lottie/scrum-info-icon.json';
 
-import {Scrum} from './scrum';
-import {Avatar} from './avatar';
-import {DateCorrector} from './date.corrector';
-import {ThemePicker} from './themepicker';
-import {Tags} from './tags';
-import {Util} from './util';
-import {TypePresetSelector} from './typepresetselector';
-import {ConfidentialitySelector} from './confidentialityselector';
-import {Buttons} from './buttons';
-import {Wizard} from './wizard';
-import {AlertManager} from './alert';
-import {TeamManager} from './team';
-import {FeaturesManager} from './features';
-import {UFManager} from './uf';
 
 class WorkgroupForm extends EventEmitter
 {
 	static instance = null;
+
+	#projectLottieAnimation: any = null;
+	#projectLottieIconContainer: HTMLElement;
+	#scrumLottieAnimation: any = null;
+	#scrumLottieIconContainer: HTMLElement;
+
+	static PATH_TO_CSS = '/bitrix/components/bitrix/socialnetwork.group_create.ex/templates/.default/style.css';
 
 	static getInstance()
 	{
@@ -41,7 +52,11 @@ class WorkgroupForm extends EventEmitter
 			confidentialityTypes: Object,
 			stepsCount: number,
 			focus: string,
-			culture: Object
+			culture: Object,
+			currentUserType: string,
+			isScrumForm: boolean,
+			isScrumTrialEnabled: boolean,
+			isProjectsTrialEnabled: boolean,
 		}
 	)
 	{
@@ -55,6 +70,10 @@ class WorkgroupForm extends EventEmitter
 		this.lastAction = 'invite';
 		this.animationList = {};
 		this.selectedTypeCode = false;
+		this.#projectLottieAnimation = null;
+		this.#projectLottieIconContainer = null;
+		this.#scrumLottieAnimation = null;
+		this.#scrumLottieIconContainer = null;
 
 		this.groupId = parseInt(params.groupId);
 		this.isScrumProject = params.isScrumProject;
@@ -62,6 +81,9 @@ class WorkgroupForm extends EventEmitter
 		this.avatarUploaderId = params.avatarUploaderId;
 		this.themePickerData = params.themePickerData;
 		this.projectOptions = params.projectOptions;
+		this.isScrumForm = params.isScrumForm;
+		this.isScrumTrialEnabled = params.isScrumTrialEnabled;
+		this.isProjectsTrialEnabled = params.isProjectsTrialEnabled;
 
 		this.projectTypes = params.projectTypes;
 		this.confidentialityTypes = params.confidentialityTypes;
@@ -69,6 +91,9 @@ class WorkgroupForm extends EventEmitter
 		this.selectedConfidentialityType = params.selectedConfidentialityType;
 		this.initialFocus = (Type.isStringFilled(params.focus) ? params.focus : '');
 		this.culture = params.culture ? params.culture : {};
+		this.currentUserType = params.currentUserType;
+
+		this.demoInfoAlreadyBeenShown = false;
 
 		this.scrumManager = new Scrum({
 			isScrumProject: this.isScrumProject,
@@ -84,9 +109,9 @@ class WorkgroupForm extends EventEmitter
 		});
 
 		WorkgroupForm.instance = this;
+		this.buttonsInstance = new Buttons();
 
 		this.init(params);
-		this.buttonsInstance = new Buttons();
 	}
 
 	init(params)
@@ -128,7 +153,7 @@ class WorkgroupForm extends EventEmitter
 			});
 		}
 
-		new TypePresetSelector();
+		new TypePresetSelector(this.buttonsInstance);
 		new ConfidentialitySelector();
 		new FeaturesManager();
 
@@ -552,13 +577,33 @@ class WorkgroupForm extends EventEmitter
 
 								if (eventData)
 								{
+									const groupWillBeShown = (
+										response.ACTION === 'create'
+										&& Type.isStringFilled(response.URL)
+										&& (
+											!Type.isStringFilled(this.config.refresh)
+											|| this.config.refresh === 'Y'
+										)
+									);
+
 									window.top.BX.SidePanel.Instance.postMessageAll(window, 'sonetGroupEvent', eventData);
 									if (response.ACTION === 'create')
 									{
 										const createdGroupsData = JSON.parse(response.SELECTOR_GROUPS);
 										if (Type.isArray(createdGroupsData))
 										{
-											window.top.BX.SidePanel.Instance.postMessageAll(window, 'BX.Socialnetwork.Workgroup:onAdd', { projects: createdGroupsData });
+											window.top.BX.SidePanel.Instance.postMessageAll(
+												window,
+												'BX.Socialnetwork.Workgroup:onAdd',
+												{
+													projects: createdGroupsData,
+												},
+											);
+
+											if (!groupWillBeShown)
+											{
+												this.showDemoInfo(response);
+											}
 										}
 									}
 
@@ -569,14 +614,7 @@ class WorkgroupForm extends EventEmitter
 										});
 									}
 
-									if (
-										response.ACTION == 'create'
-										&& Type.isStringFilled(response.URL)
-										&& (
-											!Type.isStringFilled(this.config.refresh)
-											|| this.config.refresh === 'Y'
-										)
-									)
+									if (groupWillBeShown)
 									{
 										let bindingFound = false;
 
@@ -606,7 +644,14 @@ class WorkgroupForm extends EventEmitter
 										if (bindingFound)
 										{
 											BX.SidePanel.Instance.open(
-												response.URL
+												response.URL,
+												{
+													events: {
+														onLoad: () => {
+															this.showDemoInfo(response);
+														}
+													}
+												}
 											);
 										}
 										else
@@ -740,10 +785,182 @@ class WorkgroupForm extends EventEmitter
 
 		return true;
 	}
+
+	showDemoInfo(response): void
+	{
+		if (this.demoInfoAlreadyBeenShown)
+		{
+			return;
+		}
+
+		if (
+			'trialEnabled' in response
+			&& Type.isPlainObject(response.trialEnabled)
+		)
+		{
+			if (
+				'scrum' in response.trialEnabled
+				&& response.trialEnabled.scrum === true
+			)
+			{
+				this.showScrumDemoInfo();
+
+				this.demoInfoAlreadyBeenShown = true;
+			}
+			else if (
+				'project' in response.trialEnabled
+				&& response.trialEnabled.project === true
+			)
+			{
+				this.showProjectDemoInfo();
+
+				this.demoInfoAlreadyBeenShown = true;
+			}
+		}
+	}
+
+	showScrumDemoInfo(): void
+	{
+		const popup: Popup = new top.BX.PopupWindow({
+			id: `socialnetwork-scrum-demo-info-${Text.getRandom()}`,
+			className: 'socialnetwork__demo-info --scrum',
+			width: 620,
+			overlay: true,
+			padding: 48,
+			closeIcon: true,
+			content: this.#renderScrumDemoInfoContent(),
+			events: {
+				onFirstShow: (baseEvent: BaseEvent) => {
+					top.BX.loadCSS(WorkgroupForm.PATH_TO_CSS);
+					this.#bindStartWorkBtn(baseEvent.getTarget());
+				},
+			},
+		});
+
+		popup.show();
+	}
+
+	showProjectDemoInfo(): void
+	{
+		const popup: Popup = new top.BX.PopupWindow({
+			id: `socialnetwork-project-demo-info-${Text.getRandom()}`,
+			className: 'socialnetwork__demo-info --project',
+			width: 620,
+			overlay: true,
+			padding: 48,
+			closeIcon: true,
+			content: this.#renderProjectDemoInfoContent(),
+			events: {
+				onFirstShow: (baseEvent: BaseEvent) => {
+					top.BX.loadCSS(WorkgroupForm.PATH_TO_CSS);
+					this.#bindStartWorkBtn(baseEvent.getTarget());
+				},
+			},
+		});
+
+		popup.show();
+	}
+
+	#renderScrumDemoInfoContent(): HTMLElement
+	{
+		return Tag.render`
+			<div class="socialnetwork__demo-info_wrapper">
+				<div class="socialnetwork__demo-info_content">
+					<div class="socialnetwork__demo-info_title">
+						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_TITLE_SCRUM_1')}
+					</div>
+					<div class="socialnetwork__demo-info_text">
+						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_SCRUM_1')}
+					</div>
+					<div class="socialnetwork__demo-info_text-trial">
+						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_TRIAL_1')}
+					</div>
+					<div class="ui-btn ui-btn-sm ui-btn-success ui-btn-round ui-btn-no-caps">
+						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_BTN_1')}
+					</div>
+				</div>
+				${this.#getLottieScrum()}
+			</div>
+		`;
+	}
+
+	#renderProjectDemoInfoContent(): HTMLElement
+	{
+		return Tag.render`
+			<div class="socialnetwork__demo-info_wrapper">
+				<div class="socialnetwork__demo-info_content">
+					<div class="socialnetwork__demo-info_title">
+						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_TITLE_PROJECT_1')}
+					</div>
+					<div class="socialnetwork__demo-info_text">
+						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_PROJECT_1')}
+					</div>
+					<div class="socialnetwork__demo-info_text-trial">
+						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_TEXT_TRIAL_1')}
+					</div>
+					<div class="ui-btn ui-btn-sm ui-btn-success ui-btn-round ui-btn-no-caps">
+						${Loc.getMessage('SONET_GCE_T_DEMO_INFO_BTN_1')}
+					</div>
+				</div>
+				${this.#getLottieProject()}
+			</div>
+		`;
+	}
+
+	#getLottieScrum(): HTMLElement
+	{
+		if (!this.#scrumLottieIconContainer)
+		{
+			this.#scrumLottieIconContainer = Tag.render`
+				<div class="socialnetwork__demo-info_image"></div>
+			`;
+
+			this.#scrumLottieAnimation = Lottie.loadAnimation({
+				container: this.#scrumLottieIconContainer,
+				renderer: 'svg',
+				loop: false,
+				animationData: scrumLottieIconInfo,
+			});
+		}
+
+		return this.#scrumLottieIconContainer;
+	}
+
+	#getLottieProject(): HTMLElement
+	{
+		if (!this.#projectLottieIconContainer)
+		{
+			this.#projectLottieIconContainer = Tag.render`
+				<div class="socialnetwork__demo-info_image"></div>
+			`;
+
+			this.#projectLottieAnimation = Lottie.loadAnimation({
+				container: this.#projectLottieIconContainer,
+				renderer: 'svg',
+				loop: false,
+				animationData: projectLottieIconInfo,
+			});
+		}
+
+		return this.#projectLottieIconContainer;
+	}
+
+	#bindStartWorkBtn(popup: Popup)
+	{
+		const popupContainer = popup.getContentContainer();
+		if (Type.isDomNode(popupContainer))
+		{
+			const btnNode = popup.getContentContainer().querySelector('.ui-btn');
+			if (Type.isDomNode(popupContainer))
+			{
+				Event.bind(btnNode, 'click', () => popup.close());
+			}
+		}
+	}
 }
 
 export {
 	WorkgroupForm,
 	TeamManager as WorkgroupFormTeamManager,
 	UFManager as WorkgroupFormUFManager,
-}
+};

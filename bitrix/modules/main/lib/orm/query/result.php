@@ -10,7 +10,7 @@ namespace Bitrix\Main\ORM\Query;
 
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DB\ArrayResult;
-use \Bitrix\Main\DB\Result as BaseResult;
+use Bitrix\Main\DB\Result as BaseResult;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Entity;
 use Bitrix\Main\ORM\Fields\Field;
@@ -120,7 +120,7 @@ class Result extends BaseResult
 
 		if (is_object($row) && $row instanceof EntityObject)
 		{
-			// all rows has already been fetched in initializeFetchObject
+			// all rows have already been fetched in initializeFetchObject
 			return $row;
 		}
 
@@ -333,6 +333,18 @@ class Result extends BaseResult
 						else
 						{
 							$remoteObject = $collection->getByPrimary($remotePrimaryValues);
+
+							// it may be necessary to add new values to the object
+							foreach ($remoteObjectValues as $fieldName => $objectValue)
+							{
+								if (!$remoteObject->sysHasValue($fieldName))
+								{
+									$field = $remoteEntity->getField($fieldName);
+									$castValue = $field->cast($objectValue);
+
+									$remoteObject->sysSetActual($fieldName, $castValue);
+								}
+							}
 						}
 					}
 					else

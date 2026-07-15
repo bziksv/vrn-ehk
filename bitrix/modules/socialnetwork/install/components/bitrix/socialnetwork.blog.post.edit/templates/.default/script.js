@@ -831,7 +831,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	          analytics: {
 	            tool: 'tasks',
 	            category: 'task_operations',
-	            event: 'task_create',
+	            event: 'click_create',
 	            type: 'task',
 	            c_section: 'feed',
 	            c_element: 'create_button'
@@ -1006,6 +1006,37 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      }
 	    }
 	  }, {
+	    key: "clickStartWorkflowButton",
+	    value: function clickStartWorkflowButton() {
+	      var _this8 = this;
+	      main_core.Runtime.loadExtension('bizproc.router').then(function (_ref) {
+	        var Router = _ref.Router;
+	        if (main_core.Type.isFunction(Router.openUserProcessesStart)) {
+	          var options = {
+	            requestMethod: 'get',
+	            requestParams: {
+	              apply_filter: 'Y',
+	              LIVEFEED_PRESET: 'show_livefeed'
+	            },
+	            events: {
+	              onCloseStart: function onCloseStart() {
+	                if (BX.Livefeed && BX.Livefeed.PageInstance) {
+	                  BX.Livefeed.PageInstance.refresh();
+	                } else {
+	                  window.location.reload();
+	                }
+	              }
+	            }
+	          };
+	          Router.openUserProcessesStart(options);
+	        } else {
+	          _this8.getLists(); // TODO delete in future version
+	        }
+	      })["catch"](function (e) {
+	        return console.error(e);
+	      });
+	    }
+	  }, {
 	    key: "getMenuItems",
 	    value: function getMenuItems(tabs, createOnclickLists) {
 	      var menuItemsLists = [];
@@ -1062,6 +1093,18 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        }
 	        spanIcon[i].innerHTML = spanDataPicture[i].getAttribute('data-picture-small');
 	      }
+	      if (!this.listsMenu.popupWindow.isShown()) {
+	        main_core.Runtime.loadExtension('ui.analytics').then(function (_ref2) {
+	          var sendData = _ref2.sendData;
+	          sendData({
+	            tool: 'automation',
+	            category: 'bizproc_operations',
+	            event: 'drawer_open',
+	            c_section: 'feed',
+	            c_element: 'button'
+	          });
+	        })["catch"](function () {});
+	      }
 	      this.listsMenu.popupWindow.show();
 	    }
 	  }, {
@@ -1077,22 +1120,31 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  return PostFormTabs;
 	}(main_core_events.EventEmitter);
 	function _handleCreateListInSlider2(id, iblock) {
-	  var _this8 = this;
+	  var _this9 = this;
 	  return function () {
-	    main_core.Runtime.loadExtension('lists.element.creation-guide').then(function (_ref) {
-	      var CreationGuide = _ref.CreationGuide;
+	    main_core.Runtime.loadExtension('lists.element.creation-guide').then(function (_ref3) {
+	      var CreationGuide = _ref3.CreationGuide;
 	      if (CreationGuide) {
 	        PostFormTabs.getInstance().listsMenu.popupWindow.close();
 	        PostFormTabs.getInstance().menu.popupWindow.close();
 	        CreationGuide.open({
 	          iBlockTypeId: iblock[5],
-	          iBlockId: main_core.Text.toInteger(iblock[0])
+	          iBlockId: main_core.Text.toInteger(iblock[0]),
+	          analyticsSection: 'feed',
+	          analyticsP1: iblock[1],
+	          onClose: function onClose() {
+	            if (BX.Livefeed && BX.Livefeed.PageInstance) {
+	              BX.Livefeed.PageInstance.refresh();
+	            } else {
+	              window.location.reload();
+	            }
+	          }
 	        });
 	        return;
 	      }
-	      _this8.createOnclickLists(id, iblock)();
+	      _this9.createOnclickLists(id, iblock)();
 	    })["catch"](function () {
-	      _this8.createOnclickLists(id, iblock)();
+	      _this9.createOnclickLists(id, iblock)();
 	    });
 	  };
 	}
@@ -1508,8 +1560,10 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        restoreAutosave: !!params.restoreAutosave,
 	        createdFromEmail: !!params.createdFromEmail
 	      };
-	      if (!main_core.Type.isStringFilled(this.formParams.text)) {
-	        this.formParams.textFromHash = decodeURIComponent(location.hash.slice(1));
+	      var currentUri = new main_core.Uri(location.toString());
+	      var getTextFromHash = currentUri.getQueryParam('getTextFromHash') === 'Y';
+	      if (!main_core.Type.isStringFilled(this.formParams.text) && getTextFromHash) {
+	        this.formParams.textFromHash = decodeURIComponent(currentUri.getFragment());
 	        history.replaceState(null, null, ' ');
 	      }
 	      main_core_events.EventEmitter.subscribe('onInitialized', function (event) {

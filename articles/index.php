@@ -1,5 +1,7 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
+$APPLICATION->SetPageProperty("description", "Экспертные статьи от ЭХК: всё об элементах ковки, выборе, применении, трендах и уходе. Актуальные советы для мастеров и покупателей по всей России. Читайте в блоге!");
+$APPLICATION->SetPageProperty("title", "Полезные статьи о художественной ковке | Блог ЭХК");
 $APPLICATION->SetTitle("Статьи"); ?>
 <?$APPLICATION->IncludeComponent(
 	"bitrix:news", 

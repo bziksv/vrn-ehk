@@ -1,5 +1,7 @@
 import { sendAnalyticsData } from './functions';
-import type { AnalyticsOptions } from './types';
+import { type AnalyticsOptions } from './types';
+
+export type { AnalyticsOptions };
 
 export function sendData(data: AnalyticsOptions): void
 {

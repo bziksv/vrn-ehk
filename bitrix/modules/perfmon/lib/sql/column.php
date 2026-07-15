@@ -172,17 +172,26 @@ class Column extends BaseObject
 	 * Current position should point to the name of the column.
 	 *
 	 * @param Tokenizer $tokenizer Tokens collection.
+	 * @param Table $parent Column owner Table object.
 	 *
 	 * @return Column
 	 * @throws NotSupportedException
 	 */
-	public static function create(Tokenizer $tokenizer)
+	public static function create(Tokenizer $tokenizer, $parent = null)
 	{
 		$columnName = $tokenizer->getCurrentToken()->text;
 
 		$tokenizer->nextToken();
 		$tokenizer->skipWhiteSpace();
 		$token = $tokenizer->getCurrentToken();
+		if ($token->upper === 'RESTART')
+		{
+			while (!$tokenizer->endOfInput())
+			{
+				$tokenizer->nextToken();
+			}
+			return null;
+		}
 
 		$columnType = $token->upper;
 		if (!self::checkType($columnType))
@@ -191,6 +200,10 @@ class Column extends BaseObject
 		}
 
 		$column = new self($columnName);
+		if ($parent)
+		{
+			$column->setParent($parent);
+		}
 		$column->type = $columnType;
 
 		$level = $token->level;
@@ -228,6 +241,14 @@ class Column extends BaseObject
 			elseif ($token->upper === 'VARYING')
 			{
 				$column->typeAddition = $token->upper;
+			}
+			elseif ($token->upper === 'PRIMARY')
+			{
+				$constraint = new Constraint;
+				$constraint->columns[] = $column->name;
+				$constraint->setBody('PRIMARY KEY (' . $column->name . ')');
+				$constraint->setParent($column->parent);
+				$column->parent->constraints->add($constraint);
 			}
 			elseif ($column->default === false)
 			{
@@ -316,7 +337,8 @@ class Column extends BaseObject
 	 */
 	public function getDdlType()
 	{
-		return $this->type
+		return ($this->unsigned ? 'UNSIGNED ' : '')
+			. $this->type
 			. ($this->typeAddition ? ' ' . $this->typeAddition : '')
 			. ($this->length !== '' ? '(' . $this->length . ($this->precision !== 0 ? ',' . $this->precision : '') . ')' : '');
 	}
@@ -385,11 +407,14 @@ class Column extends BaseObject
 		case 'MYSQL':
 			return 'ALTER TABLE ' . $this->parent->name . ' CHANGE ' . $this->name . ' ' . $target->name . ' ' . $target->body;
 		case 'PGSQL':
+			$defaultDropped = false;
 			$alter = [];
 			$sourceType = $this->getDdlType();
 			$targetType = $target->getDdlType();
 			if ($sourceType !== $targetType)
 			{
+				$alter[] = 'ALTER COLUMN ' . $this->name . ' DROP DEFAULT';
+				$defaultDropped = true;
 				$alter[] = 'ALTER COLUMN ' . $this->name . ' TYPE ' . $targetType;
 			}
 
@@ -404,7 +429,10 @@ class Column extends BaseObject
 			{
 				if ($target->default === null)
 				{
-					$alter[] = 'ALTER COLUMN ' . $this->name . ' DROP DEFAULT';
+					if (!$defaultDropped)
+					{
+						$alter[] = 'ALTER COLUMN ' . $this->name . ' DROP DEFAULT';
+					}
 				}
 				elseif ($this->default != $target->default)
 				{
@@ -423,7 +451,7 @@ class Column extends BaseObject
 			}
 			else
 			{
-				return '// ' . get_class($this) . ':getModifyDdl for database type [' . $dbType . "] not implemented. Change requested from [${this}->body] to [${target}->body].";
+				return '// ' . get_class($this) . ':getModifyDdl for database type [' . $dbType . '] not implemented. Change requested from [' . $this->body . '] to [' . $target->body . '].';
 			}
 		case 'MSSQL':
 			if ($this->nullable !== $target->nullable)
@@ -508,7 +536,7 @@ class Column extends BaseObject
 						select nullable into l_nullable
 						from user_tab_columns
 						where table_name = '" . $this->parent->name . "'
-						and   column_name = '" . $this->name . "';
+						and column_name = '" . $this->name . "';
 						if l_nullable = '" . ($target->nullable ? 'N' : 'Y') . "' then
 							execute immediate 'alter table " . $this->parent->name . ' modify (' . $this->name . ' ' . ($target->nullable ? 'NULL' : 'NOT NULL') . ")';
 						end if;

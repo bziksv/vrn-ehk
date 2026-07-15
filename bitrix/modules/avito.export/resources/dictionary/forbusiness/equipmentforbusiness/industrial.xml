@@ -1,0 +1,285 @@
+<Root>
+    <GoodsPromType name="Приводное">
+	    <PrivodType name="Гидростанция" />
+	    <PrivodType name="Двигатель" />
+	    <PrivodType name="Привод" />
+	    <PrivodType name="Редуктор" />
+	    <PrivodType name="Запчасти и комплектующие" />
+    </GoodsPromType>
+    <GoodsPromType name="Электрическое">
+	    <ElectricType name="Трансформаторы">
+		    <TransformerType name="Автотрансформатор"/>
+		    <TransformerType name="Импульсный"/>
+		    <TransformerType name="Лабораторный"/>
+		    <TransformerType name="Пик-трансформатор"/>
+		    <TransformerType name="Подстанция"/>
+		    <TransformerType name="Разделительный"/>
+		    <TransformerType name="Сварочный"/>
+		    <TransformerType name="Силовой"/>
+		    <TransformerType name="Согласующий"/>
+		    <TransformerType name="Трансформатор тока"/>
+		    <TransformerType name="Трансформатор напряжения"/>
+		    <TransformerVoltage variable="text"/>
+		    <TransformerCooling name="Масляный"/>
+		    <TransformerCooling name="Сухой"/>
+		    <TransformerPower variable="text"/>
+		    <TransformerNPhase name="Однофазные"/>
+		    <TransformerNPhase name="Трёхфазные"/>
+	    </ElectricType>
+	    <ElectricType name="Релейная защита и автоматика">
+		    <RelayType name="Блоки питания, защита и фильтры">
+			    <RelayNumberOfPoles variable="text"/>
+		    </RelayType>
+		    <RelayType name="Выключатели, автоматы и рубильники">
+			    <RelayNominalAmperage variable="text"/>
+			    <RelayNumberOfPoles variable="text"/>
+		    </RelayType>
+		    <RelayType name="Коммутаторы"/>
+		    <RelayType name="Контакторы"/>
+		    <RelayType name="Контроллеры и системы управления"/>
+		    <RelayType name="Ограничители и регуляторы"/>
+		    <RelayType name="Реле"/>
+		    <RelayType name="Указатели, счетчики и измерители"/>
+		    <RelayType name="Щитовое оборудование"/>
+	    </ElectricType>
+	    <ElectricType name="Генераторы и электростанции">
+		    <GeneratorType name="ATS-автоматика"/>
+		    <GeneratorType name="Бензиновый"/>
+		    <GeneratorType name="Газовый"/>
+		    <GeneratorType name="Дизельный"/>
+		    <GeneratorType name="Инверторный"/>
+		    <GeneratorType name="Сварочный"/>
+		    <GeneratorType name="Электростанция"/>
+		    <GeneratorPower variable="text"/>
+		    <GeneratorLength variable="text"/>
+		    <GeneratorWidth variable="text"/>
+		    <GeneratorHeight variable="text"/>
+	    </ElectricType>
+	    <ElectricType name="Преобразователи">
+		    <ConverterPower variable="text"/>
+		    <ConvertersVoltage name="220 (230)"/>
+		    <ConvertersVoltage name="380 (400)"/>
+		    <ConvertersVoltage name="480"/>
+		    <ConvertersVoltage name="500"/>
+		    <ConvertersVoltage name="660"/>
+		    <ConvertersVoltage name="824"/>
+		    <ConverterNominalAmperage variable="text"/>
+	    </ElectricType>
+	    <ElectricType name="Запчасти и комплектующие"/>
+    </GoodsPromType>
+    <GoodsPromType name="Станки">
+	    <MaterialType name="Дерево"/>
+	    <MaterialType name="Металл"/>
+	    <MaterialType name="Камень"/>
+	    <MaterialType name="Пластик"/>
+	    <MaterialType name="Стекло"/>
+	    <StanokType name="Брусовальный"/>
+	    <StanokType name="Вакуум-формовочный"/>
+	    <StanokType name="Вальцы">
+		    <StanokMaterialThickness variable="text"/>
+	    </StanokType>
+	    <StanokType name="Винторезный"/>
+	    <StanokType name="Галтовочный"/>
+	    <StanokType name="Гильотина и ножницы"/>
+	    <StanokType name="Горбыльный"/>
+	    <StanokType name="Для нанесения ребер жесткости"/>
+	    <StanokType name="Для разделки кабеля"/>
+	    <StanokType name="Для резки и гибки арматуры"/>
+	    <StanokType name="Для сборки сегментных отводов"/>
+	    <StanokType name="Долбежный"/>
+	    <StanokType name="Дробемёт"/>
+	    <StanokType name="Дровокол"/>
+	    <StanokType name="Заточный"/>
+	    <StanokType name="Зачистной"/>
+	    <StanokType name="Зиговочный"/>
+	    <StanokType name="Коленогиб"/>
+	    <StanokType name="Кромкооблицовочный"/>
+	    <StanokType name="Кромкообрезной"/>
+	    <StanokType name="Кромкофрезерный"/>
+	    <StanokType name="Круглогибы и кронштейногибы"/>
+	    <StanokType name="Круглопалочный"/>
+	    <StanokType name="Круглопильный"/>
+	    <StanokType name="Круглошлифовальный"/>
+	    <StanokType name="Кузнечный"/>
+	    <StanokType name="Лазерный">
+		    <StanokLaserType name="Волоконный"/>
+		    <StanokLaserType name="Газовый"/>
+		    <StanokLaserType name="Жидкостный"/>
+		    <StanokLaserType name="Полупроводниковый"/>
+		    <StanokLaserType name="Твердотельный"/>
+	    </StanokType>
+	    <StanokType name="Ленточный"/>
+	    <StanokType name="Листогибочный">
+		    <StanokBendingLength variable="text"/>
+		    <StanokMetalThickness variable="text"/>
+	    </StanokType>
+	    <StanokType name="Многопильный"/>
+	    <StanokType name="Многофункциональный"/>
+	    <StanokType name="Мостовой"/>
+	    <StanokType name="Обжимной"/>
+	    <StanokType name="Окорочный"/>
+	    <StanokType name="Окутывающие"/>
+	    <StanokType name="Отрезной"/>
+	    <StanokType name="Пилорама"/>
+	    <StanokType name="Плазменный"/>
+	    <StanokType name="Плоттер"/>
+	    <StanokType name="Пресс">
+		    <StanokNominalForce variable="text"/>
+	    </StanokType>
+	    <StanokType name="Проволокогибочный"/>
+	    <StanokType name="Продольной и поперечной резки"/>
+	    <StanokType name="Расточный"/>
+	    <StanokType name="Резьбонарезной"/>
+	    <StanokType name="Рейсмусовый"/>
+	    <StanokType name="Сверлильно-присадочный"/>
+	    <StanokType name="Сверлильный">
+		    <StanokDrillDiameter variable="text"/>
+	    </StanokType>
+	    <StanokType name="Строгальный"/>
+	    <StanokType name="Токарный">
+		    <StanokWorkingDiameter variable="text"/>
+		    <StanokCenterDistance variable="text"/>
+	    </StanokType>
+	    <StanokType name="Торцовочный"/>
+	    <StanokType name="Трубогибочный"/>
+	    <StanokType name="Трубонарезной"/>
+	    <StanokType name="Фальцегибочный"/>
+	    <StanokType name="Фальцезакаточный"/>
+	    <StanokType name="Фальцеосадочный"/>
+	    <StanokType name="Фальцепрокатный"/>
+	    <StanokType name="Форматно-раскроечный"/>
+	    <StanokType name="Фрезерный">
+		    <StanokSpindlePower variable="text"/>
+		    <StanokMaxSpeed variable="text"/>
+		    <StanokBedLength variable="text"/>
+		    <StanokBedWidth variable="text"/>
+	    </StanokType>
+	    <StanokType name="Фуговальный"/>
+	    <StanokType name="Четырехсторонний"/>
+	    <StanokType name="Шипорезный"/>
+	    <StanokType name="Шлифовальный"/>
+	    <StanokType name="Электроэрозионный"/>
+	    <StanokType name="SMD установщик"/>
+	    <StanokType name="Запчасти и комплектующие"/>
+	    <Chpu name="Да"/>
+	    <Chpu name="Нет"/>
+	    <StanokBrand file="industrial/stanki.xml" rename="true"/>
+	    <StanokPower variable="text"/>
+    </GoodsPromType>
+    <GoodsPromType name="Насосы и компрессоры">
+	    <NasosType name="Компрессоры">
+		    <CompressorType name="Винтовой"/>
+		    <CompressorType name="Жидкостно-кольцевой"/>
+		    <CompressorType name="Мембранный"/>
+		    <CompressorType name="Поршневой"/>
+		    <CompressorType name="Роторно-пластинчатый"/>
+		    <CompressorType name="Спиральный"/>
+		    <CompressorType name="Центробежный"/>
+		    <CompressorType name="Шестерёнчатый"/>
+		    <CompressorEngineType name="Бензиновый"/>
+		    <CompressorEngineType name="Дизельный"/>
+		    <CompressorEngineType name="Электрический"/>
+		    <CompressorBandwidth variable="text"/>
+		    <CompressorPressure variable="text"/>
+		    <CompressorPower variable="text"/>
+	    </NasosType>
+	    <NasosType name="Насосы">
+		    <PumpCapacity variable="text"/>
+		    <PumpPower variable="text"/>
+		    <PumpPressure variable="text"/>
+		    <PumpType name="Вакуумный"/>
+		    <PumpType name="Вертикальный"/>
+		    <PumpType name="Вибрационный"/>
+		    <PumpType name="Горизонтальный"/>
+		    <PumpType name="Для нефтепродуктов"/>
+		    <PumpType name="Дренажный"/>
+		    <PumpType name="Канализационный"/>
+		    <PumpType name="Колодезный"/>
+		    <PumpType name="Поверхностный"/>
+		    <PumpType name="Повысительный"/>
+		    <PumpType name="Погружной"/>
+		    <PumpType name="Промышленный"/>
+		    <PumpType name="Скважинный"/>
+		    <PumpType name="Фекальный"/>
+		    <PumpType name="Центробежный"/>
+		    <PumpType name="Циркуляционный"/>
+		    <PumpType name="Шламовый"/>
+		    <PumpHead variable="text"/>
+	    </NasosType>
+	    <NasosType name="Осушители">
+		    <DryerType name="Адсорбционный"/>
+		    <DryerType name="Конденсационный"/>
+		    <DryerType name="Мембранный"/>
+		    <DryerType name="Рефрижераторный"/>
+		    <DryerPressure variable="text"/>
+		    <DryerBandwidth variable="text"/>
+		    <DryerPower variable="text"/>
+	    </NasosType>
+	    <NasosType name="Рукава высокого давления">
+		    <SleevePressure variable="text"/>
+		    <SleeveExtDiameter variable="text"/>
+		    <SleeveIntDiameter variable="text"/>
+		    <SleeveLength variable="text"/>
+	    </NasosType>
+	    <NasosType name="Запчасти и комплектующие" />
+    </GoodsPromType>
+    <GoodsPromType name="Контрольно-измерительное">
+	    <IzmerenieType name="Анализаторы" />
+	    <IzmerenieType name="Весы" />
+	    <IzmerenieType name="Дальномеры и нивелиры" />
+	    <IzmerenieType name="Датчики" />
+	    <IzmerenieType name="Измерители и сигнализаторы" />
+	    <IzmerenieType name="Расходомер" />
+	    <IzmerenieType name="Тахеометр" />
+	    <IzmerenieType name="Запчасти и комплектующие" />
+    </GoodsPromType>
+    <GoodsPromType name="Конвейеры и транспортеры">
+	    <KonveierType name="Ленточный" />
+	    <KonveierType name="Лесотранспортер" />
+	    <KonveierType name="Пневмотранспортер" />
+	    <KonveierType name="Рольганг" />
+	    <KonveierType name="Скребковый" />
+	    <KonveierType name="Цепной" />
+	    <KonveierType name="Шнековый" />
+	    <KonveierType name="Запчасти и комплектующие" />
+    </GoodsPromType>
+    <GoodsPromType name="Паяльное и сварочное">
+	    <SvarkaType name="Сварочные аппараты" />
+	    <SvarkaType name="Сварочные столы" />
+	    <SvarkaType name="Паяльники и паяльные станции" />
+	    <SvarkaType name="Запчасти и комплектующие" />
+    </GoodsPromType>
+    <GoodsPromType name="Климатическое">
+	    <KlimatType name="Отопление" />
+	    <KlimatType name="Вентиляция" />
+	    <KlimatType name="Кондиционирование" />
+	    <KlimatType name="Сушильные камеры" />
+    </GoodsPromType>
+    <GoodsPromType name="Фасовочное и упаковочное">
+	    <PackType name="Дозаторы" />
+	    <PackType name="Заклейщик" />
+	    <PackType name="Запайщик" />
+	    <PackType name="Маркиратор" />
+	    <PackType name="Тубонаполнительные машины" />
+	    <PackType name="Укупорщики" />
+	    <PackType name="Упаковочный аппарат" />
+	    <PackType name="Фасовочно-упаковочный аппарат" />
+	    <PackType name="Фасовочный аппарат" />
+	    <PackType name="Этикетировщик" />
+	    <PackType name="Запчасти и расходные материалы" />
+    </GoodsPromType>
+    <GoodsPromType name="Специализированное">
+	    <SpecType name="Водоснабжение и водоотведение" />
+	    <SpecType name="Добывающее" />
+	    <SpecType name="Клининговое" />
+	    <SpecType name="Перерабатывающее" />
+	    <SpecType name="Полиграфия" />
+	    <SpecType name="Полимерное и покрасочное" />
+	    <SpecType name="Сельскохозяйственное" />
+	    <SpecType name="Смесители" />
+	    <SpecType name="Строительное" />
+	    <SpecType name="Текстильное" />
+	    <SpecType name="Химическое"/>
+    </GoodsPromType>
+    <GoodsPromType name="Другое" />
+</Root>

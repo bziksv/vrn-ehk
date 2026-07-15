@@ -2,6 +2,7 @@
 
 namespace Bitrix\Im\V2\Message;
 
+use Bitrix\Im\Text;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Objectify\EntityObject;
 use Bitrix\Im\Model\EO_MessageParam;
@@ -316,6 +317,17 @@ class Param implements MessageParameter, RegistryEntry, ActiveRecord
 		return $this->name;
 	}
 
+	public function saveNameFilter($name): string
+	{
+		$name = $name ?? '';
+		if (is_string($name) && mb_strlen($name) > 100)
+		{
+			$name = mb_substr($name, 0, 100);
+		}
+
+		return $name;
+	}
+
 	public function setType(string $type): self
 	{
 		switch ($type)
@@ -394,6 +406,7 @@ class Param implements MessageParameter, RegistryEntry, ActiveRecord
 				'field' => 'name',
 				'set' => 'setName', /** @see Param::setName */
 				'get' => 'getName', /** @see Param::getName */
+				'saveFilter' => 'saveNameFilter', /** @see Param::saveNameFilter */
 			],
 			'PARAM_VALUE' => [
 				'field' => 'value',
@@ -469,6 +482,16 @@ class Param implements MessageParameter, RegistryEntry, ActiveRecord
 			$value = $value ? 'Y' : 'N';
 		}
 
+		if (is_string($value) && $this->shouldProcessEmoji())
+		{
+			$value = Text::encodeEmoji($value);
+		}
+
+		if (is_string($value) && mb_strlen($value) > 100)
+		{
+			$value = mb_substr($value, 0, 97) . '...';
+		}
+
 		return $value;
 	}
 
@@ -499,6 +522,11 @@ class Param implements MessageParameter, RegistryEntry, ActiveRecord
 			$value = $value == 'Y';
 		}
 
+		if (is_string($value) && $this->shouldProcessEmoji())
+		{
+			$value = Text::decodeEmoji($value);
+		}
+
 		return $value;
 	}
 
@@ -518,6 +546,11 @@ class Param implements MessageParameter, RegistryEntry, ActiveRecord
 	public function loadJsonFilter($value)
 	{
 		return $value;
+	}
+
+	protected function shouldProcessEmoji(): bool
+	{
+		return in_array($this->getType(), [self::TYPE_STRING, self::TYPE_STRING_ARRAY, self::TYPE_JSON]);
 	}
 
 	//endregion

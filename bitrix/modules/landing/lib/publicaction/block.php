@@ -1,16 +1,18 @@
 <?php
 namespace Bitrix\Landing\PublicAction;
 
+use Bitrix\Landing\Block\BlockRepo;
 use Bitrix\Landing\History;
-use \Bitrix\Landing\Manager;
-use \Bitrix\Landing\File;
-use \Bitrix\Landing\Landing;
-use \Bitrix\Landing\Hook;
-use \Bitrix\Landing\Assets;
-use \Bitrix\Landing\Restriction;
-use \Bitrix\Landing\Block as BlockCore;
-use \Bitrix\Main\Localization\Loc;
-use \Bitrix\Landing\PublicActionResult;
+use Bitrix\Landing\Manager;
+use Bitrix\Landing\File;
+use Bitrix\Landing\Landing;
+use Bitrix\Landing\Hook;
+use Bitrix\Landing\Assets;
+use Bitrix\Landing\Restriction;
+use Bitrix\Landing\Block as BlockCore;
+use Bitrix\Landing\Metrika;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Landing\PublicActionResult;
 
 Loc::loadMessages(__FILE__);
 
@@ -481,11 +483,6 @@ class Block
 										foreach ($attrs as $attCode => &$attValue)
 										{
 											$attValue = $rawAttrs[$attCode];
-											$attValue = \Bitrix\Main\Text\Encoding::convertEncoding(
-												$attValue,
-												'utf-8',
-												SITE_CHARSET
-											);
 										}
 									}
 									unset($attValue);
@@ -806,7 +803,12 @@ class Block
 			$landing = Landing::createInstance($lid);
 			if ($landing->exist())
 			{
-				$result->setResult($landing->publication($block));
+				$metrikaParams = new Metrika\FieldsDto(
+					type: Metrika\Types::template,
+					subSection: 'from_editor',
+					element: 'auto',
+				);
+				$result->setResult($landing->publication($block, $metrikaParams));
 			}
 			$result->setError($landing->getError());
 		}
@@ -1016,13 +1018,11 @@ class Block
 	/**
 	 * Get blocks from repository.
 	 * @param string $section Section code.
-	 * @param bool $withManifest Get repo with manifest.
-	 * @return \Bitrix\Landing\PublicActionResult
 	 */
-	public static function getRepository($section = null, $withManifest = false)
+	public static function getRepository($section = null)
 	{
 		$result = new PublicActionResult();
-		$repo = \Bitrix\Landing\Block::getRepository($withManifest);
+		$repo = (new BlockRepo())->getRepository();
 
 		if ($section === null)
 		{

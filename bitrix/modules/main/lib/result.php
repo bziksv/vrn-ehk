@@ -1,9 +1,10 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2015 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 namespace Bitrix\Main;
@@ -15,8 +16,7 @@ class Result
 	/** @var bool */
 	protected $isSuccess = true;
 
-	/** @var ErrorCollection */
-	protected $errors;
+	protected ErrorCollection $errors;
 
 	/** @var  array */
 	protected $data = array();
@@ -52,6 +52,21 @@ class Result
 		$this->isSuccess = false;
 		$this->errors[] = $error;
 		return $this;
+	}
+
+	/**
+	 * Returns the Error object.
+	 *
+	 * @return Error|null
+	 */
+	public function getError(): ?Error
+	{
+		foreach ($this->errors as $error)
+		{
+			return $error;
+		}
+
+		return null;
 	}
 
 	/**

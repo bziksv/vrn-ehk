@@ -308,10 +308,11 @@ $("body").on("click", "#atl-uniteller-send-order-reciept", function(e) {
                         <div><?=GetMessage('ATL_UNITELLER_VAT')?></div>
                         <div>
                             <select name="vat" class="line-vat">
-                                <option value="-1" selected><?=GetMessage('ATL_UNITELLER_VAT_-1')?></option>
+                                <option value="-1"><?=GetMessage('ATL_UNITELLER_VAT_-1')?></option>
                                 <option value="0"><?=GetMessage('ATL_UNITELLER_VAT_0')?></option>
                                 <option value="10"><?=GetMessage('ATL_UNITELLER_VAT_10')?></option>
                                 <option value="20"><?=GetMessage('ATL_UNITELLER_VAT_20')?></option>
+                                <option value="22" selected><?=GetMessage('ATL_UNITELLER_VAT_22')?></option>
                                 <option value="110"><?=GetMessage('ATL_UNITELLER_VAT_110')?></option>
                                 <option value="120"><?=GetMessage('ATL_UNITELLER_VAT_120')?></option>
                             </select>

@@ -391,7 +391,7 @@ if ($emptyFooter)
 										?></td><?
 									?></tr><?
 								elseif (!empty($arParams["ROW_LAYOUT"])) :
-									$actions = Text\HtmlFilter::encode(Json::encode($arRow["actions"]));
+									$actions = Text\HtmlFilter::encode(Json::encode($arRow["actions"] ?? null));
 									$depth = $arRow["depth"] > 0 ? 20*$arRow["depth"] : 0;
 									?><tr class="main-grid-row main-grid-row-body<?=$arRow["layout"]["row"]["class"]?>"<?=$arRow["layout"]["row"]["attributes"]?>>
 										<? if ($arParams["ALLOW_ROWS_SORT"] && $arRow["draggable"] !== false) : ?>
@@ -402,7 +402,7 @@ if ($emptyFooter)
 										<? if ($arParams["SHOW_ROW_CHECKBOXES"]): ?>
 											<td class="main-grid-cell main-grid-cell-checkbox" rowspan="<?=count($arParams["ROW_LAYOUT"])?>">
 												<span class="main-grid-cell-content">
-													<input type="checkbox" class="main-grid-row-checkbox main-grid-checkbox" name="ID[]" value="<?=$arRow["id"] ?>" <? if ($arRow['editable'] !== false): ?> title="<?=getMessage('interface_grid_check') ?>" id="checkbox_<?=$arParams["GRID_ID"]?>_<?=$arRow["id"] ?>"<? endif ?> <? if (!$arResult['ALLOW_EDIT'] || $arRow['editable'] === false): ?> data-disabled="1" disabled<? endif ?>>
+													<input type="checkbox" class="main-grid-row-checkbox main-grid-checkbox" name="ID[]" value="<?=$arRow["id"] ?>" <? if (!isset($arRow['editable']) || $arRow['editable'] !== false): ?> title="<?=getMessage('interface_grid_check') ?>" id="checkbox_<?=$arParams["GRID_ID"]?>_<?=$arRow["id"] ?>"<? endif ?> <? if (!$arResult['ALLOW_EDIT'] || $arRow['editable'] === false): ?> data-disabled="1" disabled<? endif ?>>
 													<label class="main-grid-checkbox" for="checkbox_<?=$arParams["GRID_ID"]?>_<?=$arRow["id"] ?>"></label>
 												</span>
 											</td>
@@ -444,7 +444,7 @@ if ($emptyFooter)
 										<tr class="main-grid-row main-grid-row-body<?=$arRow["layout"]["row"]["class"]?>" data-bind="<?=$arRow["id"]?>"<?=$arRow["layout"]["row"]["attributes"]?>>
 									<? endif; ?>
 										<? foreach ($rowLayout as $rowLayoutCellIndex => $rowLayoutCell) :
-											$colLayout = $arRow["layout"]["columns"][$rowLayoutCell["column"]];
+											$colLayout = $arRow["layout"]["columns"][$rowLayoutCell["column"]] ?? null;
 											if (!$colLayout)
 											{
 												$colLayout = [
@@ -460,7 +460,7 @@ if ($emptyFooter)
 													],
 												];
 											}
-											$header = $arResult["COLUMNS"][$rowLayoutCell["column"]];
+											$header = $arResult["COLUMNS"][$rowLayoutCell["column"]] ?? null;
 
 											$className = "";
 											if (count($arParams["ROW_LAYOUT"]) > 1 && $rowIndex < (count($arParams["ROW_LAYOUT"])-1) && !isset($rowLayoutCell["rowspan"]))
@@ -475,7 +475,7 @@ if ($emptyFooter)
 											}
 										?>
 											<? if (isset($rowLayoutCell["data"]) || array_key_exists($rowLayoutCell["column"], $arResult["COLUMNS"])) : ?>
-												<td class="<?=$colLayout["cell"]["class"]?><?=$className?>"<?=$colLayout["cell"]["attributes"]?><?=$rowLayoutCell["rowspan"] ? " rowspan=\"".$rowLayoutCell["rowspan"]."\"" : ""?><?=$rowLayoutCell["colspan"] ? " colspan=\"".$colspan."\"" : ""?>>
+												<td class="<?=$colLayout["cell"]["class"]?><?=$className?>"<?=$colLayout["cell"]["attributes"]?><?=(!empty($rowLayoutCell["rowspan"]) ? " rowspan=\"".$rowLayoutCell["rowspan"]."\"" : "")?><?=(!empty($rowLayoutCell["colspan"]) ? " colspan=\"".$colspan."\"" : "")?>>
 													<span class="main-grid-cell-content"<?=$colLayout["container"]["attributes"]?>>
 														<? if ($colLayout["plusButton"]["enabled"]) : ?>
 															<span class="main-grid-plus-button"></span>
@@ -569,7 +569,11 @@ if ($emptyFooter)
 														?><span class="main-grid-cell-counter<?=$colLayout["counter"]["class"]?>"><?
 															if ($colLayout["counter"]["inner"]["enabled"]) :
 																?><span class="ui-counter<?=$colLayout["counter"]["counter"]["class"]?>"<?=$colLayout["counter"]["counter"]["attributes"]?>><?
-																	?><span class="ui-counter-inner"><?=$arRow["counters"][$id]["value"]?></span><?
+																	?><span class="ui-counter-inner"><?=$arRow["counters"][$id]["value"]?></span>
+																<?
+																if (!empty($colLayout["counter"]["counter"]["isDouble"])) :
+																	?><span class="ui-counter-secondary<?=$colLayout["counter"]["counter"]["secondaryClass"]?>"></span><?
+																endif;
 																?></span><?
 															endif;
 														?></span><?
@@ -669,7 +673,11 @@ if ($emptyFooter)
 														?><span class="main-grid-cell-counter<?=$colLayout["counter"]["class"]?>"><?
 															if ($colLayout["counter"]["inner"]["enabled"]) :
 																?><span class="ui-counter<?=$colLayout["counter"]["counter"]["class"]?>"<?=$colLayout["counter"]["counter"]["attributes"]?>><?
-																	?><span class="ui-counter-inner"><?=$arRow["counters"][$id]["value"]?></span><?
+																	?><span class="ui-counter-inner"><?=$arRow["counters"][$id]["value"]?></span>
+																<?
+																if (!empty($colLayout["counter"]["counter"]["isDouble"])) :
+																	?><span class="ui-counter-secondary<?=$colLayout["counter"]["counter"]["secondaryClass"]?>"></span><?
+																endif;
 																?></span><?
 															endif;
 														?></span><?
@@ -892,7 +900,7 @@ if (\Bitrix\Main\Grid\Context::isInternalRequest()) :
 		var defaultColumns = <?= Json::encode($arResult["DEFAULT_COLUMNS"]) ?>;
 		var Grid = BX.Main.gridManager.getById('<?=\CUtil::JSEscape($arParams["GRID_ID"])?>');
 		var messages = <?= Json::encode($arResult["MESSAGES"]) ?>;
-		var currentPage = '<?=\CUtil::JSEscape($arParams["CURRENT_PAGE"])?>';
+		var currentPage = '<?=\CUtil::JSEscape($arParams["CURRENT_PAGE"] ?? '')?>';
 
 		Grid = Grid ? Grid.instance : null;
 

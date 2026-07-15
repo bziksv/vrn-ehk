@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core) {
 	'use strict';
@@ -38,9 +39,6 @@ this.BX = this.BX || {};
 	    if (options.locationCapacity) {
 	      this.extensionParams.locationCapacity = options.locationCapacity;
 	    }
-	    if (options.dayOfWeekMonthFormat) {
-	      this.extensionParams.dayOfWeekMonthFormat = options.dayOfWeekMonthFormat;
-	    }
 	    if (main_core.Type.isDate(options.entryDateFrom)) {
 	      this.extensionParams.entryDateFrom = options.entryDateFrom;
 	    }
@@ -64,6 +62,9 @@ this.BX = this.BX || {};
 	    if (main_core.Type.isStringFilled(options.jumpToControl)) {
 	      this.extensionParams.jumpToControl = options.jumpToControl;
 	    }
+	    if (options.createChatId) {
+	      this.extensionParams.createChatId = options.createChatId;
+	    }
 	  }
 	  show() {
 	    if (this.isSharing) {
@@ -76,15 +77,17 @@ this.BX = this.BX || {};
 	        contentCallback: this.loadExtension.bind(this),
 	        label: {
 	          text: main_core.Loc.getMessage('CALENDAR_EVENT'),
-	          bgColor: "#55D0E0"
+	          bgColor: '#55D0E0'
 	        },
-	        type: 'calendar:slider'
+	        data: {
+	          type: 'calendar:slider'
+	        }
 	      });
 	    }
 	  }
 	  loadExtension(slider) {
 	    return new Promise(resolve => {
-	      const extensionName = 'calendar.' + this.extensionName.toLowerCase();
+	      const extensionName = `calendar.${this.extensionName.toLowerCase()}`;
 	      main_core.Runtime.loadExtension(extensionName).then(exports => {
 	        if (exports && exports[this.extensionName]) {
 	          const calendarForm = new exports[this.extensionName](this.extensionParams);

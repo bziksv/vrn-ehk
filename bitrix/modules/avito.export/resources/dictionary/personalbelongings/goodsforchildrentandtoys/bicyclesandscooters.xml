@@ -1,0 +1,15 @@
+<root>
+	<BicyclesAndScooters name="Веломобили и беговелы"/>
+	<BicyclesAndScooters name="Детские самокаты"/>
+	<BicyclesAndScooters name="Трюковые самокаты">
+		<Brand file="bicyclesandscooters/tryukovye_samokaty.xml" rename="true"/>
+		<RidingStyle name="Стрит"/>
+		<RidingStyle name="Парк"/>
+		<RidingStyle name="Любой"/>
+	</BicyclesAndScooters>
+	<BicyclesAndScooters name="Электросамокаты">
+		<Brand file="bicyclesandscooters/elektrosamokaty.xml" rename="true"/>
+	</BicyclesAndScooters>
+	<BicyclesAndScooters name="Запчасти и аксессуары"/>
+	<BicyclesAndScooters name="Велосипеды"/>
+</root>

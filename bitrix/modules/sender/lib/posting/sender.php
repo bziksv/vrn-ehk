@@ -165,8 +165,6 @@ class Sender
 		{
 			$this->resultCode = self::RESULT_ERROR;
 
-			AddMessage2Log('Mailing without id','sender');
-
 			return;
 		}
 
@@ -258,7 +256,6 @@ class Sender
 		// posting not in right status
 		if ($this->status != PostingTable::STATUS_PART)
 		{
-			AddMessage2Log('Status does not equal Part. PostingId: ' . $this->postingId,'sender');
 			$this->resultCode = static::RESULT_ERROR;
 			$this->threadStrategy->updateStatus(PostingThreadTable::STATUS_NEW);
 			static::unlock($this->postingId, $threadId);
@@ -453,21 +450,37 @@ class Sender
 	public static function updateActualStatus($postingId, $isPrevented = false, $awaitThread = false)
 	{
 		//set status and delivered and error emails
-		$statusList = PostingTable::getRecipientCountByStatus($postingId,[
-			'LOGIC' => 'OR',
+
+		$posting = PostingTable::getList(
 			[
-				'@STATUS' => [
-					PostingRecipientTable::SEND_RESULT_DENY,
-					PostingRecipientTable::SEND_RESULT_NONE,
-					PostingRecipientTable::SEND_RESULT_SUCCESS,
-					PostingRecipientTable::SEND_RESULT_ERROR,
+				'select' => [
+					'ID',
+					'STATUS',
+					'DATE_SENT',
+					'COUNT_SEND_ALL',
 				],
-			],
-			[
-				'=STATUS' => PostingRecipientTable::SEND_RESULT_WAIT_ACCEPT,
-				'>=DATE_SENT' => (new Type\DateTime())->add("- 1 week")
+				'filter' => ['ID' => $postingId]
 			]
-		]);
+		)->fetch();
+
+		$statusesToCheck = [
+			PostingRecipientTable::SEND_RESULT_DENY,
+			PostingRecipientTable::SEND_RESULT_NONE,
+			PostingRecipientTable::SEND_RESULT_SUCCESS,
+			PostingRecipientTable::SEND_RESULT_ERROR,
+		];
+
+		$weekAgo = (new Type\DateTime())->add('-7 days');
+
+		if ($posting['DATE_SENT'] < $weekAgo)
+		{
+			$statusesToCheck[] = PostingRecipientTable::SEND_RESULT_WAIT_ACCEPT;
+		}
+
+		$statusList = PostingTable::getRecipientCountByStatus($postingId,[
+				'@STATUS' => $statusesToCheck,
+			],
+		);
 		$hasStatusError = array_key_exists(PostingRecipientTable::SEND_RESULT_ERROR, $statusList);
 		$hasStatusNone  = array_key_exists(PostingRecipientTable::SEND_RESULT_NONE, $statusList);
 		$hasStatusWait = array_key_exists(PostingRecipientTable::SEND_RESULT_WAIT_ACCEPT, $statusList);

@@ -2,9 +2,13 @@
 
 namespace Bitrix\Main\UserField\Types;
 
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\UI\FileInputUtility;
+use Bitrix\Main\UserField\File\ManualUploadRegistry;
+use Bitrix\Main\UserField\File\UploadedFilesRegistry;
+use Bitrix\UI\FileUploader\Uploader;
 use CUserTypeManager;
 
 Loc::loadMessages(__FILE__);
@@ -15,9 +19,14 @@ Loc::loadMessages(__FILE__);
  */
 class FileType extends BaseType
 {
-	public const
-		USER_TYPE_ID = 'file',
-		RENDER_COMPONENT = 'bitrix:main.field.file';
+	public const USER_TYPE_ID = 'file';
+	public const RENDER_COMPONENT = 'bitrix:main.field.file';
+
+	private const AVAILABLE_VIEWS = [
+		'tile',
+		'list',
+		'adaptive',
+	];
 
 	/**
 	 * @return array
@@ -81,6 +90,9 @@ class FileType extends BaseType
 
 		$targetBlank = (($userField['SETTINGS']['TARGET_BLANK'] ?? 'Y') === 'N' ? 'N' : 'Y');
 
+		$defaultView = $userField['SETTINGS']['DEFAULT_VIEW'] ?? null;
+		$defaultView = self::isAvailableDefaultView($defaultView) ? $defaultView : null;
+
 		return [
 			'SIZE' => ($size <= 1 ? 20 : ($size > 255 ? 225 : $size)),
 			'LIST_WIDTH' => (int)($userField['SETTINGS']['LIST_WIDTH'] ?? 0),
@@ -88,7 +100,8 @@ class FileType extends BaseType
 			'MAX_SHOW_SIZE' => (int)($userField['SETTINGS']['MAX_SHOW_SIZE'] ?? 0),
 			'MAX_ALLOWED_SIZE' => (int)($userField['SETTINGS']['MAX_ALLOWED_SIZE'] ?? 0),
 			'EXTENSIONS' => $resultExtensions,
-			'TARGET_BLANK' => $targetBlank
+			'TARGET_BLANK' => $targetBlank,
+			'DEFAULT_VIEW' => $defaultView,
 		];
 	}
 
@@ -208,93 +221,148 @@ class FileType extends BaseType
 		// old mechanism
 		if(is_array($value))
 		{
-			$userFieldValues = (is_array($userField['VALUE']) ? $userField['VALUE'] : [$userField['VALUE']]);
-			$valueHasOldId = !empty($value['old_id']);
+			return self::prepareUploadedFileViaOldMechanism($userField, $value);
+		}
 
-			//Protect from user manipulation
-			if($valueHasOldId)
+		if($value > 0)
+		{
+			$value = (int)$value;
+
+			// new mechanism - mail.file.input
+			$isValid = self::validateUploadedFileViaFileInputUtility($userField, $value);
+			if ($isValid !== null)
 			{
-				$value['old_id'] = (is_array($value['old_id']) ? $value['old_id'] : [$value['old_id']]);
-				foreach ($value['old_id'] as $key => $oldId)
-				{
-					if(!in_array($oldId, $userFieldValues))
-					{
-						unset($value['old_id'][$key]);
-					}
-				}
+				return $isValid ? $value : false;
+			}
 
-				if ($value['del'])
+			$isValid = self::validateUploadedFileViaCurrentUserFieldValue($userField, $value);
+			if ($isValid !== null)
+			{
+				return $isValid ? $value : false;
+			}
+
+			$isValid = self::validateUploadedFileViaManualUploadRegistry($userField, $value);
+			if ($isValid !== null)
+			{
+				return $isValid ? $value : false;
+			}
+		}
+
+		return false;
+	}
+
+	private static function prepareUploadedFileViaOldMechanism(array $userField, array $value): mixed
+	{
+		$userFieldValues = (is_array($userField['VALUE']) ? $userField['VALUE'] : [$userField['VALUE']]);
+		$valueHasOldId = !empty($value['old_id']);
+
+		//Protect from user manipulation
+		if($valueHasOldId)
+		{
+			$value['old_id'] = (is_array($value['old_id']) ? $value['old_id'] : [$value['old_id']]);
+			foreach ($value['old_id'] as $key => $oldId)
+			{
+				if(!in_array($oldId, $userFieldValues))
 				{
-					foreach ($value['old_id'] as $oldId)
-					{
-						\CFile::Delete($oldId);
-					}
-					$value['old_id'] = false;
+					unset($value['old_id'][$key]);
 				}
 			}
 
-			if($value['error'])
-			{
-				return (is_array($value['old_id']) ? $value['old_id'][0] : $value['old_id']);
-			}
-
-			$value['MODULE_ID'] = 'main';
-
-			if ($valueHasOldId && is_array($value['old_id']))
+			if ($value['del'])
 			{
 				foreach ($value['old_id'] as $oldId)
 				{
 					\CFile::Delete($oldId);
 				}
+				$value['old_id'] = false;
 			}
+		}
 
-			if (!empty($value['name']))
+		if($value['error'])
+		{
+			return (is_array($value['old_id']) ? $value['old_id'][0] : $value['old_id']);
+		}
+
+		$value['MODULE_ID'] = 'main';
+
+		if ($valueHasOldId && is_array($value['old_id']))
+		{
+			foreach ($value['old_id'] as $oldId)
 			{
-				if (
-					$valueHasOldId
-					&& is_array($value['old_id'])
-					&& isset($value['ID'])
-					&& in_array($value['ID'], $value['old_id'])
-				)
+				if (!isset($value['ID']) || !in_array($value['ID'], $value['old_id']))
 				{
-					return $value['ID'];
+					\CFile::Delete($oldId);
 				}
+			}
+		}
 
-				return \CFile::SaveFile($value, 'uf');
+		if (!empty($value['name']))
+		{
+			if (
+				$valueHasOldId
+				&& is_array($value['old_id'])
+				&& isset($value['ID'])
+				&& in_array($value['ID'], $value['old_id'])
+			)
+			{
+				return $value['ID'];
 			}
 
+			return \CFile::SaveFile($value, 'uf');
+		}
+
+		return false;
+	}
+
+	private static function validateUploadedFileViaFileInputUtility(array $userField, int $value): ?bool
+	{
+		$fileInputUtility = FileInputUtility::instance();
+		if (!$fileInputUtility->isAccessible())
+		{
+			return null;
+		}
+
+		$controlId = $fileInputUtility->getUserFieldCid($userField);
+
+		$delResult = $fileInputUtility->checkDeletedFiles($controlId);
+		if (in_array($value, $delResult))
+		{
 			return false;
 		}
 
-		// new mechanism - mail.file.input
-		$fileInputUtility = FileInputUtility::instance();
-		$controlId = $fileInputUtility->getUserFieldCid($userField);
-
-		if($value > 0)
+		$checkResult = $fileInputUtility->checkFiles($controlId, [$value]);
+		if (in_array($value, $checkResult))
 		{
-			$delResult = $fileInputUtility->checkDeletedFiles($controlId);
-			if(in_array($value, $delResult))
-			{
-				return false;
-			}
-
-			if (is_array($userField['VALUE']) && in_array($value, $userField['VALUE']))
-			{
-				return $value;
-			}
-
-			if (!is_array($userField['VALUE']) && (int)$userField['VALUE'] === $value)
-			{
-				return $value;
-			}
-
-			$checkResult = $fileInputUtility->checkFiles($controlId, [$value]);
-			if(!in_array($value, $checkResult))
-			{
-				$value = false;
-			}
+			return self::tryMakeFilePersistent($userField, $value);
 		}
-		return $value;
+
+		return null;
+	}
+
+	private static function validateUploadedFileViaCurrentUserFieldValue(array $userField, int $value): ?bool
+	{
+		if (is_array($userField['VALUE']) && in_array($value, $userField['VALUE']))
+		{
+			return true;
+		}
+
+		if (!is_array($userField['VALUE']) && (int)$userField['VALUE'] === $value)
+		{
+			return true;
+		}
+
+		return null;
+	}
+
+	private static function validateUploadedFileViaManualUploadRegistry(array $userField, int $value): ?bool
+	{
+		$registry = ManualUploadRegistry::getInstance();
+		if ($registry->isFileRegistered($userField, $value))
+		{
+			return true;
+		}
+
+		return null;
 	}
 
 	public static function onSearchIndex(array $userField): ?string
@@ -374,5 +442,42 @@ class FileType extends BaseType
 	public static function canUseArrayValueForSingleField(): bool
 	{
 		return true;
+	}
+
+	private static function tryMakeFilePersistent(array $userField, int $fileId): bool
+	{
+		$uploaderContextGenerator = (new \Bitrix\Main\UserField\File\UploaderContextGenerator(FileInputUtility::instance(), $userField));
+		$controlId = $uploaderContextGenerator->getControlId();
+
+		$uploadedFilesRegistry = UploadedFilesRegistry::getInstance();
+		$tempFileToken = $uploadedFilesRegistry->getTokenByFileId($controlId, $fileId);
+		if ($tempFileToken) // if token found, assume file was uploaded via \Bitrix\Main\FileUploader\FieldFileUploaderController
+		{
+			$cid = $uploadedFilesRegistry->getCidByFileId($controlId, $fileId);
+
+			if (!FileInputUtility::instance()->isCidRegistered($cid)) // cid not found, so $fileId cannot be made persistent. This case is not allowed to save due to possible data loss.
+			{
+				return false;
+			}
+
+			if (!Loader::includeModule('ui'))
+			{
+				return false;
+			}
+
+			$uploader = new Uploader(
+				new \Bitrix\Main\FileUploader\FieldFileUploaderController($uploaderContextGenerator->getContextInEditMode($cid))
+			);
+			$uploader->getPendingFiles([$tempFileToken])->makePersistent();
+
+			$uploadedFilesRegistry->unregisterFile($controlId, $fileId);
+		}
+
+		return true;
+	}
+
+	public static function isAvailableDefaultView(mixed $view): bool
+	{
+		return in_array($view, self::AVAILABLE_VIEWS, true);
 	}
 }

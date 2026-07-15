@@ -1,0 +1,106 @@
+<root>
+	<GoodsType name="Аксессуары"/>
+	<GoodsType name="Аккордеоны, гармони, баяны">
+		<InstrumentType name="Аккордеон"/>
+		<InstrumentType name="Гармонь"/>
+		<InstrumentType name="Баян"/>
+		<InstrumentType name="Другой"/>
+		<Brand file="musicalinstuments/lifestyle_katalog_brendov_akkordeony_garmoni_bayany.xml" rename="true"/>
+	</GoodsType>
+	<GoodsType name="Гитары и другие струнные">
+		<MusicGuitars name="Гитары">
+			<GuitarType name="Акустическая"/>
+			<GuitarType name="Электрогитара"/>
+			<GuitarType name="Бас-гитара"/>
+			<GuitarType name="Классическая"/>
+			<GuitarType name="Электроакустическая"/>
+			<GuitarType name="Полуакустическая"/>
+			<GuitarType name="Трансакустическая"/>
+			<Brand file="guitars/brands.xml"/>
+		</MusicGuitars>
+		<MusicGuitars name="Другие струнные">
+			<InstrumentType name="Укулеле"/>
+			<InstrumentType name="Балалайка"/>
+			<InstrumentType name="Домра"/>
+			<InstrumentType name="Гусли"/>
+			<InstrumentType name="Банджо"/>
+			<InstrumentType name="Мандолина"/>
+			<InstrumentType name="Лира"/>
+			<InstrumentType name="Лютня"/>
+			<InstrumentType name="Другой"/>
+			<Brand file="musicalinstuments/brendy_drugih_strunnyh.xml" rename="true"/>
+		</MusicGuitars>
+	</GoodsType>
+	<GoodsType name="Для студии и концертов">
+		<MusicForStudios name="Звуковое и DJ-оборудование">
+			<EquipmentType name="Микшерный пульт"/>
+			<EquipmentType name="Звуковая карта / Аудиоинтерфейс"/>
+			<EquipmentType name="Микрофон"/>
+			<EquipmentType name="Студийные мониторы"/>
+			<EquipmentType name="Акустическая система"/>
+			<EquipmentType name="Контроллер акустических систем"/>
+			<EquipmentType name="Сабвуфер"/>
+			<EquipmentType name="Наушники"/>
+			<EquipmentType name="Усилитель мощности"/>
+			<EquipmentType name="Эквалайзер"/>
+			<EquipmentType name="Компрессор"/>
+			<EquipmentType name="Процессоры динамической обработки"/>
+			<EquipmentType name="DJ-контроллер"/>
+			<EquipmentType name="DJ-процессор эффектов"/>
+			<EquipmentType name="Рабочая станция / Грувбокс"/>
+			<EquipmentType name="Проигрыватель"/>
+			<EquipmentType name="Рекордер"/>
+			<EquipmentType name="Караоке-система"/>
+			<EquipmentType name="Кабели и переходники"/>
+			<EquipmentType name="DJ-стойки и крепления"/>
+			<EquipmentType name="Другое"/>
+			<Brand file="musicalinstuments/lifestyle_katalog_brendov_zvukovoe_i_djoborudovanie.xml" rename="true"/>
+		</MusicForStudios>
+		<MusicForStudios name="Световое оборудование"/>
+		<MusicForStudios name="Педали и усилители">
+			<EquipmentType name="Усилитель"/>
+			<EquipmentType name="Предусилитель"/>
+			<EquipmentType name="Комбоусилитель"/>
+			<EquipmentType name="Педаль эффектов"/>
+			<EquipmentType name="Процессор эффектов"/>
+			<EquipmentType name="Миди-контроллер для педалей"/>
+			<EquipmentType name="Ди-бокс"/>
+			<EquipmentType name="Другое"/>
+			<Use name="Для гитар" multiple="true"/>
+			<Use name="Для бас-гитар"/>
+			<Use name="Для клавишных"/>
+			<Use name="Для ударных"/>
+			<Use name="Для микрофонов"/>
+			<Use name="Для наушников"/>
+			<Use name="Студийный"/>
+			<Use name="Для DJ-оборудования"/>
+			<Use name="Для вокала"/>
+			<Use name="Для живых выступлений"/>
+			<Brand file="musicalinstuments/lifestyle_katalog_brendov_pedali_i_usiliteli.xml" rename="true"/>
+		</MusicForStudios>
+		<MusicForStudios name="Обустройство студии"/>
+	</GoodsType>
+	<GoodsType name="Духовые"/>
+	<GoodsType name="Клавишные и синтезаторы" oldNames="Пианино и другие клавишные">
+		<MusicKeyboards name="Синтезаторы и MIDI-клавиатуры">
+			<InstrumentType name="Цифровой синтезатор"/>
+			<InstrumentType name="Модульный синтезатор"/>
+			<InstrumentType name="Аналоговый синтезатор"/>
+			<InstrumentType name="MIDI-клавиатура"/>
+			<InstrumentType name="MIDI-контроллер"/>
+			<InstrumentType name="Другой"/>
+		</MusicKeyboards>
+		<MusicKeyboards name="Пианино, рояли, органы">
+			<InstrumentType name="Цифровое пианино"/>
+			<InstrumentType name="Акустическое пианино"/>
+			<InstrumentType name="Цифровой рояль"/>
+			<InstrumentType name="Рояль"/>
+			<InstrumentType name="Электроорган"/>
+			<InstrumentType name="Орган"/>
+			<InstrumentType name="Другой"/>
+		</MusicKeyboards>
+		<Brand file="musickeyboards/brands.xml" rename="true"/>
+	</GoodsType>
+	<GoodsType name="Ударные"/>
+	<GoodsType name="Скрипки и другие смычковые"/>
+</root>

@@ -490,6 +490,8 @@ input.pagetitle-item {
 	font-weight: var(--ui-font-weight-regular, 400);
 	line-height: normal;
 	margin-top: 5px;
+	padding-right: 20px;
+	padding-bottom: 10px;
 }
 
 .catalog-document-type-selector-text {
@@ -553,4 +555,9 @@ input.pagetitle-item {
 		margin: 0 auto;
 		max-width: 600px;
 	}
+}
+
+.document-status-label
+{
+	margin-left: 10px;
 }

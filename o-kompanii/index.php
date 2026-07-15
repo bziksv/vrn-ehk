@@ -1,13 +1,13 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
+$APPLICATION->SetPageProperty("description", "Элементы Художественной Ковки» (ЭХК) - крупнейший поставщик элементов для ковки в Центрально-Чернозёмном регионе. Широкий ассортимент для розницы и опта, надёжность, качество. Узнайте больше о нашей компании!");
 
-$APPLICATION->SetPageProperty("title", "Магазин изделий художественной ковки");
+$APPLICATION->SetPageProperty("title", "ЭХК – О Компании | Ведущий поставщик элементов ковки в ЦЧР");
 $APPLICATION->SetTitle("О компании");
-?><p class="preview">
-	 «<span style="font-size: 24px;"><b>Элементы Художественной Ковки</b></span>» или «<span style="font-size: 24px;"><b>ЭХК</b></span>»
-</p>
+?><h2 class="preview">
+«<span style="font-size: 24px;"><b>Элементы Художественной Ковки</b></span>» или «<span style="font-size: 24px;"><b>ЭХК</b></span>» </h2>
 <p>
-	 &nbsp;Одна из крупнейших компаний в Центрально-Чернозёмном регионе, торгующих элементами ковки. Основным направлением нашей деятельности является розничная и оптовая продажа элементов для художественной ковки.
+	 &nbsp;Одна из крупнейших компаний, торгующих элементами ковки. Основным направлением нашей деятельности является розничная и оптовая продажа элементов для художественной ковки.
 </p>
 <div class="columns">
 	<div class="c_left">
@@ -49,11 +49,11 @@ $APPLICATION->SetTitle("О компании");
 				</p>
 				<ul>
 					<li><a href="/catalog/piki/">стальные пики</a>, <a href="/catalog/nakonechniki/">наконечники</a>, <a href="/catalog/korzinki/">корзинки</a>;</li>
-					<li>штампованные и кованные <a href="/catalog/listya/">листья</a>, <a href="/catalog/metallicheskie-tsvety/">цветы</a>;</li>
+					<li>штампованные и кованные <a href="/catalog/listya/">листья</a>, цветы;</li>
 					<li><a href="/catalog/polusfery/">полусферы</a>, <a href="/catalog/shary-i-polusfery/">стальные шары</a>;</li>
-					<li>художественный прокат (<a href="/catalog/truby-prokat/">трубы прокат</a>, <a href="/catalog/kovanye-perila/">кованый поручень</a>, <a href="/catalog/polosa-dekorativnaya/">полоса</a>, <a href="/catalog/profili/">профиль</a>), <a href="/catalog/polosa-khomutnaya/">обжимная полоса</a>;</li>
-					<li>вспомогательные материалы (<a href="/catalog/kuznechnye-kraski/">краска</a> и <a href="/catalog/patina/">патина</a>) для работы с металлом;</li>
-					<li><a href="/catalog/ruchki-dlya-vorot-i-dverey/">дверные ручки</a>, <a href="/catalog/podpyatniki-i-osnovaniya/">подпятники</a>, <a href="/catalog/nakladki/">накладки и заклёпки</a>;</li>
+					<li>художественный прокат (<a href="/catalog/truby-prokat/">трубы прокат</a>, кованый поручень, <a href="/catalog/polosa-dekorativnaya/">полоса</a>, <a href="/catalog/profili/">профиль</a>), <a href="/catalog/polosa-khomutnaya/">обжимная полоса</a>;</li>
+					<li>вспомогательные материалы (краска и <a href="/catalog/patina/">патина</a>) для работы с металлом;</li>
+					<li><a href="/catalog/ruchki-dlya-vorot-i-dverey/">дверные ручки</a>, подпятники, накладки и заклёпки;</li>
 					<li><a href="/catalog/gotovye-izdeliya/">готовые изделия</a> и многое другое.</li>
 				</ul>
 			</div>
@@ -101,7 +101,7 @@ $APPLICATION->SetTitle("О компании");
 	<li>Широкий ассортимент продукции;</li>
 	<li>Представленные образцы элементов ковки в торговом зале площадью более 100 метров, расположенные тематично, что делает выбор продукции наглядным;</li>
 	<li>Гибкая система скидок, регулярные акции, спец. предложения и многое другое;</li>
-	<li>Бесплатная доставки продукции до терминалов транспортных компаний г. Воронежа;</li>
+	<li>Бесплатная доставки продукции до терминалов транспортных компаний;</li>
 	<li>Вежливость, оперативность и высокая квалификация сотрудников;</li>
 	<li>Эффективная работа квалифицированных специалистов склада существенно экономит время сборки и отгрузки товара;</li>
 	<li>Складской учёт, програмное обеспечение позволяет поддерживать полный ассортимент товаров, а наличие интернет — сайта оперативно информировать вас о его наличии;</li>
@@ -162,12 +162,12 @@ $APPLICATION->SetTitle("О компании");
 <div class="page_benefits">
 	<h2>Наши преимущества</h2>
 	<ul class="menu_type">
-		<li> <img alt="Наша компания входит в холдинг одной из крупнейших групп" src="/bitrix/templates/main/images/mp-ben_ico_1.png" width="150" height="97"><span class="text">Наша компания входит в холдинг одной из крупнейших групп</span> </li>
-		<li> <img alt="Наша компания входит в холдинг одной из крупнейших групп" src="/bitrix/templates/main/images/mp-ben_ico_2.png" width="150" height="97"><span class="text">Работаем с заводами известными по всему миру</span> </li>
-		<li> <img alt="mp-ben_ico_31.png" src="/upload/medialibrary/11c/mp_ben_ico_31.png" title="mp-ben_ico_31.png" width="150" height="97"><span class="text">Опыт работы на Российском рынке более 19 лет</span> </li>
-		<li> <img alt="Наша компания входит в холдинг одной из крупнейших групп" src="/bitrix/templates/main/images/mp-ben_ico_4.png" width="150" height="97"><span class="text">Широкий ассортимент более 1000 наименований</span> </li>
-		<li> <img alt="Наша компания входит в холдинг одной из крупнейших групп" src="/bitrix/templates/main/images/mp-ben_ico_5.png" width="150" height="97"><span class="text">Выгодные условия для долгосрочного сотрудничества</span> </li>
-		<li> <img alt="Наша компания входит в холдинг одной из крупнейших групп" src="/bitrix/templates/main/images/mp-ben_ico_6.png" width="150" height="97"><span class="text">Высокое качество <br>
+		<li> <img width="150" alt="Наша компания входит в холдинг одной из крупнейших групп" src="/bitrix/templates/main/images/mp-ben_ico_1.png" height="97"><span class="text">Наша компания входит в холдинг одной из крупнейших групп</span> </li>
+		<li> <img width="150" alt="Наша компания входит в холдинг одной из крупнейших групп" src="/bitrix/templates/main/images/mp-ben_ico_2.png" height="97"><span class="text">Работаем с заводами известными по всему миру</span> </li>
+		<li> <img width="150" alt="mp-ben_ico_31.png" src="/upload/medialibrary/11c/mp_ben_ico_31.png" height="97" title="mp-ben_ico_31.png"><span class="text">Опыт работы на Российском рынке более 19 лет</span> </li>
+		<li> <img width="150" alt="Наша компания входит в холдинг одной из крупнейших групп" src="/bitrix/templates/main/images/mp-ben_ico_4.png" height="97"><span class="text">Широкий ассортимент более 1000 наименований</span> </li>
+		<li> <img width="150" alt="Наша компания входит в холдинг одной из крупнейших групп" src="/bitrix/templates/main/images/mp-ben_ico_5.png" height="97"><span class="text">Выгодные условия для долгосрочного сотрудничества</span> </li>
+		<li> <img width="150" alt="Наша компания входит в холдинг одной из крупнейших групп" src="/bitrix/templates/main/images/mp-ben_ico_6.png" height="97"><span class="text">Высокое качество <br>
 		 материала</span> </li>
 	</ul>
 </div>

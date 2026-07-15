@@ -15,6 +15,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 $pageId = "group_requests";
 include("util_group_menu.php");
 include("util_group_profile.php");
+include("util_group_limit.php");
 
 $componentParameters = [
 	"PATH_TO_USER" => $arParams["PATH_TO_USER"],
@@ -24,16 +25,16 @@ $componentParameters = [
 	"PATH_TO_MESSAGES_CHAT" => $arParams["PATH_TO_MESSAGES_CHAT"],
 	"PATH_TO_VIDEO_CALL" => $arParams["PATH_TO_VIDEO_CALL"],
 	"PATH_TO_CONPANY_DEPARTMENT" => $arParams["PATH_TO_CONPANY_DEPARTMENT"],
-	"PAGE_VAR" => $arResult["ALIASES"]["page"],
-	"GROUP_VAR" => $arResult["ALIASES"]["group_id"],
-	"USER_VAR" => $arResult["ALIASES"]["user_id"],
+	"PAGE_VAR" => $arResult["ALIASES"]["page"] ?? null,
+	"GROUP_VAR" => $arResult["ALIASES"]["group_id"] ?? null,
+	"USER_VAR" => $arResult["ALIASES"]["user_id"] ?? null,
 	"SET_NAV_CHAIN" => $arResult["SET_NAV_CHAIN"],
 	"SET_TITLE" => $arResult["SET_TITLE"],
 	"GROUP_ID" => $arResult["VARIABLES"]["group_id"],
 	"ITEMS_COUNT" => 10,
 	"THUMBNAIL_LIST_SIZE" => 30,
 	"DATE_TIME_FORMAT" => $arResult["DATE_TIME_FORMAT"],
-	"SHOW_YEAR" => $arParams["SHOW_YEAR"],
+	"SHOW_YEAR" => $arParams["SHOW_YEAR"] ?? null,
 	"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 	"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
 	"CACHE_TYPE" => $arParams["CACHE_TYPE"],

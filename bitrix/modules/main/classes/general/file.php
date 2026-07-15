@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
@@ -17,18 +18,11 @@ use Bitrix\Main\File\Image\Rectangle;
 use Bitrix\Main\File\Internal;
 use Bitrix\Main\ORM\Query;
 use Bitrix\Main\Security;
+use Bitrix\Main\Web\Http\Range;
 
 IncludeModuleLangFile(__FILE__);
 
-/**
- * @deprecated Use CFile
- * Class CAllFile
- */
-class CAllFile
-{
-}
-
-class CFile extends CAllFile
+class CFile
 {
 	protected const CACHE_DIR = 'b_file';
 	protected const DELETE_NONE = 0x00;
@@ -228,6 +222,9 @@ class CFile extends CAllFile
 
 		$original = null;
 
+		$connection = \Bitrix\Main\Application::getConnection();
+		$connection->lock('b_file', -1);
+
 		$io = CBXVirtualIo::GetInstance();
 
 		$bExternalStorage = false;
@@ -339,7 +336,6 @@ class CFile extends CAllFile
 			//control of duplicates
 			if ($arFile["FILE_HASH"] <> '')
 			{
-				$lockId = static::lockFileHash($arFile["size"], $arFile["FILE_HASH"]);
 				$original = static::FindDuplicate($arFile["size"], $arFile["FILE_HASH"]);
 
 				if ($original !== null)
@@ -405,16 +401,13 @@ class CFile extends CAllFile
 			"FILE_HASH" => ($original === null ? $arFile["FILE_HASH"] : ''),
 		]);
 
-		if (isset($lockId))
-		{
-			static::unlockFileHash($lockId);
-		}
-
 		if ($original !== null)
 		{
 			//save information about the duplicate for future use (on deletion)
 			static::AddDuplicate($original->getFileId(), $NEW_IMAGE_ID, false);
 		}
+
+		$connection->unlock('b_file');
 
 		static::CleanCache($NEW_IMAGE_ID);
 
@@ -545,7 +538,7 @@ class CFile extends CAllFile
 		$io = CBXVirtualIo::GetInstance();
 		$uploadDir = COption::GetOptionString("main", "upload_dir", "upload");
 		$deleteSize = 0;
-		$lockId = '';
+
 		$fileList = \Bitrix\Main\FileTable::getList([
 			'select' => ['ID', 'FILE_SIZE', 'SUBDIR', 'FILE_NAME'],
 			'filter' => [
@@ -558,16 +551,14 @@ class CFile extends CAllFile
 		]);
 		while ($duplicate = $fileList->fetchObject())
 		{
-			if (!$lockId)
-			{
-				$lockId = static::lockFileHash($original->getFileSize(), $original->getFileHash());
-			}
+			$connection->lock('b_file', -1);
 
 			Internal\FileHashTable::delete($duplicate->getId());
 
 			$duplicatePath = '/' . $duplicate->getSubdir() . '/' . $duplicate->getFileName();
 			if ($originalPath == $duplicatePath)
 			{
+				$connection->unlock('b_file');
 				continue;
 			}
 
@@ -582,6 +573,7 @@ class CFile extends CAllFile
 			}
 			if ($cancel)
 			{
+				$connection->unlock('b_file');
 				continue;
 			}
 
@@ -626,11 +618,8 @@ class CFile extends CAllFile
 					}
 				}
 			}
-		}
 
-		if ($lockId)
-		{
-			static::unlockFileHash($lockId);
+			$connection->unlock('b_file');
 		}
 
 		/****************************** QUOTA ******************************/
@@ -724,20 +713,19 @@ class CFile extends CAllFile
 			return;
 		}
 
-		$conn = Main\Application::getConnection();
+		$connection = Main\Application::getConnection();
+		$connection->lock('b_file', -1);
 
 		$res = static::GetByID($ID, true);
 
 		if ($res = $res->Fetch())
 		{
-			$hash = Internal\FileHashTable::getRowById($ID);
-			$lockId = $hash ? static::lockFileHash($hash['FILE_SIZE'], $hash['FILE_HASH'], $res['HANDLER_ID']) : '';
-
 			$delete = static::processDuplicates($ID);
 
 			if ($delete === self::DELETE_NONE)
 			{
 				//can't delete the file - duplicates found
+				$connection->unlock('b_file');
 				return;
 			}
 
@@ -790,14 +778,9 @@ class CFile extends CAllFile
 				// recursion inside
 				static::processVersions($ID);
 
-				$conn->query("DELETE FROM b_file WHERE ID = {$ID}");
+				$connection->query("DELETE FROM b_file WHERE ID = {$ID}");
 
 				static::CleanCache($ID);
-			}
-
-			if ($lockId)
-			{
-				static::unlockFileHash($lockId);
 			}
 
 			/****************************** QUOTA ******************************/
@@ -807,18 +790,8 @@ class CFile extends CAllFile
 			}
 			/****************************** QUOTA ******************************/
 		}
-	}
 
-	public static function lockFileHash($size, $hash, $bucket = 0)
-	{
-		$lockId = $size . '|' . $hash . '|' . (int)$bucket;
-		Main\Application::getConnection()->lock($lockId, -1);
-		return $lockId;
-	}
-
-	public static function unlockFileHash($lockId)
-	{
-		Main\Application::getConnection()->unlock($lockId);
+		$connection->unlock('b_file');
 	}
 
 	protected static function processDuplicates($ID)
@@ -938,15 +911,6 @@ class CFile extends CAllFile
 		{
 			static::Delete($version['VERSION_ID']);
 		}
-	}
-
-	/**
-	 * @param $ID
-	 * @deprecated Use CFile::Delete()
-	 */
-	public static function DoDelete($ID)
-	{
-		static::Delete($ID);
 	}
 
 	public static function CleanCache($fileId)
@@ -1912,8 +1876,8 @@ function ImgShw(ID, width, height, alt)
 							NAME="banner"
 							ALIGN=""
 							TYPE="application/x-shockwave-flash"
-							PLUGINSPAGE="http://www.macromedia.com/go/getflashplayer">
-						</embed>
+							PLUGINSPAGE="http://www.macromedia.com/go/getflashplayer" 
+						/>
 				</object>
 			';
 		}
@@ -2082,7 +2046,7 @@ function ImgShw(ID, width, height, alt)
 
 		$path = preg_replace("#(?<!:)[\\\\/]+#", "/", $path);
 
-		if ($path == '' || $path == "/")
+		if (!is_scalar($path) || $path == '' || $path == "/")
 		{
 			return null;
 		}
@@ -2348,13 +2312,9 @@ function ImgShw(ID, width, height, alt)
 		}
 
 		$io = CBXVirtualIo::GetInstance();
-		$cacheImageFile = "/" . $uploadDirName . "/resize_cache/" . $file["SUBDIR"] . "/" . $arSize["width"] . "_" . $arSize["height"] . "_" . $resizeType . (is_array($arFilters) ? md5(serialize($arFilters)) : "") . "/" . $file["FILE_NAME"];
 
+		$cacheImageFile = "/" . $uploadDirName . "/resize_cache/" . $file["SUBDIR"] . "/" . $arSize["width"] . "_" . $arSize["height"] . "_" . $resizeType . (is_array($arFilters) ? md5(serialize($arFilters)) : "") . "/" . $file["FILE_NAME"];
 		$cacheImageFileCheck = $cacheImageFile;
-		if ($file["CONTENT_TYPE"] == "image/bmp")
-		{
-			$cacheImageFileCheck .= ".jpg";
-		}
 
 		static $cache = [];
 		$cache_id = $cacheImageFileCheck;
@@ -2570,7 +2530,7 @@ function ImgShw(ID, width, height, alt)
 		return true;
 	}
 
-	public static function ResizeImageFile($sourceFile, &$destinationFile, $arSize, $resizeType = BX_RESIZE_IMAGE_PROPORTIONAL, $arWaterMark = [], $quality = false, $arFilters = false)
+	public static function ResizeImageFile($sourceFile, $destinationFile, $arSize, $resizeType = BX_RESIZE_IMAGE_PROPORTIONAL, $arWaterMark = [], $quality = false, $arFilters = false)
 	{
 		$io = CBXVirtualIo::GetInstance();
 
@@ -2714,7 +2674,6 @@ function ImgShw(ID, width, height, alt)
 
 						if ($fileType == File\Image::FORMAT_BMP)
 						{
-							$destinationFile .= ".jpg";
 							$destinationImage->saveAs($io->GetPhysicalName($destinationFile), $quality, File\Image::FORMAT_JPEG);
 						}
 						else
@@ -2828,15 +2787,15 @@ function ImgShw(ID, width, height, alt)
 
 	/**
 	 * @param int|array $arFile
-	 * @param array $arOptions
+	 * @param array $options
 	 * @return bool
 	 */
-	public static function ViewByUser($arFile, $arOptions = [])
+	public static function ViewByUser($arFile, $options = [])
 	{
 		$previewManager = new Viewer\PreviewManager();
-		if ($previewManager->isInternalRequest($arFile, $arOptions))
+		if ($previewManager->isInternalRequest($arFile, $options))
 		{
-			$previewManager->processViewByUserRequest($arFile, $arOptions);
+			$previewManager->processViewByUserRequest($arFile, $options);
 		}
 
 		/** @global CMain $APPLICATION */
@@ -2844,46 +2803,41 @@ function ImgShw(ID, width, height, alt)
 
 		$fastDownload = (COption::GetOptionString('main', 'bx_fast_download', 'N') == 'Y');
 
-		$attachment_name = "";
-		$content_type = "";
-		$specialchars = false;
-		$force_download = false;
-		$cache_time = 10800;
+		$attachmentName = "";
+		$contentType = "";
+		$forceDownload = false;
+		$cacheTime = 10800;
 		$fromClouds = false;
 		$filename = '';
 		$fromTemp = false;
 
-		if (is_array($arOptions))
+		if (is_array($options))
 		{
-			if (isset($arOptions["content_type"]))
+			if (isset($options["content_type"]))
 			{
-				$content_type = $arOptions["content_type"];
+				$contentType = $options["content_type"];
 			}
-			if (isset($arOptions["specialchars"]))
+			if (isset($options["force_download"]))
 			{
-				$specialchars = $arOptions["specialchars"];
+				$forceDownload = $options["force_download"];
 			}
-			if (isset($arOptions["force_download"]))
+			if (isset($options["cache_time"]))
 			{
-				$force_download = $arOptions["force_download"];
+				$cacheTime = intval($options["cache_time"]);
 			}
-			if (isset($arOptions["cache_time"]))
+			if (isset($options["attachment_name"]))
 			{
-				$cache_time = intval($arOptions["cache_time"]);
+				$attachmentName = $options["attachment_name"];
 			}
-			if (isset($arOptions["attachment_name"]))
+			if (isset($options["fast_download"]))
 			{
-				$attachment_name = $arOptions["attachment_name"];
-			}
-			if (isset($arOptions["fast_download"]))
-			{
-				$fastDownload = (bool)$arOptions["fast_download"];
+				$fastDownload = (bool)$options["fast_download"];
 			}
 		}
 
-		if ($cache_time < 0)
+		if ($cacheTime < 0)
 		{
-			$cache_time = 0;
+			$cacheTime = 0;
 		}
 
 		if (is_array($arFile))
@@ -2920,21 +2874,21 @@ function ImgShw(ID, width, height, alt)
 			return false;
 		}
 
-		if ($content_type == '' && isset($arFile["CONTENT_TYPE"]))
+		if ($contentType == '' && isset($arFile["CONTENT_TYPE"]))
 		{
-			$content_type = $arFile["CONTENT_TYPE"];
+			$contentType = $arFile["CONTENT_TYPE"];
 		}
 
 		//we produce resized jpg for original bmp
-		if ($content_type == '' || $content_type == "image/bmp")
+		if ($contentType == '' || $contentType == "image/bmp")
 		{
 			if (isset($arFile["tmp_name"]))
 			{
-				$content_type = static::GetContentType($arFile["tmp_name"], true);
+				$contentType = static::GetContentType($arFile["tmp_name"], true);
 			}
 			else
 			{
-				$content_type = static::GetContentType($_SERVER["DOCUMENT_ROOT"] . $filename);
+				$contentType = static::GetContentType($_SERVER["DOCUMENT_ROOT"] . $filename);
 			}
 		}
 
@@ -2957,30 +2911,25 @@ function ImgShw(ID, width, height, alt)
 
 		$name = str_replace(["\n", "\r"], '', $name);
 
-		if ($attachment_name)
+		if ($attachmentName)
 		{
-			$attachment_name = str_replace(["\n", "\r"], '', $attachment_name);
+			$attachmentName = str_replace(["\n", "\r"], '', $attachmentName);
 		}
 		else
 		{
-			$attachment_name = $name;
+			$attachmentName = $name;
 		}
 
-		if (!$force_download)
+		if (!$forceDownload)
 		{
-			if (!static::IsImage($name, $content_type) || $arFile["HEIGHT"] <= 0 || $arFile["WIDTH"] <= 0)
+			if (!static::IsImage($name, $contentType) || $arFile["HEIGHT"] <= 0 || $arFile["WIDTH"] <= 0)
 			{
 				//only valid images can be downloaded inline
-				$force_download = true;
+				$forceDownload = true;
 			}
 		}
 
-		$content_type = Web\MimeType::normalize($content_type);
-
-		if ($force_download)
-		{
-			$specialchars = false;
-		}
+		$contentType = Web\MimeType::normalize($contentType);
 
 		$src = null;
 		$file = null;
@@ -2989,7 +2938,7 @@ function ImgShw(ID, width, height, alt)
 		{
 			$file = new IO\File($_SERVER['DOCUMENT_ROOT'] . $filename);
 		}
-		elseif (isset($arFile['tmp_name']))
+		elseif (!empty($arFile['tmp_name']))
 		{
 			$file = new IO\File($arFile['tmp_name']);
 		}
@@ -3020,35 +2969,43 @@ function ImgShw(ID, width, height, alt)
 		$APPLICATION->RestartBuffer();
 		$APPLICATION->EndBufferContentMan();
 
-		$cur_pos = 0;
+		$response = \Bitrix\Main\Context::getCurrent()->getResponse();
+
+		$curPos = 0;
 		$filesize = (isset($arFile["FILE_SIZE"]) && (int)$arFile["FILE_SIZE"] > 0 ? (int)$arFile["FILE_SIZE"] : (int)($arFile["size"] ?? 0));
 		$size = $filesize - 1;
-		$p = strpos($_SERVER["HTTP_RANGE"] ?? '', "=");
-		if (intval($p) > 0)
+		$contentLength = $filesize;
+		$range = null;
+		$acceptRanged = is_resource($src) || $fastDownload;
+
+		if (!empty($_SERVER["HTTP_RANGE"]) && $acceptRanged)
 		{
-			$bytes = substr($_SERVER["HTTP_RANGE"], $p + 1);
-			$p = strpos($bytes, "-");
-			if ($p !== false)
+			$ranges = Range::createFromString($_SERVER["HTTP_RANGE"], $filesize);
+
+			if ($ranges === null || count($ranges) > 1)
 			{
-				$cur_pos = (float)substr($bytes, 0, $p);
-				$size = (float)substr($bytes, $p + 1);
-				if ($size <= 0)
-				{
-					$size = $filesize - 1;
-				}
-				if ($cur_pos > $size)
-				{
-					$cur_pos = 0;
-					$size = $filesize - 1;
-				}
+				// TODO: Multiple ranges are not supported
+				$response
+					->setStatus("416 Requested Range Not Satisfiable")
+					->addHeader("Content-Range", "bytes */$filesize")
+				;
+
+				$response->writeHeaders();
+				self::terminate();
 			}
+
+			$range = $ranges[0];
+
+			$curPos = $range->getStart();
+			$size = $range->getEnd();
+			$contentLength = $size - $curPos + 1;
 		}
 
 		if ($file instanceof IO\File)
 		{
 			$filetime = $file->getModificationTime();
 		}
-		elseif (isset($arFile["tmp_name"]) && $arFile["tmp_name"] <> '')
+		elseif (!empty($arFile["tmp_name"]))
 		{
 			$tmpFile = new IO\File($arFile["tmp_name"]);
 			$filetime = $tmpFile->getModificationTime();
@@ -3058,32 +3015,40 @@ function ImgShw(ID, width, height, alt)
 			$filetime = intval(MakeTimeStamp($arFile["TIMESTAMP_X"]));
 		}
 
-		$response = \Bitrix\Main\Context::getCurrent()->getResponse();
-
 		if ($_SERVER["REQUEST_METHOD"] == "HEAD")
 		{
-			$response->setStatus("200 OK")
-				->addHeader("Accept-Ranges", "bytes")
-				->addHeader("Content-Type", $content_type)
-				->addHeader("Content-Length", ($size - $cur_pos + 1))
+			$response
+				->setStatus("200 OK")
+				->addHeader("Content-Type", $contentType)
+				->addHeader("Content-Length", $contentLength)
 			;
+
+			if ($acceptRanged)
+			{
+				// ranges are supported only for local files
+				$response->addHeader("Accept-Ranges", "bytes");
+			}
 
 			if ($filetime > 0)
 			{
 				$response->addHeader("Last-Modified", date("r", $filetime));
 			}
+
+			$response->writeHeaders();
 		}
 		else
 		{
 			$lastModified = '';
-			if ($cache_time > 0)
+			if ($cacheTime > 0)
 			{
 				//Handle ETag
 				$ETag = md5($filename . $filesize . $filetime);
-				if (array_key_exists("HTTP_IF_NONE_MATCH", $_SERVER) && ($_SERVER['HTTP_IF_NONE_MATCH'] === $ETag))
+				if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] === $ETag)
 				{
-					$response->setStatus("304 Not Modified");
-					$response->addHeader("Cache-Control", "private, max-age=" . $cache_time . ", pre-check=" . $cache_time);
+					$response
+						->setStatus("304 Not Modified")
+						->addHeader("Cache-Control", "private, max-age=" . $cacheTime . ", pre-check=" . $cacheTime)
+					;
 
 					$response->writeHeaders();
 					self::terminate();
@@ -3095,10 +3060,12 @@ function ImgShw(ID, width, height, alt)
 				if ($filetime > 0)
 				{
 					$lastModified = gmdate('D, d M Y H:i:s', $filetime) . ' GMT';
-					if (array_key_exists("HTTP_IF_MODIFIED_SINCE", $_SERVER) && ($_SERVER['HTTP_IF_MODIFIED_SINCE'] === $lastModified))
+					if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && $_SERVER['HTTP_IF_MODIFIED_SINCE'] === $lastModified)
 					{
-						$response->setStatus("304 Not Modified");
-						$response->addHeader("Cache-Control", "private, max-age=" . $cache_time . ", pre-check=" . $cache_time);
+						$response
+							->setStatus("304 Not Modified")
+							->addHeader("Cache-Control", "private, max-age=" . $cacheTime . ", pre-check=" . $cacheTime)
+						;
 
 						$response->writeHeaders();
 						self::terminate();
@@ -3106,53 +3073,40 @@ function ImgShw(ID, width, height, alt)
 				}
 			}
 
-			$utfName = Uri::urnEncode($attachment_name);
-			$translitName = CUtil::translit($attachment_name, LANGUAGE_ID, [
+			$utfName = Uri::urnEncode($attachmentName);
+			$translitName = CUtil::translit($attachmentName, LANGUAGE_ID, [
 				"max_len" => 1024,
 				"safe_chars" => ".",
 				"replace_space" => '-',
 				"change_case" => false,
 			]);
 
-			if ($force_download)
+			// $range shows that we are sending partial content (range request)
+			if ($range)
 			{
-				//Disable zlib for old versions of php <= 5.3.0
-				//it has broken Content-Length handling
-				if (ini_get('zlib.output_compression'))
-				{
-					ini_set('zlib.output_compression', 'Off');
-				}
-
-				if ($cur_pos > 0)
-				{
-					$response->setStatus("206 Partial Content");
-				}
-				else
-				{
-					$response->SetStatus("200 OK");
-				}
-
-				$response->addHeader("Content-Type", $content_type)
-					->addHeader("Content-Disposition", "attachment; filename=\"" . $translitName . "\"; filename*=utf-8''" . $utfName)
-					->addHeader("Content-Transfer-Encoding", "binary")
-					->addHeader("Content-Length", ($size - $cur_pos + 1))
+				$response
+					->setStatus("206 Partial Content")
+					->addHeader("Accept-Ranges", "bytes")
+					->addHeader("Content-Range", "bytes " . $range->getStart() . "-" . $range->getEnd() . "/" . $filesize)
 				;
-
-				if (is_resource($src))
-				{
-					$response->addHeader("Accept-Ranges", "bytes");
-					$response->addHeader("Content-Range", "bytes " . $cur_pos . "-" . $size . "/" . $filesize);
-				}
 			}
 			else
 			{
-				$response->addHeader("Content-Type", $content_type);
-				$response->addHeader("Content-Disposition", "inline; filename=\"" . $translitName . "\"; filename*=utf-8''" . $utfName);
+				$response->SetStatus("200 OK");
 			}
 
-			if ($cache_time > 0)
+			$contentDisposition = $forceDownload ? "attachment" : "inline";
+
+			$response
+				->addHeader("Content-Type", $contentType)
+				->addHeader("Content-Disposition", $contentDisposition . "; filename=\"" . $translitName . "\"; filename*=utf-8''" . $utfName)
+				->addHeader("Content-Transfer-Encoding", "binary")
+				->addHeader('Content-Length', $contentLength)
+			;
+
+			if ($cacheTime > 0)
 			{
-				$response->addHeader("Cache-Control", "private, max-age=" . $cache_time . ", pre-check=" . $cache_time);
+				$response->addHeader("Cache-Control", "private, max-age=" . $cacheTime . ", pre-check=" . $cacheTime);
 				if ($filetime > 0)
 				{
 					$response->addHeader('Last-Modified', $lastModified);
@@ -3163,80 +3117,66 @@ function ImgShw(ID, width, height, alt)
 				$response->addHeader("Cache-Control", "no-cache, must-revalidate, post-check=0, pre-check=0");
 			}
 
-			$response->addHeader("Expires", "0");
-			$response->addHeader("Pragma", "public");
+			$response
+				->addHeader("Expires", "0")
+				->addHeader("Pragma", "public")
+			;
 
-			$filenameEncoded = Uri::urnEncode($filename);
-			// Download from front-end
 			if ($fastDownload)
 			{
+				// Download from front-end
+				$filenameEncoded = Uri::urnEncode($filename);
 				if ($fromClouds)
 				{
-					$filenameDisableProto = preg_replace('~^(https?)(\://)~i', '\\1.', $filenameEncoded);
+					$filenameDisableProto = preg_replace('~^(https?)(://)~i', '\\1.', $filenameEncoded);
 					$cloudUploadPath = COption::GetOptionString('main', 'bx_cloud_upload', '/upload/bx_cloud_upload/');
-					$response->addHeader('X-Accel-Redirect', rawurlencode($cloudUploadPath . $filenameDisableProto));
+					$filenameEncoded = rawurlencode($cloudUploadPath . $filenameDisableProto);
 				}
-				else
-				{
-					$response->addHeader('X-Accel-Redirect', $filenameEncoded);
-				}
+				$response->addHeader('X-Accel-Redirect', $filenameEncoded);
+
 				$response->writeHeaders();
-				self::terminate();
 			}
 			else
 			{
+				ini_set('zlib.output_compression', 'Off');
 				session_write_close();
+
 				$response->writeHeaders();
 
-				if ($specialchars)
+				if (is_resource($src))
 				{
+					// read local file
 					/** @var IO\File $file */
-					echo "<", "pre", ">";
-					if (is_resource($src))
+					$file->seek($curPos);
+					while (!feof($src) && ($curPos <= $size))
 					{
-						while (!feof($src))
+						$bufsize = 131072; //128K
+						if ($curPos + $bufsize > $size)
 						{
-							echo htmlspecialcharsbx(fread($src, 32768));
+							$bufsize = $size - $curPos + 1;
 						}
-						$file->close();
+						$curPos += $bufsize;
+						echo fread($src, $bufsize);
 					}
-					else
-					{
-						/** @var Web\HttpClient $src */
-						echo htmlspecialcharsbx($src->get($filenameEncoded));
-					}
-					echo "<", "/pre", ">";
+					$file->close();
 				}
 				else
 				{
-					if (is_resource($src))
-					{
-						/** @var IO\File $file */
-						$file->seek($cur_pos);
-						while (!feof($src) && ($cur_pos <= $size))
-						{
-							$bufsize = 131072; //128K
-							if ($cur_pos + $bufsize > $size)
-							{
-								$bufsize = $size - $cur_pos + 1;
-							}
-							$cur_pos += $bufsize;
-							echo fread($src, $bufsize);
-						}
-						$file->close();
-					}
-					else
-					{
-						$fp = fopen("php://output", "wb");
-						/** @var Web\HttpClient $src */
-						$src->setOutputStream($fp);
-						$src->get($filenameEncoded);
-					}
+					// download file by URI
+					$filenameEncoded = Uri::urnEncode($filename);
+					$fp = fopen("php://output", "wb");
+
+					/** @var Web\HttpClient $src */
+					$src->setOutputStream($fp);
+					$src->get($filenameEncoded);
 				}
+
 				flush();
-				self::terminate();
 			}
 		}
+
+		self::terminate();
+
 		return true;
 	}
 

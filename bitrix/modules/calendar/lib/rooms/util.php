@@ -6,6 +6,7 @@ use Bitrix\Calendar\Access\ActionDictionary;
 use Bitrix\Calendar\Access\Model\TypeModel;
 use Bitrix\Calendar\Access\TypeAccessController;
 use Bitrix\Calendar\Core\Event\Tools\Dictionary;
+use Bitrix\Calendar\Integration\Bitrix24\FeatureDictionary;
 use Bitrix\Main\Access\Exception\UnknownActionException;
 use Bitrix\Main\LoaderException;
 use Bitrix\Main\Localization\Loc;
@@ -47,10 +48,7 @@ class Util
 			$res['str'] = Emoji::decode($location);
 		}
 
-		if (
-			mb_strlen($location) > 5
-			&& mb_strpos($location, 'ECMR_') === 0
-		)
+		if (mb_strlen($location) > 5 && str_starts_with($location, 'ECMR_'))
 		{
 			$parsedLocation = explode('_', $location);
 			if (count($parsedLocation) >= 2)
@@ -65,10 +63,7 @@ class Util
 				}
 			}
 		}
-		else if (
-			mb_strlen($location) > 9
-			&& mb_strpos($location, 'calendar_') === 0
-		)
+		else if (mb_strlen($location) > 9 && str_starts_with($location, 'calendar_'))
 		{
 			$parsedLocation = explode('_', $location);
 			if (count($parsedLocation) >= 2)
@@ -106,19 +101,19 @@ class Util
 				$loc_ = mb_strtolower(trim($loc));
 				foreach($MRList as $MR)
 				{
-					if (mb_strtolower(trim($MR['NAME'])) == $loc_)
+					if (mb_strtolower(trim($MR['NAME'])) === $loc_)
 					{
 						$result['NEW'] = 'ECMR_'.$MR['ID'];
 						break;
 					}
 				}
 
-				if (Bitrix24Manager::isFeatureEnabled('calendar_location'))
+				if (Bitrix24Manager::isFeatureEnabled(FeatureDictionary::CALENDAR_LOCATION))
 				{
 					$locationList = Manager::getRoomsList();
 					foreach($locationList as $room)
 					{
-						if (mb_strtolower(trim($room['NAME'])) == $loc_)
+						if (mb_strtolower(trim($room['NAME'])) === $loc_)
 						{
 							$result['NEW'] = 'calendar_'.$room['ID'];
 						}
@@ -235,19 +230,18 @@ class Util
 
 			$locNew =
 				($mrevid && $mrevid !== 'reserved' && $mrevid !== 'expire' && $mrevid > 0)
-					? 'ECMR_'.$locNew['mrid'].'_'.$mrevid
+					? 'ECMR_' . $locNew['mrid'] . '_' . $mrevid
 					: ''
 			;
 		}
-
 		// Release room
-		if (
+		else if (
 			$locOld['room_id'] !== false
 			&& $locOld['room_event_id'] !== false
 			&& $locNew['room_id'] === false
 		)
 		{
-			Util::releaseLocation($locOld);
+			self::releaseLocation($locOld);
 
 			$locNew = $locNew['str'];
 		}

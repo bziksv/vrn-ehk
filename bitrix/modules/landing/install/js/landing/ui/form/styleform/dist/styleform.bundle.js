@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
@@ -52,7 +53,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    if (_this.collapsed) {
 	      main_core.Dom.addClass(_this.layout, 'landing-ui-form-style--collapsed');
 	    }
-	    if (_this.specialType && _this.specialType === 'crm_forms' && landing_env.Env.getInstance().getOptions().specialType === 'crm_forms') {
+	    if (_this.specialType && _this.specialType === 'crm_forms' && landing_env.Env.getInstance().getSpecialType() === 'crm_forms') {
 	      _classPrivateMethodGet(babelHelpers.assertThisInitialized(_this), _addReplaceByTemplateCard, _addReplaceByTemplateCard2).call(babelHelpers.assertThisInitialized(_this));
 	    }
 	    return _this;
@@ -161,8 +162,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      BX.UI.InfoHelper.show('limit_crm_forms_templates');
 	      return;
 	    }
-	    var metrika = new BX.Landing.Metrika(true);
-	    metrika.sendLabel(null, 'templateMarket', 'open&replaceLid=' + landingParams['LANDING_ID']);
 	    var templatesMarketUrl = landingParams['PAGE_URL_LANDING_REPLACE_FROM_STYLE'];
 	    if (templatesMarketUrl) {
 	      BX.SidePanel.Instance.open(templatesMarketUrl, {

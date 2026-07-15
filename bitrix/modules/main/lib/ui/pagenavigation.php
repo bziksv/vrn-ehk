@@ -36,33 +36,38 @@ class PageNavigation
 	/**
 	 * @param string $id Navigation identity like "nav-cars".
 	 */
-	public function __construct($id)
+	public function __construct(string $id)
 	{
 		$this->id = $id;
 	}
 
 	/**
 	 * Initializes the navigation from URI.
+	 *
+	 * @return void
 	 */
 	public function initFromUri()
 	{
-		$navParams = array();
+		$navParams = [];
 
 		$request = \Bitrix\Main\Context::getCurrent()->getRequest();
 
 		if(($value = $request->getQuery($this->id)) !== null)
 		{
-			//parameters are in the QUERY_STRING
-			$params = explode("-", $value);
-			for($i = 0, $n = count($params); $i < $n; $i += 2)
+			if (is_string($value))
 			{
-				$navParams[$params[$i]] = $params[$i+1];
+				//parameters are in the QUERY_STRING
+				$params = explode("-", $value);
+				for($i = 0, $n = count($params); $i < $n; $i += 2)
+				{
+					$navParams[$params[$i]] = $params[$i+1];
+				}
 			}
 		}
 		else
 		{
 			//probably parametrs are in the SEF URI
-			$matches = array();
+			$matches = [];
 			if(preg_match("'/".preg_quote($this->id, "'")."/page-([\\d]+|all)+(/size-([\\d]+))?'", $request->getRequestUri(), $matches))
 			{
 				$navParams["page"] = $matches[1];

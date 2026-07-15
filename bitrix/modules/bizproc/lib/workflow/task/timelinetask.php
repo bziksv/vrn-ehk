@@ -2,6 +2,7 @@
 
 namespace Bitrix\Bizproc\Workflow\Task;
 
+use Bitrix\Bizproc\UI\Helpers\DurationFormatter;
 use Bitrix\Bizproc\Workflow\Task;
 use Bitrix\Main\Type\DateTime;
 
@@ -33,11 +34,13 @@ class TimelineTask implements \JsonSerializable
 		$createdDate = $this->getCreatedDate();
 		if (isset($createdDate))
 		{
-			return
+			$duration = (
 				$this->task->isCompleted()
 					? $this->task->getModified()->getTimestamp() - $createdDate->getTimestamp()
 					: (new DateTime())->getTimestamp() - $createdDate->getTimestamp()
-			;
+			);
+
+			return DurationFormatter::roundTimeInSeconds($duration, 2);
 		}
 
 		return null;
@@ -123,15 +126,10 @@ class TimelineTask implements \JsonSerializable
 
 	private function getTaskUrl(): ?string
 	{
-		$url = null;
-		if ($this->task->isFilled('WORKFLOW_ID'))
-		{
-			$url = sprintf(
-				'/bitrix/components/bitrix/bizproc.workflow.info/?workflow=%s&task=%s',
-				$this->task->getWorkflowId(),
-				$this->task->getId(),
-			);
-		}
+		$url = sprintf(
+			'/company/personal/bizproc/%s/',
+			$this->task->getId(),
+		);
 
 		if ($this->task->isFilled('PARAMETERS') && isset($this->task->getParameters()['DOCUMENT_ID'][0]))
 		{

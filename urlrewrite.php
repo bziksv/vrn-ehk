@@ -48,7 +48,7 @@ $arUrlRewrite=array (
     'PATH' => '/gallery-primer/index.php',
     'SORT' => 100,
   ),
-  6 => 
+  18 => 
   array (
     'CONDITION' => '#^/specials/#',
     'RULE' => '',
@@ -56,7 +56,7 @@ $arUrlRewrite=array (
     'PATH' => '/specials/index.php',
     'SORT' => 100,
   ),
-  5 => 
+  31 => 
   array (
     'CONDITION' => '#^/articles/#',
     'RULE' => '',
@@ -64,7 +64,7 @@ $arUrlRewrite=array (
     'PATH' => '/articles/index.php',
     'SORT' => 100,
   ),
-  7 => 
+  29 => 
   array (
     'CONDITION' => '#^/gallery/#',
     'RULE' => '',
@@ -72,7 +72,7 @@ $arUrlRewrite=array (
     'PATH' => '/gallery/index.php',
     'SORT' => 100,
   ),
-  12 => 
+  30 => 
   array (
     'CONDITION' => '#^/catalog/#',
     'RULE' => '',

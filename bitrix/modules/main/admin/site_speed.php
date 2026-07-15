@@ -6,7 +6,6 @@
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 define("HELP_FILE", "settings/site_speed.php");
 
-use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Analytics;
 
@@ -213,7 +212,7 @@ foreach ($mapIframeLangKeys as $key)
 			}
 		);
 
-		BX('site-speed-clients-map').src = "https://analytics.bitrix.info/cstats/v1_0/maps_client/index.php?"
+		BX('site-speed-clients-map').src = "https://sitespeed.bitrix24.tech/cstats/v1_0/maps_client/index.php?"
 			+ "aid=<?=Analytics\Counter::getAccountId()?>"
 			+ "&aid_check=<?=Analytics\Counter::getPrivateKey()?>"
 			+ "&domain=" + host

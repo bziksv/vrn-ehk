@@ -12,12 +12,15 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Socialnetwork\Integration\Extranet\User;
 use Bitrix\Socialnetwork\UserContentViewTable;
 use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Socialnetwork\Livefeed;
 
 class UserContentView
 {
+	private static array $viewDataCache = [];
+	
 	public static function getAvailability()
 	{
 		static $result = null;
@@ -66,6 +69,13 @@ class UserContentView
 		{
 			$contentId = [ $contentId ];
 		}
+		
+		$cacheKey = self::generateViewDataCacheKey($contentId);
+		
+		if (isset(self::$viewDataCache[$cacheKey]))
+		{
+			return self::$viewDataCache[$cacheKey];
+		}
 
 		$res = UserContentViewTable::getList([
 			'filter' => [
@@ -82,6 +92,8 @@ class UserContentView
 		{
 			$result[$content['CONTENT_ID']] = $content;
 		}
+		
+		self::$viewDataCache[$cacheKey] = $result;
 
 		return $result;
 	}
@@ -206,16 +218,18 @@ class UserContentView
 			{
 				$userType = "mail";
 			}
-			elseif (
-				$extranetInstalled
-				&& (
-					empty($fields["USER_UF_DEPARTMENT"])
-					|| (int)$fields["USER_UF_DEPARTMENT"][0] <= 0
-				)
-			)
+			elseif ($extranetInstalled)
 			{
-				$userType = "extranet";
-				$extranetIdList[] = $fields["USER_ID"];
+				if ((empty($fields["USER_UF_DEPARTMENT"]) || (int)$fields["USER_UF_DEPARTMENT"][0] <= 0))
+				{
+					$userType = "extranet";
+					$extranetIdList[] = $fields["USER_ID"];
+				}
+
+				if (User::isCollaber((int)$fields["USER_ID"]))
+				{
+					$userType = 'collaber';
+				}
 			}
 
 			$dateView = (
@@ -243,29 +257,39 @@ class UserContentView
 			];
 		}
 
-		$userIdToCheckList = [];
+		$userId = $USER->getId();
 
+		$userIdToCheckList = [];
 		if (Loader::includeModule('extranet'))
 		{
 			$userIdToCheckList = (
-				\CExtranet::isIntranetUser(SITE_ID, $USER->getId())
+				\CExtranet::isIntranetUser(SITE_ID, $userId)
 					? $extranetIdList
 					: array_keys($userList)
 			);
 		}
 
+		$isTaskContentId = str_contains($contentId, 'TASK');
 		if (!empty($userIdToCheckList))
 		{
 			$myGroupsUserList = \CExtranet::getMyGroupsUsersSimple(\CExtranet::getExtranetSiteID());
+
 			foreach ($userIdToCheckList as $userIdToCheck)
 			{
 				if (
 					!in_array($userIdToCheck, $myGroupsUserList)
-					&& $userIdToCheck != $USER->getId()
+					&& $userIdToCheck != $userId
 				)
 				{
-					unset($userList[$userIdToCheck]);
-					$result['hiddenCount']++;
+					if ($isTaskContentId)
+					{
+						$userList[$userIdToCheck]['PUBLIC_MODE'] = false;
+					}
+					else
+					{
+						unset($userList[$userIdToCheck]);
+						$result['hiddenCount']++;
+					}
 				}
 			}
 		}
@@ -435,5 +459,10 @@ TODO: https://bitrix24.team/company/personal/user/15/tasks/task/view/167281/
 		$entityId = (int)$tmp[1];
 
 		return [ $entityType, $entityId ];
+	}
+	
+	private static function generateViewDataCacheKey(array $params): string
+	{
+		return md5(serialize($params));
 	}
 }

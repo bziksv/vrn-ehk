@@ -9,6 +9,7 @@ use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Link\File\FileService;
 use Bitrix\Im\V2\Link\Url\UrlService;
 use Bitrix\Im\V2\Message;
+use Bitrix\Im\V2\Message\Delete\DeleteService;
 use Bitrix\Im\V2\Message\Params;
 use Bitrix\Im\V2\Result;
 use Bitrix\Main\Application;
@@ -23,8 +24,8 @@ class UpdateService
 	public const EVENT_AFTER_MESSAGE_UPDATE = 'OnAfterMessagesUpdate';
 
 	private Message $message;
+	private Message\Send\SendingConfig $sendingConfig;
 	private ?array $chatLastMessage = null;
-	private bool $urlPreview = true;
 	private bool $byEvent = false;
 	private bool $withCheckAccess = true;
 
@@ -32,6 +33,7 @@ class UpdateService
 	public function __construct(Message $message)
 	{
 		$this->message = $message;
+		$this->sendingConfig = new Message\Send\SendingConfig();
 	}
 
 	public function setMessage(Message $message): self
@@ -43,7 +45,10 @@ class UpdateService
 
 	public function setUrlPreview(bool $urlPreview): self
 	{
-		$this->urlPreview = $urlPreview;
+		if (!$urlPreview)
+		{
+			$this->sendingConfig->disableGenerateUrlPreview();
+		}
 
 		return $this;
 	}
@@ -66,14 +71,16 @@ class UpdateService
 	{
 		if ($this->withCheckAccess && !$this->canUpdate())
 		{
-			return (new Result())->addError(new Message\MessageError(Message\MessageError::MESSAGE_ACCESS_ERROR));
+			return (new Result())->addError(new Message\MessageError(Message\MessageError::ACCESS_DENIED));
 		}
+
+		$previousMessage = clone $this->message;
 
 		$this->message->fill($fieldsToUpdate);
 
 		if ($this->message->isCompletelyEmpty())
 		{
-			return (new Message\Delete\DeleteService($this->message))->delete();
+			return (DeleteService::getInstanceByMessage($this->message))->delete();
 		}
 
 		if ($this->message->isViewedByOthers())
@@ -81,7 +88,7 @@ class UpdateService
 			$this->message->getParams()->get(Params::IS_EDITED)->setValue(true);
 		}
 
-		$filesFromText = $this->message->autocompleteParams($this->urlPreview)->uploadFileFromText();
+		$filesFromText = $this->message->autocompleteParams($this->sendingConfig)->uploadFileFromText();
 		$result = $this->message->save();
 		if (!$result->isSuccess())
 		{
@@ -103,6 +110,10 @@ class UpdateService
 		(new FileService())->saveFilesFromMessage($filesFromText, $this->message);
 
 		$this->fireEventAfterMessageUpdate();
+		$this->message->getChat()->onAfterMessageUpdate($this->message);
+
+		// update mentions after all events
+		(new Message\Send\MentionService())->updateMentions($previousMessage, $this->message);
 
 		return $result;
 	}
@@ -217,11 +228,5 @@ class UpdateService
 		}
 
 		Bot::onMessageUpdate($this->message->getId(), $messageFields);
-
-		Sync\Logger::getInstance()->add(
-			new Sync\Event(Sync\Event::ADD_EVENT, Sync\Event::UPDATED_MESSAGE_ENTITY, $this->message->getId()),
-			static fn () => $chat->getRelations()->getUserIds(),
-			$chat->getType()
-		);
 	}
 }

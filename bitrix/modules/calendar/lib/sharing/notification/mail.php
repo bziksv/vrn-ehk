@@ -11,10 +11,16 @@ class Mail extends Service
 {
 	public const MEETING_STATUS_CREATED = 'created';
 	public const MEETING_STATUS_CANCELLED = 'cancelled';
+	public const STATUS_INVITE_LINK = 'invite_link';
 
 	/**
 	 * @param string $to
+	 *
 	 * @return bool
+	 *
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
 	 */
 	public function notifyAboutMeetingStatus(string $to): bool
 	{
@@ -22,6 +28,7 @@ class Mail extends Service
 		{
 			Sharing\SharingEventManager::setCanceledTimeOnSharedLink($this->event->getId());
 			Sharing\SharingEventManager::reSaveEventWithoutAttendeesExceptHostAndSharingLinkOwner($this->eventLink);
+
 			return $this->notifyAboutMeetingCancelled($to);
 		}
 
@@ -61,32 +68,80 @@ class Mail extends Service
 
 	public function notifyAboutMeetingCancelled(string $to): bool
 	{
+		if ($this->initiatorId === $this->eventLink->getHostId())
+		{
+			return false;
+		}
+
 		Sharing\Helper::setSiteLanguage();
 
-		$ownerName = $this->getOwner()['NAME'];
+		$ownerInfo = $this->getOwner();
+		$ownerName = (string)($ownerInfo['NAME'] ?? '');
 
-		$gender = $this->getOwner()['GENDER'];
-		$subject = Loc::getMessage('EC_CALENDAR_SHARING_MAIL_SUBJECT_CANCELLED', ['#NAME#' => $ownerName]);
-		if ($gender === 'M')
-		{
-			$subject = Loc::getMessage('EC_CALENDAR_SHARING_MAIL_SUBJECT_CANCELLED_M', ['#NAME#' => $ownerName]);
-		}
-		if ($gender === 'F')
-		{
-			$subject = Loc::getMessage('EC_CALENDAR_SHARING_MAIL_SUBJECT_CANCELLED_F', ['#NAME#' => $ownerName]);
-		}
+		$initiatorInfo = $this->getInitiator();
+		$initiatorName = (string)($initiatorInfo['NAME'] ?? '');
 
-		$mailParams = $this->getBaseMailParams($ownerName);
-
-		$arParams = [
+		$baseMailParams = $this->getBaseMailParams($ownerName);
+		$mailParams = [
 			'STATUS' => self::MEETING_STATUS_CANCELLED,
 			'CALENDAR_LINK' => $this->getCalendarLink(),
-			'WHO_CANCELLED' => $ownerName,
+			'WHO_CANCELLED' => $initiatorName,
 			'WHEN_CANCELLED' => $this->getWhenCancelled(),
 		];
-		$arParams = array_merge($arParams, $mailParams);
+		$mailParams = array_merge($mailParams, $baseMailParams);
+
+		$subject = $this->getCancelMeetingSubject($initiatorInfo);
+
+		return $this->sendMessage($to, $mailParams, $subject);
+	}
+
+	protected function getCancelMeetingSubject(array $initiatorInfo): string
+	{
+		$initiatorName = (string)($initiatorInfo['NAME'] ?? '');
+		$initiatorGender = (string)($initiatorInfo['GENDER'] ?? '');
+
+		if ($initiatorGender === 'F')
+		{
+			return Loc::getMessage('EC_CALENDAR_SHARING_MAIL_SUBJECT_CANCELLED_F', ['#NAME#' => $initiatorName]);
+		}
+
+		return Loc::getMessage('EC_CALENDAR_SHARING_MAIL_SUBJECT_CANCELLED_M', ['#NAME#' => $initiatorName]);
+	}
+
+	public function sendInviteLink(string $to): bool
+	{
+		if ($this->crmDealLink === null)
+		{
+			return false;
+		}
+
+		Sharing\Helper::setSiteLanguage();
+
+		$subject = $this->getInviteLinkSubject();
+		$arParams = $this->getInviteLinkParams($this->crmDealLink);
 
 		return $this->sendMessage($to, $arParams, $subject);
+	}
+
+	public function getInviteLinkSubject(): string
+	{
+		return Loc::getMessage('EC_CALENDAR_SHARING_MAIL_SUBJECT_INVITE_LINK');
+	}
+
+	public function getInviteLinkParams(Sharing\Link\CrmDealLink $crmDealLink): array
+	{
+		$ownerId = $crmDealLink->getOwnerId();
+		$owner = Sharing\Helper::getOwnerInfo($ownerId);
+
+		return [
+			'STATUS' => self::STATUS_INVITE_LINK,
+			'OWNER_AVATAR' => $owner['photo'] ?? '',
+			'OWNER_NAME' => "{$owner['name']} {$owner['lastName']}",
+			'AVATARS' => $this->getAvatars($crmDealLink),
+			'CALENDAR_LINK' => $crmDealLink->getUrl() . Sharing\Helper::ACTION_OPENED,
+			'ABUSE_LINK' => Sharing\Helper::getEmailAbuseLink($ownerId, $crmDealLink->getUrl()),
+			'BITRIX24_LINK' => $this->getBitrix24Link(),
+		];
 	}
 
 	public function notifyAboutSharingEventEdit(string $to): bool
@@ -153,19 +208,25 @@ class Mail extends Service
 			'TZ_TO' => $this->event->getEndTimeZone()?->getTimeZone()->getName(),
 			'ABUSE_LINK' => $this->getAbuseLink(),
 			'BITRIX24_LINK' => $this->getBitrix24Link(),
+			'AVATARS' => $this->getAvatars($this->getParentLink()),
 		];
 
-		$parentLink = $this->getParentLink();
+		return $arParams;
+	}
+
+	protected function getAvatars(?Sharing\Link\Joint\JointLink $parentLink): array
+	{
+		$avatars = [];
+
 		if (!is_null($parentLink))
 		{
-			$arParams['AVATARS'] = [];
 			foreach ($parentLink->getMembers() as $member)
 			{
-				$arParams['AVATARS'][] = $member->getAvatar();
+				$avatars[] = empty($member->getAvatar()) ? '/bitrix/images/1.gif' : $member->getAvatar();
 			}
 		}
 
-		return $arParams;
+		return $avatars;
 	}
 
 	protected function getParentLink(): ?Sharing\Link\Joint\JointLink
@@ -207,6 +268,7 @@ class Mail extends Service
 					'name' => $organizerName,
 					'email' => $this->getOrganizerEmail(),
 				],
+				'attendees' => $this->getAttendees(),
 			]);
 		}
 		catch (\Exception)
@@ -226,6 +288,54 @@ class Mail extends Service
 		}
 
 		return 'no-reply@bitrix24.com';
+	}
+
+	protected function getAttendees(): ?array
+	{
+		$sharingAttendee = $this->getSharingUserAttendee();
+
+		if (!empty($sharingAttendee))
+		{
+			return [$sharingAttendee];
+		}
+
+		return null;
+	}
+
+	protected function getSharingUserAttendee(): ?array
+	{
+		$attendeesCollection = $this->event->getAttendeesCollection();
+		$attendeesCodes = $attendeesCollection?->getAttendeesCodes();
+
+		$result = [];
+
+		if (!empty($attendeesCodes))
+		{
+			$userIds = \CCalendar::GetDestinationUsers($attendeesCodes);
+			if (empty($userIds))
+			{
+				return $result;
+			}
+
+			$usersResult = Main\UserTable::query()
+				->setSelect(['PERSONAL_MAILBOX', 'EXTERNAL_AUTH_ID'])
+				->whereIn('ID', array_map('intval', $userIds))
+				->exec()
+			;
+
+			while ($user = $usersResult->fetch())
+			{
+				$isSharingUser = ($user['EXTERNAL_AUTH_ID'] ?? '') === Sharing\SharingUser::EXTERNAL_AUTH_ID;
+
+				if ($isSharingUser && !empty($user['PERSONAL_MAILBOX']))
+				{
+					$result['email'] = $user['PERSONAL_MAILBOX'];
+					break;
+				}
+			}
+		}
+
+		return $result;
 	}
 
 	protected function getAbuseLink(): ?string

@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core) {
 	'use strict';
@@ -21,7 +22,7 @@ this.BX = this.BX || {};
 	var _onPrevStep = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onPrevStep");
 	var _tryCompleteStep = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("tryCompleteStep");
 	var _onNextStep = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onNextStep");
-	var _renderButtonTitle = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderButtonTitle");
+	var _getButtonsTitle = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getButtonsTitle");
 	var _renderNavigationButtons = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderNavigationButtons");
 	var _renderActiveStage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderActiveStage");
 	var _renderStep = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderStep");
@@ -36,8 +37,8 @@ this.BX = this.BX || {};
 	    Object.defineProperty(this, _renderNavigationButtons, {
 	      value: _renderNavigationButtons2
 	    });
-	    Object.defineProperty(this, _renderButtonTitle, {
-	      value: _renderButtonTitle2
+	    Object.defineProperty(this, _getButtonsTitle, {
+	      value: _getButtonsTitle2
 	    });
 	    Object.defineProperty(this, _onNextStep, {
 	      value: _onNextStep2
@@ -136,41 +137,65 @@ this.BX = this.BX || {};
 	  }
 	}
 	function _createNavigationButtons2() {
-	  var _babelHelpers$classPr, _back$className, _next$className, _complete$className;
+	  var _babelHelpers$classPr, _back$className, _next$className;
 	  const classList = ['ui-btn', 'ui-btn-lg', 'ui-btn-round', 'sign-wizard__footer_button'];
 	  const {
 	    back = {},
 	    next = {},
 	    complete = {},
+	    cancel = {},
 	    swapButtons = false
 	  } = (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _options)[_options]) != null ? _babelHelpers$classPr : {};
 	  const {
 	    title: completeTitle,
-	    onComplete
+	    onComplete,
+	    className: completeClassName
 	  } = complete;
-	  const backClassName = ((_back$className = back.className) != null ? _back$className : '').split(' ');
-	  const nextClassName = ((_next$className = next.className) != null ? _next$className : '').split(' ');
-	  const completeClassName = ((_complete$className = complete.className) != null ? _complete$className : '').split(' ');
+	  const {
+	    title: cancelTitle,
+	    onCancel,
+	    className: cancelClassName
+	  } = cancel;
+	  const backClassList = ((_back$className = back.className) != null ? _back$className : '').split(' ');
+	  const nextClassList = ((_next$className = next.className) != null ? _next$className : '').split(' ');
+	  const completeClassList = (completeClassName != null ? completeClassName : '').split(' ');
+	  const cancelClassList = (cancelClassName != null ? cancelClassName : '').split(' ');
 	  const backButton = {
 	    id: 'back',
 	    title: main_core.Loc.getMessage('SIGN_WIZARD_FOOTER_BUTTON_BACK'),
 	    method: () => babelHelpers.classPrivateFieldLooseBase(this, _onPrevStep)[_onPrevStep](),
-	    buttonClassList: [...classList, ...backClassName]
+	    buttonClassList: [...classList, ...backClassList]
+	  };
+	  const cancelButton = {
+	    id: 'cancel',
+	    title: cancelTitle != null ? cancelTitle : main_core.Loc.getMessage('SIGN_WIZARD_FOOTER_BUTTON_CANCEL'),
+	    method: async () => {
+	      const canceled = await babelHelpers.classPrivateFieldLooseBase(this, _tryCompleteStep)[_tryCompleteStep]('cancel');
+	      if (canceled && onCancel) {
+	        onCancel();
+	      }
+	    },
+	    buttonClassList: [...classList, ...cancelClassList]
 	  };
 	  const buttons = [{
 	    id: 'next',
 	    title: main_core.Loc.getMessage('SIGN_WIZARD_FOOTER_BUTTON_NEXT'),
 	    method: () => babelHelpers.classPrivateFieldLooseBase(this, _onNextStep)[_onNextStep](),
-	    buttonClassList: [...classList, ...nextClassName]
+	    buttonClassList: [...classList, ...nextClassList]
 	  }, {
 	    id: 'complete',
 	    title: completeTitle != null ? completeTitle : main_core.Loc.getMessage('SIGN_WIZARD_FOOTER_BUTTON_COMPLETE'),
 	    method: async () => {
 	      const completed = await babelHelpers.classPrivateFieldLooseBase(this, _tryCompleteStep)[_tryCompleteStep]('complete');
-	      completed && (onComplete == null ? void 0 : onComplete());
+	      if (completed && onComplete) {
+	        onComplete();
+	      }
 	    },
-	    buttonClassList: [...classList, ...completeClassName]
+	    buttonClassList: [...classList, ...completeClassList]
 	  }];
+	  if (Object.keys(cancel).length > 0) {
+	    buttons.push(cancelButton);
+	  }
 	  if (swapButtons) {
 	    buttons.push(backButton);
 	  } else {
@@ -219,6 +244,9 @@ this.BX = this.BX || {};
 	  const {
 	    beforeCompletion
 	  } = (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _metadata)[_metadata][stepName]) != null ? _babelHelpers$classPr2 : {};
+	  if (buttonId === 'cancel') {
+	    return true;
+	  }
 	  this.toggleBtnLoadingState(buttonId, true);
 	  const shouldComplete = (_await$beforeCompleti = await (beforeCompletion == null ? void 0 : beforeCompletion())) != null ? _await$beforeCompleti : true;
 	  this.toggleBtnLoadingState(buttonId, false);
@@ -231,7 +259,7 @@ this.BX = this.BX || {};
 	    this.moveOnStep(babelHelpers.classPrivateFieldLooseBase(this, _stepIndex)[_stepIndex]);
 	  }
 	}
-	function _renderButtonTitle2(backButton, nextButton) {
+	function _getButtonsTitle2() {
 	  var _babelHelpers$classPr3, _back$titles$stepName, _back$titles, _next$titles$stepName, _next$titles;
 	  const {
 	    back = {},
@@ -240,27 +268,42 @@ this.BX = this.BX || {};
 	  const stepName = babelHelpers.classPrivateFieldLooseBase(this, _order)[_order][babelHelpers.classPrivateFieldLooseBase(this, _stepIndex)[_stepIndex]];
 	  const backTitle = (_back$titles$stepName = (_back$titles = back.titles) == null ? void 0 : _back$titles[stepName]) != null ? _back$titles$stepName : main_core.Loc.getMessage('SIGN_WIZARD_FOOTER_BUTTON_BACK');
 	  const nextTitle = (_next$titles$stepName = (_next$titles = next.titles) == null ? void 0 : _next$titles[stepName]) != null ? _next$titles$stepName : main_core.Loc.getMessage('SIGN_WIZARD_FOOTER_BUTTON_NEXT');
-	  backButton.textContent = backTitle;
-	  nextButton.textContent = nextTitle;
+	  return {
+	    backTitle,
+	    nextTitle
+	  };
 	}
 	function _renderNavigationButtons2() {
 	  const {
 	    back: backButton,
 	    next: nextButton,
-	    complete: completeButton
+	    complete: completeButton,
+	    cancel: cancelButton
 	  } = babelHelpers.classPrivateFieldLooseBase(this, _navigationButtons)[_navigationButtons];
 	  const isFirstStep = babelHelpers.classPrivateFieldLooseBase(this, _stepIndex)[_stepIndex] === 0;
 	  const isLastStep = babelHelpers.classPrivateFieldLooseBase(this, _stepIndex)[_stepIndex] + 1 === babelHelpers.classPrivateFieldLooseBase(this, _order)[_order].length;
 	  main_core.Dom.removeClass(backButton, '--hide');
 	  main_core.Dom.removeClass(nextButton, '--hide');
 	  main_core.Dom.addClass(completeButton, '--hide');
-	  babelHelpers.classPrivateFieldLooseBase(this, _renderButtonTitle)[_renderButtonTitle](backButton, nextButton);
+	  const {
+	    nextTitle,
+	    backTitle
+	  } = babelHelpers.classPrivateFieldLooseBase(this, _getButtonsTitle)[_getButtonsTitle](backButton, nextButton);
+	  backButton.textContent = backTitle;
+	  nextButton.textContent = nextTitle;
 	  if (isFirstStep) {
 	    main_core.Dom.addClass(backButton, '--hide');
 	  }
 	  if (isLastStep) {
 	    main_core.Dom.addClass(nextButton, '--hide');
 	    main_core.Dom.removeClass(completeButton, '--hide');
+	  }
+	  if (cancelButton) {
+	    if (isFirstStep) {
+	      main_core.Dom.removeClass(cancelButton, '--hide');
+	    } else {
+	      main_core.Dom.addClass(cancelButton, '--hide');
+	    }
 	  }
 	}
 	function _renderActiveStage2() {
@@ -272,13 +315,21 @@ this.BX = this.BX || {};
 	  main_core.Dom.addClass(stageNode, '--active');
 	}
 	function _renderStep2() {
-	  var _babelHelpers$classPr4;
 	  const stepName = babelHelpers.classPrivateFieldLooseBase(this, _order)[_order][babelHelpers.classPrivateFieldLooseBase(this, _stepIndex)[_stepIndex]];
+	  const stepMetaData = babelHelpers.classPrivateFieldLooseBase(this, _metadata)[_metadata][stepName];
 	  const {
-	    content
-	  } = (_babelHelpers$classPr4 = babelHelpers.classPrivateFieldLooseBase(this, _metadata)[_metadata][stepName]) != null ? _babelHelpers$classPr4 : {};
+	    content,
+	    events: stepEvents
+	  } = stepMetaData != null ? stepMetaData : {};
 	  if (!content) {
 	    return;
+	  }
+	  if (main_core.Type.isFunction(stepEvents == null ? void 0 : stepEvents.onBeforeRenderStep)) {
+	    try {
+	      stepEvents.onBeforeRenderStep();
+	    } catch (e) {
+	      console.error('Error onBeforeRenderStep', e);
+	    }
 	  }
 	  main_core.Dom.clean(babelHelpers.classPrivateFieldLooseBase(this, _stepNode)[_stepNode]);
 	  if (main_core.Type.isArrayFilled(content)) {

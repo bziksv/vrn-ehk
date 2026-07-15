@@ -283,15 +283,11 @@ final class UserSenderDataProvider
 				continue;
 			}
 
-			if (isset($sender['USER_ID']))
-			{
-				$sender['USER_ID'] = (int)$sender['USER_ID'];
-			}
-
-			$userFormattedName = self::getUserFormattedName($sender['USER_ID'] ?? $mailbox['USER_ID']);
-			$senderName = $mailbox['USERNAME'];
+			$userFormattedName = self::getUserFormattedName((int)($sender['USER_ID'] ?? $mailbox['USER_ID']));
+			$senderName = trim($mailbox['USERNAME'] ?? '');
 			if ($sender)
 			{
+				$sender['USER_ID'] = (int)$sender['USER_ID'];
 				if (empty($sender['NAME']) && empty($mailbox['USERNAME']))
 				{
 					$senderName = self::getUserFormattedName($sender['USER_ID']);
@@ -321,11 +317,20 @@ final class UserSenderDataProvider
 			}
 
 			if (
-				$userId !== (int)$mailbox['USER_ID']
-				&& self::getUserFormattedName((int)$mailbox['USER_ID']) === $senderName
+				empty($senderName)
+				|| (
+					$userId !== (int)$mailbox['USER_ID']
+					&& self::getUserFormattedName((int)$mailbox['USER_ID']) === $senderName
+				)
 			)
 			{
 				$senderName = $currentUserFormattedName ?? $senderName;
+			}
+
+			if (!empty($sender['USER_ID']))
+			{
+				$avatar = $userData[$sender['USER_ID']]['userAvatar'] ?? null;
+				$userUrl = $userData[$sender['USER_ID']]['userUrl'] ?? null;
 			}
 
 			$senders[] = [
@@ -338,9 +343,9 @@ final class UserSenderDataProvider
 				'canEdit' => $canEdit,
 				'isOwner' => $isOwner,
 				'editHref' => $canEdit ? self::getMailboxConfigPath($sender['PARENT_ID'] ?? $mailbox['ID']) : null,
-				'avatar' => $userData[$sender['USER_ID']]['userAvatar'] ?? null,
-				'userUrl' => $userData[$sender['USER_ID']]['userUrl'] ?? null,
-				'showEditHint' => empty($sender)
+				'avatar' => $avatar ?? null,
+				'userUrl' => $userUrl ?? null,
+				'showEditHint' => empty($sender),
 			];
 		}
 
@@ -434,8 +439,12 @@ final class UserSenderDataProvider
 			$userId = Main\Engine\CurrentUser::get()->getId();
 		}
 
-		$userData = \CUser::GetByID($userId)->fetch();
+		if (!$userId)
+		{
+			return null;
+		}
 
+		$userData = self::getUserData($userId);
 		if (!$userData)
 		{
 			return null;
@@ -480,7 +489,7 @@ final class UserSenderDataProvider
 				'id' => $sender['ID'],
 				'name' => (strlen($sender['NAME'] ?? '') > 0) ? $sender['NAME'] : self::getUserFormattedName($sender['USER_ID']),
 				'email' => $sender['EMAIL'],
-				'type' => self::MAILBOX_SENDER_TYPE
+				'type' => self::MAILBOX_SENDER_TYPE,
 			];
 		}
 
@@ -514,7 +523,14 @@ final class UserSenderDataProvider
 
 	public static function getUserInfo(int $userId): ?array
 	{
-		$userData = \Bitrix\Main\UserTable::getById($userId)->fetch();
+		static $userInfo = [];
+
+		if (isset($userInfo[$userId]))
+		{
+			return $userInfo[$userId];
+		}
+
+		$userData = self::getUserData($userId);
 		if (!$userData)
 		{
 			return null;
@@ -538,10 +554,12 @@ final class UserSenderDataProvider
 			}
 		}
 
-		return [
+		$userInfo[$userId] = [
 			'userUrl' => $userUrl,
 			'userAvatar' => $userAvatar ?? null,
 		];
+
+		return $userInfo[$userId];
 	}
 
 	private static function canUseMailboxTable(): bool
@@ -562,5 +580,31 @@ final class UserSenderDataProvider
 		$currentUser = Main\Engine\CurrentUser::get();
 
 		return $currentUser->isAdmin() || $currentUser->canDoOperation('bitrix24_config');
+	}
+
+	private static function getUserData(int $userId): ?array
+	{
+		static $userData = [];
+		if (!empty($userData[$userId]))
+		{
+			return $userData[$userId];
+		}
+
+		$select = [
+			'ID',
+			'NAME',
+			'LAST_NAME',
+			'SECOND_NAME',
+			'PERSONAL_PHOTO',
+			'LOGIN',
+			'EMAIL',
+		];
+
+		$userData[$userId] = \Bitrix\Main\UserTable::getList([
+			'select' => $select,
+			'filter' => ['=ID' => $userId],
+		])->fetch();
+
+		return $userData[$userId] ?: null;
 	}
 }

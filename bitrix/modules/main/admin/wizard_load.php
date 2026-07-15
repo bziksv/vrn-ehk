@@ -1,12 +1,17 @@
-<?
+<?php
 require_once(__DIR__."/../include/prolog_admin_before.php");
 define("HELP_FILE", "settings/wizard_load.php");
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/wizard.php");
 
-if(!$USER->CanDoOperation('edit_php') && !$USER->CanDoOperation('view_other_settings'))
-	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+/**
+ * @global CUser $USER
+ * @global CMain $APPLICATION
+ */
 
 $isAdmin = $USER->CanDoOperation('edit_php');
+
+if(!$isAdmin && !$USER->CanDoOperation('view_other_settings'))
+	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 IncludeModuleLangFile(__FILE__);
 
@@ -29,13 +34,13 @@ do
 
 	$wizardPath = $_SERVER["DOCUMENT_ROOT"].CWizardUtil::GetRepositoryPath();
 
-	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/tar_gz.php");
 	$oArchiver = new CArchiver($_FILES["wizardFile"]["tmp_name"]);
+	$oArchiver->SetOptions(['CHECK_PERMISSIONS' => false]);
 
 	if (!$oArchiver->extractFiles($wizardPath))
 	{
 		$strError .= GetMessage("MAIN_WIZARD_IMPORT_ERROR");
-		$arErrors = &$oArchiver->GetErrors();
+		$arErrors = $oArchiver->GetErrors();
 		if(!empty($arErrors))
 		{
 			$strError .= ":<br>";
@@ -57,8 +62,8 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 $APPLICATION->SetTitle(GetMessage("MAIN_WIZARD_LOAD_TITLE"));
 require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/prolog_admin_after.php");
 
-echo CAdminMessage::ShowMessage($strError);
-echo CAdminMessage::ShowNote($strOK);
+CAdminMessage::ShowMessage($strError);
+CAdminMessage::ShowNote($strOK);
 
 $arMenu = array(
 	array(

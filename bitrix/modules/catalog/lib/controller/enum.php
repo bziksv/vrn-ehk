@@ -9,10 +9,11 @@ use Bitrix\Main\Result;
 
 final class Enum extends Controller
 {
-	/** @deprecated  */
+	/** @deprecated */
 	public const PROPERTY_USER_TYPE_DATETIME = PropertyTable::USER_TYPE_DATETIME;
-	public const PROPERTY_USER_TYPE_MONEY = 'Money';
-	/** @deprecated  */
+	/** @deprecated */
+	public const PROPERTY_USER_TYPE_MONEY = PropertyTable::USER_TYPE_MONEY;
+	/** @deprecated */
 	public const PROPERTY_USER_TYPE_SKU = PropertyTable::USER_TYPE_SKU;
 	public const PROPERTY_USER_TYPE_BOOL_ENUM = 'BoolEnum';
 
@@ -26,7 +27,7 @@ final class Enum extends Controller
 			$r[] = ['ID'=>$id, 'NAME'=>$name];
 		}
 
-		return ['ENUM'=>$r];
+		return [$this->getServiceItemName() => $r];
 	}
 
 	public function getRoundTypesAction(): array
@@ -39,7 +40,7 @@ final class Enum extends Controller
 			$r[] = ['ID'=>$id, 'NAME'=>$name];
 		}
 
-		return ['ENUM'=>$r];
+		return [$this->getServiceItemName() => $r];
 	}
 
 	/**
@@ -56,13 +57,13 @@ final class Enum extends Controller
 			];
 		}
 
-		return ['ENUM' => $result];
+		return [$this->getServiceItemName() => $result];
 	}
 
 	public function getProductPropertyTypesAction(): array
 	{
 		return [
-			'ENUM' => self::getProductPropertyTypes(),
+			$this->getServiceItemName() => self::getProductPropertyTypes(),
 		];
 	}
 
@@ -91,7 +92,7 @@ final class Enum extends Controller
 			],
 			'MONEY' => [
 				'PROPERTY_TYPE' => PropertyTable::TYPE_STRING,
-				'USER_TYPE' => self::PROPERTY_USER_TYPE_MONEY,
+				'USER_TYPE' => PropertyTable::USER_TYPE_MONEY,
 			],
 			'SKU' => [
 				'PROPERTY_TYPE' => PropertyTable::TYPE_ELEMENT,

@@ -24,6 +24,7 @@
 
 .mail-connect-slider {
 	padding: 0;
+	margin-bottom: 60px;
 }
 
 .mail-connect-section-block {
@@ -263,6 +264,11 @@
 	line-height: 17px;
 }
 
+.mail-connect-crm-selector-wrapper
+{
+	display: inline;
+}
+
 .mail-set-singleselect input,
 .mail-set-singleselect label {
 	display: none;
@@ -464,6 +470,14 @@
 
 .mail-connect-access-delete-button:after {
 	transform: rotate(45deg);
+}
+
+#mail-owner-selector-container .ui-tag-selector-add-button-caption::before {
+	display: none;
+}
+
+#mail-owner-selector-container .ui-tag-selector-add-button-caption {
+	margin-left: 7px;
 }
 
 .mail-connect-footer {
@@ -904,22 +918,12 @@
 	font-weight: var(--ui-font-weight-bold);
 	margin: 0 28px 0 0;
 }
-.mail-connect-last-sync-success {
-	color: #6f950d;
-}
-.mail-connect-last-sync-error {
-	color: #d04749;
-}
 .mail-connect-last-sync-wrapper {
 	margin: 8px 0 0 0;
 }
 
 .mail_connect_mb_import_messages_label {
 	cursor: pointer;
-}
-
-#workarea-content {
-	background: transparent;
 }
 
 /* mail-provider-showcase */

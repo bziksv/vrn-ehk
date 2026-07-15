@@ -11,6 +11,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Blog\Item\Permissions;
+use Bitrix\Socialnetwork\Helper\Analytics\FeedAnalytics;
 use Bitrix\Socialnetwork\Helper\Mention;
 use Bitrix\Main\Text;
 use Bitrix\Socialnetwork\CommentAux;
@@ -729,14 +730,12 @@ if (
 			{
 				if ($arResult["use_captcha"])
 				{
-					include_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/classes/general/captcha.php');
 					$captchaCode = (string)$_POST["captcha_code"];
 					$captchaWord = (string)$_POST["captcha_word"];
 					$cpt = new CCaptcha();
-					$captchaPass = Option::get('main', 'captcha_password');
 					if ($captchaCode !== '')
 					{
-						if (!$cpt->CheckCodeCrypt($captchaWord, $captchaCode, $captchaPass))
+						if (!$cpt->CheckCodeCrypt($captchaWord, $captchaCode))
 						{
 							$strErrorMessage .= Loc::getMessage('B_B_PC_CAPTCHA_ERROR') . "<br />";
 						}
@@ -936,6 +935,30 @@ if (
 								"imageWidth" => $arParams["IMAGE_MAX_WIDTH"],
 								"imageHeight" => $arParams["IMAGE_MAX_HEIGHT"],
 							);
+
+							if (isset($this->request->getValues()['ANALYTICS_LABEL']))
+							{
+								$analyticsInfo = $this->request->getValues()['ANALYTICS_LABEL'];
+								$eventId = CSocNetLog::GetList(
+									arFilter: ['MODULE_ID' => 'blog', 'SOURCE_ID' => $arPost['ID']],
+									arSelectFields: ['EVENT_ID'],
+								)->Fetch()['EVENT_ID'] ?? '';
+								$analytics = FeedAnalytics::getInstance();
+
+								$typeMap = [
+									'blog_post_vote' => $analytics::TYPE_POLL,
+									'blog_post_grat' => $analytics::TYPE_APPRECIATION,
+									'blog_post_important' => $analytics::TYPE_ANNOUNCEMENT,
+									'blog_post' => $analytics::TYPE_POST,
+								];
+
+								$analytics->onCommentAdd(
+									$analyticsInfo['section'] ?? '',
+									$analyticsInfo['context'] ?? '',
+									true,
+									$typeMap[$eventId] ?? '',
+								);
+							}
 
 							$commentUrl .= (mb_strpos($commentUrl, "?") !== false ? "&" : "?");
 							if (
@@ -1382,7 +1405,12 @@ if (
 								$arResult["BlogUser"] = CBlogTools::htmlspecialcharsExArray($arResult["BlogUser"]);
 								$dbUser = CUser::GetByID($currentUserId);
 								$arResult["arUser"] = $dbUser->GetNext();
-								$arResult["User"]["NAME"] = CBlogUser::GetUserName($arResult["BlogUser"]["ALIAS"], $arResult["arUser"]["NAME"], $arResult["arUser"]["LAST_NAME"], $arResult["arUser"]["LOGIN"]);
+								$arResult["User"]["NAME"] = CBlogUser::GetUserName(
+									$arResult["BlogUser"]["ALIAS"] ?? '',
+									$arResult["arUser"]["NAME"],
+									$arResult["arUser"]["LAST_NAME"],
+									$arResult["arUser"]["LOGIN"]
+								);
 							}
 
 							CBlogComment::UpdateLog($commentID, $arResult["BlogUser"], $arResult["User"], $arFields, $arPost, $arParamsUpdateLog);
@@ -1689,7 +1717,8 @@ if (
 					$arConvertParams = Array(
 						"imageWidth" => $arParams["IMAGE_MAX_WIDTH"],
 						"imageHeight" => $arParams["IMAGE_MAX_HEIGHT"],
-						"pathToUser" => $arParams["PATH_TO_USER"]
+						"pathToUser" => $arParams["PATH_TO_USER"],
+						"ATTRIBUTES" => $arParams["ATTRIBUTES"] ?? null,
 					);
 
 					if (!empty($arParams["LOG_ID"]))
@@ -2063,15 +2092,8 @@ if (
 
 		if ($arResult["use_captcha"])
 		{
-			include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
 			$cpt = new CCaptcha();
-			$captchaPass = Option::get('main', 'captcha_password');
-			if ($captchaPass === '')
-			{
-				$captchaPass = \Bitrix\Main\Security\Random::getString(10);
-				Option::set('main', 'captcha_password', $captchaPass);
-			}
-			$cpt->SetCodeCrypt($captchaPass);
+			$cpt->SetCodeCrypt();
 			$arResult["CaptchaCode"] = htmlspecialcharsbx($cpt->GetCodeCrypt());
 		}
 
@@ -2087,6 +2109,7 @@ if (
 				"imageWidth" => $arParams["IMAGE_MAX_WIDTH"],
 				"imageHeight" => $arParams["IMAGE_MAX_HEIGHT"],
 				"pathToUser" => $arParams["PATH_TO_USER"],
+				"ATTRIBUTES" => $arParams["ATTRIBUTES"] ?? null,
 			);
 
 			$handlerManager = new CommentAux\HandlerManager();

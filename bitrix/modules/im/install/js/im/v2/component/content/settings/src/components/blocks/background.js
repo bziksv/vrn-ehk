@@ -1,6 +1,6 @@
 import { Settings } from 'im.v2.const';
-import { ThemeColorScheme, ThemeManager, type BackgroundStyle } from 'im.v2.lib.theme';
-import { SettingsService } from 'im.v2.provider.service';
+import { SelectableBackground, ThemeManager, type BackgroundStyle } from 'im.v2.lib.theme';
+import { SettingsService } from 'im.v2.provider.service.settings';
 
 import './css/background.css';
 
@@ -16,7 +16,7 @@ export const ChatBackground = {
 		},
 		backgroundIdList(): string[]
 		{
-			return Object.keys(ThemeColorScheme);
+			return Object.keys(SelectableBackground);
 		},
 	},
 	methods:

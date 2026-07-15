@@ -11,6 +11,7 @@ this.BX.UI = this.BX.UI || {};
 	GuideConditionColor.WARNING = '--condition-warning';
 	GuideConditionColor.ALERT = '--condition-alert';
 	GuideConditionColor.PRIMARY = '--condition-primary';
+	GuideConditionColor.COPILOT = '--condition-copilot';
 
 	class Step extends main_core.Event.EventEmitter {
 	  constructor(options) {
@@ -22,23 +23,25 @@ this.BX.UI = this.BX.UI || {};
 	    this.id = options.id || null;
 	    this.text = options.text;
 	    this.areaPadding = options.areaPadding;
-	    this.link = options.link || "";
+	    this.link = options.link || '';
 	    this.linkTitle = options.linkTitle || null;
 	    this.rounded = options.rounded || false;
 	    this.title = options.title || null;
 	    this.iconSrc = options.iconSrc || null;
 	    this.article = options.article || null;
+	    this.articleAnchor = options.articleAnchor || null;
+	    this.infoHelperCode = options.infoHelperCode || null;
 	    this.position = options.position || null;
 	    this.cursorMode = options.cursorMode || false;
 	    this.targetEvent = options.targetEvent || null;
 	    this.buttons = options.buttons || [];
 	    this.condition = options.condition || null;
 	    const events = main_core.Type.isPlainObject(options.events) ? options.events : {};
-	    for (let eventName in events) {
+	    for (const eventName in events) {
 	      const callback = main_core.Type.isFunction(events[eventName]) ? events[eventName] : main_core.Reflection.getClass(events[eventName]);
 	      if (callback) {
-	        this.subscribe(this.constructor.getFullEventName(eventName), () => {
-	          callback();
+	        this.subscribe(this.constructor.getFullEventName(eventName), (...args) => {
+	          callback(...args);
 	        });
 	      }
 	    }
@@ -93,6 +96,12 @@ this.BX.UI = this.BX.UI || {};
 	  getArticle() {
 	    return this.article;
 	  }
+	  getArticleAnchor() {
+	    return this.articleAnchor;
+	  }
+	  getInfoHelperCode() {
+	    return this.infoHelperCode;
+	  }
 	  getCursorMode() {
 	    return this.cursorMode;
 	  }
@@ -100,7 +109,7 @@ this.BX.UI = this.BX.UI || {};
 	    return this.targetEvent;
 	  }
 	  static getFullEventName(shortName) {
-	    return "Step:" + shortName;
+	    return `Step:${shortName}`;
 	  }
 	  setTarget(target) {
 	    this.target = target;
@@ -304,7 +313,7 @@ this.BX.UI = this.BX.UI || {};
 	    if (this.layout.backBtn) {
 	      setTimeout(() => {
 	        this.layout.backBtn.style.display = "block";
-	      }, 10);
+	      }, 200);
 	    }
 	    if (this.overlay) {
 	      this.setOverlayElementForm();
@@ -624,12 +633,21 @@ this.BX.UI = this.BX.UI || {};
 	          forceBindPosition: true
 	        },
 	        events: {
+	          onBeforeShow: () => {
+	            if (this.getCurrentStep()) {
+	              const currentStep = this.getCurrentStep();
+	              currentStep.emit(currentStep.constructor.getFullEventName('onBeforeShow'), {
+	                step: currentStep,
+	                guide: this
+	              });
+	            }
+	          },
 	          onPopupClose: popup => {
 	            if (popup.destroyed === false && this.onEvents) main_core_events.EventEmitter.emit('UI.Tour.Guide:onPopupClose', this);
 	            this.close();
 	          }
 	        },
-	        buttons: buttons
+	        buttons
 	      });
 	      const conditionNodeTop = main_core.Tag.render(_t2 || (_t2 = _`
 				<div class="ui-tour-popup-condition-top">
@@ -670,7 +688,7 @@ this.BX.UI = this.BX.UI || {};
 				`), encodeURI(this.getCurrentStep().getIconSrc()));
 	      }
 	      let linkNode = '';
-	      if (this.getCurrentStep().getLink() || this.getCurrentStep().getArticle()) {
+	      if (this.steps.some(step => step.getLink()) || this.steps.some(step => step.getArticle()) || this.steps.some(step => step.getInfoHelperCode())) {
 	        linkNode = this.getLink();
 	      }
 	      this.layout.content = main_core.Tag.render(_t5 || (_t5 = _`
@@ -707,10 +725,12 @@ this.BX.UI = this.BX.UI || {};
 	    main_core.Event.unbindAll(this.layout.link, 'click');
 	    this.getTitle().innerHTML = this.getCurrentStep().getTitle();
 	    this.getText().innerHTML = this.getCurrentStep().getText();
-	    if (this.getCurrentStep().getArticle() || this.getCurrentStep().getLink()) {
-	      main_core.Dom.removeClass(this.layout.link, "ui-tour-popup-link-hide");
+	    if (this.getCurrentStep().getArticle() || this.getCurrentStep().getLink() || this.getCurrentStep().getInfoHelperCode()) {
+	      main_core.Dom.removeClass(this.layout.link, 'ui-tour-popup-link-hide');
 	      if (this.getCurrentStep().getArticle()) {
-	        main_core.Event.bind(this.layout.link, "click", this.handleClickLink.bind(this));
+	        main_core.Event.bind(this.layout.link, 'click', this.handleClickLink.bind(this));
+	      } else if (this.getCurrentStep().getInfoHelperCode()) {
+	        main_core.Event.bind(this.layout.link, 'click', this.handleInfoHelperCodeClickLink.bind(this));
 	      }
 	      if (this.getCurrentStep().getLink()) {
 	        this.getLink().setAttribute('href', this.getCurrentStep().getLink());
@@ -741,10 +761,28 @@ this.BX.UI = this.BX.UI || {};
 	    if (!this.helper) {
 	      this.helper = top.BX.Helper;
 	    }
-	    this.helper.show("redirect=detail&code=" + this.getCurrentStep().getArticle());
-	    if (this.onEvent) {
-	      if (this.helper.isOpen()) this.getPopup().setAutoHide(false);
-	      main_core_events.EventEmitter.subscribe(this.helper.getSlider(), 'SidePanel.Slider:onCloseComplete', () => {
+	    const article = this.getCurrentStep().getArticle();
+	    const anchor = this.getCurrentStep().getArticleAnchor();
+
+	    // eslint-disable-next-line sonarjs/no-nested-template-literals
+	    const url = `redirect=detail&code=${article}${anchor ? `&anchor=${anchor}` : ''}`;
+	    this.helper.show(url);
+	    if (this.helper.isOpen()) {
+	      this.getPopup().setAutoHide(false);
+	    }
+	    main_core_events.EventEmitter.subscribe(this.helper.getSlider(), 'SidePanel.Slider:onCloseComplete', () => {
+	      this.getPopup().setAutoHide(true);
+	    });
+	  }
+	  handleInfoHelperCodeClickLink() {
+	    event.preventDefault();
+	    if (main_core.Reflection.getClass('BX.UI.InfoHelper.show')) {
+	      const helper = top.BX.UI.InfoHelper;
+	      helper.show(this.getCurrentStep().getInfoHelperCode());
+	      if (helper.isOpen()) {
+	        this.getPopup().setAutoHide(false);
+	      }
+	      main_core_events.EventEmitter.subscribe(helper.getSlider(), 'SidePanel.Slider:onCloseComplete', () => {
 	        this.getPopup().setAutoHide(true);
 	      });
 	    }
@@ -951,11 +989,12 @@ this.BX.UI = this.BX.UI || {};
 	    const buttons = [];
 	    if (this.buttons !== "") {
 	      for (let i = 0; i < this.buttons.length; i++) {
+	        var _this$buttons$i$event;
 	        let btn = main_core.Tag.render(_t16 || (_t16 = _`
 					<button class="${0}" onclick="${0}">
 					${0}
 					</button>
-				`), this.buttons[i].class, this.buttons[i].events.click, this.buttons[i].text);
+				`), this.buttons[i].class, (_this$buttons$i$event = this.buttons[i].events) == null ? void 0 : _this$buttons$i$event.click, this.buttons[i].text);
 	        buttons.push(btn);
 	      }
 	    } else {
@@ -1053,14 +1092,14 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  add(options) {
 	    const guide = this.create(options);
-	    guide.subscribe("UI.Tour.Guide:onFinish", () => {
+	    guide.subscribe('UI.Tour.Guide:onFinish', () => {
 	      this.handleTourFinish(guide);
 	    });
-	    if (!this.currentGuide) {
+	    if (this.currentGuide) {
+	      this.autoStartQueue.push(guide);
+	    } else {
 	      this.currentGuide = guide;
 	      guide.start();
-	    } else {
-	      this.autoStartQueue.push(guide);
 	    }
 	  }
 

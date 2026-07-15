@@ -1,8 +1,8 @@
-import { Tag, Type, Loc } from 'main.core';
+import { Loc, Tag, Type } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 import { Popup } from 'main.popup';
 import { Icon, Main as MainIconSet, Set } from 'ui.icon-set.api.core';
-import { Button, ButtonColor } from 'ui.buttons';
+import { Button, ButtonColor, ButtonSize } from 'ui.buttons';
 
 import 'ui.icon-set.main';
 
@@ -22,6 +22,8 @@ export const PromoVideoPopupEvents = Object.freeze({
 
 export type PromoVideoPopupOptions = {
 	videoSrc: string;
+	videoContainerMinHeight: number;
+	width?: number;
 	title?: string;
 	text?: string;
 	icon?: string;
@@ -29,6 +31,23 @@ export type PromoVideoPopupOptions = {
 	targetOptions: PromoVideoPopupTargetOptions;
 	angleOptions?: PromoVideoPopupAngleOptions;
 	offset?: PromoVideoPopupOffset;
+	button?: PromoVideoPopupButtonOptions;
+	useOverlay?: boolean;
+}
+
+export const PromoVideoPopupButtonPosition = Object.freeze({
+	LEFT: 'left',
+	RIGHT: 'right',
+	CENTER: 'center',
+});
+
+export type PromoVideoPopupButtonOptions = {
+	color?: ButtonColor;
+	text?: string;
+	size?: ButtonSize;
+	position: PromoVideoPopupButtonPosition.LEFT
+		| PromoVideoPopupButtonPosition.RIGHT
+		| PromoVideoPopupButtonPosition.CENTER;
 }
 
 type PromoVideoPopupOffset = {
@@ -46,6 +65,9 @@ type PromoVideoPopupAngleOptions = {
 type PromoVideoPopupOptionsColors = {
 	iconBackground: string;
 	title: string;
+	/**
+	 * @deprecated Use button option from PromoVideoPopupOptions instead
+	 */
 	button: ButtonColor,
 }
 
@@ -53,12 +75,16 @@ export class PromoVideoPopup extends EventEmitter
 {
 	#videoSrc: string;
 	#title: string;
+	#width: number;
 	#text: string;
 	#icon: string;
 	#colors: PromoVideoPopupOptionsColors;
-	#targetOptions: PromoVideoPopupTargetOptions;
+	#targetOptions: ?PromoVideoPopupTargetOptions;
 	#angleOptions: PromoVideoPopupAngleOptions;
 	#offset: ?PromoVideoPopupOffset;
+	#videoContainerMinHeight: number = 255;
+	#buttonOptions: PromoVideoPopupButtonOptions = null;
+	#useOverlay: boolean;
 
 	#popup: ?Popup;
 
@@ -71,14 +97,21 @@ export class PromoVideoPopup extends EventEmitter
 
 		this.#videoSrc = options.videoSrc;
 		this.#title = options.title;
+		this.#width = options.width ?? PromoVideoPopup.getWidth();
 		this.#text = options.text;
 		this.#icon = this.#isIconExist(options.icon) ? options.icon : MainIconSet.B_24;
 		this.#colors = options.colors;
-		this.#targetOptions = options.targetOptions;
+		this.#targetOptions = options.targetOptions ?? null;
 		this.#angleOptions = options.angleOptions || false;
 		this.#offset = options.offset;
+		this.#videoContainerMinHeight = options.videoContainerMinHeight;
+		this.#buttonOptions = options.button ?? null;
+		this.#useOverlay = options.useOverlay === true;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	static getWidth(): number
 	{
 		return 498;
@@ -116,6 +149,23 @@ export class PromoVideoPopup extends EventEmitter
 		});
 	}
 
+	getWidth(): number
+	{
+		return this.#width;
+	}
+
+	setTargetOptions(targetOptions: PromoVideoPopupTargetOptions): this
+	{
+		this.#targetOptions = targetOptions;
+
+		if (this.#popup)
+		{
+			this.#popup.setBindElement(targetOptions);
+		}
+
+		return this;
+	}
+
 	#iniPopup(): void
 	{
 		const styles = getComputedStyle(document.body);
@@ -125,7 +175,7 @@ export class PromoVideoPopup extends EventEmitter
 		this.#popup = new Popup({
 			bindElement: this.#targetOptions,
 			cacheable: false,
-			width: PromoVideoPopup.getWidth(),
+			width: this.#width,
 			borderRadius: '16px',
 			angle: this.#angleOptions,
 			content: this.#renderPopupContent(),
@@ -136,6 +186,7 @@ export class PromoVideoPopup extends EventEmitter
 			contentBackground: backgroundPrimary,
 			contentPadding: 12,
 			contentBorderRadius: '8px',
+			overlay: this.#getPopupOverlay(),
 			className: this.#getPopupClassname(),
 			events: {
 				onPopupClose: () => {
@@ -215,30 +266,48 @@ export class PromoVideoPopup extends EventEmitter
 				<div class="ui__promo-video-popup-content_promo-text">
 					${this.#text}
 				</div>
-				<div class="ui__promo-video-popup-content_promo-video-wrapper">
-					<video
-						src="${this.#videoSrc}"
-						autoplay
-						preload
-						loop
-						class="ui__promo-video-popup-content_promo-video"
-					></video>
+				<div
+					class="ui__promo-video-popup-content_promo-video-wrapper"
+					style="min-height: ${`${this.#videoContainerMinHeight}px`}"
+				>
+					${this.#renderVideo()}
 				</div>
-				<div class="ui__promo-video-popup-content_footer">
+				<div class="${this.#getPopupFooterElementClassname()}">
 					${this.#renderAcceptButton()}
 				</div>
 			</div>
 		`;
 	}
 
+	#renderVideo(): HTMLElement
+	{
+		const videoElement = Tag.render`
+			<video
+				src="${this.#videoSrc}"
+				autoplay
+				preload
+				loop
+				class="ui__promo-video-popup-content_promo-video"
+			></video>
+		`;
+
+		// eslint-disable-next-line @bitrix24/bitrix24-rules/no-native-events-binding
+		videoElement.addEventListener('canplay', () => {
+			videoElement.muted = true;
+			videoElement.play();
+		});
+
+		return videoElement;
+	}
+
 	#renderAcceptButton(): HTMLElement
 	{
-		const color = this.#getOptionsButtonColor() || ButtonColor.PRIMARY;
+		const buttonOptions = this.#getButtonOptions();
 
 		const btn = new Button({
-			color,
-			text: Loc.getMessage('PROMO_VIDEO_POPUP_ACCEPT'),
-			size: Button.Size.SMALL,
+			color: buttonOptions.color,
+			text: buttonOptions.text,
+			size: buttonOptions.size,
 			round: true,
 			onclick: () => {
 				this.emit(PromoVideoPopupEvents.ACCEPT);
@@ -306,6 +375,7 @@ export class PromoVideoPopup extends EventEmitter
 		const buttonColor = options?.colors?.button;
 		const targetOptions = options?.targetOptions;
 		const offset = options?.offset;
+		const videoContainerMinHeight = options?.videoContainerMinHeight;
 
 		if (!options)
 		{
@@ -366,10 +436,59 @@ export class PromoVideoPopup extends EventEmitter
 		{
 			throw new TypeError('UI.PromoVideoPopup: offset.left option must be number');
 		}
+
+		if (videoContainerMinHeight && Type.isNumber(videoContainerMinHeight) === false)
+		{
+			throw new TypeError('UI.PromoVideoPopup: videoContainerMinHeight option must be number');
+		}
 	}
 
 	#isIconExist(icon: string): boolean
 	{
 		return Object.values(Set).includes(icon);
+	}
+
+	#getButtonOptions(): PromoVideoPopupButtonOptions
+	{
+		const defaultOptions = this.#getDefaultButtonOptions();
+
+		return {
+			text: this.#buttonOptions?.text ?? defaultOptions.text,
+			color: this.#buttonOptions?.color ?? defaultOptions.color,
+			size: this.#buttonOptions?.size ?? defaultOptions.size,
+			position: this.#buttonOptions?.position ?? defaultOptions.position,
+		};
+	}
+
+	#getDefaultButtonOptions(): PromoVideoPopupButtonOptions
+	{
+		return {
+			text: Loc.getMessage('PROMO_VIDEO_POPUP_ACCEPT'),
+			size: ButtonSize.SMALL,
+			color: this.#getOptionsButtonColor() || ButtonColor.PRIMARY,
+			position: PromoVideoPopupButtonPosition.LEFT,
+		};
+	}
+
+	#getPopupOverlay(): { backgroundColor: string } | false
+	{
+		return this.#useOverlay ? { backgroundColor: 'rgba(0, 0, 0, 0.4)' } : false;
+	}
+
+	#getPopupFooterElementClassname(): string
+	{
+		let buttonAlignModifier = '';
+
+		if (this.#getButtonOptions().position === PromoVideoPopupButtonPosition.CENTER)
+		{
+			buttonAlignModifier = '--align-center';
+		}
+
+		if (this.#getButtonOptions().position === PromoVideoPopupButtonPosition.RIGHT)
+		{
+			buttonAlignModifier = '--align-right';
+		}
+
+		return `ui__promo-video-popup-content_footer ${buttonAlignModifier}`;
 	}
 }

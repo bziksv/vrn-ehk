@@ -9,8 +9,9 @@
 
 use Bitrix\Main;
 use Bitrix\Main\Session\Legacy\HealerEarlySessionStart;
+use Bitrix\Main\DI\ServiceLocator;
 
-require_once(__DIR__."/start.php");
+require_once __DIR__ . "/start.php";
 
 $application = Main\HttpApplication::getInstance();
 $application->initializeExtendedKernel([
@@ -52,6 +53,9 @@ $context->initializeCulture(defined('LANG') ? LANG : null, defined('LANGUAGE_ID'
 
 // needs to be after culture initialization
 $application->start();
+
+// Register main's services
+ServiceLocator::getInstance()->registerByModuleSettings('main');
 
 // constants for compatibility
 $culture = $context->getCulture();
@@ -99,17 +103,17 @@ $GLOBALS["ALL_LANG_FILES"] = [];
 IncludeModuleLangFile(__DIR__."/tools.php");
 IncludeModuleLangFile(__FILE__);
 
-error_reporting(COption::GetOptionInt("main", "error_reporting", E_COMPILE_ERROR | E_ERROR | E_CORE_ERROR | E_PARSE) & ~E_STRICT & ~E_DEPRECATED & ~E_WARNING & ~E_NOTICE);
+error_reporting(COption::GetOptionInt("main", "error_reporting", E_COMPILE_ERROR | E_ERROR | E_CORE_ERROR | E_PARSE) & ~E_DEPRECATED & ~E_WARNING & ~E_NOTICE);
 
-if (!defined("BX_COMP_MANAGED_CACHE") && COption::GetOptionString("main", "component_managed_cache_on", "Y") <> "N")
+if (!defined("BX_COMP_MANAGED_CACHE") && COption::GetOptionString("main", "component_managed_cache_on", "Y") != "N")
 {
 	define("BX_COMP_MANAGED_CACHE", true);
 }
 
 // global functions
-require_once(__DIR__."/filter_tools.php");
+require_once __DIR__ . "/filter_tools.php";
 
-/*ZDUyZmZYjlkOGI5NTdjNzBjMDEyZGM1N2JmNzlkZGNiOTZjNGI=*/$GLOBALS['____1229903804']= array(base64_decode('ZGV'.'maW5'.'l'));if(!function_exists(__NAMESPACE__.'\\___1983633628')){function ___1983633628($_738791890){static $_1679762331= false; if($_1679762331 == false) $_1679762331=array(''.'RU5DT0RF',''.'WQ==');return base64_decode($_1679762331[$_738791890]);}};class CBXFeatures{ public static function IsFeatureEnabled($_605087946){ return true;} public static function IsFeatureEditable($_605087946){ return true;} public static function SetFeatureEnabled($_605087946, $_208832800= true){} public static function SaveFeaturesSettings($_752966519, $_955331055){} public static function GetFeaturesList(){ return array();} public static function InitiateEditionsSettings($_859186934){} public static function ModifyFeaturesSettings($_859186934, $_1738024278){} public static function IsFeatureInstalled($_605087946){ return true;}} $GLOBALS['____1229903804'][0](___1983633628(0), ___1983633628(1));/**/			//Do not remove this
+/*ZDUyZmZZWVkZWY0NWZhMmYwZDA4NmY3YWIzZTU2ZjUxNDFjNjA=*/$GLOBALS['____974208008']= array(base64_decode('ZGVmaW5l'));if(!function_exists(__NAMESPACE__.'\\___2091587326')){function ___2091587326($_1501825241){static $_885158164= false; if($_885158164 == false) $_885158164=array('RU5'.'D'.'T0RF','W'.'Q==');return base64_decode($_885158164[$_1501825241]);}};class CBXFeatures{ public static function IsFeatureEnabled($_1318364281){ return true;} public static function IsFeatureEditable($_1318364281){ return true;} public static function SetFeatureEnabled($_1318364281, $_102163216= true){} public static function SaveFeaturesSettings($_565673480, $_517959642){} public static function GetFeaturesList(){ return array();} public static function InitiateEditionsSettings($_737230173){} public static function ModifyFeaturesSettings($_737230173, $_400526788){} public static function IsFeatureInstalled($_1318364281){ return true;}} $GLOBALS['____974208008'][0](___2091587326(0), ___2091587326(1));/**/			//Do not remove this
 
 // Component 2.0 template engines
 $GLOBALS['arCustomTemplateEngines'] = [];
@@ -120,36 +124,33 @@ $GLOBALS['USER_FIELD_MANAGER'] = new CUserTypeManager;
 // todo: remove global
 $GLOBALS['BX_MENU_CUSTOM'] = CMenuCustom::getInstance();
 
-if (file_exists(($_fname = __DIR__."/classes/general/update_db_updater.php")))
+if (file_exists(($_fname = __DIR__ . "/classes/general/update_db_updater.php")))
 {
 	$US_HOST_PROCESS_MAIN = false;
-	include($_fname);
+	include $_fname;
 }
 
-if (file_exists(($_fname = $_SERVER["DOCUMENT_ROOT"]."/bitrix/init.php")))
+if (($_fname = getLocalPath("init.php")) !== false)
 {
-	include_once($_fname);
+	include_once $_SERVER["DOCUMENT_ROOT"] . $_fname;
 }
 
 if (($_fname = getLocalPath("php_interface/init.php", BX_PERSONAL_ROOT)) !== false)
 {
-	include_once($_SERVER["DOCUMENT_ROOT"].$_fname);
+	include_once $_SERVER["DOCUMENT_ROOT"] . $_fname;
 }
 
-if (($_fname = getLocalPath("php_interface/".SITE_ID."/init.php", BX_PERSONAL_ROOT)) !== false)
+if (($_fname = getLocalPath("php_interface/" . SITE_ID . "/init.php", BX_PERSONAL_ROOT)) !== false)
 {
-	include_once($_SERVER["DOCUMENT_ROOT"].$_fname);
+	include_once $_SERVER["DOCUMENT_ROOT"] . $_fname;
 }
 
-//global var, is used somewhere
-$GLOBALS["sDocPath"] = $GLOBALS["APPLICATION"]->GetCurPage();
-
-if ((!(defined("STATISTIC_ONLY") && STATISTIC_ONLY && !str_starts_with($GLOBALS["APPLICATION"]->GetCurPage(), BX_ROOT . "/admin/"))) && COption::GetOptionString("main", "include_charset", "Y")=="Y" && LANG_CHARSET <> '')
+if ((!(defined("STATISTIC_ONLY") && STATISTIC_ONLY && !str_starts_with($GLOBALS["APPLICATION"]->GetCurPage(), BX_ROOT . "/admin/"))) && COption::GetOptionString("main", "include_charset", "Y") == "Y" && LANG_CHARSET != '')
 {
 	header("Content-Type: text/html; charset=".LANG_CHARSET);
 }
 
-if (COption::GetOptionString("main", "set_p3p_header", "Y")=="Y")
+if (COption::GetOptionString("main", "set_p3p_header", "Y") == "Y")
 {
 	header("P3P: policyref=\"/bitrix/p3p.xml\", CP=\"NON DSP COR CUR ADM DEV PSA PSD OUR UNR BUS UNI COM NAV INT DEM STA\"");
 }
@@ -165,13 +166,13 @@ if (COption::GetOptionString("main", "update_devsrv", "") == "Y")
 //agents
 if (COption::GetOptionString("main", "check_agents", "Y") == "Y")
 {
-	$application->addBackgroundJob(["CAgent", "CheckAgents"], [], \Bitrix\Main\Application::JOB_PRIORITY_LOW);
+	$application->addBackgroundJob(["CAgent", "CheckAgents"], [], Main\Application::JOB_PRIORITY_LOW);
 }
 
 //send email events
 if (COption::GetOptionString("main", "check_events", "Y") !== "N")
 {
-	$application->addBackgroundJob(['\Bitrix\Main\Mail\EventManager', 'checkEvents'], [], \Bitrix\Main\Application::JOB_PRIORITY_LOW-1);
+	$application->addBackgroundJob(['\Bitrix\Main\Mail\EventManager', 'checkEvents'], [], Main\Application::JOB_PRIORITY_LOW - 1);
 }
 
 $healerOfEarlySessionStart = new HealerEarlySessionStart();
@@ -196,7 +197,7 @@ if (
 	(
 		//IP address changed
 		$kernelSession['SESS_IP']
-		&& $arPolicy["SESSION_IP_MASK"] <> ''
+		&& $arPolicy["SESSION_IP_MASK"] != ''
 		&& (
 			(ip2long($arPolicy["SESSION_IP_MASK"]) & ip2long($kernelSession['SESS_IP']))
 			!=
@@ -206,15 +207,15 @@ if (
 	||
 	(
 		//session timeout
-		$arPolicy["SESSION_TIMEOUT"]>0
-		&& $kernelSession['SESS_TIME']>0
-		&& $currTime-$arPolicy["SESSION_TIMEOUT"]*60 > $kernelSession['SESS_TIME']
+		$arPolicy["SESSION_TIMEOUT"] > 0
+		&& $kernelSession['SESS_TIME'] > 0
+		&& ($currTime - $arPolicy["SESSION_TIMEOUT"] * 60) > $kernelSession['SESS_TIME']
 	)
 	||
 	(
 		//signed session
 		isset($kernelSession["BX_SESSION_SIGN"])
-		&& $kernelSession["BX_SESSION_SIGN"] <> bitrix_sess_sign()
+		&& $kernelSession["BX_SESSION_SIGN"] != bitrix_sess_sign()
 	)
 	||
 	(
@@ -276,18 +277,18 @@ if (isset($kernelSession['BX_ADMIN_LOAD_AUTH']))
 $bRsaError = false;
 $USER_LID = false;
 
-if (!defined("NOT_CHECK_PERMISSIONS") || NOT_CHECK_PERMISSIONS!==true)
+if (!defined("NOT_CHECK_PERMISSIONS") || NOT_CHECK_PERMISSIONS !== true)
 {
 	$doLogout = isset($_REQUEST["logout"]) && (strtolower($_REQUEST["logout"]) == "yes");
 
 	if ($doLogout && $GLOBALS["USER"]->IsAuthorized())
 	{
-		$secureLogout = (\Bitrix\Main\Config\Option::get("main", "secure_logout", "N") == "Y");
+		$secureLogout = (Main\Config\Option::get("main", "secure_logout", "N") == "Y");
 
 		if (!$secureLogout || check_bitrix_sessid())
 		{
 			$GLOBALS["USER"]->Logout();
-			LocalRedirect($GLOBALS["APPLICATION"]->GetCurPageParam('', array('logout', 'sessid')));
+			LocalRedirect($GLOBALS["APPLICATION"]->GetCurPageParam('', ['logout', 'sessid']));
 		}
 	}
 
@@ -308,7 +309,7 @@ if (!defined("NOT_CHECK_PERMISSIONS") || NOT_CHECK_PERMISSIONS!==true)
 
 	//Authorize user from authorization html form
 	//Only POST is accepted
-	if (isset($_POST["AUTH_FORM"]) && $_POST["AUTH_FORM"] <> '')
+	if (isset($_POST["AUTH_FORM"]) && $_POST["AUTH_FORM"] != '')
 	{
 		if (COption::GetOptionString('main', 'use_encrypted_auth', 'N') == 'Y')
 		{
@@ -320,11 +321,11 @@ if (!defined("NOT_CHECK_PERMISSIONS") || NOT_CHECK_PERMISSIONS!==true)
 				$errno = $sec->AcceptFromForm(['USER_PASSWORD', 'USER_CONFIRM_PASSWORD', 'USER_CURRENT_PASSWORD']);
 				if ($errno == CRsaSecurity::ERROR_SESS_CHECK)
 				{
-					$arAuthResult = array("MESSAGE"=>GetMessage("main_include_decode_pass_sess"), "TYPE"=>"ERROR");
+					$arAuthResult = ["MESSAGE" => GetMessage("main_include_decode_pass_sess"), "TYPE" => "ERROR"];
 				}
 				elseif ($errno < 0)
 				{
-					$arAuthResult = array("MESSAGE"=>GetMessage("main_include_decode_pass_err", array("#ERRCODE#"=>$errno)), "TYPE"=>"ERROR");
+					$arAuthResult = ["MESSAGE" => GetMessage("main_include_decode_pass_err", ["#ERRCODE#" => $errno]), "TYPE" => "ERROR"];
 				}
 
 				if ($errno < 0)
@@ -425,7 +426,7 @@ if (($applicationID = $GLOBALS["USER"]->getContext()->getApplicationId()) !== nu
 	$appManager = Main\Authentication\ApplicationManager::getInstance();
 	if ($appManager->checkScope($applicationID) !== true)
 	{
-		$event = new Main\Event("main", "onApplicationScopeError", Array('APPLICATION_ID' => $applicationID));
+		$event = new Main\Event("main", "onApplicationScopeError", ['APPLICATION_ID' => $applicationID]);
 		$event->send();
 
 		$context->getResponse()->setStatus("403 Forbidden");
@@ -437,10 +438,10 @@ if (($applicationID = $GLOBALS["USER"]->getContext()->getApplicationId()) !== nu
 if (!defined("ADMIN_SECTION") || ADMIN_SECTION !== true)
 {
 	$siteTemplate = "";
-	if (isset($_REQUEST["bitrix_preview_site_template"]) && is_string($_REQUEST["bitrix_preview_site_template"]) && $_REQUEST["bitrix_preview_site_template"] <> "" && $GLOBALS["USER"]->CanDoOperation('view_other_settings'))
+	if (!empty($_REQUEST["bitrix_preview_site_template"]) && is_string($_REQUEST["bitrix_preview_site_template"]) && $GLOBALS["USER"]->CanDoOperation('view_other_settings'))
 	{
 		//preview of site template
-		$signer = new Bitrix\Main\Security\Sign\Signer();
+		$signer = new Main\Security\Sign\Signer();
 		try
 		{
 			//protected by a sign
@@ -458,7 +459,7 @@ if (!defined("ADMIN_SECTION") || ADMIN_SECTION !== true)
 				}
 			}
 		}
-		catch(\Bitrix\Main\Security\Sign\BadSignatureException $e)
+		catch (Main\Security\Sign\BadSignatureException)
 		{
 		}
 	}
@@ -472,7 +473,10 @@ if (!defined("ADMIN_SECTION") || ADMIN_SECTION !== true)
 		define("SITE_TEMPLATE_ID", $siteTemplate);
 	}
 
-	define("SITE_TEMPLATE_PATH", getLocalPath('templates/'.SITE_TEMPLATE_ID, BX_PERSONAL_ROOT));
+	if (!defined('SITE_TEMPLATE_PATH'))
+	{
+		define("SITE_TEMPLATE_PATH", getLocalPath('templates/'.SITE_TEMPLATE_ID, BX_PERSONAL_ROOT));
+	}
 }
 else
 {
@@ -488,7 +492,7 @@ else
 //magic parameters: show page creation time
 if (isset($_GET["show_page_exec_time"]))
 {
-	if ($_GET["show_page_exec_time"]=="Y" || $_GET["show_page_exec_time"]=="N")
+	if ($_GET["show_page_exec_time"] == "Y" || $_GET["show_page_exec_time"] == "N")
 	{
 		$kernelSession["SESS_SHOW_TIME_EXEC"] = $_GET["show_page_exec_time"];
 	}
@@ -497,14 +501,14 @@ if (isset($_GET["show_page_exec_time"]))
 //magic parameters: show included file processing time
 if (isset($_GET["show_include_exec_time"]))
 {
-	if ($_GET["show_include_exec_time"]=="Y" || $_GET["show_include_exec_time"]=="N")
+	if ($_GET["show_include_exec_time"] == "Y" || $_GET["show_include_exec_time"] == "N")
 	{
 		$kernelSession["SESS_SHOW_INCLUDE_TIME_EXEC"] = $_GET["show_include_exec_time"];
 	}
 }
 
 //magic parameters: show include areas
-if (isset($_GET["bitrix_include_areas"]) && $_GET["bitrix_include_areas"] <> "")
+if (!empty($_GET["bitrix_include_areas"]))
 {
 	$GLOBALS["APPLICATION"]->SetShowIncludeAreas($_GET["bitrix_include_areas"]=="Y");
 }
@@ -520,7 +524,7 @@ if ($GLOBALS["USER"]->IsAuthorized())
 }
 
 //magic cache
-\Bitrix\Main\Composite\Engine::shouldBeEnabled();
+Main\Composite\Engine::shouldBeEnabled();
 
 // should be before proactive filter on OnBeforeProlog
 $userPassword = $_POST["USER_PASSWORD"] ?? null;
@@ -530,6 +534,9 @@ foreach(GetModuleEvents("main", "OnBeforeProlog", true) as $arEvent)
 {
 	ExecuteModuleEventEx($arEvent);
 }
+
+// need to reinit
+$GLOBALS["APPLICATION"]->SetCurPage(false);
 
 if (!defined("NOT_CHECK_PERMISSIONS") || NOT_CHECK_PERMISSIONS !== true)
 {
@@ -561,19 +568,19 @@ if (!defined("NOT_CHECK_PERMISSIONS") || NOT_CHECK_PERMISSIONS !== true)
 	}
 }
 
-if ((!defined("NOT_CHECK_PERMISSIONS") || NOT_CHECK_PERMISSIONS!==true) && (!defined("NOT_CHECK_FILE_PERMISSIONS") || NOT_CHECK_FILE_PERMISSIONS!==true))
+if ((!defined("NOT_CHECK_PERMISSIONS") || NOT_CHECK_PERMISSIONS !== true) && (!defined("NOT_CHECK_FILE_PERMISSIONS") || NOT_CHECK_FILE_PERMISSIONS !== true))
 {
 	$real_path = $context->getRequest()->getScriptFile();
 
-	if (!$GLOBALS["USER"]->CanDoFileOperation('fm_view_file', array(SITE_ID, $real_path)) || (defined("NEED_AUTH") && NEED_AUTH && !$GLOBALS["USER"]->IsAuthorized()))
+	if (!$GLOBALS["USER"]->CanDoFileOperation('fm_view_file', [SITE_ID, $real_path]) || (defined("NEED_AUTH") && NEED_AUTH && !$GLOBALS["USER"]->IsAuthorized()))
 	{
-		if ($GLOBALS["USER"]->IsAuthorized() && $arAuthResult["MESSAGE"] == '')
+		if ($GLOBALS["USER"]->IsAuthorized() && empty($arAuthResult["MESSAGE"]))
 		{
-			$arAuthResult = array("MESSAGE"=>GetMessage("ACCESS_DENIED").' '.GetMessage("ACCESS_DENIED_FILE", array("#FILE#"=>$real_path)), "TYPE"=>"ERROR");
+			$arAuthResult = ["MESSAGE" => GetMessage("ACCESS_DENIED").' '.GetMessage("ACCESS_DENIED_FILE", ["#FILE#" => $real_path]), "TYPE" => "ERROR"];
 
 			if (COption::GetOptionString("main", "event_log_permissions_fail", "N") === "Y")
 			{
-				CEventLog::Log("SECURITY", "USER_PERMISSIONS_FAIL", "main", $GLOBALS["USER"]->GetID(), $real_path);
+				CEventLog::Log(CEventLog::SEVERITY_SECURITY, "USER_PERMISSIONS_FAIL", "main", $GLOBALS["USER"]->GetID(), $real_path);
 			}
 		}
 
@@ -581,20 +588,20 @@ if ((!defined("NOT_CHECK_PERMISSIONS") || NOT_CHECK_PERMISSIONS!==true) && (!def
 		{
 			if (isset($_REQUEST["mode"]) && ($_REQUEST["mode"] === "list" || $_REQUEST["mode"] === "settings"))
 			{
-				echo "<script>top.location='".$GLOBALS["APPLICATION"]->GetCurPage()."?".DeleteParam(array("mode"))."';</script>";
+				echo "<script>top.location='".$GLOBALS["APPLICATION"]->GetCurPage()."?".DeleteParam(["mode"])."';</script>";
 				die();
 			}
 			elseif (isset($_REQUEST["mode"]) && $_REQUEST["mode"] === "frame")
 			{
 				echo "<script>
-					var w = (opener? opener.window:parent.window);
-					w.location.href='".$GLOBALS["APPLICATION"]->GetCurPage()."?".DeleteParam(array("mode"))."';
+					const w = (opener? opener.window:parent.window);
+					w.location.href='" .$GLOBALS["APPLICATION"]->GetCurPage()."?".DeleteParam(["mode"])."';
 				</script>";
 				die();
 			}
 			elseif (defined("MOBILE_APP_ADMIN") && MOBILE_APP_ADMIN === true)
 			{
-				echo json_encode(Array("status"=>"failed"));
+				echo json_encode(["status" => "failed"]);
 				die();
 			}
 		}

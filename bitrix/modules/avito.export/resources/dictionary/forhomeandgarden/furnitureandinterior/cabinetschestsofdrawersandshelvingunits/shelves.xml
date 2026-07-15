@@ -1,0 +1,23 @@
+<Shelves>
+	<Model variable="string"/>
+	<ColorName variable="string"/>
+	<ShelfType name="Открытая"/>
+	<ShelfType name="Закрытая"/>
+	<ShelfType name="Частично закрытая"/>
+	<Positioning name="Настенное"/>
+	<Positioning name="Напольное"/>
+	<Positioning name="Настольное"/>
+	<Material name="Дерево"/>
+	<Material name="ДСП"/>
+	<Material name="ЛДСП"/>
+	<Material name="МДФ"/>
+	<Material name="Металл"/>
+	<Material name="Пластик"/>
+	<Material name="Стекло"/>
+	<Material name="Шпон"/>
+	<Material name="Другой"/>
+	<Width variable="int"/>
+	<Height variable="int"/>
+	<Depth variable="int"/>
+	<FurnitureAdditions name="Зеркало"/>
+</Shelves>

@@ -1,0 +1,135 @@
+<Watches>
+	<ProductType name="Наручные или карманные">
+		<ProductSubType name="Наручные часы">
+			<Gender name="Женские"></Gender>
+			<Gender name="Мужские"></Gender>
+			<Gender name="Унисекс"></Gender>
+			<Gender name="Детские"></Gender>
+			<Mechanism name="Кварцевые"></Mechanism>
+			<Mechanism name="Механические"></Mechanism>
+			<Mechanism name="Электронные"></Mechanism>
+			<Mechanism name="Другие"></Mechanism>
+			<Functions name="Водонепроницаемые"></Functions>
+			<Functions name="Автоподзавод"></Functions>
+			<Functions name="Хронограф"></Functions>
+			<Functions name="Календарь"></Functions>
+			<Functions name="Секундомер"></Functions>
+			<StrapType file="watches/straptype.xml"/>
+		</ProductSubType>
+		<ProductSubType name="Ремешок или браслет">
+			<Gender name="Женские"></Gender>
+			<Gender name="Мужские"></Gender>
+			<Gender name="Унисекс"></Gender>
+			<Gender name="Детские"></Gender>
+			<StrapType file="watches/straptype.xml"/>
+		</ProductSubType>
+		<ProductSubType name="Аксессуар"></ProductSubType>
+		<ProductSubType name="Запчасть"></ProductSubType>
+		<ProductSubType name="Карманные часы">
+			<Mechanism name="Кварцевые"></Mechanism>
+			<Mechanism name="Механические"></Mechanism>
+			<Mechanism name="Электронные"></Mechanism>
+			<Mechanism name="Другие"></Mechanism>
+			<Functions name="Водонепроницаемые"></Functions>
+			<Functions name="Автоподзавод"></Functions>
+			<Functions name="Хронограф"></Functions>
+			<Functions name="Календарь"></Functions>
+			<Functions name="Секундомер"></Functions>
+		</ProductSubType>
+		<ProductSubType name="Секундомер">
+			<Mechanism name="Кварцевые"></Mechanism>
+			<Mechanism name="Механические"></Mechanism>
+			<Mechanism name="Электронные"></Mechanism>
+			<Mechanism name="Другие"></Mechanism>
+			<Functions name="Водонепроницаемые"></Functions>
+			<Functions name="Автоподзавод"></Functions>
+			<Functions name="Хронограф"></Functions>
+			<Functions name="Календарь"></Functions>
+			<Functions name="Секундомер"></Functions>
+		</ProductSubType>
+	</ProductType>
+	<ProductType name="Смарт-часы или браслет">
+		<ProductSubType name="Смарт-часы">
+			<Gender name="Женские"/>
+			<Gender name="Мужские"/>
+			<Gender name="Унисекс"/>
+			<Gender name="Детские"/>
+			<Akb variable="text"/>
+			<StrapType file="watches/straptype.xml"/>
+		</ProductSubType>
+		<ProductSubType name="Фитнес-браслет">
+			<Gender name="Женские"/>
+			<Gender name="Мужские"/>
+			<Gender name="Унисекс"/>
+			<Gender name="Детские"/>
+			<StrapType file="watches/straptype.xml"/>
+		</ProductSubType>
+		<ProductSubType name="Ремешок или браслет">
+			<Gender name="Женские"/>
+			<Gender name="Мужские"/>
+			<Gender name="Унисекс"/>
+			<Gender name="Детские"/>
+			<StrapType file="watches/straptype.xml"/>
+		</ProductSubType>
+		<ProductSubType name="Аксессуар">
+			<Gender name="Женские"/>
+			<Gender name="Мужские"/>
+			<Gender name="Унисекс"/>
+			<Gender name="Детские"/>
+		</ProductSubType>
+		<ProductSubType name="Запчасть"/>
+	</ProductType>
+	<ProductType name="Для интерьера">
+		<ProductSubType name="Будильник">
+			<TypeOfMechanism name="Кварцевый" multiple="true"/>
+			<TypeOfMechanism name="Механический"/>
+			<TypeOfMechanism name="Кинетический"/>
+			<TypeOfMechanism name="С ручным заводом"/>
+			<TypeOfMechanism name="С автоподзаводом"/>
+			<TypeOfMechanism name="Солнечная батарея"/>
+			<TypeOfMechanism name="Автокварц"/>
+			<TypeOfMechanism name="Процессор"/>
+		</ProductSubType>
+		<ProductSubType name="Каминные">
+			<TypeOfMechanism name="Кварцевый" multiple="true"/>
+			<TypeOfMechanism name="Механический"/>
+			<TypeOfMechanism name="Кинетический"/>
+			<TypeOfMechanism name="С ручным заводом"/>
+			<TypeOfMechanism name="С автоподзаводом"/>
+			<TypeOfMechanism name="Солнечная батарея"/>
+			<TypeOfMechanism name="Автокварц"/>
+			<TypeOfMechanism name="Процессор"/>
+		</ProductSubType>
+		<ProductSubType name="Напольные">
+			<TypeOfMechanism name="Кварцевый" multiple="true"/>
+			<TypeOfMechanism name="Механический"/>
+			<TypeOfMechanism name="Кинетический"/>
+			<TypeOfMechanism name="С ручным заводом"/>
+			<TypeOfMechanism name="С автоподзаводом"/>
+			<TypeOfMechanism name="Солнечная батарея"/>
+			<TypeOfMechanism name="Автокварц"/>
+			<TypeOfMechanism name="Процессор"/>
+		</ProductSubType>
+		<ProductSubType name="Настенные">
+			<TypeOfMechanism name="Кварцевый" multiple="true"/>
+			<TypeOfMechanism name="Механический"/>
+			<TypeOfMechanism name="Кинетический"/>
+			<TypeOfMechanism name="С ручным заводом"/>
+			<TypeOfMechanism name="С автоподзаводом"/>
+			<TypeOfMechanism name="Солнечная батарея"/>
+			<TypeOfMechanism name="Автокварц"/>
+			<TypeOfMechanism name="Процессор"/>
+		</ProductSubType>
+		<ProductSubType name="Настольные">
+			<TypeOfMechanism name="Кварцевый" multiple="true"/>
+			<TypeOfMechanism name="Механический"/>
+			<TypeOfMechanism name="Кинетический"/>
+			<TypeOfMechanism name="С ручным заводом"/>
+			<TypeOfMechanism name="С автоподзаводом"/>
+			<TypeOfMechanism name="Солнечная батарея"/>
+			<TypeOfMechanism name="Автокварц"/>
+			<TypeOfMechanism name="Процессор"/>
+		</ProductSubType>
+		<ProductSubType name="Песочные"/>
+	</ProductType>
+</Watches>

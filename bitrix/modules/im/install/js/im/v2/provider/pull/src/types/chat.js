@@ -1,6 +1,11 @@
 import type { JsonObject } from 'main.core';
 
+import { CounterType } from 'im.v2.const';
+
+import type { InputActionType } from 'im.v2.lib.input-action';
 import type { RawUser } from './common';
+
+type CounterTypeItem = $Values<typeof CounterType>;
 
 export type ChatOwnerParams = {
 	chatId: number,
@@ -20,9 +25,11 @@ export type ChatUserAddParams = {
 	chatTitle: string,
 	chatOwner: number,
 	chatExtranet: boolean,
+	containsCollaber: boolean,
 	users: {[userId: string]: RawUser},
 	newUsers: number[],
-	userCount: number
+	userCount: number,
+	relations: Relation[],
 };
 
 export type ChatUserLeaveParams = {
@@ -31,13 +38,26 @@ export type ChatUserLeaveParams = {
 	dialogId: string,
 	message: string,
 	userCount: number,
-	userId: number
+	userId: number,
+	chatExtranet: boolean,
+	containsCollaber: boolean,
+	relations: Relation[],
 };
 
 export type StartWritingParams = {
 	dialogId: string,
 	userId: number,
 	userName: string
+};
+
+export type InputActionNotifyParams = {
+	dialogId: string,
+	userId: number,
+	userName: string,
+	type: InputActionType,
+	statusMessageCode: string | null,
+	userFirstName: string | null,
+	duration: number | null,
 };
 
 export type ChatUnreadParams = {
@@ -47,7 +67,8 @@ export type ChatUnreadParams = {
 	muted: boolean,
 	counter: number,
 	markedId: number | "0",
-	lines: boolean
+	lines: boolean,
+	counterType: CounterTypeItem
 };
 
 export type ChatMuteNotifyParams = {
@@ -57,7 +78,8 @@ export type ChatMuteNotifyParams = {
 	mute: boolean,
 	counter: number,
 	lines: boolean,
-	unread: boolean
+	unread: boolean,
+	counterType: CounterTypeItem
 };
 
 export type ChatRenameParams = {
@@ -81,4 +103,27 @@ export type ChatConvertParams = {
 	oldType: string,
 	newType: string,
 	newPermissions: JsonObject,
+	newTypeParams: ?JsonObject,
+};
+
+export type ChatDeleteParams = {
+	dialogId: string,
+	chatId: number,
+	userId: string,
+	type: string,
+	parentChatId: number,
+};
+
+export type MessagesAutoDeleteDelayParams = {
+	chatId: number,
+	dialogId: string,
+	delay: number,
+};
+
+export type Relation = {
+	id: number,
+	userId: number,
+	chatId: number,
+	isHidden: boolean,
+	role: 'guest' | 'member' | 'admin' | 'owner',
 };

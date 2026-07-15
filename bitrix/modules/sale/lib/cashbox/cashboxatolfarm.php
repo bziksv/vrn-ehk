@@ -586,19 +586,20 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 
 		if (Main\Loader::includeModule('catalog'))
 		{
-			$dbRes = Catalog\VatTable::getList(['filter' => ['ACTIVE' => 'Y']]);
+			$dbRes = Catalog\VatTable::getList([
+				'filter' => ['=ACTIVE' => 'Y'],
+				'cache' => [
+					'ttl' => 86400,
+				]
+			]);
 			$vatList = $dbRes->fetchAll();
 			if ($vatList)
 			{
-				$defaultVatList = [
-					0 => self::CODE_VAT_0,
-					10 => self::CODE_VAT_10,
-					20 => self::CODE_VAT_20
-				];
+				$defaultVatList = static::getDefaultVatList();
 
 				foreach ($vatList as $vat)
 				{
-					$value = '';
+					$value = null;
 					if (isset($defaultVatList[(int)$vat['RATE']]))
 						$value = $defaultVatList[(int)$vat['RATE']];
 
@@ -637,6 +638,15 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 		}
 
 		return $settings;
+	}
+
+	protected static function getDefaultVatList(): array
+	{
+		return [
+			0 => self::CODE_VAT_0,
+			10 => self::CODE_VAT_10,
+			20 => self::CODE_VAT_20,
+		];
 	}
 
 	/**

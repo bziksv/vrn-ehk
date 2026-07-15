@@ -2,6 +2,8 @@
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/general/group.php");
 
+use Bitrix\Socialnetwork\Internals\Registry\GroupRegistry;
+use Bitrix\Socialnetwork\Item\Workgroup\Type;
 use Bitrix\Socialnetwork\Util;
 use Bitrix\Socialnetwork\WorkgroupTable;
 use Bitrix\Socialnetwork\WorkgroupSiteTable;
@@ -160,6 +162,8 @@ class CSocNetGroup extends CAllSocNetGroup
 
 				$groupItem = Workgroup::getById($ID, false);
 				$groupItem->syncDeptConnection();
+
+				GroupRegistry::getInstance()->invalidate($ID);
 			}
 		}
 
@@ -183,6 +187,8 @@ class CSocNetGroup extends CAllSocNetGroup
 			$APPLICATION->ThrowException(GetMessage("SONET_NO_GROUP"), "ERROR_NO_GROUP");
 			return false;
 		}
+
+		$arFields['TYPE'] ??= static::getGroupTypeByFields($arFields, $arGroupOld)->value;
 
 		$arFields1 = Util::getEqualityFields($arFields);
 
@@ -296,7 +302,7 @@ class CSocNetGroup extends CAllSocNetGroup
 				$subjectId = 0;
 				$groupSiteList = array();
 
-				if (intval($arFields["SUBJECT_ID"]) <= 0)
+				if (intval($arFields["SUBJECT_ID"] ?? 0) <= 0)
 				{
 					$res = WorkgroupTable::getList(array(
 						'filter' => array('=ID' => $ID),
@@ -397,13 +403,48 @@ class CSocNetGroup extends CAllSocNetGroup
 				&& $arGroupOld['OPENED'] === 'N'
 			)
 			{
-				CSocNetGroup::ConfirmAllRequests($ID, $bAutoSubscribe);
+				CSocNetGroup::ConfirmAllRequests($ID, $bAutoSubscribe, $arFields['INITIATED_BY_USER_ID'] ?? 0);
 			}
 
-			if (
+			$isCollab = $arGroupNew['TYPE'] === Workgroup\Type::Collab->value;
+
+			if ($isCollab)
+			{
+				$chatData = Integration\Im\Chat\Workgroup::getChatData(['group_id' => $ID]);
+
+				$chatId = $chatData[$ID] ?? null;
+
+				if ($chatId > 0)
+				{
+					$fields = [];
+					if (array_key_exists('NAME', $arFields))
+					{
+						$fields['TITLE'] = $arFields['NAME'];
+					}
+					if (array_key_exists('DESCRIPTION', $arFields))
+					{
+						$fields['DESCRIPTION'] = $arFields['DESCRIPTION'];
+					}
+					if (array_key_exists('IMAGE_ID', $arFields))
+					{
+						$fields['AVATAR'] = (int)$arFields['IMAGE_ID'];
+					}
+					if (array_key_exists('OWNER_ID', $arFields))
+					{
+						$fields['OWNER_ID'] = $arFields['OWNER_ID'];
+					}
+
+					if (!empty($fields))
+					{
+						\Bitrix\Socialnetwork\Collab\Integration\IM\Messenger::synchronizeCollabChat($chatId, $fields);
+					}
+				}
+			}
+			elseif (
 				!empty($arFields["NAME"])
 				|| !empty($arFields["IMAGE_ID"])
 				|| !empty($arFields["OWNER_ID"])
+				|| !empty($arFields["DESCRIPTION"])
 			)
 			{
 				$chatData = Integration\Im\Chat\Workgroup::getChatData(array(
@@ -418,18 +459,16 @@ class CSocNetGroup extends CAllSocNetGroup
 				{
 					$chatId = $chatData[$ID];
 
-					$chat = new CIMChat();
+					$chat = new CIMChat(0);
 
 					if(!empty($arFields["NAME"]))
 					{
 						$chat->rename(
 							$chatId,
-							Integration\Im\Chat\Workgroup::buildChatName(
-								$arFields["NAME"],
-								array(
-									'project' => ($arGroupNew["PROJECT"] == 'Y')
-								)
-							),
+							Integration\Im\Chat\Workgroup::buildChatName($arFields["NAME"], [
+								'project' => $arGroupNew["PROJECT"] === 'Y',
+								'type' => $arGroupNew['TYPE'] ?? ''
+							]),
 							false,
 							false
 						);
@@ -443,6 +482,11 @@ class CSocNetGroup extends CAllSocNetGroup
 					if(!empty($arFields["OWNER_ID"]))
 					{
 						$chat->setOwner($chatId, $arFields["OWNER_ID"], false);
+					}
+
+					if (!empty($arFields["DESCRIPTION"]))
+					{
+						$chat->SetDescription($chatId, $arFields["DESCRIPTION"]);
 					}
 				}
 			}
@@ -470,6 +514,12 @@ class CSocNetGroup extends CAllSocNetGroup
 		{
 			$groupItem = Workgroup::getById($ID, false);
 			$groupItem->syncDeptConnection();
+		}
+
+		$groupId = (int)$ID;
+		if ($groupId > 0)
+		{
+			GroupRegistry::getInstance()->invalidate($groupId);
 		}
 
 		return $ID;
@@ -519,6 +569,7 @@ class CSocNetGroup extends CAllSocNetGroup
 			"SCRUM_SPRINT_DURATION" => ["FIELD" => "G.SCRUM_SPRINT_DURATION", "TYPE" => "int"],
 			"SCRUM_TASK_RESPONSIBLE" => ["FIELD" => "G.SCRUM_TASK_RESPONSIBLE", "TYPE" => "string"],
 			'AVATAR_TYPE' => [ 'FIELD' => 'G.AVATAR_TYPE', 'TYPE' => 'string'],
+			'TYPE' => ['FIELD' => 'G.TYPE', 'TYPE' => 'string']
 		);
 
 		if (array_key_exists("SITE_ID", $arFilter))
@@ -725,5 +776,25 @@ class CSocNetGroup extends CAllSocNetGroup
 		}
 
 		return $dbRes;
+	}
+
+	private static function getGroupTypeByFields(array $fields, array $oldFields): Type
+	{
+		if (($oldFields['TYPE'] ?? null) === Type::Collab->value)
+		{
+			return Type::Collab;
+		}
+
+		if (isset($fields['SCRUM_MASTER_ID']))
+		{
+			return Type::Scrum;
+		}
+
+		if (isset($fields['PROJECT']))
+		{
+			return $fields['PROJECT'] === 'Y' ? Type::Project : Type::Group;
+		}
+
+		return Type::tryFrom($oldFields['TYPE']) ?? Type::getDefault();
 	}
 }

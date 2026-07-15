@@ -1,3 +1,4 @@
+/* eslint-disable */
 (function (exports,ui_cnt,ui_dialogs_checkboxList,main_core,main_core_events,main_loader,main_popup) {
 	'use strict';
 
@@ -919,7 +920,8 @@
 	  PRIMARY: 'ui-counter-primary',
 	  GRAY: 'ui-counter-gray',
 	  LIGHT: 'ui-counter-light',
-	  DARK: 'ui-counter-dark'
+	  DARK: 'ui-counter-dark',
+	  WARNING: 'ui-counter-warning'
 	};
 	Counters.Size = {
 	  LARGE: 'ui-counter-lg',
@@ -1819,7 +1821,7 @@
 	      return this.container.scrollLeft > 0;
 	    },
 	    hasScrollRight() {
-	      return this.table.offsetWidth > this.container.scrollLeft + this.container.clientWidth;
+	      return this.table.offsetWidth > Math.round(this.container.scrollLeft + this.container.clientWidth);
 	    },
 	    showLeftEar() {
 	      BX.addClass(this.container.parentNode, this.parent.settings.get('classFadeContainerLeft'));
@@ -2431,6 +2433,9 @@
 	        }
 	        if (diff > 0) {
 	          BX.style(this.getTable(), 'min-height', `${gridRect.height - diff - panelsHeight - paddingOffset}px`);
+	        } else if (Math.abs(diff) === scrollBottom) {
+	          // If the grid is hidden
+	          BX.style(this.getTable(), 'min-height', '');
 	        } else {
 	          BX.style(this.getTable(), 'min-height', `${gridRect.height + Math.abs(diff) - panelsHeight - paddingOffset}px`);
 	        }
@@ -4901,7 +4906,7 @@
 	      return this.table || (this.table = BX.Grid.Utils.getByTag(this.getContainer(), 'table', true));
 	    },
 	    getAdminPanel() {
-	      if (!this.adminPanel) {
+	      if (BX.Type.isUndefined(this.adminPanel)) {
 	        this.adminPanel = document.querySelector('.adm-header');
 	      }
 	      return this.adminPanel;
@@ -5236,8 +5241,11 @@
 	    if (main_core.Type.isPlainObject(options.counters)) {
 	      const preparedCounters = Object.entries(options.counters).reduce((acc, [columnId, counter]) => {
 	        if (main_core.Type.isPlainObject(counter)) {
+	          var _counter$isDouble;
 	          acc[columnId] = {
 	            ...counter,
+	            isDouble: (_counter$isDouble = counter.isDouble) != null ? _counter$isDouble : false,
+	            secondaryColor: counter.secondaryColor,
 	            animation: main_core.Text.toBoolean(counter.animation)
 	          };
 	        }
@@ -5532,7 +5540,8 @@
 	  _t12,
 	  _t13,
 	  _t14,
-	  _t15;
+	  _t15,
+	  _t16;
 	(function () {
 
 	  BX.namespace('BX.Grid');
@@ -6278,8 +6287,11 @@
 	      }
 	      return this.checkbox;
 	    },
+	    hasActionsButton() {
+	      return BX.Type.isDomNode(this.getActionsButton());
+	    },
 	    getActionsMenu() {
-	      if (!this.actionsMenu) {
+	      if (!this.actionsMenu && this.hasActionsButton()) {
 	        const buttonRect = this.getActionsButton().getBoundingClientRect();
 	        this.actionsMenu = BX.PopupMenu.create(`main-grid-actions-menu-${this.getId()}`, this.getActionsButton(), this.getMenuItems(), {
 	          autoHide: true,
@@ -6735,6 +6747,25 @@
 	              BX.Dom.append(newInner, uiCounter);
 	              return newInner;
 	            })();
+	            if (counter.isDouble) {
+	              const counterDoubleContainer = (() => {
+	                const currentDoubleContainer = uiCounter.querySelector('.ui-counter-secondary');
+	                if (BX.Type.isDomNode(currentDoubleContainer)) {
+	                  return currentDoubleContainer;
+	                }
+	                const newDoubleContainer = BX.Tag.render(_t16 || (_t16 = _$2`
+									<span class="ui-counter-secondary"></span>
+								`));
+	                BX.Dom.append(newDoubleContainer, uiCounter);
+	                return newDoubleContainer;
+	              })();
+	              if (BX.Type.isStringFilled(counter.secondaryColor)) {
+	                Object.values(BX.Grid.Counters.Color).forEach(secondaryColor => {
+	                  BX.Dom.removeClass(counterDoubleContainer, secondaryColor);
+	                });
+	                BX.Dom.addClass(counterDoubleContainer, counter.secondaryColor);
+	              }
+	            }
 	            if (BX.Type.isStringFilled(counter.type)) {
 	              Object.values(BX.Grid.Counters.Type).forEach(type => {
 	                BX.Dom.removeClass(counterContainer, `main-grid-cell-counter-${type}`);
@@ -8031,13 +8062,31 @@
 	    this.saveColumns(columns, data);
 	    this.popup.hide();
 	  }
+	  prepareOrderedColumnsList(newColumns) {
+	    if (main_core.Type.isArray(newColumns)) {
+	      var _currentOptions$colum;
+	      const currentOptions = this.grid.getUserOptions().getCurrentOptions();
+	      const currentColumns = currentOptions == null ? void 0 : (_currentOptions$colum = currentOptions.columns) == null ? void 0 : _currentOptions$colum.split == null ? void 0 : _currentOptions$colum.split(',');
+	      if (main_core.Type.isArray(currentColumns)) {
+	        const filteredColumns = currentColumns.filter(column => {
+	          return newColumns.includes(column);
+	        });
+	        const newAddedColumns = newColumns.filter(column => {
+	          return !filteredColumns.includes(column);
+	        });
+	        return [...filteredColumns, ...newAddedColumns];
+	      }
+	    }
+	    return newColumns;
+	  }
 	  saveColumns(columns, data) {
 	    const options = this.grid.getUserOptions();
 	    const columnNames = this.getColumnNames(data);
 	    const stickyColumns = this.getStickedColumns();
+	    const orderedColumns = this.prepareOrderedColumnsList(columns);
 	    const batch = [{
 	      action: options.getAction('GRID_SET_COLUMNS'),
-	      columns: columns.join(',')
+	      columns: orderedColumns.join(',')
 	    }, {
 	      action: options.getAction('SET_CUSTOM_NAMES'),
 	      custom_names: columnNames
@@ -8083,8 +8132,12 @@
 	    };
 	    this.grid.confirmDialog(params, () => {
 	      this.grid.getUserOptions().reset(this.isForAll(), () => {
-	        this.grid.reloadTable();
 	        this.reset();
+	        this.grid.reloadTable(null, null, () => {
+	          this.popup.options.forEach(item => {
+	            this.grid.gridSettings.select(item.id, item.defaultValue === true);
+	          });
+	        });
 	      });
 	    });
 	    event.preventDefault();
@@ -8120,8 +8173,14 @@
 	  getItems() {
 	    return this.getPopup().getOptions();
 	  }
-	  select(id) {
-	    this.getPopup().selectOption(id);
+	  select(id, value = true) {
+	    var _this$getPopup, _this$getPopup$select;
+	    // to maintain backward compatibility without creating dependencies on ui within the ticket #187991
+	    // @todo remove later
+	    if (((_this$getPopup = this.getPopup()) == null ? void 0 : (_this$getPopup$select = _this$getPopup.selectOption) == null ? void 0 : _this$getPopup$select.length) === 1 && value === false) {
+	      return;
+	    }
+	    this.getPopup().selectOption(id, value);
 	  }
 	  saveColumnsByNames(columns, callback) {
 	    this.getItems().filter(item => columns.includes(item.id)).forEach(item => this.select(item.id));
@@ -8519,9 +8578,14 @@
 	      }
 	      const gridsCount = BX.Main.gridManager.data.length;
 	      if (gridsCount === 1) {
-	        const pageTitleNode = document.getElementById('pagetitle');
-	        const pageTitle = main_core.Type.isDomNode(pageTitleNode) && main_core.Type.isStringFilled(pageTitleNode.innerText) ? `&laquo;${main_core.Text.encode(pageTitleNode.innerText)}&raquo;` : '';
-	        tmpDiv.innerHTML = `<span>${settingsTitle} ${pageTitle}</span>`;
+	        const getTitleFromNodeById = nodeId => {
+	          const node = document.getElementById(nodeId);
+	          return main_core.Type.isDomNode(node) && main_core.Type.isStringFilled(node.innerText) ? main_core.Text.encode(node.innerText) : '';
+	        };
+	        const pageTitle = getTitleFromNodeById('pagetitle');
+	        const pageTitleBtnWrapper = getTitleFromNodeById('pagetitle_btn_wrapper');
+	        const fullTitle = `${pageTitle} ${pageTitleBtnWrapper}`.trim();
+	        tmpDiv.innerHTML = `<span>${settingsTitle} &laquo;${fullTitle}&raquo;</span>`;
 	        return tmpDiv.firstChild.innerText;
 	      }
 	      return settingsTitle;
@@ -8542,8 +8606,8 @@
 	    saveColumns(columns, callback) {
 	      this.getPopup().saveColumnsByNames(columns, callback);
 	    },
-	    select(name) {
-	      this.getPopup().select(name);
+	    select(name, value = true) {
+	      this.getPopup().select(name, value);
 	    }
 	  };
 	})();
@@ -9064,9 +9128,13 @@
 	      main_core.Dom.show(section);
 	    }
 	  }
-	  select(id) {
+	  select(id, value = true) {
 	    const column = this.getItems().find(item => item.getId() === id);
-	    column == null ? void 0 : column.select();
+	    if (value) {
+	      column == null ? void 0 : column.select();
+	    } else {
+	      column == null ? void 0 : column.unselect();
+	    }
 	  }
 	  saveColumnsByNames(columns, callback) {
 	    this.saveColumns(columns, callback);

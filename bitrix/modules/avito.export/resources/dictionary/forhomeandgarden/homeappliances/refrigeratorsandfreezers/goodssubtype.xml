@@ -1,0 +1,15 @@
+<GoodsSubTypes>
+	<GoodsSubType name="Винные шкафы" oldNames="Винный шкаф"/>
+	<GoodsSubType name="Запчасти и аксессуары" oldNames="Запчасти для холодильников и морозильников"/>
+	<GoodsSubType name="Морозильные камеры и лари" oldNames="Морозильник||Встраиваемый морозильник">
+		<ProductSubType name="Встраиваемый"/>
+		<ProductSubType name="Другой"/>
+		<ProductSubType name="Ларь"/>
+		<ProductSubType name="Отдельностоящий"/>
+	</GoodsSubType>
+	<GoodsSubType name="Холодильники" oldNames="Холодильник||Встраиваемый холодильник">
+		<ProductSubType name="Встраиваемый"/>
+		<ProductSubType name="Другой"/>
+		<ProductSubType name="Отдельностоящий"/>
+	</GoodsSubType>
+</GoodsSubTypes>

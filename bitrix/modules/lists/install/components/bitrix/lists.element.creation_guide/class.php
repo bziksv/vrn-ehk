@@ -67,7 +67,7 @@ class ListsElementCreationGuide extends CBitrixComponent implements Errorable
 			'fields' => $this->iBlockFields,
 			'elementData' => $this->getElementData(),
 			'signedParameters' => $this->getSign(),
-
+			'iBlockId' => $this->iBlock['ID'],
 			'bizproc' => [
 				'parameterDocumentType' => $this->getWorkflowService()->getComplexDocumentType(),
 				'averageDuration' => $this->getAverageTemplateDuration(),
@@ -85,7 +85,7 @@ class ListsElementCreationGuide extends CBitrixComponent implements Errorable
 		if (!Loader::includeModule('lists'))
 		{
 			$this->errorCollection->setError(
-				new Error(Loc::getMessage('LISTS_ELEMENT_CREATION_GUIDE_LISTS_MODULE_NOT_INSTALLED'))
+				new Error(Loc::getMessage('LISTS_ELEMENT_CREATION_GUIDE_LISTS_MODULE_NOT_INSTALLED_1'))
 			);
 
 			return false;
@@ -327,13 +327,11 @@ class ListsElementCreationGuide extends CBitrixComponent implements Errorable
 				new GetAverageIBlockTemplateDurationRequest(
 					$this->getIBlockId(),
 					CBPDocumentEventType::Create,
-					false
+					false,
 				)
 			);
 			if ($response->isSuccess())
 			{
-				// todo: use \Bitrix\Bizproc\UI\Helpers\DurationHelper and return roundedDuration
-
 				return $response->getAverageDuration();
 			}
 		}

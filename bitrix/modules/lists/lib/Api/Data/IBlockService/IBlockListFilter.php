@@ -8,6 +8,7 @@ class IBlockListFilter extends Filter
 {
 	public const ALLOWABLE_FIELDS = [
 		'ID',
+		'NAME',
 		'ACTIVE',
 		'TYPE',
 		'SITE_ID',
@@ -32,7 +33,7 @@ class IBlockListFilter extends Filter
 
 	public function setIBLockTypeId(string $iBlockTypeId): static
 	{
-		return $this->setField('TYPE', $iBlockTypeId);
+		return $this->setField('TYPE', $iBlockTypeId, '=');
 	}
 
 	public function setSite($siteId): static

@@ -1,6 +1,0 @@
-<?
-$MESS ['PHOENIX_T_IBLOCK_CABINET_MENU'] = "Меню в личном кабинете";
-$MESS ['PHOENIX_T_IBLOCK_CABINET_MENU_DESC'] = "Меню в личном кабинете";
-$MESS ['PHOENIX_T_IBLOCK_DESC_PAGE_GENERATOR'] = "Феникс";
-$MESS ['PHOENIX_T_IBLOCK_DESC_COMPANY_GENERATOR'] = "Концепт";
-?>

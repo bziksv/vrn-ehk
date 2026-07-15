@@ -8,11 +8,14 @@ use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Service\Context;
+use Bitrix\Main\DB\SqlExpression;
+use Bitrix\Main\ORM\Fields\ExpressionField;
 
 class MessageService
 {
 	use ContextCustomer;
 
+	protected const MAX_MESSAGES_COUNT_FOR_MULTIPLE_ACTIONS = 20;
 	private Message $message;
 
 	public function __construct(Message $message)
@@ -38,16 +41,32 @@ class MessageService
 				->where('ID', '<', $messageId)
 				->where('ID', '>=', $startId)
 				->where('CHAT_ID', $chat->getChatId())
+			;
+
+			if ($this->message->getDateCreate() !== null)
+			{
+				$idsBefore->where('DATE_CREATE', '<=', $this->message->getDateCreate());
+			}
+
+			$idsBefore = $idsBefore
 				->setOrder(['DATE_CREATE' => 'DESC', 'ID' => 'DESC'])
 				->setLimit($range)
 				->fetchCollection()
 				->getIdList()
 			;
+
 			$idsAfter = MessageTable::query()
 				->setSelect(['ID'])
 				->where('ID', '>', $messageId)
 				->where('CHAT_ID', $chat->getChatId())
-				->setOrder(['DATE_CREATE' => 'ASC', 'ID' => 'ASC'])
+				;
+
+				if($this->message->getDateCreate() !== null)
+				{
+					$idsAfter->where('DATE_CREATE', '>=', $this->message->getDateCreate());
+				}
+
+				$idsAfter = $idsAfter->setOrder(['DATE_CREATE' => 'ASC', 'ID' => 'ASC'])
 				->setLimit($range)
 				->fetchCollection()
 				->getIdList()
@@ -83,7 +102,11 @@ class MessageService
 
 	public function fillContextPaginationData(array $rest, MessageCollection $messages, int $range): array
 	{
-		$rest['hasPrevPage'] = $this->getCountHigherMessages($messages, $this->message->getId() ?? 0) >= $range;
+		$wasFilteredByTariffRestrictions = $rest['tariffRestrictions']['isHistoryLimitExceeded'] ?? false;
+		$rest['hasPrevPage'] =
+			$this->getCountHigherMessages($messages, $this->message->getId() ?? 0) >= $range
+			&& !$wasFilteredByTariffRestrictions
+		;
 		$lastSelectedId = $this->getLastSelectedId($messages);
 		$lastMessageIdInChat = $this->message->getChat()->getLastMessageId();
 		$rest['hasNextPage'] = $lastSelectedId > 0 && $lastMessageIdInChat > 0 && $lastSelectedId < $lastMessageIdInChat;
@@ -109,5 +132,14 @@ class MessageService
 	private function getLastSelectedId(MessageCollection $messages): int
 	{
 		return max($messages->getIds() ?: [0]);
+	}
+
+	/**
+	 * Return max messages count for multiple actions like deletion or forwarding
+	 * @return int
+	 */
+	public static function getMultipleActionMessageLimit(): int
+	{
+		return self::MAX_MESSAGES_COUNT_FOR_MULTIPLE_ACTIONS;
 	}
 }

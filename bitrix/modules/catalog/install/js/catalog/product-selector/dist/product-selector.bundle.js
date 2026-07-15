@@ -1766,13 +1766,13 @@ this.BX = this.BX || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _settingsCollection)[_settingsCollection] = main_core.Extension.getSettings('catalog.product-selector');
 	    main_core_events.EventEmitter.subscribe('Catalog:ProductSelectorPlacement:onProductCreated', babelHelpers.classPrivateFieldLooseBase(this, _onProductCreated)[_onProductCreated].bind(this));
 	    main_core_events.EventEmitter.subscribe('Catalog:ProductSelectorPlacement:onProductsFound', babelHelpers.classPrivateFieldLooseBase(this, _onProductsFound)[_onProductsFound].bind(this));
-	    babelHelpers.classPrivateFieldLooseBase(this, _initializePlacement)[_initializePlacement]().catch(console.error);
+	    babelHelpers.classPrivateFieldLooseBase(this, _initializePlacement)[_initializePlacement]().catch(() => {});
 	  }
 	  isSearchEnabled() {
 	    return true;
 	  }
 	  onDialogShow(event) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _initializePlacement)[_initializePlacement]().catch(console.error);
+	    babelHelpers.classPrivateFieldLooseBase(this, _initializePlacement)[_initializePlacement]().catch(() => {});
 	  }
 	  getDialogParams() {
 	    return {
@@ -1800,7 +1800,7 @@ this.BX = this.BX || {};
 	  }
 	  searchInDialog() {
 	    this.getDialog().getPopup().show();
-	    babelHelpers.classPrivateFieldLooseBase(this, _initializePlacement)[_initializePlacement]().then(() => this.searchInDialogActual()).catch(console.error);
+	    babelHelpers.classPrivateFieldLooseBase(this, _initializePlacement)[_initializePlacement]().then(() => this.searchInDialogActual()).catch(() => {});
 	  }
 	  searchInDialogActual() {
 	    const dialog = this.getDialog();
@@ -1813,7 +1813,7 @@ this.BX = this.BX || {};
 	      this.dialogMode = DialogMode.SEARCHING;
 	      dialog.selectTab(dialog.getSearchTab().getId());
 	      dialog.getSearchTab().getStub().hide();
-	      babelHelpers.classPrivateFieldLooseBase(this, _initializePlacement)[_initializePlacement]().then(() => babelHelpers.classPrivateFieldLooseBase(this, _searchInExternalCatalog)[_searchInExternalCatalog]()).catch(console.error);
+	      babelHelpers.classPrivateFieldLooseBase(this, _initializePlacement)[_initializePlacement]().then(() => babelHelpers.classPrivateFieldLooseBase(this, _searchInExternalCatalog)[_searchInExternalCatalog]()).catch(() => {});
 	    }
 	  }
 	  handleClickNameInput() {
@@ -1822,7 +1822,7 @@ this.BX = this.BX || {};
 	      return;
 	    }
 	    this.getDialog().getPopup().show();
-	    babelHelpers.classPrivateFieldLooseBase(this, _initializePlacement)[_initializePlacement]().then(() => this.showItems()).catch(console.error);
+	    babelHelpers.classPrivateFieldLooseBase(this, _initializePlacement)[_initializePlacement]().then(() => this.showItems()).catch(() => {});
 	  }
 	  getPlaceholder() {
 	    return main_core.Loc.getMessage('CATALOG_SELECTOR_1C_INPUT_PLACEHOLDER');
@@ -1835,6 +1835,7 @@ this.BX = this.BX || {};
 	  onProductSelect(event) {
 	    const item = event.getData().item;
 	    if (event.getTarget() === this.getDialog() && item.getCustomData().has('appSid')) {
+	      this.clearErrors();
 	      this.selector.emitOnProductSelectEvents();
 	      babelHelpers.classPrivateFieldLooseBase(this, _onExternalCatalogProductSelect)[_onExternalCatalogProductSelect](item);
 	      return;
@@ -1845,7 +1846,7 @@ this.BX = this.BX || {};
 	    return false;
 	  }
 	  loadPreselectedItems() {
-	    this.selector.placement.initialize().then(() => super.loadPreselectedItems());
+	    this.selector.placement.initialize().then(() => super.loadPreselectedItems()).catch(() => {});
 	  }
 	}
 	function _onExternalCatalogProductSelect2(item) {
@@ -2424,6 +2425,7 @@ this.BX = this.BX || {};
 	    }
 	  }
 	  subscribeEvents() {
+	    this.internalUnsubscribeEvents();
 	    main_core_events.EventEmitter.incrementMaxListeners('ProductList::onChangeFields', 1);
 	    main_core_events.EventEmitter.incrementMaxListeners('ProductSelector::onNameChange', 1);
 	    main_core_events.EventEmitter.incrementMaxListeners('Catalog.ImageInput::save', 1);
@@ -2437,6 +2439,9 @@ this.BX = this.BX || {};
 	  }
 	  unsubscribeEvents() {
 	    this.unsubscribeToVariationChange();
+	    this.internalUnsubscribeEvents();
+	  }
+	  internalUnsubscribeEvents() {
 	    main_core_events.EventEmitter.unsubscribe('Catalog.ImageInput::save', this.onSaveImageHandler);
 	    main_core_events.EventEmitter.unsubscribe('ProductList::onChangeFields', this.onChangeFieldsHandler);
 	    main_core_events.EventEmitter.unsubscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);

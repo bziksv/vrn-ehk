@@ -11,91 +11,72 @@ namespace Bitrix\Socialnetwork\Item;
 use Bitrix\Main;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Option;
-use Bitrix\Main\Loader;
+use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
+use Bitrix\Socialnetwork\Integration\UI\EntitySelector\Config;
+use Bitrix\Socialnetwork\Internals\Registry\GroupRegistry;
+use Bitrix\Socialnetwork\Item\Workgroup\Type;
+use Bitrix\Socialnetwork\Integration\Intranet\Structure\WorkgroupDepartmentsSynchronizer;
 use Bitrix\Socialnetwork\WorkgroupTable;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Socialnetwork\Helper;
 
 Loc::loadMessages(__FILE__);
 
-class Workgroup
+class Workgroup implements Main\Type\Contract\Arrayable, Main\Type\Contract\Jsonable
 {
-	protected const UF_ENTITY_ID = 'SONET_GROUP';
-
-	private $fields;
+	protected array $fields;
 	protected static $groupsIdToCheckList = [];
 
-	public function __construct()
+	public static function createFromId(int $groupId = 0): static
 	{
-		$this->fields = array();
+		return new static(['ID' => $groupId]);
+	}
+
+	public function __construct(array $fields = [])
+	{
+		$this->fields = $fields;
 	}
 
 	/**
+	 * @use GroupRegistry::get
+	 *
 	 * @throws ObjectPropertyException
 	 * @throws SystemException
 	 * @throws ArgumentException
 	 */
-	public static function getById($groupId = 0, $useCache = true)
+	public static function getById($groupId = 0, $useCache = true): bool|static
 	{
-		global $USER_FIELD_MANAGER;
-
-		static $cachedFields = [];
-
-		$groupItem = false;
 		$groupId = (int)$groupId;
 
-		if ($groupId > 0)
+		if ($groupId <= 0)
 		{
-			$groupItem = new Workgroup;
-			$groupFields = [];
-
-			if ($useCache && isset($cachedFields[$groupId]))
-			{
-				$groupFields = $cachedFields[$groupId];
-			}
-			else
-			{
-				$res = WorkgroupTable::getList(array(
-					'filter' => array('=ID' => $groupId)
-				));
-				if ($fields = $res->fetch())
-				{
-					$groupFields = $fields;
-
-					if ($groupFields['DATE_CREATE'] instanceof \Bitrix\Main\Type\DateTime)
-					{
-						$groupFields['DATE_CREATE'] = $groupFields['DATE_CREATE']->toString();
-					}
-					if ($groupFields['DATE_UPDATE'] instanceof \Bitrix\Main\Type\DateTime)
-					{
-						$groupFields['DATE_UPDATE'] = $groupFields['DATE_UPDATE']->toString();
-					}
-					if ($groupFields['DATE_ACTIVITY'] instanceof \Bitrix\Main\Type\DateTime)
-					{
-						$groupFields['DATE_ACTIVITY'] = $groupFields['DATE_ACTIVITY']->toString();
-					}
-
-					$uf = $USER_FIELD_MANAGER->getUserFields(self::UF_ENTITY_ID, $groupId, false, 0);
-					if (is_array($uf))
-					{
-						$groupFields = array_merge($groupFields, $uf);
-					}
-				}
-
-				$cachedFields[$groupId] = $groupFields;
-			}
-
-			$groupItem->setFields($groupFields);
+			return false;
 		}
 
-		return $groupItem;
+		$useCache = (bool)$useCache;
+
+		$registry = GroupRegistry::getInstance();
+
+		if (!$useCache)
+		{
+			$registry->invalidate($groupId);
+		}
+
+		$group = $registry->get($groupId);
+
+		if ($group === null)
+		{
+			return false; // disgusting! compatability...
+		}
+
+		return $group;
 	}
 
-	public function setFields($fields = array()): void
+	public function setFields(array $fields = []): void
 	{
 		$this->fields = $fields;
 	}
@@ -103,6 +84,171 @@ class Workgroup
 	public function getFields(): array
 	{
 		return $this->fields;
+	}
+
+	public function getId(): int
+	{
+		return (int)($this->fields['ID'] ?? 0);
+	}
+
+	public function getName(): string
+	{
+		return (string)($this->fields['NAME'] ?? '');
+	}
+
+	public function getDescription(): string
+	{
+		return (string)($this->fields['DESCRIPTION'] ?? '');
+	}
+
+	public function getChatId(): int
+	{
+		return (int)($this->fields['CHAT_ID'] ?? 0);
+	}
+
+	public function getDialogId(): string
+	{
+		return (string)($this->fields['DIALOG_ID'] ?? '');
+	}
+
+	public function getImageId(): int
+	{
+		return (int)($this->fields['IMAGE_ID'] ?? 0);
+	}
+
+	public function getOwnerId(): int
+	{
+		return (int)($this->fields['OWNER_ID'] ?? 0);
+	}
+
+	public function getSiteId(): string
+	{
+		return (string)($this->fields['SITE_ID'] ?? '');
+	}
+
+	public function getSiteIds(): array
+	{
+		return (array)($this->fields['SITE_IDS'] ?? []);
+	}
+
+	public function isVisible(): bool
+	{
+		return ($this->fields['VISIBLE'] ?? null) === 'Y';
+	}
+
+	public function getType(): ?Type
+	{
+		$type = $this->fields['TYPE'] ?? null;
+		if ($type instanceof Type)
+		{
+			return $type;
+		}
+
+		return Type::tryFrom($type);
+	}
+
+	public function getAvatarType(): ?string
+	{
+		return $this->fields['AVATAR_TYPE'] ?? null;
+	}
+
+	public function getAvatarUrl(): string
+	{
+		$avatar = Helper\Workgroup::getAvatarEntitySelectorUrl($this->getAvatarType());
+		if (!empty($avatar))
+		{
+			return $avatar;
+		}
+
+		$extranetSiteId = Option::get('extranet', 'extranet_site');
+		$extranetSiteId = ($extranetSiteId && ModuleManager::isModuleInstalled('extranet') ? $extranetSiteId : false);
+		$isExtranet = in_array($extranetSiteId, $this->fields['SITE_IDS'] ?? [], true);
+		$type = ($isExtranet && !$this->isCollab()) ? 'extranet' : $this->getType()?->value;
+
+		$avatarTypes = Config::getProjectAvatarTypes();
+
+		return $avatarTypes[$type ?? 'default'] ?? $avatarTypes['default'];
+	}
+
+	public function getSynchronizedDepartmentIds(): array
+	{
+		$departments = $this->fields['UF_SG_DEPT'] ?? [];
+		if ($departments === [])
+		{
+			return [];
+		}
+
+		$departmentIds = $departments['VALUE'] ?? [];
+		if (empty($departmentIds))
+		{
+			return [];
+		}
+
+		Main\Type\Collection::normalizeArrayValuesByInt($departmentIds, false);
+
+		return $departmentIds;
+	}
+
+	public function getUserMemberIds(): array
+	{
+		$memberIds = $this->fields['MEMBERS'] ?? [];
+		if ($memberIds === [])
+		{
+			return [];
+		}
+
+		Main\Type\Collection::normalizeArrayValuesByInt($memberIds, false);
+
+		return $memberIds;
+	}
+
+	public function getInvitedMemberIds(): array
+	{
+		$requestedIds = $this->fields['INVITED_MEMBERS'] ?? [];
+		if ($requestedIds === [])
+		{
+			return [];
+		}
+
+		Main\Type\Collection::normalizeArrayValuesByInt($requestedIds, false);
+
+		return $requestedIds;
+	}
+
+	public function getModeratorMemberIds(): array
+	{
+		$moderatorIds = $this->fields['MODERATOR_MEMBERS'] ?? [];
+		if ($moderatorIds === [])
+		{
+			return [];
+		}
+
+		Main\Type\Collection::normalizeArrayValuesByInt($moderatorIds, false);
+
+		return $moderatorIds;
+	}
+
+	public function getOrdinaryMembers(): array
+	{
+		$ordinaryMemberIds = $this->fields['ORDINARY_MEMBERS'] ?? [];
+		if ($ordinaryMemberIds === [])
+		{
+			return [];
+		}
+
+		Main\Type\Collection::normalizeArrayValuesByInt($ordinaryMemberIds, false);
+
+		return $ordinaryMemberIds;
+	}
+
+	public function getMemberIdsWithRole(): array
+	{
+		$invited = array_fill_keys($this->getInvitedMemberIds(), UserToGroupTable::ROLE_REQUEST);
+		$ordinary = array_fill_keys($this->getOrdinaryMembers(), UserToGroupTable::ROLE_USER);
+		$moderators = array_fill_keys($this->getModeratorMemberIds(), UserToGroupTable::ROLE_MODERATOR);
+		$owner = [$this->getOwnerId() => UserToGroupTable::ROLE_OWNER];
+
+		return $invited + $ordinary + $moderators + $owner;
 	}
 
 	public function isProject(): bool
@@ -116,6 +262,11 @@ class Workgroup
 	public function isScrumProject(): bool
 	{
 		return (!empty($this->fields['SCRUM_MASTER_ID']));
+	}
+
+	public function isCollab(): bool
+	{
+		return $this->getType() === Type::Collab;
 	}
 
 	public function getDefaultSprintDuration(): int
@@ -142,45 +293,15 @@ class Workgroup
 		return 'A';
 	}
 
+	/**
+	 * @deprecated
+	 * @use WorkgroupDeptSynchronizer::syncDeptConnection
+	 */
 	public function syncDeptConnection($exclude = false): void
 	{
-		global $USER;
+		$currentUserId = (int)CurrentUser::get()->getId();
 
-		if (!ModuleManager::isModuleInstalled('intranet'))
-		{
-			return;
-		}
-
-		$groupFields = $this->getFields();
-
-		if (
-			empty($groupFields)
-			|| empty($groupFields["ID"])
-		)
-		{
-			return;
-		}
-
-		if (
-			isset($groupFields['UF_SG_DEPT']['VALUE'])
-			&& Loader::includeModule('intranet')
-		)
-		{
-			$workgroupsToSync = Option::get('socialnetwork', 'workgroupsToSync', "");
-			$workgroupsToSync = ($workgroupsToSync !== "" ? @unserialize($workgroupsToSync, [ 'allowed_classes' => false ]) : []);
-			if (!is_array($workgroupsToSync))
-			{
-				$workgroupsToSync = [];
-			}
-			$workgroupsToSync[] = array(
-				'groupId' => $groupFields["ID"],
-				'initiatorId' => (is_object($USER) ? $USER->getId() : $groupFields['OWNER_ID']),
-				'exclude' => $exclude
-			);
-			$workgroupsToSync = $this->reduceSyncList($workgroupsToSync);
-			Option::set('socialnetwork', 'workgroupsToSync', serialize($workgroupsToSync));
-			\Bitrix\Socialnetwork\Update\WorkgroupDeptSync::bind(1);
-		}
+		WorkgroupDepartmentsSynchronizer::getInstance()->synchronize($this, $currentUserId, $exclude);
 	}
 
 	public function getGroupUrlData($params = array())
@@ -207,7 +328,7 @@ class Workgroup
 
 			$cache[$groupFields["ID"]] = array(
 				'URL_TEMPLATE' => $groupUrlTemplate ,
-				'SITE_ID' => $groupSiteId
+				'SITE_ID' => $groupSiteId,
 			);
 		}
 
@@ -232,8 +353,28 @@ class Workgroup
 		return [
 			'URL' => $groupUrl,
 			'SERVER_NAME' => $serverName,
-			'DOMAIN' => $domainName
+			'DOMAIN' => $domainName,
 		];
+	}
+
+	public function isLandingGroup(): bool
+	{
+		return ($this->getFields()['LANDING'] ?? null) === 'Y';
+	}
+
+	public function getInitiatePermission(): ?string
+	{
+		return $this->fields['INITIATE_PERMS'] ?? null;
+	}
+
+	public function toArray(): array
+	{
+		return $this->getFields();
+	}
+
+	public function toJson($options = 0): array
+	{
+		return $this->toArray();
 	}
 
 	public static function onBeforeIBlockSectionUpdate($section)
@@ -411,9 +552,9 @@ class Workgroup
 		$groupList = array();
 		$res = WorkgroupTable::getList(array(
 			'filter' => array(
-				'=UF_SG_DEPT' => $sectionId
+				'=UF_SG_DEPT' => $sectionId,
 			),
-			'select' => array('ID', 'UF_SG_DEPT')
+			'select' => array('ID', 'UF_SG_DEPT'),
 		));
 		while($group = $res->fetch())
 		{
@@ -426,7 +567,7 @@ class Workgroup
 			$departmentListNew = array_diff($departmentListOld, array($sectionId));
 
 			\CSocNetGroup::update($group['ID'], array(
-				'UF_SG_DEPT' => $departmentListNew
+				'UF_SG_DEPT' => $departmentListNew,
 			));
 
 			$groupItem = self::getById($group['ID'], false);
@@ -475,9 +616,9 @@ class Workgroup
 		{
 			$res = WorkgroupTable::getList(array(
 				'filter' => array(
-					'ID' => $groupId
+					'ID' => $groupId,
 				),
-				'select' => $fieldsList
+				'select' => $fieldsList,
 			));
 			$groupFieldsList = $res->fetch();
 		}
@@ -512,9 +653,9 @@ class Workgroup
 			{
 				$res = Main\UserTable::getList(array(
 					'filter' => array(
-						'ID' => (int)$groupFieldsList['OWNER_ID']
+						'ID' => (int)$groupFieldsList['OWNER_ID'],
 					),
-					'select' => array('ID', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'LOGIN', 'EMAIL')
+					'select' => array('ID', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'LOGIN', 'EMAIL'),
 				));
 				if ($userFields = $res->fetch())
 				{
@@ -556,7 +697,7 @@ class Workgroup
 
 		$content = self::getGroupContent(array(
 			'id' => $groupId,
-			'fields' => $fields
+			'fields' => $fields,
 		));
 
 		$content = self::prepareToken($content);
@@ -711,18 +852,5 @@ class Workgroup
 		}
 
 		return ($optionValue === 'Y');
-	}
-
-	private function reduceSyncList(array $workgroupsToSync = []): array
-	{
-		$result = [];
-
-		foreach ($workgroupsToSync as $workgroupData)
-		{
-			$workgroupId = (int) $workgroupData['groupId'];
-			$result[$workgroupId] = $workgroupData;
-		}
-
-		return array_values($result);
 	}
 }

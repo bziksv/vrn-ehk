@@ -9,12 +9,15 @@ use Bitrix\Lists\Api\Request\ServiceFactory\AddElementRequest;
 use Bitrix\Lists\Api\Request\ServiceFactory\GetElementUrlRequest;
 use Bitrix\Lists\Api\Request\ServiceFactory\GetIBlockFieldsRequest;
 use Bitrix\Lists\Api\Request\ServiceFactory\GetIBlockInfoRequest;
+use Bitrix\Lists\Api\Response\ServiceFactory\AddElementResponse;
 use Bitrix\Lists\Api\Service\ServiceFactory\AccessService;
 use Bitrix\Lists\Api\Service\ServiceFactory\ProcessService;
 use Bitrix\Lists\Api\Service\ServiceFactory\ServiceFactory;
 use Bitrix\Lists\UI\Fields\Field;
+use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Engine\ActionFilter;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Loader;
@@ -144,7 +147,7 @@ class ListsElementCreationGuideAjaxController extends \Bitrix\Main\Engine\Contro
 	{
 		if (!Loader::includeModule('im'))
 		{
-			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('LISTS_ELEMENT_CREATION_GUIDE_AJAX_IM_NOT_INSTALLED')));
+			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('LISTS_ELEMENT_CREATION_GUIDE_AJAX_IM_NOT_INSTALLED_1')));
 
 			return null;
 		}
@@ -190,6 +193,7 @@ class ListsElementCreationGuideAjaxController extends \Bitrix\Main\Engine\Contro
 			'FROM_USER_ID' => $this->getCurrentUserId(),
 			'NOTIFY_TYPE' => IM_NOTIFY_FROM,
 			'NOTIFY_MODULE' => 'lists',
+			'NOTIFY_EVENT' => 'admin_notification',
 			'NOTIFY_TAG' => 'LISTS|NOTIFY_ADMIN|' . $adminId . '|' . $this->getCurrentUserId(),
 			'NOTIFY_MESSAGE' => Loc::getMessage(
 				'LISTS_ELEMENT_CREATION_GUIDE_AJAX_NOTIFY_MESSAGE',
@@ -312,32 +316,31 @@ class ListsElementCreationGuideAjaxController extends \Bitrix\Main\Engine\Contro
 			max($time, 0),
 		);
 
-		$response = $service->addElement($addElementRequest);
+		$conn = Application::getConnection();
+		$conn->startTransaction();
+		try
+		{
+			$response = $service->addElement($addElementRequest);
+		}
+		catch (SqlQueryException)
+		{
+			$response = new AddElementResponse();
+			$response->addError(new \Bitrix\Main\Error(Loc::getMessage('LISTS_ELEMENT_CREATION_GUIDE_AJAX_ADD_INTERNAL_ERROR')));
+		}
+
 		if (!$response->isSuccess())
 		{
+			$conn->rollbackTransaction();
 			$this->addErrors($response->getErrors());
 
 			return null;
 		}
-
-		$liveFeedUrl = Option::get('lists', 'livefeed_url');
-		if ($liveFeedUrl)
+		else
 		{
-			$liveFeedUrl =
-				(new \Bitrix\Main\Web\Uri($liveFeedUrl))
-					->addParams([
-						'livefeed' => 'y',
-						'list_id' => $iBlockId,
-						'element_id' => (int)$response->getId()
-					])
-					->getUri()
-			;
+			$conn->commitTransaction();
 		}
 
-		return [
-			'success' => true,
-			'elementUrl' => $liveFeedUrl,
-		];
+		return ['success' => true];
 	}
 
 	private function includeModules(): bool
@@ -347,7 +350,7 @@ class ListsElementCreationGuideAjaxController extends \Bitrix\Main\Engine\Contro
 			return true;
 		}
 
-		$this->addError(new \Bitrix\Main\Error(Loc::getMessage('LISTS_ELEMENT_CREATION_GUIDE_AJAX_LISTS_NOT_INSTALLED')));
+		$this->addError(new \Bitrix\Main\Error(Loc::getMessage('LISTS_ELEMENT_CREATION_GUIDE_AJAX_LISTS_NOT_INSTALLED_1')));
 
 		return false;
 	}
@@ -369,7 +372,7 @@ class ListsElementCreationGuideAjaxController extends \Bitrix\Main\Engine\Contro
 		$exploded = explode('|', $unsigned);
 		if (!$exploded)
 		{
-			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('LISTS_ELEMENT_CREATION_GUIDE_AJAX_BAD_SIGNED_PARAMETERS')));
+			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('LISTS_ELEMENT_CREATION_GUIDE_AJAX_BAD_SIGNED_PARAMETERS_1')));
 
 			return null;
 		}
@@ -379,7 +382,7 @@ class ListsElementCreationGuideAjaxController extends \Bitrix\Main\Engine\Contro
 
 		if (!$params || !is_string($params))
 		{
-			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('LISTS_ELEMENT_CREATION_GUIDE_AJAX_BAD_SIGNED_PARAMETERS')));
+			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('LISTS_ELEMENT_CREATION_GUIDE_AJAX_BAD_SIGNED_PARAMETERS_1')));
 
 			return null;
 		}
@@ -429,7 +432,7 @@ class ListsElementCreationGuideAjaxController extends \Bitrix\Main\Engine\Contro
 			];
 		}
 
-		$this->addError(new \Bitrix\Main\Error(Loc::getMessage('LISTS_ELEMENT_CREATION_GUIDE_AJAX_BAD_SIGNED_PARAMETERS')));
+		$this->addError(new \Bitrix\Main\Error(Loc::getMessage('LISTS_ELEMENT_CREATION_GUIDE_AJAX_BAD_SIGNED_PARAMETERS_1')));
 
 		return null;
 	}

@@ -228,13 +228,22 @@ final class MimeType
 		'weba' => 'audio/webm',
 		'm3u8' => 'application/vnd.apple.mpegurl',
 		'ts' => 'video/MP2T',
+		'flp' => 'application/board',
+		'board' => 'application/board',
 	];
 
 	public static function getMimeTypeList()
 	{
 		return self::$mimes;
 	}
-	
+
+	public static function getExtensionByMimeType(string $mimeType): ?string
+	{
+		$extension = array_search($mimeType, self::$mimes, true);
+
+		return $extension ?: null;
+	}
+
 	public static function getByFileExtension($extension)
 	{
 		$extension = strtolower($extension);

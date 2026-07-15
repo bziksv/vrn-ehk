@@ -1,0 +1,69 @@
+<Ironmongery>
+	<Purpose name="Дорожные">
+		<ProductType name="Аэродромные плиты">
+			<Marking name="ПАГ 14"/>
+			<Marking name="ПАГ 18"/>
+			<Marking name="ПАГ 20"/>
+			<Size name="6000 × 2000 мм"/>
+			<Size name="6000 × 1500 мм"/>
+			<Size name="4000 × 2000 мм"/>
+			<PlateStandard name="ГОСТ"/>
+			<PlateStandard name="ТУ"/>
+		</ProductType>
+		<ProductType name="Дорожные плиты">
+			<RCRoadSlabLength variable="text"/>
+			<RCRoadSlabWidth variable="text"/>
+		</ProductType>
+		<ProductType name="Бордюры"/>
+	</Purpose>
+	<Purpose name="Другие"/>
+	<Purpose name="Строительные">
+		<ProductType name="Фундаментные блоки (ФБС)">
+			<Size file="ironmongery/foundation_blocks_size.xml"/>
+		</ProductType>
+		<ProductType name="Плиты стеновые">
+			<Length variable="text"/>
+			<Width variable="text"/>
+		</ProductType>
+		<ProductType name="Плиты перекрытия">
+			<FloorSlabType name="Пустотелая"/>
+			<FloorSlabType name="Полнотелая"/>
+			<FloorSlabWidth variable="text"/>
+			<FloorSlabLength variable="text"/>
+		</ProductType>
+		<ProductType name="Перемычки"/>
+		<ProductType name="Балки, колонны, прогоны"/>
+		<ProductType name="Лестничные марши, площадки, ступени"/>
+	</Purpose>
+	<Purpose name="Инженерные">
+		<ProductType name="Кольца, люки, днища">
+			<ProductKind name="Кольца">
+				<InnerDiameter file="ironmongery/ringsinnerdiameter.xml"/>
+			</ProductKind>
+			<ProductKind name="Люки">
+				<InnerDiameter file="ironmongery/ringsinnerdiameter.xml"/>
+			</ProductKind>
+			<ProductKind name="Днища"/>
+			<ProductKind name="Плиты перекрытия колодца"/>
+			<Diameter file="ironmongery/ringsdiameter.xml"/>
+			<Marking name="КС"/>
+			<Marking name="ПН"/>
+			<Marking name="ПП"/>
+			<Marking name="ВД"/>
+			<Marking name="ВГ"/>
+			<Marking name="КЦП"/>
+			<Marking name="Без маркировки"/>
+		</ProductType>
+		<ProductType name="Опоры и столбы"/>
+		<ProductType name="Лотки, каналы, короба"/>
+		<ProductType name="Трубы">
+			<PipeType name="Фальцевая"/>
+			<PipeType name="Безнапорная"/>
+			<PipeType name="Напорная"/>
+			<PipeType name="Водопропускная"/>
+			<PipeType name="Микротоннельная"/>
+			<Diameter variable="text"/>
+			<Length variable="text"/>
+		</ProductType>
+	</Purpose>
+</Ironmongery>

@@ -1,0 +1,100 @@
+<Lighting>
+	<GoodsSubType name="Потолочное и настенное">
+		<LigitingType name="Люстры и потолочные светильники">
+			<ChandelierType name="Светильник"/>
+			<ChandelierType name="Люстра"/>
+			<ChandelierMountingType name="Подвесное"/>
+			<ChandelierMountingType name="Потолочное"/>
+			<LedLamp name="Да"/>
+			<LedLamp name="Нет"/>
+			<Brand file="lighting/brendy_osveshenie.xml" rename="true"/>
+		</LigitingType>
+		<LigitingType name="Споты и точечные светильники"/>
+		<LigitingType name="Трековые системы"/>
+		<LigitingType name="Бра и настенные светильники">
+			<Brand file="lighting/brendy_osveshenie.xml" rename="true"/>
+			<Material name="Пластик" multiple="true"/>
+			<Material name="Керамика"/>
+			<Material name="Ткань"/>
+			<Material name="Металл"/>
+			<Material name="Стекло"/>
+			<Material name="Силикон"/>
+			<Material name="Камень"/>
+			<Material name="Дерево"/>
+			<Material name="Гипс"/>
+			<Material name="Бумага"/>
+			<Material name="Акрил"/>
+			<NumberOfLamps name="1"/>
+			<NumberOfLamps name="2"/>
+			<NumberOfLamps name="3"/>
+			<NumberOfLamps name="4"/>
+			<NumberOfLamps name="5"/>
+			<NumberOfLamps name="6"/>
+			<NumberOfLamps name="более 6"/>
+		</LigitingType>
+	</GoodsSubType>
+	<GoodsSubType name="Светодиодная подсветка">
+		<SubType name="Светодиодная лента"/>
+		<SubType name="Гибкий неон"/>
+		<SubType name="Светодиодный модуль"/>
+		<Voltage name="12В"/>
+		<Voltage name="5В"/>
+		<Voltage name="24В"/>
+		<Voltage name="220В"/>
+		<Voltage name="40В"/>
+		<Voltage name="36В"/>
+		<Voltage name="48В"/>
+		<Brand file="lighting/brendy_osveshenie.xml" rename="true"/>
+	</GoodsSubType>
+	<GoodsSubType name="Настольное и напольное">
+		<LigitingType name="Настольные лампы">
+			<Brand file="lighting/brendy_osveshenie.xml" rename="true"/>
+			<Color name="Прозрачный"/>
+			<Color name="Бежевый"/>
+			<Color name="Белый"/>
+			<Color name="Бирюзовый"/>
+			<Color name="Бордовый"/>
+			<Color name="Голубой"/>
+			<Color name="Жёлтый"/>
+			<Color name="Зелёный"/>
+			<Color name="Золотой"/>
+			<Color name="Коричневый"/>
+			<Color name="Красный"/>
+			<Color name="Оранжевый"/>
+			<Color name="Розовый"/>
+			<Color name="Серебристый"/>
+			<Color name="Серый"/>
+			<Color name="Синий"/>
+			<Color name="Фиолетовый"/>
+			<Color name="Чёрный"/>
+			<Color name="Разноцветный"/>
+			<Color name="Другой"/>
+			<LedLamp name="Да"/>
+			<LedLamp name="Нет"/>
+		</LigitingType>
+		<LigitingType name="Ночники"/>
+		<LigitingType name="Торшеры">
+			<Brand file="lighting/brendy_osveshenie.xml" rename="true"/>
+			<Material name="Металл" multiple="true"/>
+			<Material name="Дерево"/>
+			<Material name="Стекло"/>
+			<Material name="Ткань"/>
+			<Material name="Пластик"/>
+			<Material name="Хрусталь"/>
+			<Material name="Керамика"/>
+			<Material name="Кожа"/>
+			<Material name="Бумага"/>
+			<Material name="Ротанг"/>
+			<Material name="Силикон"/>
+			<LedLamp name="Да"/>
+			<LedLamp name="Нет"/>
+		</LigitingType>
+	</GoodsSubType>
+	<GoodsSubType name="Декоративное освещение и гирлянды"/>
+	<GoodsSubType name="Уличное"/>
+	<GoodsSubType name="Комплектующие">
+		<LigitingType name="Лампочки"/>
+		<LigitingType name="Плафоны и абажуры"/>
+		<LigitingType name="Питание и управление светом"/>
+	</GoodsSubType>
+</Lighting>

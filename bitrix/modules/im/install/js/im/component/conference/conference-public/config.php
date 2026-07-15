@@ -4,21 +4,12 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-if (\Bitrix\Im\Call\Call::isNewCallLayoutEnabled())
-{
-	$cssBundleFile = './dist/conference-public.bundle.css';
-}
-else
-{
-	$cssBundleFile = './dist/conference-public_old.bundle.css';
-}
-
 return [
 	'js' => [
 		'./dist/conference-public.bundle.js',
 	],
 	'css' => [
-		$cssBundleFile,
+		'./dist/conference-public.bundle.css',
 	],
 	'rel' => [
 		'ui.design-tokens',
@@ -31,6 +22,7 @@ return [
 		'main.core',
 		'ui.forms',
 		'im.lib.cookie',
+		'call.core',
 		'im.component.call-feedback',
 		'im.lib.desktop',
 		'ui.vue',

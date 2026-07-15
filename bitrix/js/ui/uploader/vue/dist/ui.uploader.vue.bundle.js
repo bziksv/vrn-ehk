@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 (function (exports,ui_vue3,ui_uploader_core,main_core,main_core_events) {
@@ -64,9 +65,7 @@ this.BX.UI = this.BX.UI || {};
 	    this.setEventNamespace('BX.UI.Uploader.Vue.Adapter');
 	    babelHelpers.classPrivateFieldLooseBase(this, _items)[_items] = ui_vue3.ref([]);
 	    babelHelpers.classPrivateFieldLooseBase(this, _uploaderError)[_uploaderError] = ui_vue3.shallowRef(null);
-	    const options = main_core.Type.isPlainObject(uploaderOptions) ? Object.assign({}, uploaderOptions) : {};
-	    const userEvents = options.events;
-	    options.events = {
+	    const events = {
 	      [ui_uploader_core.UploaderEvent.FILE_ADD_START]: babelHelpers.classPrivateFieldLooseBase(this, _handleFileAdd)[_handleFileAdd].bind(this),
 	      [ui_uploader_core.UploaderEvent.FILE_REMOVE]: babelHelpers.classPrivateFieldLooseBase(this, _handleFileRemove)[_handleFileRemove].bind(this),
 	      [ui_uploader_core.UploaderEvent.FILE_STATE_CHANGE]: babelHelpers.classPrivateFieldLooseBase(this, _handleFileStateChange)[_handleFileStateChange].bind(this),
@@ -76,8 +75,30 @@ this.BX.UI = this.BX.UI || {};
 	      [ui_uploader_core.UploaderEvent.UPLOAD_START]: babelHelpers.classPrivateFieldLooseBase(this, _handleUploadStart)[_handleUploadStart].bind(this),
 	      [ui_uploader_core.UploaderEvent.UPLOAD_COMPLETE]: babelHelpers.classPrivateFieldLooseBase(this, _handleUploadComplete)[_handleUploadComplete].bind(this)
 	    };
-	    babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader] = new ui_uploader_core.Uploader(options);
-	    babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].subscribeFromOptions(userEvents);
+	    if (uploaderOptions instanceof ui_uploader_core.Uploader) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader] = uploaderOptions;
+	      if (babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].getFileCount() > 0) {
+	        throw new Error('VueUploaderAdapter: an uploader have some files. We cannot create an adapter.');
+	      }
+
+	      // Resubscribe events because adapter events must be first
+	      Object.keys(events).forEach(eventName => {
+	        const currentListeners = [...babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].getListeners(eventName).keys()];
+	        babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].unsubscribeAll(eventName);
+	        babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].subscribe(eventName, events[eventName]);
+	        currentListeners.forEach(listener => {
+	          babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].subscribe(eventName, listener);
+	        });
+	      });
+	    } else {
+	      const options = main_core.Type.isPlainObject(uploaderOptions) ? {
+	        ...uploaderOptions
+	      } : {};
+	      const userEvents = options.events;
+	      options.events = events;
+	      babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader] = new ui_uploader_core.Uploader(options);
+	      babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].subscribeFromOptions(userEvents);
+	    }
 	  }
 	  getUploader() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader];
@@ -248,10 +269,12 @@ this.BX.UI = this.BX.UI || {};
 	    uploaderOptions: {
 	      type: Object
 	    },
+	    /** @type TileWidgetOptions */
 	    widgetOptions: {
 	      type: Object,
 	      default: {}
 	    },
+	    /** @type VueUploaderAdapter */
 	    uploaderAdapter: {
 	      type: Object,
 	      default: null
@@ -272,7 +295,10 @@ this.BX.UI = this.BX.UI || {};
 	  beforeCreate() {
 	    if (this.uploaderAdapter === null) {
 	      this.hasOwnAdapter = true;
-	      const uploaderOptions = Object.assign({}, main_core.Type.isPlainObject(this.customUploaderOptions) ? this.customUploaderOptions : {}, this.uploaderOptions);
+	      const uploaderOptions = {
+	        ...(main_core.Type.isPlainObject(this.customUploaderOptions) ? this.customUploaderOptions : {}),
+	        ...this.uploaderOptions
+	      };
 	      this.adapter = new VueUploaderAdapter(uploaderOptions);
 	    } else {
 	      this.hasOwnAdapter = false;

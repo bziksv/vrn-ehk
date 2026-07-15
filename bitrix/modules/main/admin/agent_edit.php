@@ -42,7 +42,7 @@ $aTabs = array(array("DIV"=>"tab1", "TAB"=>GetMessage("MAIN_AGENT_TAB"), "ICON"=
 $editTab = new CAdminTabControl("editTab", $aTabs);
 
 $APPLICATION->ResetException();
-if($REQUEST_METHOD=="POST" && (!empty($_POST['save']) || !empty($_POST['apply'])) && $isAdmin && check_bitrix_sessid())
+if($_SERVER['REQUEST_METHOD']=="POST" && (!empty($_POST['save']) || !empty($_POST['apply'])) && $isAdmin && check_bitrix_sessid())
 {
 	$arFields = [
 		"NAME" => $_POST['NAME'] ?? '',
@@ -72,9 +72,9 @@ if($REQUEST_METHOD=="POST" && (!empty($_POST['save']) || !empty($_POST['apply'])
 	if($res)
 	{
 		if(!empty($_POST['save']))
-			LocalRedirect("/bitrix/admin/agent_list.php");
+			LocalRedirect("/bitrix/admin/agent_list.php?lang=" . LANGUAGE_ID);
 		elseif(!empty($_POST['apply']))
-			LocalRedirect("/bitrix/admin/agent_edit.php?&ID=".$ID."&".$editTab->ActiveTabParam());
+			LocalRedirect("/bitrix/admin/agent_edit.php?ID=" . $ID . "&" . $editTab->ActiveTabParam() . "&lang=" . LANGUAGE_ID);
 	}
 }
 

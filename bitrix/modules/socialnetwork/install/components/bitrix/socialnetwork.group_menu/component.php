@@ -322,7 +322,7 @@ if (
 					array_key_exists('marketplace', $arResult["ActiveFeatures"])
 					&& $arResult["ActiveFeatures"]['marketplace'] <> ''
 						? $arResult["ActiveFeatures"]['marketplace']
-						: Loc::getMessage('SONET_UM_MARKETPLACE_2')
+						: Loc::getMessage('SONET_UM_MARKETPLACE_MSGVER_1')
 				);
 				$arResult["Urls"]['marketplace'] = $arResult["Urls"]["view"]."marketplace/";
 
@@ -364,6 +364,20 @@ if (
 
 				$filter = \Bitrix\Tasks\Helper\Filter::getInstance($USER->getId(), $groupId);
 				$arResult['Tasks']['DefaultRoleId'] = $filter->getDefaultRoleId();
+			}
+
+			if (
+				Loader::includeModule('calendar')
+				&& class_exists(\Bitrix\Calendar\Internals\Counter::class)
+			)
+			{
+				$groupId = (int)$arParams['GROUP_ID'];
+				$counter = \Bitrix\Calendar\Internals\Counter::getInstance($USER->getId());
+				/** @see \Bitrix\Calendar\Internals\Counter\CounterDictionary::COUNTER_GROUP_INVITES */
+				$groupCounterName = 'calendar_group_invites';
+				$arResult['Calendar']['Counters'] = [
+					$groupCounterName => $counter->get($groupCounterName, $groupId),
+				];
 			}
 
 			$group = \Bitrix\Socialnetwork\Item\Workgroup::getById($arResult['Group']['ID']);

@@ -2,26 +2,28 @@
 
 namespace Bitrix\UI\Controller;
 
+use Bitrix\Bitrix24\License;
 use Bitrix\Main\Application;
 use Bitrix\Bitrix24;
 use Bitrix\Bitrix24\License\Market;
 use Bitrix\Main\Engine;
 use Bitrix\Main\Loader;
-use Bitrix\Main\Web\HttpClient;
 use Bitrix\UI\FeaturePromoter;
 
 class InfoHelper extends Engine\Controller
 {
 	private const POPUP_PROVIDER_TEST_CODE_LIST = [];
 
-	public function getInitParamsAction(string $type = FeaturePromoter\ProviderType::SLIDER, string $code = '', string $currentUrl = ''): array
+	public function getInitParamsAction(
+		string $type = FeaturePromoter\ProviderType::SLIDER,
+		string $code = '',
+		string $currentUrl = '',
+		?string $featureId = null
+	): array
 	{
-		if (FeaturePromoter\ProviderType::POPUP === $type)
-		{
-			return (new FeaturePromoter\Popup($code, $currentUrl))->getRendererParameters();
-		}
+		$configuration = new FeaturePromoter\ProviderConfiguration($type, $code, $currentUrl, $featureId);
 
-		return (new FeaturePromoter\Slider($currentUrl))->getRendererParameters();
+		return (new FeaturePromoter\ProviderFactory())->createProvider($configuration)->getRendererParameters();
 	}
 
 	public function activateDemoLicenseAction()
@@ -31,19 +33,9 @@ class InfoHelper extends Engine\Controller
 		];
 		if (Loader::includeModule('bitrix24') && defined('BX24_HOST_NAME'))
 		{
-			$queryField = [
-				'DEMO' => 'Y',
-				'SITE' => BX24_HOST_NAME,
-			];
+			$res = License::getCurrent()->getDemo()->activate();
 
-			if (function_exists('bx_sign'))
-			{
-				$queryField['hash'] = bx_sign(md5(implode('|', $queryField)));
-			}
-
-			$httpClient = new HttpClient();
-			$res = $httpClient->post('https://www.1c-bitrix.ru/buy_tmp/b24_coupon.php', $queryField);
-			if ($res && mb_strpos($res, 'OK') !== false)
+			if ($res->isSuccess())
 			{
 				$result['success'] = 'Y';
 			}
@@ -61,8 +53,8 @@ class InfoHelper extends Engine\Controller
 		}
 		else
 		{
-			$lkeySign = Application::getInstance()->getLicense()->getHashLicenseKey();
-			$url = 'https://www.1c-bitrix.ru/buy_tmp/key_update.php?license_key=' . $lkeySign . '&tobasket=y&action=b24subscr';
+			$license = Application::getInstance()->getLicense();
+			$url = $license->getDomainStoreLicense() . '/key_update.php?license_key=' . $license->getHashLicenseKey() . '&tobasket=y&action=b24subscr';
 		}
 
 		return [

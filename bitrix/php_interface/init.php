@@ -6,6 +6,12 @@ class My
 	static function Resize($image_id,$width,$height,$small=false,$watermark=false)
 	{
 		$result="";
+		
+		// Защита от деления на ноль
+		if ($width <= 0 || $height <= 0) {
+			return $result;
+		}
+		
 		if(!$image_id)
 		{
 			if(CModule::IncludeModule("iblock"))
@@ -25,9 +31,20 @@ class My
 			}
 		}
 		$arFile = CFile::MakeFileArray($image_id);
+		
+		// Проверка существования файла
+		if(!isset($arFile["tmp_name"]) || !file_exists($arFile["tmp_name"])) {
+			return $result;
+		}
+		
 		if($small)
 		{
 			$size_image=getimagesize($arFile["tmp_name"]);
+			// Защита от деления на ноль
+			if(!isset($size_image[0]) || !isset($size_image[1]) || $size_image[0] == 0 || $size_image[1] == 0) {
+				return $result;
+			}
+			
 			$koef_width=$size_image[0]/$width;
 			$koef_height=$size_image[1]/$height;
 			if($koef_width>$koef_height)
@@ -97,6 +114,12 @@ class My
 	static function NewResize($image_id,$width,$height,$small=false,$watermark=false)
 	{
 		$result=false;
+		
+		// ЗАЩИТА ОТ ДЕЛЕНИЯ НА НОЛЬ - добавить эти строки в начало
+		if ($width <= 0 || $height <= 0) {
+			return $result; // возвращаем false или пустую строку
+		}
+		
 		if(!$image_id)
 		{
 			if(CModule::IncludeModule("iblock"))
@@ -116,20 +139,43 @@ class My
 			}
 		}
 		$arFile = CFile::MakeFileArray($image_id);
+		
+		// Проверка существования файла
+		if(!isset($arFile["tmp_name"]) || !file_exists($arFile["tmp_name"])) {
+			return $result;
+		}
+		
 		if($small)
 		{
 			$size_image=getimagesize($arFile["tmp_name"]);
+			
+			// ЗАЩИТА ОТ ДЕЛЕНИЯ НА НОЛЬ - проверка размеров изображения
+			if(!isset($size_image[0]) || !isset($size_image[1]) || $size_image[0] == 0 || $size_image[1] == 0) {
+				return $result;
+			}
+			
+			// ЗАЩИТА ОТ ДЕЛЕНИЯ НА НОЛЬ - проверка $width и $height уже сделана выше
 			$koef_width=$size_image[0]/$width;
 			$koef_height=$size_image[1]/$height;
 			if($koef_width>$koef_height)
 			{
-				$new_size=round($size_image[0]/$koef_height+0.5);
-				$size_array=array("width" => $new_size, "height" => $height);
+				// Защита от деления на ноль
+				if($koef_height != 0) {
+					$new_size=round($size_image[0]/$koef_height+0.5);
+					$size_array=array("width" => $new_size, "height" => $height);
+				} else {
+					$size_array=array("width" =>$width, "height" => $height);
+				}
 			}
 			else
 			{
-				$new_size=round($size_image[1]/$koef_width+0.5);
-				$size_array=array("width" =>$width, "height" => $new_size);
+				// Защита от деления на ноль
+				if($koef_width != 0) {
+					$new_size=round($size_image[1]/$koef_width+0.5);
+					$size_array=array("width" =>$width, "height" => $new_size);
+				} else {
+					$size_array=array("width" =>$width, "height" => $height);
+				}
 			}
 		}
 		else
@@ -541,7 +587,52 @@ function OnAfterUserRegisterHandler(&$arFields)
 
 	$arFields["CONFIRM_CODE"] = $arResults['CONFIRM_CODE'];
 	
-    $event = new CEvent;
-	$event->SendImmediate("USER_WELCOME", SITE_ID, $arFields);
+	if ($arFields["CONFIRM_CODE"]) {
+		$event = new CEvent;
+		$event->SendImmediate("USER_WELCOME", SITE_ID, $arFields);
+	}
+}
+
+function deactivateProducts()
+{
+	$arFilter = [
+		"IBLOCK_ID" => 21, // ID Инфо блока
+		"SECTION_ID" => 1168, // ID Раздела
+		"INCLUDE_SUBSECTIONS" => "Y",
+		"ACTIVE" => "Y",
+		[
+			"LOGIC" => "AND", 
+			["!PROPERTY_PROIZVODITEL_VALUE" => "PolyTerra"], 
+			["!PROPERTY_PROIZVODITEL_VALUE" => "HILST"]
+		]
+	];
+
+	$res = CIBlockElement::GetList([], $arFilter, false, false, []);
+
+	while($ob = $res->GetNextElement())
+	{
+		$arFields = $ob->GetFields();
+		
+		(new CIBlockElement)->Update($arFields["ID"], [
+			"ACTIVE" => "N"
+		]);
+	}
+	
+	return "deactivateProducts();";
+}
+
+// return current path dir name
+// example: /articles/kak-ispolzovat-metallicheskoe-kruzhevo/ -> articles
+function curDir() {
+	// /articles/kak-ispolzovat-metallicheskoe-kruzhevo/
+	
+	global $APPLICATION;
+	$dir = $APPLICATION->GetCurDir();
+	
+	return substr(dirname($dir), 1);
+}
+
+function isArticlesDir() {
+	return curDir() === "articles";
 }
 ?>

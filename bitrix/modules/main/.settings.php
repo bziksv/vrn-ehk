@@ -19,9 +19,25 @@ return [
 	'console' => [
 		'value' => [
 			'commands' => [
-				\Bitrix\Main\Cli\OrmAnnotateCommand::class,
+				\Bitrix\Main\Cli\Command\Orm\AnnotateCommand::class,
+				\Bitrix\Main\Cli\Command\Make\ComponentCommand::class,
+				\Bitrix\Main\Cli\Command\Make\ControllerCommand::class,
+				\Bitrix\Main\Cli\Command\Make\TabletCommand::class,
+				\Bitrix\Main\Cli\Command\Dev\LocatorCodesCommand::class,
+				\Bitrix\Main\Cli\Command\Dev\ModuleSkeletonCommand::class,
+				\Bitrix\Main\Cli\Command\Update\ModulesCommand::class,
+				\Bitrix\Main\Cli\Command\Update\LanguagesCommand::class,
+				\Bitrix\Main\Cli\Command\Update\VersionsCommand::class,
+				\Bitrix\Main\Cli\Command\Messenger\ConsumeMessagesCommand::class,
 			],
 		],
 		'readonly' => true,
+	],
+	'services' => [
+		'value' => [
+			'main.validation.service' => [
+				'className' => \Bitrix\Main\Validation\ValidationService::class,
+			],
+		],
 	],
 ];

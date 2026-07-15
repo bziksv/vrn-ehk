@@ -13,6 +13,7 @@ export type UploaderFileInfo = {
 	extension: string,
 	origin: FileOrigin,
 	isImage: boolean,
+	isVideo: boolean,
 	failed: boolean,
 	width: ?number,
 	height: ?number,
@@ -32,4 +33,5 @@ export type UploaderFileInfo = {
 	serverPreviewHeight: ?number,
 	downloadUrl: ?string,
 	customData: Object<string, any>,
+	viewerAttrs: Object<string, string>,
 };

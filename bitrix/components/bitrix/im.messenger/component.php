@@ -20,7 +20,9 @@ if (!\Bitrix\Im\Settings::isLegacyChatActivated())
 
 	$arResult['MESSENGER_V2'] = true;
 	$arResult['DESKTOP'] = $arParams['CONTEXT'] === 'DESKTOP';
-	$arResult['COPILOT_AVAILABLE'] = \Bitrix\Im\V2\Chat\CopilotChat::isAvailable();
+	$arResult['COPILOT_AVAILABLE'] = \Bitrix\Im\V2\Chat\CopilotChat::isActive();
+	// for soft dependence on module intranet
+	$arResult['COPILOT_AVAILABLE_TAB'] = \Bitrix\Im\V2\Chat\CopilotChat::isAvailable();
 	if ($arResult['DESKTOP'] === true)
 	{
 		CIMMessenger::SetDesktopVersion(empty($_GET['BXD_API_VERSION'])? 0 : $_GET['BXD_API_VERSION']);
@@ -191,10 +193,10 @@ $arResult['PATH_TO_USER_PROFILE_TEMPLATE'] = CIMContactList::GetUserPath();
 $arResult['PATH_TO_USER_PROFILE'] = CIMContactList::GetUserPath($USER->GetId());
 $arResult['PATH_TO_LF'] = IsModuleInstalled('intranet') && \Bitrix\Main\IO\File::isFileExists(\Bitrix\Main\Application::getDocumentRoot().'/stream/index.php')? '/stream/': '/';
 
-$arResult['TURN_SERVER'] = COption::GetOptionString('im', 'turn_server');
-$arResult['TURN_SERVER_FIREFOX'] = COption::GetOptionString('im', 'turn_server_firefox');
-$arResult['TURN_SERVER_LOGIN'] = COption::GetOptionString('im', 'turn_server_login');
-$arResult['TURN_SERVER_PASSWORD'] = COption::GetOptionString('im', 'turn_server_password');
+$arResult['TURN_SERVER'] = COption::GetOptionString('call', 'turn_server');
+$arResult['TURN_SERVER_FIREFOX'] = COption::GetOptionString('call', 'turn_server');
+$arResult['TURN_SERVER_LOGIN'] = COption::GetOptionString('call', 'turn_server_login');
+$arResult['TURN_SERVER_PASSWORD'] = COption::GetOptionString('call', 'turn_server_password');
 
 $initJs = 'im_web';
 $promoType = \Bitrix\Im\Promotion::DEVICE_TYPE_BROWSER;

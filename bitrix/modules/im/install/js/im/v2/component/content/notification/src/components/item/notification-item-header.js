@@ -1,6 +1,6 @@
 import { Messenger } from 'im.public';
-import { NotificationTypesCodes } from 'im.v2.const';
-import { ChatTitle } from 'im.v2.component.elements';
+import { NotificationTypesCodes, UserType } from 'im.v2.const';
+import { ChatTitle } from 'im.v2.component.elements.chat-title';
 import { DateFormatter, DateTemplate } from 'im.v2.lib.date-formatter';
 
 import '../../css/notification-item-header.css';
@@ -62,7 +62,7 @@ export const NotificationItemHeader = {
 			return {
 				'bx-im-content-notification-item-header__title-text': true,
 				'bx-im-content-notification-item-header__title-user-text': !this.isSystem,
-				'--extranet': this.user.extranet,
+				'--extranet': this.user.type === UserType.extranet,
 				'--short': !this.hasMoreUsers,
 			};
 		},

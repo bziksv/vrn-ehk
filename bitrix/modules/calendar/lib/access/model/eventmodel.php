@@ -13,6 +13,7 @@ class EventModel implements AccessibleEvent
 
 	private int $id = 0;
 	private int $ownerId = 0;
+	private int $createdBy = 0;
 	private int $sectionId = 0;
 	private string $sectionType = '';
 	private string $eventType = '';
@@ -21,6 +22,8 @@ class EventModel implements AccessibleEvent
 	private string $parentEventSectionType = '';
 	private int $parentEventOwnerId = 0;
 	private int $parentEventId = 0;
+	private ?int $eventCategoryId = null;
+	private ?array $attendeeIds = [];
 
 	public static function createFromId(int $itemId = 0): AccessibleItem
 	{
@@ -58,6 +61,11 @@ class EventModel implements AccessibleEvent
 		if (($fields['OWNER_ID'] ?? null) && (int)$fields['OWNER_ID'])
 		{
 			$model->setOwnerId($fields['OWNER_ID']);
+		}
+
+		if (($fields['CREATED_BY'] ?? null) && (int)$fields['CREATED_BY'])
+		{
+			$model->setCreatedBy($fields['CREATED_BY']);
 		}
 
 		if ($fields['SECTION_ID'] ?? null)
@@ -101,6 +109,19 @@ class EventModel implements AccessibleEvent
 			$model->setParentEventSectionFields($fields);
 		}
 
+		if (!empty($fields['OPTIONS']['CATEGORY_ID']))
+		{
+			$model->setEventCategoryId((int)$fields['OPTIONS']['CATEGORY_ID']);
+		}
+
+		if (
+			!empty($fields['ATTENDEE_LIST'])
+			&& $attendees = $fields['ATTENDEE_LIST']
+		)
+		{
+			$model->setAttendeeIds(array_map(fn(array $attendee) => (int)$attendee['id'], $attendees));
+		}
+
 		return $model;
 	}
 
@@ -121,11 +142,19 @@ class EventModel implements AccessibleEvent
 			$model->setOwnerId($owner->getId());
 		}
 
+		$creator = $event->getCreator();
+		if ($creator instanceof Role)
+		{
+			$model->setCreatedBy($creator->getId());
+		}
+
 		$model
 			->setSectionId($event->getSection()->getId())
 			->setSectionType($event->getSection()->getType())
 			->setEventType($event->getSpecialLabel())
 			->setMeetingStatus($event->getMeetingStatus())
+			->setEventCategoryId($event->getEventOption()?->getCategoryId())
+			->setAttendeeIds($event->getAttendeesCollection()?->getAttendeesIdCollection())
 		;
 
 		$parentFields =\CCalendarSect::GetSectionByEventId($event->getParentId());
@@ -179,6 +208,18 @@ class EventModel implements AccessibleEvent
 	public function getOwnerId(): int
 	{
 		return $this->ownerId;
+	}
+
+	public function setCreatedBy(int $createdBy): self
+	{
+		$this->createdBy = $createdBy;
+
+		return $this;
+	}
+
+	public function getCreatedBy(): int
+	{
+		return $this->createdBy;
 	}
 
 	public function setSectionId(int $sectionId): self
@@ -274,5 +315,34 @@ class EventModel implements AccessibleEvent
 	public function getParentEventId(): int
 	{
 		return $this->parentEventId;
+	}
+
+	public function setEventCategoryId(?int $eventCategoryId): self
+	{
+		$this->eventCategoryId = $eventCategoryId;
+
+		return $this;
+	}
+
+	public function getEventCategoryId(): ?int
+	{
+		return $this->eventCategoryId;
+	}
+
+	public function setAttendeeIds(?array $attendeeIds): self
+	{
+		$this->attendeeIds = $attendeeIds ?? [];
+
+		return $this;
+	}
+
+	public function hasAttendee(int $userId): bool
+	{
+		return in_array($userId, $this->attendeeIds, true);
+	}
+
+	public function getCreatorId(): int
+	{
+		return $this->createdBy;
 	}
 }

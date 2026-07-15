@@ -118,17 +118,26 @@ abstract class ServiceFactory
 		return $this->accessService->checkIBlockTypePermission();
 	}
 
-	public function getCatalog(): GetCatalogResponse
+	public function getCatalog(?IBlockListFilter $filter = null): GetCatalogResponse
+	{
+		return $this->getFilteredCatalog($filter);
+	}
+
+	public function getFilteredCatalog(?IBlockListFilter $filter): GetCatalogResponse
 	{
 		$response = new GetCatalogResponse();
 
 		$checkPermissionResponse = $this->accessService->canUserReadCatalog();
 		$response->fillFromResponse($checkPermissionResponse);
 
+		if (is_null($filter))
+		{
+			$filter = new IBlockListFilter();
+		}
+
 		if ($response->isSuccess())
 		{
-			$filter =
-				(new IBlockListFilter())
+			$filter
 					->setActive(true)
 					->setIBLockTypeId($this->getInnerIBlockTypeId())
 					->setCheckPermission(!$this->accessService->isAdminPermission($response->getPermission()))
@@ -150,11 +159,11 @@ abstract class ServiceFactory
 		return $response;
 	}
 
-	public function getAddElementCatalog(): GetCatalogResponse
+	public function getAddElementCatalog(?IBlockListFilter $filter = null): GetCatalogResponse
 	{
 		$response = new GetCatalogResponse();
 
-		$catalogResponse = $this->getCatalog();
+		$catalogResponse = $this->getCatalog($filter);
 		$response->fillFromResponse($catalogResponse);
 
 		if ($response->isSuccess())
@@ -473,12 +482,13 @@ abstract class ServiceFactory
 		);
 
 		$response->addErrors($averageTimeResult->getErrors());
-		if ($averageTimeResult->isSuccess() && $averageTimeResult->getAverageDuration())
+
+		if ($averageTimeResult->isSuccess() && $averageTimeResult->getAverageDuration() !== null)
 		{
 			$response->setAverageDuration(
 				$averageTimeResult->getAverageDuration()
 			);
-			if (method_exists($averageTimeResult, 'getRoundedAverageDuration'))
+			if ($request->isNeedRound && method_exists($averageTimeResult, 'getRoundedAverageDuration'))
 			{
 				$response->setAverageDuration($averageTimeResult->getRoundedAverageDuration());
 			}

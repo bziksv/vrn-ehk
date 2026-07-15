@@ -46,7 +46,22 @@ class Sanitizer
 		$html = preg_replace('/<(script|iframe)(.*?)>(.*?)(<\\/\\1.*?>)/is', '', $html);
 		if (Loader::includeModule('fileman'))
 		{
-			$html = Fileman\Block\Content\SliceConverter::sanitize($html);
+			if (
+				Loader::includeModule('security')
+				&& !Fileman\Block\Editor::isContentSupported($html)
+				&& !Fileman\Block\Content\SliceConverter::isValid($html)
+			)
+			{
+				$sanitizer = new \Bitrix\Security\Filter\Auditor\SimpleXss();
+				if ($sanitizer->process($html))
+				{
+					$html = $sanitizer->getFilteredValue();
+				}
+			}
+			else
+			{
+				$html = Fileman\Block\Content\SliceConverter::sanitize($html);
+			}
 		}
 
 		return $html;
@@ -62,16 +77,24 @@ class Sanitizer
 	{
 		return str_replace(
 			[
-				'<st yle ', '<st yle	',
-				' st yle="','	st yle="',
-				' st yle=\'','	st yle=\'',
+				'<st yle>',
+				'<st yle ',
+				'<st yle	',
+				' st yle="',
+				'	st yle="',
+				' st yle=\'',
+				'	st yle=\'',
 			],
 			[
-				'<style ', '<style	',
-				' style="','	style="',
-				' style=\'','	style=\'',
+				'<style>',
+				'<style ',
+				'<style	',
+				' style="',
+				'	style="',
+				' style=\'',
+				'	style=\'',
 			],
-			$html
+			$html,
 		);
 	}
 

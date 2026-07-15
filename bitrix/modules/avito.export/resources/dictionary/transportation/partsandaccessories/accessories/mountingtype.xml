@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MountingTypeValues>
+	<MountingType>AeroClip</MountingType>
+	<MountingType>Bayonet arm</MountingType>
+	<MountingType>Claw</MountingType>
+	<MountingType>DNTL 1.1</MountingType>
+	<MountingType>DYTL 1.1</MountingType>
+	<MountingType>Hook 9x3</MountingType>
+	<MountingType>Hook 9x4</MountingType>
+	<MountingType>MBTL 1.1</MountingType>
+	<MountingType>Narrow push button</MountingType>
+	<MountingType>Pinch tab</MountingType>
+	<MountingType>Pin lock</MountingType>
+	<MountingType>Push button 12</MountingType>
+	<MountingType>Push button 16</MountingType>
+	<MountingType>Push button 19</MountingType>
+	<MountingType>Roc Lock (Rear)</MountingType>
+	<MountingType>Side mounting</MountingType>
+	<MountingType>Side pin 17</MountingType>
+	<MountingType>Side pin 22</MountingType>
+	<MountingType>Special</MountingType>
+	<MountingType>Top lock</MountingType>
+	<MountingType>Trunnion (Rear)</MountingType>
+	<MountingType>V-Notch (Rear)</MountingType>
+	<MountingType>VATL 5.1</MountingType>
+</MountingTypeValues>

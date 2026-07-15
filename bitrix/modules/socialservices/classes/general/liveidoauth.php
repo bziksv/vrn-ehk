@@ -1,4 +1,8 @@
 <?
+
+use Bitrix\Main\ArgumentException;
+use Bitrix\Main\Web\Json;
+
 IncludeModuleLangFile(__FILE__);
 
 class CSocServLiveIDOAuth extends CSocServAuth
@@ -255,7 +259,7 @@ class CSocServLiveIDOAuth extends CSocServAuth
 		}
 
 		$JSScript = '
-		<script type="text/javascript">
+		<script>
 		'.$location.'
 		</script>
 		';
@@ -466,8 +470,6 @@ class CLiveIDOAuthInterface
 			return false;
 
 		$result = CHTTP::sGetHeader(self::CONTACTS_URL."?access_token=".urlencode($this->access_token), array(), $this->httpTimeout);
-		if(!defined("BX_UTF"))
-			$result = CharsetConverter::ConvertCharset($result, "utf-8", LANG_CHARSET);
 
 		$result = CUtil::JsObjectToPhp($result);
 
@@ -493,8 +495,6 @@ class CLiveIDOAuthInterface
 		}
 
 		$result = CHTTP::sGetHeader($url, array(), $this->httpTimeout);
-		if(!defined("BX_UTF"))
-			$result = CharsetConverter::ConvertCharset($result, "utf-8", LANG_CHARSET);
 
 		$result = CUtil::JsObjectToPhp($result);
 
@@ -540,7 +540,14 @@ class CLiveIDOAuthInterface
 			"grant_type"=>"refresh_token",
 		), array(), $this->httpTimeout);
 
-		$arResult = CUtil::JsObjectToPhp($result);
+		try
+		{
+			$arResult = Json::decode($result);
+		}
+		catch (ArgumentException)
+		{
+			return false;
+		}
 
 		if(isset($arResult["access_token"]) && $arResult["access_token"] <> '')
 		{

@@ -71,6 +71,12 @@ abstract class ElementList extends Base
 		return (bool)$this->paginationMode;
 	}
 
+	/**
+	 * Returns validated component parameters.
+	 *
+	 * @param mixed $params Raw component parameters.
+	 * @return array
+	 */
 	public function onPrepareComponentParams($params)
 	{
 		if (!is_array($params))
@@ -664,6 +670,13 @@ abstract class ElementList extends Base
 	}
 
 	// some logic of \CComponentAjax to execute in component_epilog
+
+	/**
+	 * Internal method for component ajax - modify urls.
+	 *
+	 * @param array $data Link list.
+	 * @return void
+	 */
 	public function prepareLinks(&$data)
 	{
 		$addParam = \CAjax::GetSessionParam($this->arParams['AJAX_ID']);
@@ -1324,6 +1337,11 @@ abstract class ElementList extends Base
 		$this->arResult['ELEMENTS'] = array_keys($this->elementLinks);
 	}
 
+	/**
+	 * Load component data with use page navigation.
+	 *
+	 * @return void
+	 */
 	public function loadData()
 	{
 		$this->initNavParams();
@@ -1861,10 +1879,19 @@ abstract class ElementList extends Base
 					}
 				}
 
+				$variantKey = false;
+				if (isset($variantParam['VARIANT']) && is_scalar($variantParam['VARIANT']))
+				{
+					$variantKey = $variantParam['VARIANT'];
+					if (!is_string($variantKey) && !is_int($variantKey))
+					{
+						$variantKey = false;
+					}
+				}
 				if (
-					$variantParam === false
-					|| !isset($variantsMap[$variantParam['VARIANT']])
-					|| ($variantsMap[$variantParam['VARIANT']]['SHOW_ONLY_FULL'] && $variantsMap[$variantParam['VARIANT']]['COUNT'] > $itemsRemaining)
+					$variantKey === false
+					|| !isset($variantsMap[$variantKey])
+					|| ($variantsMap[$variantKey]['SHOW_ONLY_FULL'] && $variantsMap[$variantKey]['COUNT'] > $itemsRemaining)
 				)
 				{
 					// default variant
@@ -1927,9 +1954,16 @@ abstract class ElementList extends Base
 	 */
 	protected function getBigDataInfo()
 	{
-		$rows = array();
+		if (!Main\Analytics\Catalog::isOn())
+		{
+			return [
+				'enabled' => false,
+			];
+		}
+
+		$rows = [];
 		$count = 0;
-		$rowsRange = array();
+		$rowsRange = [];
 		$variantsMap = static::getTemplateVariantsMap();
 
 		if (!empty($this->arParams['PRODUCT_ROW_VARIANTS']))
@@ -1950,7 +1984,7 @@ abstract class ElementList extends Base
 			}
 		}
 
-		$shownIds = array();
+		$shownIds = [];
 		if (!empty($this->elements))
 		{
 			foreach ($this->elements as $element)
@@ -1959,19 +1993,19 @@ abstract class ElementList extends Base
 			}
 		}
 
-		return array(
+		return [
 			'enabled' => $count > 0,
 			'rows' => $rows,
 			'count' => $count,
 			'rowsRange' => $rowsRange,
 			'shownIds' => $shownIds,
-			'js' => array(
+			'js' => [
 				'cookiePrefix' => \COption::GetOptionString('main', 'cookie_name', 'BITRIX_SM'),
 				'cookieDomain' => Main\Web\Cookie::getCookieDomain(),
 				'serverTime' => $count > 0 ? time() : 0,
-			),
+			],
 			'params' => $this->getBigDataServiceRequestParams(($this->arParams['RCM_TYPE'] ?? ''))
-		);
+		];
 	}
 
 	// getting positions of enlarged elements

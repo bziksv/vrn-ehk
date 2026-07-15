@@ -1,0 +1,30 @@
+<VezdehodyTags>
+	<Type name="Гусеничный">
+		<TrackWidth variable="int"/>
+	</Type>
+	<Type name="Колёсный"/>
+	<Type name="Самодельный"/>
+	<EngineType name="Бензин">
+		<FuelFeed name="Карбюратор"/>
+		<FuelFeed name="Инжектор"/>
+		<DriveType name="Цепь"/>
+		<DriveType name="Ремень"/>
+		<DriveType name="Кардан"/>
+		<Stroke name="2"/>
+		<Stroke name="4"/>
+	</EngineType>
+	<EngineType name="Дизель">
+		<FuelFeed name="Карбюратор"/>
+		<FuelFeed name="Инжектор"/>
+		<DriveType name="Цепь"/>
+		<DriveType name="Ремень"/>
+		<DriveType name="Кардан"/>
+		<Stroke name="2"/>
+		<Stroke name="4"/>
+	</EngineType>
+	<Power variable="int"/>
+	<EngineCapacity variable="int"/>
+	<PersonCapacity variable="int"/>
+	<LoadCapacity variable="int"/>
+	<VIN variable="int"/>
+</VezdehodyTags>

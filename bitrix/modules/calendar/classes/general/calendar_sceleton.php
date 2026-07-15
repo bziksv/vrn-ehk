@@ -38,6 +38,7 @@ class CCalendarSceleton
 			'calendar.categorymanager',
 			'calendar.sharing.interface',
 			'calendar.sharing.public',
+			'calendar.collabmanager',
 		]);
 
 		if(($config['type'] ?? null) === 'location')
@@ -107,7 +108,7 @@ class CCalendarSceleton
 		?>
 		<div class="calendar-main-container calendar-main-container--scope" id="<?=$config['id']?>-main-container"></div>
 
-		<script type="text/javascript">
+		<script>
 		window.BXEventCalendar.Show(
 			<?= Json::encode($config)?>,
 			<?= Json::encode($data)?>,

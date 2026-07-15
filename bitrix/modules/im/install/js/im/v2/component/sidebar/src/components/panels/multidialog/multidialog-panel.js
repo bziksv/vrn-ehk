@@ -1,7 +1,9 @@
+import { EventEmitter } from 'main.core.events';
+
 import { Messenger } from 'im.public';
 import { EventType, SidebarDetailBlock, MultidialogStatus } from 'im.v2.const';
-import { ButtonColor, ButtonSize, Loader, Button as ChatButton } from 'im.v2.component.elements';
-import { EventEmitter } from 'main.core.events';
+import { Loader } from 'im.v2.component.elements.loader';
+import { ChatButton, ButtonColor, ButtonSize } from 'im.v2.component.elements.button';
 
 import { Multidialog } from '../../../classes/panels/multidialog';
 import { DetailHeader } from '../../elements/detail-header/detail-header';
@@ -151,6 +153,7 @@ export const MultidialogPanel = {
 	template: `
 		<div class="bx-im-sidebar-multidialog-detail__scope">
 			<DetailHeader
+				:dialogId="dialogId"
 				:title="loc('IM_SIDEBAR_SUPPORT_TICKET_DETAIL_TITLE')"
 				:secondLevel="true"
 				@back="onBackClick"

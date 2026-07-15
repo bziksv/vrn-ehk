@@ -1,9 +1,14 @@
 <?php
 namespace Bitrix\Forum;
 
+use Bitrix\Main\Application;
+use Bitrix\Main\ArgumentException;
+use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Entity;
+use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
+use Bitrix\Main\SystemException;
 
 
 /**
@@ -40,9 +45,34 @@ class ForumStatTable extends Entity\DataManager
 			new Entity\StringField('SITE_ID', ['size' => 2]),
 			new Entity\IntegerField('FORUM_ID'),
 			new Entity\IntegerField('TOPIC_ID'),
-			new Entity\EnumField('SHOW_NAME', ['values' => ['Y', 'N'], 'default_value' => 'N']),
+			new Entity\StringField('SHOW_NAME', ['size' => 255]),
 			new Reference('USER', \Bitrix\Main\UserTable::class, Join::on('this.USER_ID', 'ref.ID')),
 			new Reference('FORUM_USER', \Bitrix\Forum\UserTable::class, Join::on('this.USER_ID', 'ref.USER_ID')),
 		];
+	}
+
+	/**
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 * @throws ArgumentException
+	 * @throws \Exception
+	 */
+	public static function upsert(array $fields): void
+	{
+		$existedRecordId = self::query()
+			->where('USER_ID', $fields['USER_ID'])
+			->where('PHPSESSID', $fields['PHPSESSID'])
+			->setSelect(['ID'])
+			->setLimit(1)
+			->fetch()['ID'] ?? null;
+
+		if ($existedRecordId)
+		{
+			self::update($existedRecordId, $fields);
+		}
+		else
+		{
+			self::add($fields);
+		}
 	}
 }

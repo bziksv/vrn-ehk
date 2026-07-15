@@ -1,63 +1,107 @@
-Options -Indexes 
+<RequireAll>
+    Require all granted
+    Require not ip 49.13.193.0/24
+    Require not ip 5.139.230.0/24
+    Require not ip 5.139.253.0/24
+    Require not ip 31.181.248.0/24
+    Require not ip 37.18.38.0/24
+    Require not ip 37.77.111.0/24
+    Require not ip 45.140.18.0/24
+    Require not ip 62.183.46.0/24
+    Require not ip 77.110.108.0/24
+    Require not ip 83.239.97.0/24
+    Require not ip 85.172.109.0/24
+    Require not ip 85.174.205.0/24
+    Require not ip 85.175.197.0/24
+    Require not ip 85.175.217.0/24
+    Require not ip 91.233.43.0/24
+    Require not ip 95.153.163.0/24
+    Require not ip 95.153.177.0/24
+    Require not ip 95.153.178.0/24
+    Require not ip 95.153.180.0/24
+    Require not ip 95.25.184.0/24
+    Require not ip 178.176.211.0/24
+    Require not ip 185.10.173.0/24
+    Require not ip 188.162.140.0/24
+    Require not ip 188.162.143.0/24
+    Require not ip 188.170.169.0/24
+    Require not ip 217.78.231.0/24
+</RequireAll>
+
+Options -Indexes
 ErrorDocument 404 /404.php
 
 <IfModule mod_php5.c>
   php_flag session.use_trans_sid off
-  #php_flag default_charset UTF-8
-  #php_value display_errors 1
 </IfModule>
 
 <IfModule mod_php7.c>
   php_flag session.use_trans_sid off
-  #php_flag default_charset UTF-8
-  #php_value display_errors 1
 </IfModule>
 
 <IfModule mod_rewrite.c>
   Options +FollowSymLinks
   RewriteEngine On
+
+  # Навсегда перенаправить URL, заканчивающиеся на "/№/", на URL без "/№/"
+  RewriteCond %{REQUEST_URI} ^(.*)/№/$
+  RewriteRule ^ %1/ [R=301,L]
+
+  # Запрет всего, что содержит filecleaner_backup в пути - ПЕРВОЕ ПРАВИЛО
+  RewriteCond %{REQUEST_URI} filecleaner_backup [NC]
+  RewriteRule . - [F,L]
+
+  # only .git
+  RedirectMatch 404 /\.git
+
+  # Убрать www
+  RewriteCond %{HTTP_HOST} ^www.vrn-ehk\.ru$ [NC]
+  RewriteRule ^(.*)$ http://vrn-ehk.ru/$1 [R=301,L]
   
-	# only .git
-	RedirectMatch 404 /\.git
+  # Редирект с /catalog/elementy-khudozhestvennoy-kovki/ на /catalog/elementy-kovki/
+  RewriteRule ^catalog/elementy-khudozhestvennoy-kovki/(.*)$ /catalog/elementy-kovki/$1 [R=301,L]
+  
+  # Убрать index.php На главной
+  RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /index\.(php|html|htm)\ HTTP/
+  RewriteRule ^(.*)index\.(php|html|htm)$ $1 [R=301,L]
+  # Убрать index.html
+  RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /.*index\.html?\ HTTP/
+  RewriteRule ^(.*)index\.html?$ http://vrn-ehk.ru/$1 [R=301,L]
+  # Убрать index.php
+  RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /.*index\.php?\ HTTP/
+  RewriteRule ^(.*)index\.php?$ http://vrn-ehk.ru/$1 [R=301,L]
+  #убрать //
+  RewriteCond %{REQUEST_URI} ^(.*)/{2,}(.*)$
+  RewriteRule (.*) %1/%2 [R=301,L]
+  # убрать окончание html
+  # RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s/+([^.]+)\.html [NC]
+  # RewriteRule ^ /%1/ [R=301,L]
+  # убрать окончание htm
+  RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s/+([^.]+)\.htm [NC]
+  RewriteRule ^ /%1/ [R=301,L]
+  # убрать idc=4&marea=6
+  RewriteCond %{QUERY_STRING} ^idc=4&marea=6$ [NC]
+  RewriteRule ^index\.php$ /? [R=301,L]
+  
+  # УДАЛИТЬ эту строку: RewriteEngine On (дублируется)
+  RewriteCond %{HTTPS} =off
+  RewriteCond %{REQUEST_URI} !^/bitrix/admin/1c_exchange.php
+  RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [QSA,R=301,L]
+  
+  #добавить / если его нет Исключение для файлов .jpg и .png
+  RewriteBase /
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_URI} !\.jpg$ [NC]
+  RewriteCond %{REQUEST_URI} !\.png$ [NC]
+  RewriteCond %{REQUEST_URI} !(.*)/$
+  RewriteRule ^(.*[^/])$ $1/ [L,R=301]
 
-	# Убрать www
-	RewriteCond %{HTTP_HOST} ^www.vrn-ehk\.ru$ [NC]
-	RewriteRule ^(.*)$ http://vrn-ehk.ru/$1 [R=301,L]
-	# Убрать index.php На главной
-	RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /index\.(php|html|htm)\ HTTP/
-	RewriteRule ^(.*)index\.(php|html|htm)$ $1 [R=301,L]
-	# Убрать index.html
-	RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /.*index\.html?\ HTTP/
-	RewriteRule ^(.*)index\.html?$ http://vrn-ehk.ru/$1 [R=301,L]
-	# Убрать index.php
-	RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /.*index\.php?\ HTTP/
-	RewriteRule ^(.*)index\.php?$ http://vrn-ehk.ru/$1 [R=301,L]
-	#убрать //
-	RewriteCond %{REQUEST_URI} ^(.*)/{2,}(.*)$
-	RewriteRule (.*) %1/%2 [R=301,L]
-	# убрать окончание html
-	# RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s/+([^.]+)\.html [NC]
-	# RewriteRule ^ /%1/ [R=301,L]
-	# убрать окончание htm
-	RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s/+([^.]+)\.htm [NC]
-	RewriteRule ^ /%1/ [R=301,L]
-	# убрать idc=4&marea=6
-	RewriteCond %{QUERY_STRING} ^idc=4&marea=6$ [NC]
-	RewriteRule ^index\.php$ /? [R=301,L]
-	
-	
-	RewriteEngine On
-	RewriteCond %{HTTPS} =off
-	RewriteCond %{REQUEST_URI} !^/bitrix/admin/1c_exchange.php
-	#RewriteCond %{REQUEST_URI} !^/bitrix/services/yandex.market/trading/marketplace/s1
-	RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [QSA,R=301,L]
-	
-	#убираем двойной слеш
-	RewriteCond %{THE_REQUEST} //
-	# Проверяем, повторяется ли слеш (//) более двух раз.
-	RewriteRule .* /$0 [R=301,L]
-	# Исключаем все лишние слеши.
+  #убрать //
+  RewriteCond %{REQUEST_URI} ^(.*)/{2,}(.*)$
+  RewriteRule (.*) %1/%2 [R=301,L]
 
+  # Исключаем все лишние слеши.
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-l
   RewriteCond %{REQUEST_FILENAME} !-d
@@ -77,4 +121,11 @@ ErrorDocument 404 /404.php
   ExpiresByType image/png "access plus 3 day"
   ExpiresByType text/css "access plus 3 day"
   ExpiresByType application/javascript "access plus 3 day"  
-</IfModule> 
+</IfModule>
+
+Redirect 301 /catalog/kovanye-banketki-obuvnitsy/ /catalog/kovanye-petli/
+Redirect 301 /catalog/gotovye-izdeliya_1/ /catalog/zaklepki-kovanye/
+Redirect 301 /catalog/zaklyepki/ /catalog/nakladki-shtampovannye/
+Redirect 301 /catalog/eksklyuziv/ /catalog/bokoviny-dlya-skameek/
+Redirect 301 /catalog/lazernaya-rezka/ /catalog/suveniry-kovanye/
+Redirect 301 /catalog/kovanye-stoly/ /catalog/mebelnye-i-dvernye-nakladki/

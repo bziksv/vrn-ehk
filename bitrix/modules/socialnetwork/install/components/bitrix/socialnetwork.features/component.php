@@ -75,6 +75,14 @@ if (!$USER->IsAuthorized())
 }
 else
 {
+	$arResult['tasksLimitExceeded'] = (
+		Loader::includeModule('tasks')
+		&& Bitrix\Tasks\Util\Restriction\Bitrix24Restriction\Limit\TaskLimit::isLimitExceeded()
+	);
+
+	$isBitrix24 = ModuleManager::isModuleInstalled('tasks') && Loader::includeModule('bitrix24');
+	$arResult['featuresPageLimited'] = $arResult['tasksLimitExceeded'] && (!$isBitrix24 || !\Bitrix\Bitrix24\Feature::isFeatureEnabled('socialnetwork_projects_access_permissions'));
+
 	if (
 		$arParams["PAGE_ID"] == "user_features"
 		&& $arParams["USER_ID"] <= 0
@@ -92,19 +100,7 @@ else
 
 	if ($arResult["FatalError"] == '')
 	{
-		$arResult['tasksLimitExceeded'] = (
-			Loader::includeModule('tasks')
-			&& Bitrix\Tasks\Util\Restriction\Bitrix24Restriction\Limit\TaskLimit::isLimitExceeded()
-		);
-
-		$tasksLimited = (
-			$arResult['tasksLimitExceeded']
-			|| (
-				ModuleManager::isModuleInstalled('tasks')
-				&& Loader::includeModule('bitrix24')
-				&& !\Bitrix\Bitrix24\Feature::isFeatureEnabled('socialnetwork_project_tasks_perms')
-			)
-		);
+		$tasksLimited = $arResult['tasksLimitExceeded'] && (!$isBitrix24 || !\Bitrix\Bitrix24\Feature::isFeatureEnabled('socialnetwork_project_tasks_perms'));
 
 		if ($arParams["PAGE_ID"] === 'group_features')
 		{
@@ -201,6 +197,7 @@ else
 						{
 							$arResult["Features"][$feature]["Active"] = true;
 						}
+
 
 						foreach ($arFeature["operations"] as $op => $arOp)
 						{
@@ -533,6 +530,7 @@ else
 					$moderatorsValue = Loc::getMessage('SONET_C3_PVG_MOD_PROJECT');
 					$userValue = Loc::getMessage('SONET_C3_PVG_USER_PROJECT');
 				}
+
 
 				$arResult['PermsVar'] = [
 					UserToGroupTable::ROLE_OWNER => $ownerValue,

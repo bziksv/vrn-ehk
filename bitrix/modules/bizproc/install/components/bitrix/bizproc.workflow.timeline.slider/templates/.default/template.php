@@ -10,7 +10,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 }
 
 global $APPLICATION;
-$APPLICATION->SetTitle(Loc::getMessage("BIZPROC_WORKFLOW_TIMELINE_SLIDER_TITLE"));
+$APPLICATION->SetTitle(Loc::getMessage("BIZPROC_WORKFLOW_TIMELINE_SLIDER_TITLE_MSGVER_1"));
 $bodyClass = $APPLICATION->GetPageProperty('BodyClass');
 $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass . ' ' : '') . 'no-paddings no-background');
 
@@ -20,6 +20,7 @@ $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass . ' ' : '') 
  */
 
 Extension::load([
+	'bizproc.router',
 	'bizproc.workflow.timeline',
 	'ui.buttons',
 	'ui.forms',
@@ -31,24 +32,20 @@ $culture = Application::getInstance()->getContext()->getCulture();
 
 $config = [
 	'dateFormat' => $culture?->getLongDateFormat(),
+	'dateFormatShort' => $culture?->getDayMonthFormat(),
 	'timeFormat' => $culture?->getShortTimeFormat(),
 ];
 
 /** @var BizprocAutomationSchemeComponent $component */
 $component = $this->getComponent();
 ?>
-<?php $this->SetViewTarget('pagetitle') ?>
-<div class="ui-btn-container">
-	<button class="ui-btn ui-btn-light-border ui-btn-themes" onclick="top.BX.Helper.show('redirect=detail&code=21290220');">
-		<?= Loc::getMessage('BIZPROC_WORKFLOW_TIMELINE_SLIDER_HELP_BUTTON') ?>
-	</button>
-</div>
-<?php $this->EndViewTarget() ?>
 
 <div id="bizproc-workflow-timeline-container"></div>
 
 <script>
 	BX.ready(function () {
+
+		BX.Bizproc.Router.init();
 		const timeline = new BX.Bizproc.Workflow.Timeline(
 			<?= Json::encode($arResult['timelineProps']) ?>,
 			<?= Json::encode($config) ?>

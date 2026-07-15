@@ -158,6 +158,17 @@ class CVulnScanner
 
 		$this->securing_list = array();
 
+		if ($function === 'unserialize')
+		{
+			foreach ($tokens as $token)
+			{
+				if (is_array($token) && isset($token[1]) && $token[1] === "'allowed_classes'")
+				{
+					return false;
+				}
+			}
+		}
+
 		$braces = 0;
 		$c_params = 1;
 		$skip = false;
@@ -609,6 +620,10 @@ class CVulnScanner
 						{
 							$result = false;
 						}
+						elseif($token_value !== 'query' && is_array($this->tokens[$i-1]) && in_array($this->tokens[$i-1][0], [T_PAAMAYIM_NEKUDOTAYIM, T_OBJECT_OPERATOR], true))
+						{
+							$result = false;
+						}
 						elseif($this->tokens[$i + 1] === '(')
 						{
 							$result = $this->getTokensInfo(array_slice($this->tokens, $i + 2, $this->getBraceEnd($this->tokens, $i + 2) - 1), false, $token_value);
@@ -620,12 +635,6 @@ class CVulnScanner
 
 						if($result !== false)
 						{
-							if($this->tokens[$i + 1] === '(')
-								$result = $this->getTokensInfo(array_slice($this->tokens, $i + 2, $this->getBraceEnd($this->tokens, $i + 2) - 1), false, $token_value);
-							else
-								$result = $this->getTokensInfo(array_slice($this->tokens, $i + 1, $this->getBraceEnd($this->tokens, $i + 1)), false, $token_value);
-
-
 							$tainted_vars = array();
 							foreach ($result[1] as $res)
 							{
@@ -2093,7 +2102,7 @@ class CQAACheckListTests
 				'eregi' => Array(Array(2), Array()),
 				'sleep' => Array(Array(1), Array()),
 				// It's too difficult to validate, maybe in future versions
-				//'unserialize' => Array(Array(1), Array()),
+				'unserialize' => Array(Array(1), Array()),
 				//'extract' => Array(Array(1), Array()),
 				//'mb_parse_str' => Array(Array(1), Array()),
 				//'parse_str' => Array(Array(1), Array()),

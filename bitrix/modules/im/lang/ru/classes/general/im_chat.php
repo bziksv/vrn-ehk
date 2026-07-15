@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IM_ERROR_EMPTY_FROM_USER_ID"] = "Не задан отправитель сообщения";
 $MESS["IM_ERROR_EMPTY_USER_ID_BY_PRIVACY"] = "Указанные пользователи запретили приглашать их в чат";
 $MESS["IM_ERROR_EMPTY_TO_CHAT_ID"] = "Не задан получатель сообщения";
@@ -31,17 +31,13 @@ $MESS["IM_CHAT_JOIN_M"] = "#USER_1_NAME# пригласил в чат #USER_2_NA
 $MESS["IM_CHAT_JOIN_F"] = "#USER_1_NAME# пригласила в чат #USER_2_NAME#";
 $MESS["IM_CHANNEL_JOIN_M"] = "#USER_1_NAME# пригласил в канал #USER_2_NAME#";
 $MESS["IM_CHANNEL_JOIN_F"] = "#USER_1_NAME# пригласила в канал #USER_2_NAME#";
-$MESS["IM_CHAT_KICK_M"] = "#USER_1_NAME# исключил #USER_2_NAME# из чата";
-$MESS["IM_CHAT_KICK_F"] = "#USER_1_NAME# исключила #USER_2_NAME# из чата";
-$MESS["IM_CHAT_KICK_NOTIFICATION_M"] = "#USER_NAME# исключил вас из чата";
-$MESS["IM_CHAT_KICK_NOTIFICATION_F"] = "#USER_NAME# исключила вас из чата";
 $MESS["IM_CHAT_CHANGE_TITLE"] = "Новая тема чата \"#CHAT_TITLE#\"";
-$MESS["IM_CHAT_CHANGE_TITLE_M"] = "#USER_NAME# изменил тему чата на \"#CHAT_TITLE#\"";
-$MESS["IM_CHAT_CHANGE_TITLE_F"] = "#USER_NAME# изменила тему чата на \"#CHAT_TITLE#\"";
+$MESS["IM_CHAT_CHANGE_TITLE_M_MSGVER_1"] = "#USER_NAME# изменил название чата на \"#CHAT_TITLE#\"";
+$MESS["IM_CHAT_CHANGE_TITLE_F_MSGVER_1"] = "#USER_NAME# изменила название чата на \"#CHAT_TITLE#\"";
+$MESS["IM_CHANNEL_CHANGE_TITLE_M"] = "#USER_NAME# изменил название канала на \"#CHAT_TITLE#\"";
+$MESS["IM_CHANNEL_CHANGE_TITLE_F"] = "#USER_NAME# изменила название канала на \"#CHAT_TITLE#\"";
 $MESS["IM_CHAT_CHANGE_COLOR_M"] = "#USER_NAME# изменил цвет чата на \"#CHAT_COLOR#\"";
 $MESS["IM_CHAT_CHANGE_COLOR_F"] = "#USER_NAME# изменила цвет чата на \"#CHAT_COLOR#\"";
-$MESS["IM_CHAT_LEAVE_M"] = "#USER_NAME# покинул чат";
-$MESS["IM_CHAT_LEAVE_F"] = "#USER_NAME# покинула чат";
 $MESS["IM_CHAT_CREATE_OPEN_NEW"] = "Был создан канал \"#CHAT_TITLE#\"";
 $MESS["IM_CHAT_CREATE_OPEN_M_NEW"] = "#USER_NAME# создал канал \"#CHAT_TITLE#\"";
 $MESS["IM_CHAT_CREATE_OPEN_F_NEW"] = "#USER_NAME# создала канал \"#CHAT_TITLE#\"";
@@ -65,4 +61,3 @@ $MESS["IM_VIDEOCONF_JOIN_LINK"] = "Перейти в конференцию";
 $MESS["IM_MESSAGE_DELETED"] = "Это сообщение было удалено.";
 $MESS["IM_CHAT_ACCESS_DENIED_EXTEND_USERS"] = "Недостаточно прав на добавление участников в чат";
 $MESS["IM_CHAT_ACCESS_DENIED_KICK_USERS"] = "Недостаточно прав на исключение участников из чата";
-?>

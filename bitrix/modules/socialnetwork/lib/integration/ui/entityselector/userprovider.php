@@ -2,6 +2,11 @@
 
 namespace Bitrix\Socialnetwork\Integration\UI\EntitySelector;
 
+use Bitrix\Extranet\Enum\User\ExtranetRole;
+use Bitrix\Extranet\Model\ExtranetUserTable;
+use Bitrix\Extranet\Service\ServiceContainer;
+use Bitrix\HumanResources\Service\Container;
+use Bitrix\HumanResources\Util\StructureHelper;
 use Bitrix\Intranet\Integration\Mail\EmailUser;
 use Bitrix\Intranet\Internals\InvitationTable;
 use Bitrix\Intranet\Invitation;
@@ -21,6 +26,8 @@ use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\Search\Content;
 use Bitrix\Main\UserTable;
+use Bitrix\Socialnetwork\Collab\CollabFeature;
+use Bitrix\Socialnetwork\Integration\HumanResources\EmployeeHelper;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Socialnetwork\WorkgroupSiteTable;
 use Bitrix\UI\EntitySelector\BaseProvider;
@@ -34,7 +41,7 @@ class UserProvider extends BaseProvider
 		UserToGroupTable::ROLE_USER,
 		UserToGroupTable::ROLE_OWNER,
 		UserToGroupTable::ROLE_MODERATOR,
-		UserToGroupTable::ROLE_REQUEST
+		UserToGroupTable::ROLE_REQUEST,
 	];
 	protected const MAX_USERS_IN_RECENT_TAB = 50;
 	protected const SEARCH_LIMIT = 100;
@@ -54,7 +61,7 @@ class UserProvider extends BaseProvider
 			preg_match_all(
 				'/#NAME#|#LAST_NAME#|#SECOND_NAME#|#NAME_SHORT#|#SECOND_NAME_SHORT#|\s|,/',
 				urldecode($options['nameTemplate']),
-				$matches
+				$matches,
 			);
 
 			$this->options['nameTemplate'] = implode('', $matches[0]);
@@ -146,6 +153,24 @@ class UserProvider extends BaseProvider
 			$this->options['inviteGuestLink'] = $options['inviteGuestLink'];
 		}
 
+		$this->options['lockGuestLinkFeatureId'] = '';
+		if (isset($options['lockGuestLinkFeatureId']) && is_string($options['lockGuestLinkFeatureId']))
+		{
+			$this->options['lockGuestLinkFeatureId'] = $options['lockGuestLinkFeatureId'];
+		}
+
+		$this->options['lockGuestLink'] = false;
+		if (isset($options['lockGuestLink']) && is_bool($options['lockGuestLink']))
+		{
+			$this->options['lockGuestLink'] = $options['lockGuestLink'];
+		}
+
+		$this->options['collabers'] = true;
+		if (isset($options['collabers']) && is_bool($options['collabers']))
+		{
+			$this->options['collabers'] = $options['collabers'];
+		}
+
 		// User Whitelist
 		if (isset($options['userId']))
 		{
@@ -192,7 +217,7 @@ class UserProvider extends BaseProvider
 		{
 			$this->options['maxUsersInRecentTab'] = max(
 				1,
-				min($options['maxUsersInRecentTab'], static::MAX_USERS_IN_RECENT_TAB)
+				min($options['maxUsersInRecentTab'], static::MAX_USERS_IN_RECENT_TAB),
 			);
 		}
 
@@ -232,7 +257,7 @@ class UserProvider extends BaseProvider
 		}
 
 		return $this->getUserItems([
-			'userId' => $ids
+			'userId' => $ids,
 		]);
 	}
 
@@ -241,7 +266,7 @@ class UserProvider extends BaseProvider
 		return $this->getUserItems([
 			'userId' => $ids,
 			'ignoreUserWhitelist' => true,
-			'activeUsers' => null // to see fired employees
+			'activeUsers' => null, // to see fired employees
 		]);
 	}
 
@@ -302,7 +327,7 @@ class UserProvider extends BaseProvider
 			$inviteEmployeeLink = null;
 			$employeeInvitationAvailable = Invitation::canCurrentUserInvite();
 			$intranetUsersOnly = $this->options['intranetUsersOnly'] ?? false;
-			$footerInviteIntranetOnly = $this->options['footerInviteIntranetOnly'] ?? false;
+			$footerInviteIntranetOnly = $this->options['footerInviteIntranetOnly'] ?? CollabFeature::isOn();
 			$extranetInvitationAvailable = (
 				ModuleManager::isModuleInstalled('extranet')
 				&& Option::get('extranet', 'extranet_site')
@@ -356,6 +381,12 @@ class UserProvider extends BaseProvider
 					$footerOptions['inviteEmployeeScope'] = ($employeeInvitationAvailable ? 'I' : '').($extranetInvitationAvailable ? 'E' : '');
 				}
 
+				if ($inviteGuestLink && $this->options['lockGuestLink'])
+				{
+					$footerOptions['lockGuestLink'] = true;
+					$footerOptions['lockGuestLinkFeatureId'] = $this->options['lockGuestLinkFeatureId'] ?? '';
+				}
+
 				$dialog->setFooter('BX.SocialNetwork.EntitySelector.Footer', $footerOptions);
 			}
 		}
@@ -372,7 +403,7 @@ class UserProvider extends BaseProvider
 	private function fillRecentUsers(
 		EO_User_Collection $recentUsers,
 		array $recentIds,
-		EO_User_Collection $preloadedUsers
+		EO_User_Collection $preloadedUsers,
 	): void
 	{
 		if (count($recentIds) < 1)
@@ -453,7 +484,16 @@ class UserProvider extends BaseProvider
 			$options['userId'] = $dialogOptions['userId'];
 		}
 
-		return static::getUsers($options);
+		static $usersCache = [];
+
+		$cacheKey = md5(serialize($options));
+
+		if (!isset($usersCache[$cacheKey]))
+		{
+			$usersCache[$cacheKey] = static::getUsers($options);
+		}
+
+		return $usersCache[$cacheKey];
 	}
 
 	public function getUserItems(array $options = []): array
@@ -485,7 +525,7 @@ class UserProvider extends BaseProvider
 	{
 		static $roles = [
 			'intranet' => [],
-			'extranet' => []
+			'extranet' => [],
 		];
 
 		if (!isset($roles[$role]) || !ModuleManager::isModuleInstalled('intranet'))
@@ -535,7 +575,7 @@ class UserProvider extends BaseProvider
 
 			$filter = [
 				'=ID' => $userId,
-				'=IS_REAL_USER' => true
+				'=IS_REAL_USER' => true,
 			];
 
 			if ($role === 'intranet')
@@ -689,7 +729,7 @@ class UserProvider extends BaseProvider
 		$selectFields = [
 			'ID', 'ACTIVE', 'LAST_NAME', 'NAME', 'SECOND_NAME', 'LOGIN', 'EMAIL', 'TITLE',
 			'PERSONAL_GENDER', 'PERSONAL_PHOTO', 'WORK_POSITION',
-			'CONFIRM_CODE', 'EXTERNAL_AUTH_ID'
+			'CONFIRM_CODE', 'EXTERNAL_AUTH_ID',
 		];
 
 		if (isset($options['selectFields']) && is_array($options['selectFields']))
@@ -736,15 +776,15 @@ class UserProvider extends BaseProvider
 					'USER_INDEX',
 					\Bitrix\Main\UserIndexTable::class,
 					Join::on('this.ID', 'ref.USER_ID'),
-					['join_type' => 'INNER']
-				)
+					['join_type' => 'INNER'],
+				),
 			);
 
 			$query->whereMatch(
 				'USER_INDEX.SEARCH_USER_CONTENT',
 				Filter\Helper::matchAgainstWildcard(
-					Content::prepareStringToken($options['searchQuery']), '*', 1
-				)
+					Content::prepareStringToken($options['searchQuery']), '*', 1,
+				),
 			);
 		}
 		else if (!empty($options['searchByEmail']) && is_string($options['searchByEmail']))
@@ -772,7 +812,7 @@ class UserProvider extends BaseProvider
 					THEN \'Y\'
 					ELSE \'N\'
 				END',
-				['UF_DEPARTMENT', 'UF_DEPARTMENT', 'UF_DEPARTMENT', 'EXTERNAL_AUTH_ID', 'EXTERNAL_AUTH_ID'])
+				['UF_DEPARTMENT', 'UF_DEPARTMENT', 'UF_DEPARTMENT', 'EXTERNAL_AUTH_ID', 'EXTERNAL_AUTH_ID']),
 			);
 
 			$query->registerRuntimeField(new ExpressionField(
@@ -783,7 +823,7 @@ class UserProvider extends BaseProvider
 					 THEN \'Y\'
 					 ELSE \'N\'
 				END',
-				['UF_DEPARTMENT', 'UF_DEPARTMENT', 'UF_DEPARTMENT', 'EXTERNAL_AUTH_ID', 'EXTERNAL_AUTH_ID'])
+				['UF_DEPARTMENT', 'UF_DEPARTMENT', 'UF_DEPARTMENT', 'EXTERNAL_AUTH_ID', 'EXTERNAL_AUTH_ID']),
 			);
 
 			$query->registerRuntimeField(
@@ -791,8 +831,8 @@ class UserProvider extends BaseProvider
 					'INVITATION',
 					InvitationTable::class,
 					Join::on('this.ID', 'ref.USER_ID')->where('ref.ORIGINATOR_ID', $currentUserId),
-					['join_type' => 'LEFT']
-				)
+					['join_type' => 'LEFT'],
+				),
 			);
 
 			$extranetUsersQuery = (empty($options['searchByEmail']) ? self::getExtranetUsersQuery($currentUserId) : null);
@@ -861,7 +901,7 @@ class UserProvider extends BaseProvider
 						$filter->addCondition(Query::filter()
 							->logic('or')
 							->whereNotIn('EXTERNAL_AUTH_ID', UserTable::getExternalUserTypes())
-							->whereNull('EXTERNAL_AUTH_ID')
+							->whereNull('EXTERNAL_AUTH_ID'),
 						);
 					}
 
@@ -871,7 +911,7 @@ class UserProvider extends BaseProvider
 						{
 							$filter->addCondition(Query::filter()
 								->where('EXTERNAL_AUTH_ID', 'email')
-								->whereNotNull('INVITATION.ID')
+								->whereNotNull('INVITATION.ID'),
 							);
 						}
 						else
@@ -892,9 +932,9 @@ class UserProvider extends BaseProvider
 							->where(Query::filter()
 								->logic('or')
 								->whereNull('EXTERNAL_AUTH_ID')
-								->whereNot('EXTERNAL_AUTH_ID', 'email')
+								->whereNot('EXTERNAL_AUTH_ID', 'email'),
 							)
-							->whereNotNull('INVITATION.ID')
+							->whereNotNull('INVITATION.ID'),
 						);
 					}
 
@@ -931,6 +971,19 @@ class UserProvider extends BaseProvider
 			$query->addFilter('!=EXTERNAL_AUTH_ID', UserTable::getExternalUserTypes());
 		}
 
+		if (!($options['collabers'] ?? true) && Loader::includeModule('extranet'))
+		{
+			$query->registerRuntimeField(
+				new Reference(
+					'EXTRANET_USER',
+					ExtranetUserTable::class,
+					Join::on('this.ID', 'ref.USER_ID'),
+					['join_type' => Join::TYPE_LEFT]
+				),
+			);
+			$query->addFilter('!=EXTRANET_USER.ROLE', ExtranetRole::Collaber->value);
+		}
+
 		$userIds = self::prepareUserIds($options['userId'] ?? []);
 		$notUserIds = self::prepareUserIds($options['!userId'] ?? []);
 
@@ -957,7 +1010,7 @@ class UserProvider extends BaseProvider
 			$field = new ExpressionField(
 				'ID_SEQUENCE',
 				$expression,
-				array_fill(0, $usersCount, 'ID')
+				array_fill(0, $usersCount, 'ID'),
 			);
 			$query
 				->registerRuntimeField($field)
@@ -1029,8 +1082,8 @@ class UserProvider extends BaseProvider
 				'GS',
 				WorkgroupSiteTable::class,
 				Join::on('ref.GROUP_ID', 'this.GROUP_ID')->where('ref.SITE_ID', $extranetSiteId),
-				['join_type' => 'INNER']
-			)
+				['join_type' => 'INNER'],
+			),
 		);
 
 		$query->registerRuntimeField(
@@ -1040,8 +1093,8 @@ class UserProvider extends BaseProvider
 				Join::on('ref.GROUP_ID', 'this.GROUP_ID')
 					->where('ref.USER_ID', $currentUserId)
 					->whereIn('ref.ROLE', self::EXTRANET_ROLES),
-				['join_type' => 'INNER']
-			)
+				['join_type' => 'INNER'],
+			),
 		);
 
 		return $query;
@@ -1055,9 +1108,14 @@ class UserProvider extends BaseProvider
 		return $users->count() ? $users->getAll()[0] : null;
 	}
 
+	/**
+	 * @return list<Item>
+	 */
 	public static function makeItems(EO_User_Collection $users, array $options = []): array
 	{
 		$result = [];
+		$options['departmentMap'] = EmployeeHelper::employeesToDepartment($users);
+
 		foreach ($users as $user)
 		{
 			$result[] = static::makeItem($user, $options);
@@ -1129,6 +1187,11 @@ class UserProvider extends BaseProvider
 			unset($customData['email']);
 		}
 
+		if (!empty($options['departmentMap']) && isset($options['departmentMap'][$user->getId()]))
+		{
+			$customData['nodeId'] = $options['departmentMap'][$user->getId()];
+		}
+
 		$item = new Item([
 			'id' => $user->getId(),
 			'entityId' => static::ENTITY_ID,
@@ -1173,13 +1236,20 @@ class UserProvider extends BaseProvider
 		}
 		else if (!in_array($user->getExternalAuthId(), UserTable::getExternalUserTypes()))
 		{
-			if (ModuleManager::isModuleInstalled('intranet'))
+			if (ModuleManager::isModuleInstalled('intranet') || ModuleManager::isModuleInstalled('extranet'))
 			{
 				if (self::isIntegrator($user->getId()))
 				{
 					$type = 'integrator';
 				}
-				else
+				else if (
+					Loader::includeModule('extranet')
+					&& ServiceContainer::getInstance()->getCollaberService()->isCollaberById($user->getId())
+				)
+				{
+					$type = 'collaber';
+				}
+				else if (ModuleManager::isModuleInstalled('intranet'))
 				{
 					$ufDepartment = $user->getUfDepartment();
 					if (
@@ -1221,7 +1291,7 @@ class UserProvider extends BaseProvider
 				'TITLE' => $user->getTitle(),
 			],
 			true,
-			false
+			false,
 		);
 	}
 
@@ -1236,7 +1306,7 @@ class UserProvider extends BaseProvider
 			$user->getPersonalPhoto(),
 			['width' => 100, 'height' => 100],
 			BX_RESIZE_IMAGE_EXACT,
-			false
+			false,
 		);
 
 		return !empty($avatar['src']) ? $avatar['src'] : null;
@@ -1269,7 +1339,8 @@ class UserProvider extends BaseProvider
 		$userPage = Option::get('socialnetwork', 'user_page', false, SITE_ID);
 		if (!$userPage)
 		{
-			$userPage = SITE_DIR.'company/personal/';
+			$siteDir = (defined('SITE_DIR') && !empty(SITE_DIR)) ? SITE_DIR : '/';
+			$userPage = $siteDir . 'company/personal/';
 		}
 
 		return $userPage.'user/' . ($userId !== null ? $userId : '#id#') . '/';

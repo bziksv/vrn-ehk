@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2022 Bitrix
+ * @copyright 2001-2025 Bitrix
  */
 
 namespace Bitrix\Main\Authentication;
@@ -13,7 +13,6 @@ use Bitrix\Main;
 use Bitrix\Main\Web;
 use Bitrix\Main\Security;
 use Bitrix\Main\Config\Option;
-use Bitrix\Main\Authentication\Internal;
 use Bitrix\Main\Authentication\Internal\EO_UserDevice;
 use Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin;
 use Bitrix\Main\Web\UserAgent\Browser;
@@ -22,6 +21,10 @@ use Bitrix\Main\Service\GeoIp;
 use Bitrix\Main\Service\GeoIp\Internal\GeonameTable;
 use Bitrix\Main\Mail;
 use Bitrix\Main\Localization\LanguageTable;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\ImBot\Bot\Marta;
+use Bitrix\Im\V2\Message;
+use Bitrix\Im\V2\Entity\User\User;
 
 class Device
 {
@@ -36,6 +39,11 @@ class Device
 		{
 			$cookable = false;
 			$device = static::findByUserAgent($context);
+
+			if ($device === null && $context->getApplicationPasswordId())
+			{
+				$device = static::findByAppPasswordId($context);
+			}
 		}
 		else
 		{
@@ -49,16 +57,19 @@ class Device
 			$device = static::add($context);
 			$deviceLogin = static::addDeviceLogin($device, $context);
 
-			if (Option::get('main', 'user_device_notify', 'N') === 'Y')
+			$notifyByEmail = (Option::get('main', 'user_device_notify', 'N') === 'Y');
+			$notifyByIm = (Option::get('main', 'user_device_notify_im', 'N') === 'Y' && Main\ModuleManager::isModuleInstalled('im') && Main\ModuleManager::isModuleInstalled('imbot'));
+
+			if ($notifyByEmail || $notifyByIm)
 			{
 				// send notification to the user
-				static::sendEmail($device, $deviceLogin, $user);
+				static::notifyUser($device, $deviceLogin, $user);
 			}
 		}
 		else
 		{
 			// update to actual data
-			static::update($device, $cookable);
+			static::update($device, $context, $cookable);
 			static::addDeviceLogin($device, $context);
 		}
 
@@ -98,14 +109,45 @@ class Device
 
 		while ($device = $query->fetchObject())
 		{
-			$pattern = preg_replace('/\\d+/i', '\\d+', preg_quote($device->getUserAgent(), '/'));
-			if (preg_match("/{$pattern}/i", $userAgent))
+			if (static::match($userAgent, $device->getUserAgent()))
 			{
 				return $device;
 			}
 		}
 
 		return null;
+	}
+
+	protected static function findByAppPasswordId(Context $context): ?EO_UserDevice
+	{
+		$request = Main\Context::getCurrent()->getRequest();
+		$userAgent = $request->getUserAgent();
+
+		// only user agents with the same APP_PASSWORD_ID
+		$query = Internal\UserDeviceTable::query()
+			->setSelect(['*'])
+			->where('USER_ID', $context->getUserId())
+			->where('COOKABLE', true)
+			->where('APP_PASSWORD_ID', $context->getApplicationPasswordId())
+			->exec()
+		;
+
+		while ($device = $query->fetchObject())
+		{
+			if (static::match($userAgent, $device->getUserAgent()))
+			{
+				return $device;
+			}
+		}
+
+		return null;
+	}
+
+	protected static function match(?string $userAgent, ?string $patternAgent): bool
+	{
+		$pattern = preg_replace('/\\d+/i', '\\d+', preg_quote((string)$patternAgent, '/'));
+
+		return preg_match("/{$pattern}/i", (string)$userAgent);
 	}
 
 	protected static function add(Context $context): EO_UserDevice
@@ -120,13 +162,14 @@ class Device
 			->setBrowser($browser->getName())
 			->setPlatform($browser->getPlatform())
 			->setUserAgent($browser->getUserAgent())
+			->setAppPasswordId($context->getApplicationPasswordId())
 			->save()
 		;
 
 		return $device;
 	}
 
-	protected static function update(EO_UserDevice $device, bool $cookable): void
+	protected static function update(EO_UserDevice $device, Context $context, bool $cookable): void
 	{
 		$browser = Browser::detect();
 
@@ -136,6 +179,7 @@ class Device
 			->setPlatform($browser->getPlatform())
 			->setUserAgent($browser->getUserAgent())
 			->setCookable($cookable)
+			->setAppPasswordId($context->getApplicationPasswordId())
 			->save()
 		;
 	}
@@ -182,15 +226,17 @@ class Device
 		return $login;
 	}
 
-	protected static function sendEmail(EO_UserDevice $device, EO_UserDeviceLogin $deviceLogin, array $user): void
+	protected static function notifyUser(EO_UserDevice $device, EO_UserDeviceLogin $deviceLogin, array $user): void
 	{
-		$site = $user['LID'];
-		if (!$site)
+		// we have settings in the main module options
+		$codes = unserialize(Option::get('main', 'user_device_notify_codes'), ['allowed_classes' => false]);
+		if (!empty($codes))
 		{
-			$site = Main\Context::getCurrent()->getSite();
-			if (!$site)
+			$userCodes = \CAccess::GetUserCodesArray($user['ID']);
+			if (empty(array_intersect($codes, $userCodes)))
 			{
-				$site = \CSite::GetDefSite();
+				// no need to notify
+				return;
 			}
 		}
 
@@ -200,6 +246,83 @@ class Device
 		// Devices
 		$deviceTypes = DeviceType::getDescription($lang);
 
+		// geoIP
+		$geonames = [];
+		if (Option::get('main', 'user_device_geodata', 'N') === 'Y')
+		{
+			$geonames = static::getGeoNames($deviceLogin, $lang);
+		}
+
+		$fields = [
+			'USER_ID' => $user['ID'],
+			'EMAIL' => $user['EMAIL'],
+			'LOGIN' => $user['LOGIN'],
+			'NAME' => $user['NAME'],
+			'LAST_NAME' => $user['LAST_NAME'],
+			'DEVICE' => $deviceTypes[$device->getDeviceType()],
+			'BROWSER' => $device->getBrowser(),
+			'PLATFORM' => $device->getPlatform(),
+			'USER_AGENT' => $device->getUserAgent(),
+			'IP' => $deviceLogin->getIp(),
+			'DATE' => $deviceLogin->getLoginDate(),
+			'COUNTRY' => $geonames['COUNTRY'] ?? '',
+			'REGION' => $geonames['REGION'] ?? '',
+			'CITY' => $geonames['CITY'] ?? '',
+			'LOCATION' => $geonames['LOCATION'] ?? '',
+		];
+
+		if (Option::get('main', 'user_device_notify', 'N') === 'Y')
+		{
+			// email
+			$site = $user['LID'];
+			if (!$site)
+			{
+				$site = Main\Context::getCurrent()->getSite();
+				if (!$site)
+				{
+					$site = \CSite::GetDefSite();
+				}
+			}
+
+			Mail\Event::send([
+				'EVENT_NAME' => self::EMAIL_EVENT,
+				'C_FIELDS' => $fields,
+				'LID' => $site,
+				'LANGUAGE_ID' => $lang,
+			]);
+		}
+
+		if (Option::get('main', 'user_device_notify_im', 'N') === 'Y' && Main\Loader::includeModule('im') && Main\Loader::includeModule('imbot'))
+		{
+			// chat notification
+			$replace = [];
+			foreach ($fields as $key => $value)
+			{
+				$replace["#$key#"] = $value;
+			}
+			$message = Loc::getMessage('main_device_message', $replace, $lang);
+			$pushMessage = Loc::getMessage('main_device_push_message', null, $lang);
+
+			$infoBotId = Marta::getBotId();
+			if ($infoBotId)
+			{
+				$chat = User::getInstance($user['ID'])->getChatWith($infoBotId);
+				if ($chat)
+				{
+					$chatMessage = new Message();
+					$chatMessage
+						->setMessage($message)
+						->setPushMessage($pushMessage)
+						->setAuthorId($infoBotId)
+					;
+					$chat->sendMessage($chatMessage);
+				}
+			}
+		}
+	}
+
+	protected static function getGeoNames(EO_UserDeviceLogin $deviceLogin, string $lang): array
+	{
 		// City and Region names
 		$geoids = array_filter([$deviceLogin->getCityGeoid(), $deviceLogin->getRegionGeoid()]);
 		$geonames = GeonameTable::get($geoids);
@@ -208,11 +331,13 @@ class Device
 		$region = '';
 		if (!empty($geonames))
 		{
+			$currentLang = Main\Context::getCurrent()->getLanguage();
+
 			$langCode = '';
-			if ($user['LANGUAGE_ID'] != '' && $user['LANGUAGE_ID'] != $currentLang)
+			if ($lang != $currentLang)
 			{
 				$language = LanguageTable::getList([
-					'filter' => ['=LID' => $user['LANGUAGE_ID'], '=ACTIVE' => 'Y'],
+					'filter' => ['=LID' => $lang, '=ACTIVE' => 'Y'],
 					'cache' => ['ttl' => 86400],
 				])->fetchObject();
 
@@ -247,28 +372,84 @@ class Device
 		// Combined location
 		$location = implode(', ', array_filter([$city, $region, $country]));
 
-		$fields = [
-			'EMAIL' => $user['EMAIL'],
-			'LOGIN' => $user['LOGIN'],
-			'NAME' => $user['NAME'],
-			'LAST_NAME' => $user['LAST_NAME'],
-			'DEVICE' => $deviceTypes[$device->getDeviceType()],
-			'BROWSER' => $device->getBrowser(),
-			'PLATFORM' => $device->getPlatform(),
-			'USER_AGENT' => $device->getUserAgent(),
-			'IP' => $deviceLogin->getIp(),
-			'DATE' => $deviceLogin->getLoginDate(),
+		return [
 			'COUNTRY' => $country,
 			'REGION' => $region,
 			'CITY' => $city,
 			'LOCATION' => $location,
 		];
+	}
 
-		Mail\Event::send([
-			'EVENT_NAME' => self::EMAIL_EVENT,
-			'C_FIELDS' => $fields,
-			'LID' => $site,
-			'LANGUAGE_ID' => $lang,
-		]);
+	/**
+	 * @internal
+	 * @param int $lastId
+	 * @return string
+	 */
+	public static function deleteDuplicatesAgent(int $lastId = 0)
+	{
+		$connection = Main\Application::getConnection();
+
+		$users = $connection->query("
+			select USER_ID 
+			from b_user_device 
+			where USER_ID > {$lastId} 
+			group by USER_ID 
+			order by USER_ID 
+			limit 100
+		");
+
+		$userId = null;
+		while ($user = $users->fetch())
+		{
+			$userId = $user['USER_ID'];
+
+			$devices = $connection->query("
+				select * 
+				from b_user_device 
+				where USER_ID = {$userId}
+					and COOKABLE = 'Y'
+					and APP_PASSWORD_ID is not null 
+				order by ID 
+			")->fetchAll();
+
+			$deleted = [];
+			for ($i = 0, $count = count($devices); $i < $count; $i++)
+			{
+				$device = $devices[$i];
+
+				if (isset($deleted[$device['ID']]))
+				{
+					continue;
+				}
+
+				for ($j = $i + 1; $j < $count; $j++)
+				{
+					$deviceDouble = $devices[$j];
+
+					if ($deviceDouble['APP_PASSWORD_ID'] == $device['APP_PASSWORD_ID'] && static::match($deviceDouble['USER_AGENT'], $device['USER_AGENT']))
+					{
+						$connection->query("
+							update b_user_device_login 
+							set DEVICE_ID = {$device['ID']}
+							where DEVICE_ID = {$deviceDouble['ID']} 
+						");
+
+						$connection->query("
+							delete from b_user_device 
+							where ID = {$deviceDouble['ID']} 
+						");
+
+						$deleted[$deviceDouble['ID']] = 1;
+					}
+				}
+			}
+		}
+
+		if ($userId !== null)
+		{
+			return "\\Bitrix\\Main\\Authentication\\Device::deleteDuplicatesAgent({$userId});";
+		}
+
+		return '';
 	}
 }

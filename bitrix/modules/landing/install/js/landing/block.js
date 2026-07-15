@@ -108,7 +108,6 @@
 	 */
 	var ACCESS_X = "X";
 
-
 	function getTypeSettings(prop)
 	{
 		let lp = BX.Landing.Main.getInstance();
@@ -380,10 +379,14 @@
 					showOptions.state = 'presets';
 				}
 
-				void BX.Landing.UI.Panel.FormSettingsPanel
-					.getInstance()
-					.show(showOptions)
-				;
+				const formSettingsPanelInstance = BX.Landing.UI.Panel.FormSettingsPanel.getInstance();
+				if (
+					formSettingsPanelInstance
+					&& element.ownerDocument === BX.Landing.PageObject.getEditorWindow().document
+				)
+				{
+					formSettingsPanelInstance.show(showOptions);
+				}
 			}
 		}
 
@@ -411,9 +414,7 @@
 		bind(top, "storage", this.onStorage);
 	};
 
-
 	BX.Landing.Block.storage = new BX.Landing.Collection.BlockCollection();
-
 
 	BX.Landing.Block.prototype = {
 		/**
@@ -581,11 +582,13 @@
 		createEvent: function(options)
 		{
 			return new BlockEvent({
+				blockId: this.id,
 				block: this.node,
 				node: !!options && !!options.node ? options.node : null,
+				content: this.content,
 				card: !!options && !!options.card ? options.card : null,
 				data: (!!options && options.data) || {},
-				onForceInit: this.forceInit.bind(this)
+				onForceInit: this.forceInit.bind(this),
 			});
 		},
 
@@ -709,10 +712,10 @@
 				);
 
 				createPanel.addButton(
-					new PlusButton("insert_after", {
-						text: BX.Landing.Loc.getMessage("ACTION_BUTTON_CREATE"),
-						onClick: throttle(this.addBlockAfterThis, 600, this)
-					})
+					new PlusButton('insert_after', {
+						text: BX.Landing.Loc.getMessage('ACTION_BUTTON_CREATE'),
+						onClick: throttle(this.addBlockAfterThis, 600, this),
+					}),
 				);
 
 				createPanel.show();
@@ -721,15 +724,15 @@
 				if (this.isCrmFormPage())
 				{
 					var createBeforePanel = new BaseButtonPanel(
-						"create_before_action",
-						"landing-ui-panel-create-before-action"
+						'create_before_action',
+						'landing-ui-panel-create-before-action'
 					);
 
 					createBeforePanel.addButton(
-						new PlusButton("insert_before", {
-							text: BX.Landing.Loc.getMessage("ACTION_BUTTON_CREATE"),
-							onClick: throttle(this.addBlockBeforeThis, 600, this)
-						})
+						new PlusButton('insert_before', {
+							text: BX.Landing.Loc.getMessage('ACTION_BUTTON_CREATE'),
+							onClick: throttle(this.addBlockBeforeThis, 600, this),
+						}),
 					);
 
 					createBeforePanel.show();
@@ -901,6 +904,8 @@
 								return new BX.Main.MenuItem({
 									id: "content",
 									text: BX.Landing.Loc.getMessage("ACTION_BUTTON_CONTENT"),
+									disabled: !this.isEditBlockAllowed(),
+									disabledHint: this.getDisableEditBlockHint(),
 									onclick: function() {
 										this.onShowContentPanel();
 										this.sidebarActionsMenu.close();
@@ -923,7 +928,11 @@
 							}
 						}.bind(this))(),
 						(function() {
-							if (isPlainObject(this.manifest.style) && this.isAllowedByTariff())
+							if (
+								isPlainObject(this.manifest.style)
+								&& this.isAllowedByTariff()
+								&& !this.isMainpage()
+							)
 							{
 								return new BX.Main.MenuItem({
 									id: "designblock",
@@ -1010,18 +1019,18 @@
 						}.bind(this))(),
 
 						new BX.Main.MenuItem({
-							id: "down",
-							text: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_BLOCK_ACTION_SORT_DOWN"),
-							onclick: function() {
-								this.moveDown();
-								this.sidebarActionsMenu.close();
-							}.bind(this)
-						}),
-						new BX.Main.MenuItem({
 							id: "up",
 							text: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_BLOCK_ACTION_SORT_UP"),
 							onclick: function() {
 								this.moveUp();
+								this.sidebarActionsMenu.close();
+							}.bind(this)
+						}),
+						new BX.Main.MenuItem({
+							id: "down",
+							text: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_BLOCK_ACTION_SORT_DOWN"),
+							onclick: function() {
+								this.moveDown();
 								this.sidebarActionsMenu.close();
 							}.bind(this)
 						}),
@@ -1068,18 +1077,28 @@
 						new BX.Main.MenuItem({
 							delimiter: true,
 						}),
-						new BX.Main.MenuItem({
-							text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_FEEDBACK_BUTTON"),
-							onclick: this.showFeedbackForm.bind(this)
-						}),
-						new BX.Main.MenuItem({
-							text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_SAVE_BLOCK_BUTTON_MSGVER_1"),
-							className: !this.isSaveBlockInLibraryAllowed() ? "landing-ui-disabled" : "",
-							onclick: function() {
-								this.saveBlock();
-								this.sidebarActionsMenu.close();
-							}.bind(this)
-						}),
+						(() => {
+							if (this.isShowFeedbackButton() === true)
+							{
+								return new BX.Main.MenuItem({
+									text: BX.Landing.Loc.getMessage('LANDING_BLOCKS_ACTIONS_FEEDBACK_BUTTON'),
+									onclick: this.showFeedbackForm.bind(this),
+								});
+							}
+						})(),
+						(() => {
+							if (!this.isMainpage())
+							{
+								return new BX.Main.MenuItem({
+									text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_SAVE_BLOCK_BUTTON_MSGVER_1"),
+									className: !this.isSaveBlockInLibraryAllowed() ? "landing-ui-disabled" : "",
+									onclick: function() {
+										this.saveBlock();
+										this.sidebarActionsMenu.close();
+									}.bind(this)
+								})
+							}
+						})(),
 						new BX.Main.MenuItem({
 							delimiter: true,
 						}),
@@ -1142,16 +1161,18 @@
 				{
 					if (isPlainObject(this.manifest.style))
 					{
-						contentPanel.addButton(
-							new ActionButton("designblock", {
-								text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_DESIGN_BLOCK"),
-								onClick: this.onDesignerBlockClick.bind(this),
-								disabled: !this.isDesignBlockAllowed(),
-								attrs: { title: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_DESIGN_BLOCK") },
-								separate: true,
-							})
-						);
-
+						if (!this.isMainpage())
+						{
+							contentPanel.addButton(
+								new ActionButton("designblock", {
+									text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_DESIGN_BLOCK"),
+									onClick: this.onDesignerBlockClick.bind(this),
+									disabled: !this.isDesignBlockAllowed(),
+									attrs: {title: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_DESIGN_BLOCK")},
+									separate: true,
+								}),
+							);
+						}
 						contentPanel.addButton(
 							new ActionButton("style", {
 								text: BX.Landing.Loc.getMessage("ACTION_BUTTON_STYLE"),
@@ -1169,6 +1190,8 @@
 							new ActionButton("content", {
 								text: BX.Landing.Loc.getMessage("ACTION_BUTTON_CONTENT"),
 								onClick: this.onShowContentPanel.bind(this),
+								disabled: !this.isEditBlockAllowed(),
+								disabledHint: this.getDisableEditBlockHint(),
 								attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_BLOCK_EDIT")},
 								separate: true,
 							})
@@ -1424,6 +1447,12 @@
 
 		onDesignerBlockClick: function()
 		{
+			BX.UI.Analytics.sendData({
+				tool: 'landing',
+				category: 'superblock',
+				event: 'open',
+				type: BX.Landing.Main.getAnalyticsCategoryByType(),
+			});
 			// get actual block content before designer edit
 			var oldContent = null;
 			BX.Landing.Backend.getInstance()
@@ -1468,20 +1497,27 @@
 									var newContent = response.content;
 									if (oldContent !== newContent)
 									{
+										BX.UI.Analytics.sendData({
+											tool: 'landing',
+											category: 'superblock',
+											event: 'save',
+											type: BX.Landing.Main.getAnalyticsCategoryByType(),
+										});
+
 										BX.Landing.History.getInstance().push();
 										this.reload().then(function()
 										{
 											fireCustomEvent("BX.Landing.Block:onDesignerBlockSave", [this.id]);
 										}.bind(this));
-										// analytic label on close
-										var metrika = new BX.Landing.Metrika(true);
-										metrika.sendLabel(
-											null,
-											"designerBlock",
-											"close" +
-											"&designed=" + (this.designed ? "Y" : "N") +
-											"&code=" + this.manifest.code
-										);
+									}
+									else
+									{
+										BX.UI.Analytics.sendData({
+											tool: 'landing',
+											category: 'superblock',
+											event: 'close',
+											type: BX.Landing.Main.getAnalyticsCategoryByType(),
+										});
 									}
 								}.bind(this));
 						}.bind(this)
@@ -1507,7 +1543,53 @@
 
 		isEditBlockAllowed: function()
 		{
-			return this.access >= ACCESS_W;
+			let allowedButton = this.access >= ACCESS_W;
+			this.disableEditBlockHintType = '';
+
+			const landing = BX.Landing.Main.getInstance();
+			const type = landing.options.params.type;
+			if (
+				type === 'MAINPAGE'
+				&& Object.keys(this.manifest.nodes).length === 0
+				&& Object.keys(this.manifest.attrs).length === 0
+			)
+			{
+				this.disableEditBlockHintType = 'empty';
+
+				return false;
+			}
+
+			if (this.manifest.block.disableEditButton === true)
+			{
+				this.disableEditBlockHintType = 'demo_data_option';
+
+				return false;
+			}
+
+			return allowedButton;
+		},
+
+		getDisableEditBlockHint: function()
+		{
+			let hint = null;
+			let type = 'BLOCK';
+			if (this.isMainpage())
+			{
+				type = 'WIDGET';
+			}
+
+			if (this.disableEditBlockHintType === 'empty')
+			{
+				const emptyPhraseCode = 'LANDING_TITLE_' + type + '_EDIT_BUTTON_DISABLE_HINT_EMPTY';
+				hint = BX.Landing.Loc.getMessage(emptyPhraseCode);
+			}
+			if (this.disableEditBlockHintType === 'demo_data_option')
+			{
+				const demoDataOptionPhraseCode = 'LANDING_TITLE_' + type + '_EDIT_BUTTON_DISABLE_HINT_DEMO_DATA';
+				hint = BX.Landing.Loc.getMessage(demoDataOptionPhraseCode);
+			}
+
+			return hint;
 		},
 
 		isRemoveBlockAllowed: function()
@@ -1538,10 +1620,14 @@
 		onRestrictedButtonMouseenter: function(event)
 		{
 			clearTimeout(this.displayBlockTimer);
-			this.displayBlockTimer = setTimeout(function(target) {
-				BX.Landing.UI.Tool.Suggest.getInstance().show(target, {
-					description: BX.Landing.Loc.getMessage("LANDING_BLOCK_RESTRICTED_TEXT")
-				});
+			this.displayBlockTimer = setTimeout(function (target)
+			{
+				BX.Landing.UI.Tool.Suggest.getInstance().show(
+					target,
+					{
+						description: this.getRestrictedMessageText(),
+					}
+				);
 			}.bind(this), 200, event.currentTarget);
 		},
 
@@ -1754,21 +1840,36 @@
 								this.blockActionsMenu.close();
 							}.bind(this)
 						}),
-						new BX.Main.MenuItem({
-							text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_FEEDBACK_BUTTON"),
-							onclick: this.showFeedbackForm.bind(this)
-						}),
-						new BX.Main.MenuItem({
-							delimiter: true,
-						}),
-						new BX.Main.MenuItem({
-							text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_SAVE_BLOCK_BUTTON_MSGVER_1"),
-							className: !this.isSaveBlockInLibraryAllowed() ? "landing-ui-disabled" : "",
-							onclick: function() {
-								this.saveBlock();
-								this.blockActionsMenu.close();
-							}.bind(this)
-						}),
+						(() => {
+							if (this.isShowFeedbackButton() === true)
+							{
+								return new BX.Main.MenuItem({
+									text: BX.Landing.Loc.getMessage('LANDING_BLOCKS_ACTIONS_FEEDBACK_BUTTON'),
+									onclick: this.showFeedbackForm.bind(this),
+								});
+							}
+						})(),
+						(() => {
+							if (!this.isMainpage())
+							{
+								return new BX.Main.MenuItem({
+									delimiter: true,
+								});
+							}
+						})(),
+						(() => {
+							if (!this.isMainpage())
+							{
+								return new BX.Main.MenuItem({
+									text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_SAVE_BLOCK_BUTTON_MSGVER_1"),
+									className: !this.isSaveBlockInLibraryAllowed() ? "landing-ui-disabled" : "",
+									onclick: function() {
+										this.saveBlock();
+										this.blockActionsMenu.close();
+									}.bind(this)
+								});
+							}
+						})(),
 					]
 				});
 			}
@@ -1986,9 +2087,22 @@
 			return {};
 		},
 
+		/**
+		 * Check is are crm form
+		 * @return {boolean}
+		 */
 		isCrmFormPage: function()
 		{
-			return BX.Landing.Env.getInstance().getOptions().specialType === 'crm_forms';
+			return BX.Landing.Env.getInstance().getSpecialType() === 'crm_forms';
+		},
+
+		/**
+		 * Check is page are mainpage
+		 * @return {boolean}
+		 */
+		isMainpage: function()
+		{
+			return BX.Landing.Env.getInstance().getType() === 'MAINPAGE';
 		},
 
 		isCrmFormBlock: function()
@@ -2997,11 +3111,20 @@
 		{
 			return create("div", {
 				props: {className: "ui-alert ui-alert-warning"},
-				html: BX.Landing.Loc.getMessage("LANDING_BLOCK_RESTRICTED_TEXT"),
+				html: this.getRestrictedMessageText(),
 				attrs: {style: "margin-bottom: 20px"}
-			})
+			});
 		},
 
+		getRestrictedMessageText: function()
+		{
+			if (this.isMainpage())
+			{
+				return BX.Landing.Loc.getMessage("LANDING_BLOCK_RESTRICTED_TEXT_MAINPAGE");
+			}
+
+			return BX.Landing.Loc.getMessage("LANDING_BLOCK_RESTRICTED_TEXT2");
+		},
 
 		/**
 		 * Handles event on style panel show
@@ -3212,13 +3335,13 @@
 						items: typeSettings.items,
 						help: typeSettings.help,
 						onChange: onChange.bind(this),
-						onReset: onReset.bind(this)
+						onReset: onReset.bind(this),
 					});
 
 					// when field changed
 					function onChange(value, items, postfix, affect) {
 						// false handler by some fields events
-						if (value instanceof  BX.Event.BaseEvent)
+						if (value instanceof BX.Event.BaseEvent)
 						{
 							return;
 						}
@@ -3926,7 +4049,11 @@
 
 			if (fieldOptions.value === null || fieldOptions.value === undefined)
 			{
-				fieldOptions.value = "";
+				fieldOptions.value = '';
+				if (fieldOptions['default_value'] !== null)
+				{
+					fieldOptions.value = fieldOptions['default_value'];
+				}
 			}
 
 			if (element)
@@ -4884,6 +5011,9 @@
 				{
 					return BX.Landing.Backend.getInstance()
 						.batch("Landing\\Block::updateNodes", batch, updateNodeParams)
+						.then(() => {
+							BX.Landing.History.getInstance().push();
+						})
 						.then(function() {
 							return Promise.resolve(data);
 						});
@@ -5279,7 +5409,8 @@
 				id: "attr",
 				type: "attrs",
 				title: BX.Landing.Loc.getMessage("BLOCK_SETTINGS"),
-				description: this.manifest.block.attrsFormDescription
+				description: this.manifest.block.attrsFormDescription,
+				descriptionHintStyle: this.manifest.block.attrsFormDescriptionHintStyle,
 			});
 
 			fields.forEach(function(field) {
@@ -5623,10 +5754,16 @@
 				}
 
 				// Block settings
-				var blockSettingsForm = this.getBlockSettingsForm();
-				if (blockSettingsForm.fields.length > 0)
+				const notAllowedTypes = ['MAINPAGE'];
+				const landing = BX.Landing.Main.getInstance();
+				const type = landing.options.params.type;
+				if (!notAllowedTypes.includes(type))
 				{
-					forms.push(blockSettingsForm);
+					const blockSettingsForm = this.getBlockSettingsForm();
+					if (blockSettingsForm.fields.length > 0)
+					{
+						forms.push(blockSettingsForm);
+					}
 				}
 			}
 
@@ -6024,6 +6161,20 @@
 				!!this.dynamicParams
 				&& code in this.dynamicParams
 			);
-		}
+		},
+
+		isShowFeedbackButton: function()
+		{
+			if (
+				BX.Type.isArray(this.manifest.block.type)
+				&& this.manifest.block.type.length === 1
+				&& this.manifest.block.type.includes('mainpage')
+			)
+			{
+				return false;
+			}
+
+			return true;
+		},
 	};
 })();

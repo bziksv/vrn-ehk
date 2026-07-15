@@ -4,6 +4,7 @@ namespace Bitrix\Mail\Helper\Mailbox;
 
 use Bitrix\Mail;
 use Bitrix\Mail\Helper\MailboxDirectoryHelper;
+use Bitrix\Mail\Helper\Message\MessageInternalDateHandler;
 use Bitrix\Mail\MailboxDirectory;
 use Bitrix\Main;
 use Bitrix\Main\Text\Emoji;
@@ -771,6 +772,7 @@ class Imap extends Mail\Helper\Mailbox
 
 		$lastDir = $this->getDirsHelper()->getLastSyncDirByDefault($currentDir);
 
+		/** @var Mail\Internals\Entity\MailboxDirectory $item */
 		foreach ($dirsSync as $item)
 		{
 			MailboxDirectoryHelper::setCurrentSyncDir($item->getPath());
@@ -820,8 +822,6 @@ class Imap extends Mail\Helper\Mailbox
 			$countDeleted = $result ? $result->getCount() : 0;
 
 			$this->lastSyncResult['deletedMessages'] += $countDeleted;
-
-			$successfulReSyncCount = 0;
 
 			if (!empty($this->syncParams['full']))
 			{
@@ -926,7 +926,7 @@ class Imap extends Mail\Helper\Mailbox
 	 * @throws Main\DB\SqlQueryException
 	 * @throws Main\SystemException
 	 */
-	public function syncMessages($mailboxID, $dirPath, $UIDs)
+	public function syncMessages($mailboxID, $dirPath, $UIDs, $isRecovered = false)
 	{
 		$meta = $this->client->select($dirPath, $error);
 		$uidtoken = $meta['uidvalidity'];
@@ -973,7 +973,7 @@ class Imap extends Mail\Helper\Mailbox
 
 			if (empty($messages))
 			{
-				if (false === $messages)
+				if ($messages === false)
 				{
 					$this->warnings->add($this->client->getErrors()->toArray());
 					return true;
@@ -1000,9 +1000,9 @@ class Imap extends Mail\Helper\Mailbox
 
 				if(empty($item['__replaces']))
 				{
-					$outgoingMessageId = $this->selectOutgoingMessageIdFromHeader($item);
+					$outgoingMessageId = $this->getLocalMessageIdFromHeader($item);
 
-					if($outgoingMessageId)
+					if($outgoingMessageId !== '')
 					{
 						$item['__replaces'] = $outgoingMessageId;
 						$isOutgoing = true;
@@ -1010,7 +1010,7 @@ class Imap extends Mail\Helper\Mailbox
 				}
 
 				$hashesMap = [];
-				$this->syncMessage($dir->getPath(), $item, $hashesMap, true, $isOutgoing);
+				$this->syncMessage($dir->getPath(), $item, $hashesMap, true, $isOutgoing, $isRecovered);
 
 				if ($this->isTimeQuotaExceeded())
 				{
@@ -1024,12 +1024,23 @@ class Imap extends Mail\Helper\Mailbox
 
 	public function isAuthenticated(): bool
 	{
-		if (\Bitrix\Mail\Helper::getImapUnseen($this->mailbox, 'inbox') === false)
+		$dirs = $this->getDirsHelper()->getSyncDirsOrderByTime();
+
+		if (empty($dirs))
 		{
-			return false;
+			return true;
 		}
 
-		return true;
+		/** @var \Bitrix\Mail\Internals\Entity\MailboxDirectory[] $dirs */
+		foreach ($dirs as $dir)
+		{
+			if (\Bitrix\Mail\Helper::getImapUnseen($this->mailbox, $dir->getPath()) !== false)
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public function syncDirForSpecificDay($dirPath, $internalDate)
@@ -1050,6 +1061,7 @@ class Imap extends Mail\Helper\Mailbox
 	{
 		$messagesSynced = 0;
 
+		$error = [];
 		$meta = $this->client->select($dir->getPath(), $error);
 
 		if (false === $meta)
@@ -1070,7 +1082,12 @@ class Imap extends Mail\Helper\Mailbox
 
 		while ($range = $this->getSyncRange($dir->getPath(), $uidtoken, $intervalSynchronizationAttempts))
 		{
-			$reverse = $range[0] > $range[1];
+			$syncDown = $range[0] > $range[1];
+
+			if ($syncDown)
+			{
+				MessageInternalDateHandler::clearStartInternalDate($dir->getMailboxId(), $dir->getDirMd5());
+			}
 
 			sort($range);
 
@@ -1121,7 +1138,7 @@ class Imap extends Mail\Helper\Mailbox
 				$intervalSynchronizationAttempts = 0;
 			}
 
-			$reverse ? krsort($messages) : ksort($messages);
+			$syncDown ? krsort($messages) : ksort($messages);
 
 			$this->parseHeaders($messages);
 
@@ -1148,9 +1165,9 @@ class Imap extends Mail\Helper\Mailbox
 
 				if(empty($item['__replaces']))
 				{
-					$outgoingMessageId = $this->selectOutgoingMessageIdFromHeader($item);
+					$outgoingMessageId = $this->getLocalMessageIdFromHeader($item);
 
-					if($outgoingMessageId)
+					if($outgoingMessageId !== '')
 					{
 						$item['__replaces'] = $outgoingMessageId;
 						$isOutgoing = true;
@@ -1241,10 +1258,113 @@ class Imap extends Mail\Helper\Mailbox
 		return $report;
 	}
 
+	private function getBorderlineUIDs(Mail\Internals\Entity\MailboxDirectory $dir): array
+	{
+		static $borderlineUIDs = null;
+
+		if (!is_null($borderlineUIDs))
+		{
+			return $borderlineUIDs;
+		}
+
+		$error = [];
+		$meta = $this->client->select($dir->getPath(), $error);
+
+		if (!isset($meta['exists']))
+		{
+			$this->warnings->add($this->client->getErrors()->toArray());
+			$borderlineUIDs = [];
+
+			return $borderlineUIDs;
+		}
+
+		$messagesNumberInTheMailService = $meta['exists'];
+		$messages = $this->fetchMessage(sprintf('1,%u', $messagesNumberInTheMailService), $dir->getPath());
+
+		if (empty($messages))
+		{
+			$borderlineUIDs = [];
+
+			return $borderlineUIDs;
+		}
+
+		$range = [
+			reset($messages)['UID'],
+			end($messages)['UID'],
+		];
+
+		sort($range);
+
+		//fixed errors of some mail services that give incorrect letter intervals
+		if($range[0] === $range[1] && $messagesNumberInTheMailService > 1)
+		{
+			$borderlineUIDs = [];
+
+			return $borderlineUIDs;
+		}
+
+		$borderlineUIDs = $range;
+
+		return $borderlineUIDs;
+	}
+
+	protected function getMessageInFolderFilter(Mail\Internals\Entity\MailboxDirectory $dir): array
+	{
+		$borderlineUIDs = $this->getBorderlineUIDs($dir);
+
+		if (empty($borderlineUIDs))
+		{
+			return [];
+		}
+
+		return [
+			'=DIR_MD5' => $dir->getDirMd5(),
+			[
+				'LOGIC' => 'AND',
+				'>=MSG_UID' => $borderlineUIDs[0],
+				'<=MSG_UID' => $borderlineUIDs[1],
+			],
+		];
+	}
+
+	/**
+	 * @param string $format
+	 * (examples: '%u:%u', '1:*', '1,%u')
+	 * @param string $dirPath
+	 *
+	 * The keys match the 'id' value within each structure:
+	 * @return array<int, array{
+	 *      id: string,
+	 *      UID: string,
+	 *      FLAGS: array<int, string>
+	 *  }>
+	 */
+	private function fetchMessage(string $format, string $dirPath): array
+	{
+		$error = [];
+		$messages = $this->client->fetch(false, $dirPath, $format, '(UID FLAGS)', $error);
+
+		if (empty($messages))
+		{
+			if (false === $messages)
+			{
+				$this->warnings->add($this->client->getErrors()->toArray());
+			}
+
+			return [];
+		}
+
+		krsort($messages);
+
+		return $messages;
+	}
+
 	protected function resyncDirInternal($dir, $numberForResync = false)
 	{
+		$error = [];
 		$meta = $this->client->select($dir->getPath(), $error);
-		if (false === $meta)
+
+		if (!isset($meta['exists']))
 		{
 			$this->warnings->add($this->client->getErrors()->toArray());
 
@@ -1293,31 +1413,8 @@ class Imap extends Mail\Helper\Mailbox
 			return;
 		}
 
-		$fetcher = function ($range) use ($dir)
-		{
-			$messages = $this->client->fetch(false, $dir->getPath(), $range, '(UID FLAGS)', $error);
-
-			if (empty($messages))
-			{
-				if (false === $messages)
-				{
-					$this->warnings->add($this->client->getErrors()->toArray());
-				}
-				else
-				{
-					// @TODO: log
-				}
-
-				return false;
-			}
-
-			krsort($messages);
-
-			return $messages;
-		};
-
 		$messagesNumberInTheMailService = $meta['exists'];
-		$messages = $fetcher(($messagesNumberInTheMailService > 10000 || $numberForResync !== false) ? sprintf('1,%u', $messagesNumberInTheMailService) : '1:*');
+		$messages = $this->fetchMessage((($messagesNumberInTheMailService > 10000 || $numberForResync !== false) ? sprintf('1,%u', $messagesNumberInTheMailService) : '1:*'), $dir->getPath());
 
 		if (empty($messages))
 		{
@@ -1331,7 +1428,8 @@ class Imap extends Mail\Helper\Mailbox
 		);
 		sort($range);
 
-		if($range[0]===$range[1] and $messagesNumberInTheMailService > 1)
+		//fixed errors of some mail services that give incorrect letter intervals
+		if($range[0] === $range[1] && $messagesNumberInTheMailService > 1)
 		{
 			return false;
 		}
@@ -1361,7 +1459,7 @@ class Imap extends Mail\Helper\Mailbox
 		{
 			$range1 = $meta['exists'];
 			$range0 = max($range1 - ($numberForResync - 1), 1);
-			$messages = $fetcher(sprintf('%u:%u', $range0, $range1));
+			$messages = $this->fetchMessage(sprintf('%u:%u', $range0, $range1), $dir->getPath());
 
 			if (empty($messages))
 			{
@@ -1386,7 +1484,7 @@ class Imap extends Mail\Helper\Mailbox
 			$rangeSize = $range1 > 10000 ? 8000 : $range1;
 			$range0 = max($range1 - $rangeSize, 1);
 
-			$messages = $fetcher(sprintf('%u:%u', $range0, $range1));
+			$messages = $this->fetchMessage(sprintf('%u:%u', $range0, $range1), $dir->getPath());
 
 			if (empty($messages))
 			{
@@ -1685,16 +1783,14 @@ class Imap extends Mail\Helper\Mailbox
 		];
 	}
 
-	protected function selectOutgoingMessageIdFromHeader($message)
+	protected function getLocalMessageIdFromHeader($message): string
 	{
 		if (preg_match('/X-Bitrix-Mail-Message-UID:\s*([a-f0-9]+)/i', $message['BODY[HEADER]'], $matches))
 		{
 			return $matches[1];
 		}
-		else
-		{
-			return false;
-		}
+
+		return '';
 	}
 
 	protected function resyncMessages($dirPath, $uidtoken, &$messages)
@@ -1729,6 +1825,7 @@ class Imap extends Mail\Helper\Mailbox
 			'S' => array(),
 			'U' => array(),
 		);
+
 		foreach ($messages as $id => $item)
 		{
 			$messageUid = md5(sprintf('%s:%u:%u', $dirPath, $uidtoken, $item['UID']));
@@ -1762,15 +1859,36 @@ class Imap extends Mail\Helper\Mailbox
 			}
 			else
 			{
-				/*
-				addMessage2Log(
-					sprintf(
-						'IMAP: message lost (%u:%s:%u:%s)',
-						$this->mailbox['ID'], $dirPath, $uidtoken, $item['UID']
-					),
-					'mail', 0, false
-				);
-				*/
+				static $cache;
+
+				if (!isset($cache[$this->mailbox['ID']][$dirPath][$uidtoken]))
+				{
+					$cache[$this->mailbox['ID']][$dirPath][$uidtoken] = [
+						'firstLocalUID' => \Bitrix\Mail\MailMessageUidTable::getFirstLocalUID((int) $this->mailbox['ID'], $dirPath, $uidtoken),
+						'lastLocalUID' => \Bitrix\Mail\MailMessageUidTable::getLastLocalUID((int) $this->mailbox['ID'], $dirPath, $uidtoken),
+					];
+				}
+
+				$firstLocalUID = $cache[$this->mailbox['ID']][$dirPath][$uidtoken]['firstLocalUID'];
+				$lastLocalUID = $cache[$this->mailbox['ID']][$dirPath][$uidtoken]['lastLocalUID'];
+
+				if (
+					$firstLocalUID > 0 &&
+					$lastLocalUID > 0 &&
+					(int) $item['UID'] > $firstLocalUID &&
+					(int) $item['UID'] < $lastLocalUID
+				)
+				{
+					$lostMessageFields = [
+						'ID' => $messageUid,
+						'DIR_MD5'  => md5($dirPath),
+						'DIR_UIDV' => $uidtoken,
+						'MSG_UID'  => $item['UID'],
+						'MAILBOX_ID' => $this->mailbox['ID'],
+					];
+
+					$this->registerMessage($lostMessageFields, messageStatus: \Bitrix\Mail\MailMessageUidTable::LOST);
+				}
 			}
 		}
 
@@ -1858,7 +1976,7 @@ class Imap extends Mail\Helper\Mailbox
 		return $result->isSuccess();
 	}
 
-	protected function syncMessage($dirPath, $message, &$hashesMap = [], $ignoreSyncFrom = false, $isOutgoing = false)
+	protected function syncMessage($dirPath, array $message, &$hashesMap = [], $ignoreSyncFrom = false, $isOutgoing = false, $isRecovered = false)
 	{
 		$fields = $message['__fields'];
 
@@ -1874,9 +1992,35 @@ class Imap extends Mail\Helper\Mailbox
 			}
 		}
 
-		if (!$this->registerMessage($fields, ($message['__replaces'] ?? null), $isOutgoing))
+		$replaces = $message['__replaces'] ?? null;
+
+		if ($isOutgoing || !is_null($replaces))
 		{
-			return false;
+			if (!$this->registerMessage($fields, $replaces, $isOutgoing))
+			{
+				return false;
+			}
+		}
+		else
+		{
+			/*
+			 * If the message is outgoing but there is no local ID in the header,
+			 * we will prepare additional parameters to search for a local copy.
+			 */
+
+			$isOutgoing = ($this->getDirsHelper()->getOutcomePath() === $dirPath);
+
+			$idFromHeaderMessage = '';
+
+			if ($isOutgoing && ($message['__header'] instanceof \CMailHeader))
+			{
+				$idFromHeaderMessage = trim($message['__header']->GetHeader("MESSAGE-ID"), " <>");
+			}
+
+			if (!$this->registerMessage($fields, isOutgoing: $isOutgoing, idFromHeaderMessage: $idFromHeaderMessage))
+			{
+				return false;
+			}
 		}
 
 		$minimumSyncDate = $this->getMinimumSyncDate();
@@ -1935,19 +2079,20 @@ class Imap extends Mail\Helper\Mailbox
 
 			$messageId = $this->cacheMessage(
 				$message,
-				array(
-					'timestamp'        => $message['__internaldate']->getTimestamp(),
-					'size'             => $message['RFC822.SIZE'],
-					'outcome'          => in_array($this->mailbox['EMAIL'], $message['__from']),
-					'draft'            => $dir != null && $dir->isDraft() || (isset($message['FLAGS']) && preg_grep('/^ \x5c Draft $/ix', $message['FLAGS'])),
-					'trash'            => $dir != null && $dir->isTrash(),
-					'spam'             => $dir != null && $dir->isSpam(),
-					'seen'             => $fields['IS_SEEN'] == 'Y',
-					'hash'             => $fields['HEADER_MD5'],
+				[
+					'timestamp' => $message['__internaldate']->getTimestamp(),
+					'size' => $message['RFC822.SIZE'],
+					'outcome' => in_array($this->mailbox['EMAIL'], $message['__from']),
+					'draft' => $dir != null && $dir->isDraft() || (isset($message['FLAGS']) && preg_grep('/^ \x5c Draft $/ix', $message['FLAGS'])),
+					'trash' => $dir != null && $dir->isTrash(),
+					'spam' => $dir != null && $dir->isSpam(),
+					'seen' => $fields['IS_SEEN'] == 'Y',
+					'recovered' => $isRecovered,
+					'hash' => $fields['HEADER_MD5'],
 					'lazy_attachments' => $this->isSupportLazyAttachments(),
-					'excerpt'          => $fields,
+					'excerpt' => $fields,
 					MailMessageTable::FIELD_SANITIZE_ON_VIEW => $this->isSupportSanitizeOnView(),
-				)
+				],
 			);
 		}
 

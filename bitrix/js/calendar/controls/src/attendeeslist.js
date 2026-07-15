@@ -1,6 +1,6 @@
-import {Loc, Type} from "main.core";
-import {MenuManager, MenuItem} from "main.popup";
-import {UserPlannerSelector} from "calendar.controls";
+import { Loc, Type, Dom } from 'main.core';
+import { MenuManager, MenuItem } from 'main.popup';
+import { UserPlannerSelector } from 'calendar.controls';
 
 export class AttendeesList
 {
@@ -34,12 +34,11 @@ export class AttendeesList
 
 	addAvatarToMenuItems()
 	{
-		this.popup.menuItems.forEach((item) =>
-		{
+		this.popup.menuItems.forEach((item) => {
 			const icon = item.layout.item.querySelector('.menu-popup-item-icon');
 			if (Type.isPlainObject(item.dataset))
 			{
-				icon.appendChild(UserPlannerSelector.getUserAvatarNode(item.dataset.user))
+				Dom.append(UserPlannerSelector.getUserAvatarNode(item.dataset.user), icon);
 			}
 		});
 	}
@@ -47,7 +46,7 @@ export class AttendeesList
 	getPopup(menuItems)
 	{
 		return MenuManager.create(
-			'compact-event-form-attendees' + Math.round(Math.random() * 100000),
+			`compact-event-form-attendees${Math.round(Math.random() * 100_000)}`,
 			this.node,
 			menuItems,
 			{
@@ -58,8 +57,8 @@ export class AttendeesList
 				offsetLeft: 15,
 				angle: true,
 				cacheable: false,
-				className: 'calendar-popup-user-menu'
-			}
+				className: 'calendar-popup-user-menu',
+			},
 		);
 	}
 
@@ -69,51 +68,44 @@ export class AttendeesList
 		[
 			{
 				code: 'accepted', // Accepted
-				title: Loc.getMessage('EC_ATTENDEES_Y_NUM')
+				title: Loc.getMessage('EC_ATTENDEES_Y_NUM'),
 			},
 			{
 				code: 'requested', // Still thinking about
-				title: Loc.getMessage('EC_ATTENDEES_Q_NUM')
+				title: Loc.getMessage('EC_ATTENDEES_Q_NUM'),
 			},
 			{
 				code: 'declined', // Declined
-				title: Loc.getMessage('EC_ATTENDEES_N_NUM')
+				title: Loc.getMessage('EC_ATTENDEES_N_NUM'),
 			},
-		].forEach((group) =>
-		{
-			let groupUsers = this.attendeesList[group.code];
+		].forEach((group: { code: string, title: string }) => {
+			const groupUsers = this.attendeesList[group.code];
 			if (groupUsers.length > 0)
 			{
 				menuItems.push(new MenuItem({
 					text: group.title.replace('#COUNT#', groupUsers.length),
-					delimiter: true
-				}))
+					delimiter: true,
+				}));
 
-				groupUsers.forEach((user) =>
-				{
-					user.toString = () =>
-					{
-						return user.ID
-					};
+				groupUsers.forEach((user) => {
+					user.toString = () => user.ID;
+
 					menuItems.push(
 						{
 							text: BX.util.htmlspecialchars(user.DISPLAY_NAME),
-							dataset: {user: user},
-							className: 'calendar-add-popup-user-menu-item',
-							onclick: () =>
-							{
-								BX.SidePanel.Instance.open(
-									user.URL,
-									{
-										loader: "intranet:profile",
-										cacheable: false,
-										allowChangeHistory: false,
-										contentClassName: "bitrix24-profile-slider-content",
-										width: 1100
-									}
-								);
-							}
-						}
+							dataset: { user },
+							className: `calendar-add-popup-user-menu-item ${user.COLLAB_USER ? 'calendar-collab-user' : ''}`,
+							onclick: () => BX.SidePanel.Instance.open(
+								user.URL,
+								{
+									loader: 'intranet:profile',
+									cacheable: false,
+									allowChangeHistory: true,
+									contentClassName: 'bitrix24-profile-slider-content',
+									width: 1100,
+								},
+							),
+						},
 					);
 				});
 			}
@@ -125,9 +117,9 @@ export class AttendeesList
 	static sortAttendees(attendees)
 	{
 		return {
-			accepted : attendees.filter((user) => {return ['H', 'Y'].includes(user.STATUS);}),
-			requested : attendees.filter((user) => {return user.STATUS === 'Q' || user.STATUS === ''}),
-			declined : attendees.filter((user) => {return user.STATUS === 'N'}),
+			accepted: attendees.filter((user) => ['H', 'Y'].includes(user.STATUS)),
+			requested: attendees.filter((user) => user.STATUS === 'Q' || user.STATUS === ''),
+			declined: attendees.filter((user) => user.STATUS === 'N'),
 		};
 	}
 }

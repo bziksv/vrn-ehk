@@ -110,8 +110,8 @@ class Migrator
 		$ar["exception_handling"] = array(
 			"value" => array(
 				"debug" => true,
-				"handled_errors_types" => E_ALL & ~E_NOTICE & ~E_STRICT & ~E_USER_NOTICE,
-				"exception_errors_types" => E_ALL & ~E_NOTICE & ~E_WARNING & ~E_STRICT & ~E_USER_NOTICE & ~E_USER_WARNING & ~E_COMPILE_WARNING & ~E_DEPRECATED,
+				"handled_errors_types" => E_ALL & ~E_NOTICE & ~E_USER_NOTICE,
+				"exception_errors_types" => E_ALL & ~E_NOTICE & ~E_WARNING & ~E_USER_NOTICE & ~E_USER_WARNING & ~E_COMPILE_WARNING & ~E_DEPRECATED,
 				"ignore_silence" => false,
 				"assertion_throws_exception" => true,
 				"assertion_error_type" => E_USER_ERROR,
@@ -138,7 +138,7 @@ class Migrator
 			'database' => $DBName,
 			'login' => $DBLogin,
 			'password' => $DBPassword,
-			'options' =>  ((!defined("DBPersistent") || DBPersistent) ? 1 : 0) | ((defined("DELAY_DB_CONNECT") && DELAY_DB_CONNECT === true) ? 2 : 0)
+			'options' =>  ((defined('DBPersistent') && DBPersistent) ? 1 : 0) | ((defined("DELAY_DB_CONNECT") && DELAY_DB_CONNECT === true) ? 2 : 0)
 		);
 		$ar['connections']['readonly'] = true;
 

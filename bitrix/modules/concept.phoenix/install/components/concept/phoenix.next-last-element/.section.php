@@ -1,3 +1,0 @@
-<?
-$sSectionName="next-last-element";
-?>

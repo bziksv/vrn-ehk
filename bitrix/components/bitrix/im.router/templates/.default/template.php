@@ -30,6 +30,8 @@ if (button)
 	&& !isset($_GET['IM_DIALOG'])
 	&& !isset($_GET['IM_LINES'])
 	&& !isset($_GET['IM_COPILOT'])
+	&& !isset($_GET['IM_COLLAB'])
+	&& !isset($_GET['IM_CHANNEL'])
 ):?>
 	BX.addCustomEvent('onImInitBefore', function(im){
 		im.fullScreen = true;

@@ -1,0 +1,34 @@
+<root>
+	<Condition name="Новое"/>
+	<Condition name="Б/у">
+		<Kilometrage variable="text"/>
+	</Condition>
+	<Condition name="На запчасти">
+		<Kilometrage variable="text"/>
+	</Condition>
+	<TechnicalPassport name="В наличии"/>
+	<TechnicalPassport name="Дубликат"/>
+	<TechnicalPassport name="Нет"/>
+	<VIN variable="text"/>
+	<Axles name="1"/>
+	<Axles name="2"/>
+	<Axles name="3"/>
+	<Axles name="4"/>
+	<Axles name="5"/>
+	<Axles name="6"/>
+	<Axles name="7"/>
+	<Axles name="8"/>
+	<Axles name="9"/>
+	<Axles name="10"/>
+	<SuspensionChassis name="Балансирная"/>
+	<SuspensionChassis name="Гидравлическая"/>
+	<SuspensionChassis name="Пневматическая"/>
+	<SuspensionChassis name="Полурессорная"/>
+	<SuspensionChassis name="Рессорная"/>
+	<Brakes name="Барабанные"/>
+	<Brakes name="Дисковые"/>
+	<Brakes name="Отсутствуют"/>
+	<GrossVehicleWeight variable="text"/>
+	<TrailerLength variable="text"/>
+	<TrailerVolume variable="text"/>
+</root>

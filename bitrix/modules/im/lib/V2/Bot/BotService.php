@@ -3,8 +3,6 @@
 namespace Bitrix\Im\V2\Bot;
 
 use Bitrix\Im;
-use Bitrix\Im\V2\Chat;
-use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Message\Send\SendingConfig;
 
@@ -26,29 +24,13 @@ class BotService
 		$this->sendingConfig = $sendingConfig;
 	}
 
-	/**
-	 * @param Chat $chat
-	 * @param Message $message
-	 * @return void
-	 */
-	public function runMessageCommand(Chat $chat, Message $message): void
+	public function runMessageCommand(int $messageId, array $fields): void
 	{
-		$arFields = array_merge(
-			$message->toArray(),
-			$this->sendingConfig->toArray(),
-			[
-				'FROM_USER_ID' => $message->getAuthorId(),
-				'TO_USER_ID' => $chat->getType() == Chat::IM_TYPE_PRIVATE ? $chat->getOpponentId() : 0,
-				'BOT_IN_CHAT' => $chat->getType() != Chat::IM_TYPE_PRIVATE ? $chat->getBotInChat() : [],
-				'MESSAGE_TYPE' => $chat->getType(),
-				'CHAT_ENTITY_TYPE' => $chat->getEntityType(),
-				'COMMAND_CONTEXT' => 'TEXTAREA',
-			]
-		);
-		$result = Im\Command::onCommandAdd($message->getMessageId(), $arFields);
+		$fields['COMMAND_CONTEXT'] = 'TEXTAREA';
+		$result = Im\Command::onCommandAdd($messageId, $fields);
 		if (!$result)
 		{
-			Im\Bot::onMessageAdd($message->getMessageId(), $arFields);
+			Im\Bot::onMessageAdd($messageId, $fields);
 		}
 	}
 }

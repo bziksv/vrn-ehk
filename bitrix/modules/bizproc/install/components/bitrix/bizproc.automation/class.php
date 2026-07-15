@@ -9,6 +9,8 @@ use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Bizproc\Debugger;
 
+use Bitrix\Bizproc\Internal\Service\LatestRobots\RobotVersionIndexer;
+
 Main\UI\Extension::load('ui.alerts');
 
 Loc::loadMessages(__FILE__);
@@ -91,12 +93,21 @@ class BizprocAutomationComponent extends \Bitrix\Bizproc\Automation\Component\Ba
 					$templateArray['ROBOTS'][$i]['viewData'] = static::getRobotViewData($robot, $documentType);
 				}
 
+				$templateArray['CUSTOM_ROBOTS'] = [];
+				if ($templateArray['IS_EXTERNAL_MODIFIED'])
+				{
+					$documentType = $this->getDocumentType();
+					$complexDocumentId = [$documentType[0], $documentType[1], $this->getDocumentId()];
+					$templateArray['CUSTOM_ROBOTS'] = static::getRunningCustomRobots($complexDocumentId, $template);
+				}
+
 				$relation[$status] = $templateArray;
 			}
 			else
 			{
 				$template->save(array(), 1); // save bizproc template
 				$relation[$status] = $template->toArray();
+				$relation[$status]['CUSTOM_ROBOTS'] = [];
 			}
 		}
 
@@ -132,6 +143,14 @@ class BizprocAutomationComponent extends \Bitrix\Bizproc\Automation\Component\Ba
 			foreach ($templateArray['ROBOTS'] as $i => $robot)
 			{
 				$templateArray['ROBOTS'][$i]['viewData'] = static::getRobotViewData($robot, $documentType);
+			}
+
+			$templateArray['CUSTOM_ROBOTS'] = [];
+			if ($templateArray['IS_EXTERNAL_MODIFIED'])
+			{
+				$documentType = $this->getDocumentType();
+				$complexDocumentId = [$documentType[0], $documentType[1], $this->getDocumentId()];
+				$templateArray['CUSTOM_ROBOTS'] = static::getRunningCustomRobots($complexDocumentId, $template);
 			}
 
 			foreach (['PARAMETERS', 'CONSTANTS'] as $key)
@@ -263,7 +282,10 @@ class BizprocAutomationComponent extends \Bitrix\Bizproc\Automation\Component\Ba
 		{
 			$template = new \Bitrix\Bizproc\Automation\Engine\Template($documentType);
 
-			$dialog = $template->getRobotSettingsDialog($this->arParams['~ROBOT_DATA']);
+			$dialog = $template->getRobotSettingsDialog(
+				$this->arParams['~ROBOT_DATA'],
+				contextRobots: $this->arParams['~CONTEXT_ROBOTS'] ?? null
+			);
 
 			if ($dialog === '')
 			{
@@ -303,6 +325,15 @@ class BizprocAutomationComponent extends \Bitrix\Bizproc\Automation\Component\Ba
 		{
 			$tracker = new \Bitrix\Bizproc\Automation\Tracker($target);
 			$log = $tracker->getLog(array_keys($statusList));
+		}
+
+		try
+		{
+			(new RobotVersionIndexer())->ensureFreshIndex();
+		}
+		catch (Exception)
+		{
+
 		}
 
 		$availableRobots = \Bitrix\Bizproc\Automation\Engine\Template::getAvailableRobots($documentType);
@@ -350,6 +381,8 @@ class BizprocAutomationComponent extends \Bitrix\Bizproc\Automation\Component\Ba
 				&& $this->arParams['SHOW_TEMPLATE_PROPERTIES_MENU_ON_SELECTING'] === 'Y'
 			),
 			'IS_WORKTIME_AVAILABLE' => \CBPHelper::isWorkTimeAvailable(),
+
+			'NEW_ENTITIES_BUTTON_SHOW_HINT' => $this->shouldShowNewEntitiesButtonHint(),
 		];
 
 		$this->prepareDelayMinLimitResult();
@@ -498,5 +531,18 @@ HTML;
 			}
 		}
 		return $list;
+	}
+
+	private function shouldShowNewEntitiesButtonHint(): bool
+	{
+		$optionCategory = 'bizproc';
+		$optionName = 'view_date_automation-new-entities-button-hint';
+
+		if (CUserOptions::getOption($optionCategory, $optionName))
+		{
+			return false;
+		}
+
+		return true;
 	}
 }

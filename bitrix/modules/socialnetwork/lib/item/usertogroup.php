@@ -13,6 +13,11 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Socialnetwork\Collab\Collab;
+use Bitrix\Socialnetwork\Collab\Integration\IM\ActionMessageFactory;
+use Bitrix\Socialnetwork\Collab\Integration\IM\ActionType;
+use Bitrix\Socialnetwork\Collab\Url\UrlManager;
+use Bitrix\Socialnetwork\Internals\Registry\GroupRegistry;
 use Bitrix\Socialnetwork\WorkgroupTable;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Socialnetwork\Integration;
@@ -188,6 +193,18 @@ class UserToGroup
 			'USER_ID' => $userId,
 		]);
 
+		$suffix = static::getChatMessageCodeSuffix($groupItem);
+		$code = 'SOCIALNETWORK_ITEM_USERTOGROUP_AUTO_MEMBER_ADD_IM' . $suffix;
+
+		if ($groupItem instanceof Collab)
+		{
+			$url = UrlManager::getCollabUrl($groupItem);
+		}
+		else
+		{
+			$url = $groupUrlData['DOMAIN'] . $groupUrlData['URL'];
+		}
+
 		$messageFields = [
 			"MESSAGE_TYPE" => IM_MESSAGE_SYSTEM,
 			"NOTIFY_TYPE" => IM_NOTIFY_SYSTEM,
@@ -196,8 +213,8 @@ class UserToGroup
 			"NOTIFY_MODULE" => "socialnetwork",
 			"NOTIFY_EVENT" => "invite_group",
 			"NOTIFY_TAG" => "SOCNET|INVITE_GROUP|" . $userId . '|' . $relationId,
-			"NOTIFY_MESSAGE" => fn (?string $languageId = null) => Loc::getMessage(($groupItem->isProject() ? "SOCIALNETWORK_ITEM_USERTOGROUP_AUTO_MEMBER_ADD_IM_PROJECT" : "SOCIALNETWORK_ITEM_USERTOGROUP_AUTO_MEMBER_ADD_IM"), [
-					"#GROUP_NAME#" => "<a href=\"".$groupUrlData['DOMAIN'] . $groupUrlData['URL'] . "\" class=\"bx-notifier-item-action\">" . htmlspecialcharsEx($groupFields["NAME"]) . '</a>',
+			"NOTIFY_MESSAGE" => fn (?string $languageId = null) => Loc::getMessage($code, [
+					"#GROUP_NAME#" => "<a href=\"". $url . "\" class=\"bx-notifier-item-action\">" . htmlspecialcharsEx($groupFields["NAME"]) . '</a>',
 				],
 				$languageId
 			),
@@ -215,7 +232,8 @@ class UserToGroup
 	public static function onAfterUserAdd(&$fields): void
 	{
 		if (
-			$fields['ID'] <= 0
+			!isset($fields['ID'])
+			|| $fields['ID'] <= 0
 			|| (
 				isset($fields['ACTIVE'])
 				&& $fields['ACTIVE'] !== 'Y'
@@ -508,9 +526,7 @@ class UserToGroup
 			|| !isset($params['group_id'], $params['user_id'], $params['action'])
 			|| (int)$params['group_id'] <= 0
 			|| (int)$params['user_id'] <= 0
-			|| !Integration\Im\Chat\Workgroup::getUseChat()
 			|| !Loader::includeModule('im')
-			|| !in_array($params['action'], self::getChatActionList(), true)
 		)
 		{
 			return false;
@@ -518,6 +534,35 @@ class UserToGroup
 
 		$groupId = (int)$params['group_id'];
 		$userId = (int)$params['user_id'];
+		$action = (string)$params['action'];
+
+		$group = GroupRegistry::getInstance()->get($groupId);
+
+		if ($group === null)
+		{
+			return false;
+		}
+
+		if (!$group->isCollab() && !Integration\Im\Chat\Workgroup::getUseChat())
+		{
+			return false;
+		}
+
+		if ($group->isCollab() && ActionType::isValid($action))
+		{
+			$factory = ActionMessageFactory::getInstance();
+			$message = $factory->getActionMessage(ActionType::from($action), $groupId, $userId);
+
+			$recipientIds = (array)($params['recipientIds'] ?? []);
+
+			return $message->send($recipientIds, $params);
+		}
+
+		if (!in_array($action, self::getChatActionList(), true))
+		{
+			return false;
+		}
+
 		$role = ($params['role'] ?? false);
 
 		$sendMessage = (
@@ -553,8 +598,7 @@ class UserToGroup
 			return false;
 		}
 
-		$groupItem = Workgroup::getById($groupId);
-		$projectSuffix = ($groupItem->isProject() ? '_PROJECT' : '');
+		$suffix = static::getChatMessageCodeSuffix($group);
 
 		$userName = \CUser::formatName(\CSite::getNameFormat(), $user, true, false);
 		switch($user['PERSONAL_GENDER'])
@@ -581,7 +625,8 @@ class UserToGroup
 					{
 						\Bitrix\Im\Chat::mute($chatId, true, $userId);
 					}
-					$chatMessage = str_replace('#USER_NAME#', $userName, Loc::getMessage('SOCIALNETWORK_ITEM_USERTOGROUP_CHAT_USER_ADD' . $projectSuffix . $genderSuffix));
+
+					$chatMessage = str_replace('#USER_NAME#', $userName, Loc::getMessage('SOCIALNETWORK_ITEM_USERTOGROUP_CHAT_USER_ADD' . $suffix . $genderSuffix));
 				}
 				else
 				{
@@ -591,13 +636,14 @@ class UserToGroup
 			case self::CHAT_ACTION_OUT:
 				if ($chat->deleteUser($chatId, $userId, false, true))
 				{
-					$chatMessage = str_replace('#USER_NAME#', $userName, Loc::getMessage('SOCIALNETWORK_ITEM_USERTOGROUP_CHAT_USER_DELETE' . $projectSuffix . $genderSuffix));
+					$chatMessage = str_replace('#USER_NAME#', $userName, Loc::getMessage('SOCIALNETWORK_ITEM_USERTOGROUP_CHAT_USER_DELETE' . $suffix . $genderSuffix));
 				}
 				else
 				{
 					$sendMessage = false;
 				}
 				break;
+
 			default:
 				$chatMessage = '';
 				$sendMessage = false;
@@ -637,9 +683,18 @@ class UserToGroup
 		return false;
 	}
 
+	private static function getChatMessageCodeSuffix(Workgroup $group): string
+	{
+		return match (true) {
+			$group->isProject() => '_PROJECT',
+			$group->isCollab() => '_COLLAB',
+			default => '',
+		};
+	}
+
 	private static function getChatActionList(): array
 	{
-		return [ self::CHAT_ACTION_IN, self::CHAT_ACTION_OUT ];
+		return [self::CHAT_ACTION_IN, self::CHAT_ACTION_OUT];
 	}
 
 	public static function addModerators($params = []): bool

@@ -36,6 +36,24 @@ elseif (!empty($arResult["FatalError"]))
 }
 else
 {
+	if ($arResult['featuresPageLimited'])
+	{
+		$componentParameters = [
+			'LIMIT_CODE' => 'limit_socialnetwork_projects_access_permissions',
+		];
+
+		$APPLICATION->IncludeComponent(
+			"bitrix:ui.sidepanel.wrapper",
+			"",
+			[
+				'POPUP_COMPONENT_NAME' => 'bitrix:intranet.settings.tool.stub',
+				'POPUP_COMPONENT_TEMPLATE_NAME' => '',
+				'POPUP_COMPONENT_PARAMS' => $componentParameters,
+			],
+		);
+		return;
+	}
+
 	$isProject = ($arResult['Group']['PROJECT'] === 'Y');
 
 	if (
@@ -166,11 +184,14 @@ else
 							$featureAvailable = ToolsManager::getInstance()->checkAvailabilityByToolId('knowledge_base');
 						}
 
+						$featureMessageCode = "SONET_FEATURES_{$feature}";
+						$featureMessageCodeWithVersion = "{$featureMessageCode}_MSGVER_1";
+
 						$featureName = (
 								array_key_exists("title", $arResult["arSocNetFeaturesSettings"][$feature])
 								&& $arResult["arSocNetFeaturesSettings"][$feature]["title"] <> ''
 									? $arResult["arSocNetFeaturesSettings"][$feature]["title"]
-									: Loc::getMessage("SONET_FEATURES_".$feature)
+									: Loc::getMessage($featureMessageCode) ?? Loc::getMessage($featureMessageCodeWithVersion)
 						);
 
 						?>

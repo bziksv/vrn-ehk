@@ -93,14 +93,7 @@ abstract class Base
 		}
 
 		$this->onBeforeModificationMarkerSave($marks);
-		if (count($marks) == 1)
-		{
-			$value = $marks[0];
-		}
-		else
-		{
-			$value = md5(implode("/", $marks));
-		}
+		$value = count($marks) === 1 ? $marks[0] : md5(implode("/", $marks));
 
 		static::$modificationDates[$fullyQualifiedName] = $value;
 
@@ -114,12 +107,10 @@ abstract class Base
 
 	public function getDependencies()
 	{
-		if (!isset(static::$dependencies[$this->name]))
-		{
-			static::$dependencies[$this->name] = array_values($this->resolveDependencies());
-		}
+		$fullyQualifiedName = $this->getFullyQualifiedName();
+		static::$dependencies[$fullyQualifiedName] ??= array_values($this->resolveDependencies());
 
-		return static::$dependencies[$this->name];
+		return static::$dependencies[$fullyQualifiedName];
 	}
 
 	public function getPath()

@@ -1,7 +1,8 @@
 import { Dom } from 'main.core';
+import type { BeforeConvertCallbackOptions } from 'ui.bbcode.formatter';
 import { NodeFormatter, type NodeFormatterOptions } from 'ui.bbcode.formatter';
-
-import './style.css';
+import type { BBCodeNode } from 'ui.bbcode.model';
+import { normalizeTextNodes } from '../../helpers/normalize-text-nodes';
 
 export class QuoteNodeFormatter extends NodeFormatter
 {
@@ -13,10 +14,14 @@ export class QuoteNodeFormatter extends NodeFormatter
 				return Dom.create({
 					tag: 'blockquote',
 					attrs: {
-						className: 'ui-formatter-blockquote',
+						className: 'ui-typography-quote',
 					},
 				});
 			},
+			before({ node }: BeforeConvertCallbackOptions): BBCodeNode {
+				return normalizeTextNodes(node);
+			},
+
 			...options,
 		});
 	}

@@ -13,6 +13,7 @@ use Bitrix\Im\Model\EO_MessageParam;
 use Bitrix\Im\V2\Error;
 use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\RegistryEntry;
+use Bitrix\Main\ORM\Objectify\Values;
 use Bitrix\Main\Type\DateTime;
 
 /**
@@ -65,6 +66,19 @@ trait ActiveRecordImplementation
 	protected function setDataEntity(EntityObject $dataObject): self
 	{
 		$this->dataObject = $dataObject;
+		return $this;
+	}
+
+	protected function resetDataEntity(array $preselectedFields = []): self
+	{
+		$fields = $preselectedFields;
+		if ($this->dataObject)
+		{
+			$fields += $this->dataObject->collectValues(Values::ACTUAL);
+		}
+
+		$this->dataObject = static::getDataClass()::getObjectClass()::wakeUp($fields);
+
 		return $this;
 	}
 
@@ -154,11 +168,12 @@ trait ActiveRecordImplementation
 	 * @param EntityObject $dataObject
 	 * @return Result
 	 */
-	protected function initByDataEntity(EntityObject $dataObject): Result
+	protected function initByDataEntity(EntityObject $dataObject, ?array $fieldsMask = null): Result
 	{
 		$result = new Result;
 
 		$this->setDataEntity($dataObject);
+		$entityFields = $dataObject->collectValues();
 
 		foreach (static::mirrorDataEntityFields() as $offset => $field)
 		{
@@ -166,7 +181,13 @@ trait ActiveRecordImplementation
 			{
 				continue;
 			}
-			if ($this->getDataEntity()->has($offset))
+
+			if (!empty($fieldsMask) && !in_array($offset, $fieldsMask, true))
+			{
+				continue;
+			}
+
+			if (isset($entityFields[$offset]))
 			{
 				if (
 					isset($field['loadFilter'])
@@ -175,11 +196,11 @@ trait ActiveRecordImplementation
 					&& is_callable([$this, $loadFilter])
 				)
 				{
-					$this->{$field['field']} = $this->$loadFilter($this->getDataEntity()->get($offset));
+					$this->{$field['field']} = $this->$loadFilter($entityFields[$offset]);
 				}
 				else
 				{
-					$this->{$field['field']} = $this->getDataEntity()->get($offset);
+					$this->{$field['field']} = $entityFields[$offset];
 				}
 			}
 		}
@@ -318,7 +339,10 @@ trait ActiveRecordImplementation
 				}
 			}
 
-			if (isset($field['field'], $this->{$field['field']}))
+			if (
+				isset($field['field'])
+				&& (isset($this->{$field['field']}) || ($field['nullable'] ?? false) === true)
+			)
 			{
 				if (
 					isset($field['saveFilter'])
@@ -353,6 +377,10 @@ trait ActiveRecordImplementation
 		}
 		if (!$this->isChanged())
 		{
+			return $result->setResult(['IS_CHANGES' => false]);
+		}
+		if ($result->getData()['SKIP_SAVE'] ?? false)
+		{
 			return $result;
 		}
 
@@ -381,9 +409,9 @@ trait ActiveRecordImplementation
 		return $result;
 	}
 
-	protected function updateState(): Result
+	protected function updateState(?array $fieldsToFill = null): Result
 	{
-		return $this->initByDataEntity($this->getDataEntity());
+		return $this->initByDataEntity($this->getDataEntity(), $fieldsToFill);
 	}
 
 	/**
@@ -474,7 +502,7 @@ trait ActiveRecordImplementation
 		}
 		$this->getDataEntity()->fill($fieldsToFill);
 
-		$this->updateState();
+		$this->updateState($fieldsToFill);
 
 		return $this;
 	}
@@ -519,11 +547,19 @@ trait ActiveRecordImplementation
 		return $this;
 	}
 
+	public function onAfterOrmUpdate(array $fields): self
+	{
+		$this->resetDataEntity($fields);
+		$this->updateState(array_keys($fields));
+
+		return $this;
+	}
+
 	/**
 	 * Returns object state as array.
 	 * @return array
 	 */
-	public function toArray(): array
+	public function toArray(bool $recursive = false): array
 	{
 		$result = [];
 		$fields = static::mirrorDataEntityFields();
@@ -548,11 +584,11 @@ trait ActiveRecordImplementation
 				$value = $this->{$field['field']};
 			}
 
-			if (is_object($value))
+			if (is_object($value) && !($value instanceof DateTime))
 			{
-				if (method_exists($value, 'toArray'))
+				if ($recursive && method_exists($value, 'toArray'))
 				{
-					$value = $value->toArray();
+					$value = $value->toArray($recursive);
 				}
 				else
 				{
@@ -560,10 +596,7 @@ trait ActiveRecordImplementation
 				}
 			}
 
-			if ($value !== null)
-			{
-				$result[$offset] = $value;
-			}
+			$result[$offset] = $value;
 		}
 
 		return $result;

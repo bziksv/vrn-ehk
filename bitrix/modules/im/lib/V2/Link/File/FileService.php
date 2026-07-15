@@ -27,6 +27,14 @@ class FileService
 		$this->isMigrationFinished = Option::get('im', 'im_link_file_migration', 'N') === 'Y';
 	}
 
+	public function save(Message $message): Result
+	{
+		$files = $message->getFiles();
+		$links = FileCollection::linkEntityToMessage($files, $message);
+
+		return $this->saveInternal($links);
+	}
+
 	/**
 	 * @param File[] $files
 	 * @param Message $message
@@ -45,7 +53,13 @@ class FileService
 		/** @var FileCollection $links */
 		$links = FileCollection::linkEntityToMessage($entities, $message);
 
-		$saveResult = $this->saveFiles($links);
+		return $this->saveInternal($links);
+	}
+
+	protected function saveInternal(FileCollection $links): Result
+	{
+		$result = new Result();
+		$saveResult = $links->save();
 
 		if ($links->count() === 0)
 		{
@@ -71,23 +85,30 @@ class FileService
 		return $result;
 	}
 
-	protected function saveFiles(FileCollection $fileCollection): Result
+	public function deleteFilesByDiskFileId(int $diskFileId): Result
 	{
-		return $fileCollection->save();
+		$links = FileCollection::getByDiskFileId($diskFileId);
+
+		return $this->deleteFiles($links);
 	}
 
-	public function deleteFilesByDiskFileId(int $diskFileId): Result
+	public function deleteFilesByMessageIds(array $messageIds): Result
+	{
+		$links = FileCollection::getByMessageIds($messageIds);
+
+		return $this->deleteFiles($links);
+	}
+
+	protected function deleteFiles(FileCollection $links): Result
 	{
 		$result = new Result();
 
-		$link = FileItem::getByDiskFileId($diskFileId);
-
-		if ($link === null)
+		if ($links->isEmpty())
 		{
 			return $result;
 		}
 
-		$deleteResult = $link->delete();
+		$deleteResult = $links->delete();
 
 		if (!$deleteResult->isSuccess())
 		{
@@ -99,10 +120,13 @@ class FileService
 			return $result;
 		}
 
-		Push::getInstance()
-			->setContext($this->context)
-			->sendIdOnly($link, self::DELETE_FILE_EVENT, ['CHAT_ID' => $link->getChatId()])
-		;
+		foreach ($links as $link)
+		{
+			Push::getInstance()
+				->setContext($this->context)
+				->sendIdOnly($link, self::DELETE_FILE_EVENT, ['CHAT_ID' => $link->getChatId()])
+			;
+		}
 
 		return $result;
 	}

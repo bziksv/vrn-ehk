@@ -4,6 +4,8 @@ namespace Bitrix\Im;
 use Bitrix\Im\Model\ChatTable;
 use Bitrix\Im\Model\RelationTable;
 use Bitrix\Main\ORM\Fields\Relations\OneToMany;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
+use Bitrix\Main\ORM\Query\Join;
 
 class Dialog
 {
@@ -50,14 +52,14 @@ class Dialog
 		$userId = \Bitrix\Im\Common::getUserId($userId);
 		if (!$userId)
 		{
-			return false;
+			return '';
 		}
 
-		$chat = \Bitrix\Im\Chat::getById($chatId);
+		$chat = \Bitrix\Im\Chat::getById($chatId, ['USER_ID' => $userId]);
 
 		if (!$chat)
 		{
-			return false;
+			return '';
 		}
 
 		if ($chat['MESSAGE_TYPE'] !== Chat::TYPE_PRIVATE)
@@ -82,7 +84,7 @@ class Dialog
 		$queryResult = $query->fetch();
 		if (!$queryResult)
 		{
-			return false;
+			return '';
 		}
 
 		return $queryResult['DIALOG_ID'];
@@ -130,6 +132,45 @@ class Dialog
 		return $chatId;
 	}
 
+	public static function getChatIds(array $dialogIds, int $currentUserId): array
+	{
+		$dialogIds = array_filter($dialogIds, function($dialogId) use ($currentUserId) {
+			return (int)$dialogId !== $currentUserId;
+		});
+
+		if (empty($dialogIds))
+		{
+			return [];
+		}
+
+		$chatIds = [];
+
+		$query = RelationTable::query()
+			->setSelect(['CHAT_ID', 'USER_ID'])
+			->registerRuntimeField(
+				'RELATION',
+				new Reference(
+					'RELATION',
+					RelationTable::class,
+					Join::on('this.CHAT_ID', 'ref.CHAT_ID')
+						->where('ref.USER_ID', $currentUserId)
+						->where('ref.MESSAGE_TYPE', Chat::TYPE_PRIVATE),
+					['join_type' => Join::TYPE_INNER]
+				)
+			)
+			->whereIn('USER_ID', $dialogIds)
+			->where('MESSAGE_TYPE', Chat::TYPE_PRIVATE)
+			->exec()
+		;
+
+		while ($row = $query->Fetch())
+		{
+			$chatIds[(int)$row['USER_ID']] = (int)$row['CHAT_ID'];
+		}
+
+		return $chatIds;
+	}
+
 	public static function getLink($dialogId, $userId = null):? string
 	{
 		if (!Dialog::hasAccess($dialogId, $userId))
@@ -152,10 +193,10 @@ class Dialog
 		{
 			$chatId = self::getChatId($dialogId, $userId);
 
-			return \Bitrix\Im\V2\Chat::getInstance($chatId)->hasAccess($userId);
+			return \Bitrix\Im\V2\Chat::getInstance($chatId)->checkAccess($userId)->isSuccess();
 		}
 
-		return \Bitrix\Im\V2\Entity\User\User::getInstance($dialogId)->hasAccess($userId);
+		return \Bitrix\Im\V2\Entity\User\User::getInstance($dialogId)->checkAccess($userId)->isSuccess();
 	}
 
 	public static function read($dialogId, $messageId = null, $userId = null)

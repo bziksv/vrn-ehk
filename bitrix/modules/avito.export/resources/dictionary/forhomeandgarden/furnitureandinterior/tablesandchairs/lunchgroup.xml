@@ -1,0 +1,47 @@
+<root>
+	<DiningFurnitureSet name="Диван"/>
+	<DiningFurnitureSet name="Кресло">
+		<NumberOfArmchairs name="1"/>
+		<NumberOfArmchairs name="2"/>
+		<NumberOfArmchairs name="3"/>
+		<NumberOfArmchairs name="4"/>
+		<NumberOfArmchairs name="5"/>
+		<NumberOfArmchairs name="6"/>
+		<NumberOfArmchairs name="7"/>
+		<NumberOfArmchairs name="8"/>
+		<NumberOfArmchairs name="9"/>
+		<NumberOfArmchairs name="10"/>
+		<NumberOfArmchairs name="11"/>
+		<NumberOfArmchairs name="12"/>
+		<NumberOfArmchairs name="Более 12"/>
+	</DiningFurnitureSet>
+	<DiningFurnitureSet name="Скамья"/>
+	<DiningFurnitureSet name="Стол">
+		<FoldingMechanism name="Есть"/>
+		<FoldingMechanism name="Нет"/>
+		<FurnitureShape name="Другой"/>
+		<FurnitureShape name="Квадратный"/>
+		<FurnitureShape name="Круглый"/>
+		<FurnitureShape name="Овальный"/>
+		<FurnitureShape name="Полукруглый"/>
+		<FurnitureShape name="Прямоугольный"/>
+		<FurnitureShape name="Треугольный"/>
+		<FurnitureShape name="Угловой"/>
+	</DiningFurnitureSet>
+	<DiningFurnitureSet name="Стул">
+		<NumberOfChairs name="1"/>
+		<NumberOfChairs name="2"/>
+		<NumberOfChairs name="3"/>
+		<NumberOfChairs name="4"/>
+		<NumberOfChairs name="5"/>
+		<NumberOfChairs name="6"/>
+		<NumberOfChairs name="7"/>
+		<NumberOfChairs name="8"/>
+		<NumberOfChairs name="9"/>
+		<NumberOfChairs name="10"/>
+		<NumberOfChairs name="11"/>
+		<NumberOfChairs name="12"/>
+		<NumberOfChairs name="Более 12"/>
+	</DiningFurnitureSet>
+	<DiningFurnitureSet name="Табурет"/>
+</root>

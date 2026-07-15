@@ -2,6 +2,7 @@
 					<?if (!$is_detail && $APPLICATION->GetCurPage() != "/basket/" && !$is_detail_gallery 
 						&& strpos($APPLICATION->GetCurPage(),"/personal/")===false 
 						&& $APPLICATION->GetCurPage() != "/kontakty/"
+						&& $APPLICATION->GetCurPage() != "/kontakty2/"
 						&& $APPLICATION->GetCurPage() != "/make-order/")
 					{?>
 					</div><!-- end: left_col -->
@@ -503,9 +504,42 @@
 					<div class="social">
 						<!--<img src="<?=SITE_TEMPLATE_PATH?>/images/social_block.jpg" width="210" height="32" alt="" />-->
 					</div>	
-					<div class="payment"><img src="<?=SITE_TEMPLATE_PATH?>/images/Uniteller_Visa_MasterCard_234x45.jpg" title="Uniteller_Visa_MasterCard_234x45.jpg" border="0" alt="Uniteller_Visa_MasterCard_234x45.jpg" width="234" height="45" align="right"  /></div>
+				<div style="display: flex; flex-direction: column;">
+					<div style="margin-bottom: 5px;">Мы в социальных сетях:</div>
+<div><noindex><a rel="nofollow" target="_blank" href="https://max.ru/u/f9LHodD0cOJXebQ-vEGEzaKEhd_wbMRli-d_Eb96QifeeHYC31JAXl0CV18">
+	<img width="35px" src="/upload/medialibrary/c8f/6n02oqr9jbyjfm6a4w8avs21rular8g7/max_logo.png"></a>
+	<noindex><a href="https://t.me/POLIMER36" rel="nofollow" target="_blank"><img width="35px" src="/upload/medialibrary/6d3/v3bpi1yugn0q9my0w084z5l4fae6g365/1frjssl3sv9odyyf89clnppvq6jxl3ji.png"></a></noindex>
+	<noindex><a href="https://vk.com/polimer36" rel="nofollow" target="_blank"><img width="35px" src="/upload/medialibrary/72f/h3qjlv9cd48bf1j9splcpor6moqnoxb3/0gjxltunca3bxngbbnmkhhsojk19wemp.png"></a></noindex>
+</div>
+</div>
+
+
+
+<div class="payment" style="display: flex; justify-content: flex-end; align-items: center;">
+    <img src="<?=SITE_TEMPLATE_PATH?>/images/Uniteller_Visa_MasterCard_234x45.jpg" 
+         title="Uniteller_Visa_MasterCard_234x45.jpg" 
+         border="0" 
+         alt="Uniteller_Visa_MasterCard_234x45.jpg" 
+         width="234" 
+         height="45" 
+         style="margin-right: 10px;">
+    <a href="https://prime-ltd.su/?from=vrn-ehk.ru">
+        <img src="http://prime-ltd.su/logo/black.svg" 
+             title="Продвижение сайтов" 
+             alt="Продвижение сайтов" 
+             width="170">
+    </a>
+</div>
+
 					<!--<div class="made_by"><a title="Создание сайта" href="http://www.agrweb.ru/">Создание сайта</a></div>-->
+
+
+
+
 					<div class="clear"></div>
+<hr>
+					<noindex><p>Наш сайт использует <a target="_blank" href="/upload/cookies.pdf">cookies</a> для обеспечения работоспособности и сбора статистики. С их помощью мы анализируем пользовательскую активность, улучшаем работу сайта и делаем рекламу более релевантной. Оставаясь на сайте, вы даёте согласие на обработку ваших персональных данных. Вы можете отключить сохранение cookies в настройках браузера в любой момент. На сайте также применяются <a target="_blank" href="/upload/rules-recommendation.pdf">рекомендательные технологии</a>. Подробнее об обработке персональных данных — в нашей <a target="_blank" href="/upload/politics.pdf">Политике конфиденциальности.</a></p></noindex>
+
 				</div>
 			</div><!-- end: footer-->
 		</div><!-- end: main_container-->
@@ -592,12 +626,16 @@
 <!-- Roistat Counter Start -->
 <script>
 (function(w, d, s, h, id) {
-    w.roistatProjectId = id; w.roistatHost = h;
+    w.roistatProjectId = id; w.roistatHost = h; w.roistatPage = d.location.href; w.roistatReferrer = d.referrer;
     var p = d.location.protocol == "https:" ? "https://" : "http://";
     var u = /^.*roistat_visit=[^;]+(.*)?$/.test(d.cookie) ? "/dist/module.js" : "/api/site/1.0/"+id+"/init?referrer="+encodeURIComponent(d.location.href);
     var js = d.createElement(s); js.charset="UTF-8"; js.async = 1; js.src = p+h+u; var js2 = d.getElementsByTagName(s)[0]; js2.parentNode.insertBefore(js, js2);
 })(window, document, 'script', 'cloud.roistat.com', '1e2efb94c3182618c54f4523b9c8d0a7');
 </script>
 <!-- Roistat Counter End -->
+
+
+
+
 </body>
 </html>

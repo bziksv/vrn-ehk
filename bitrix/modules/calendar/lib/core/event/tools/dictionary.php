@@ -29,7 +29,10 @@ class Dictionary
 	public const EVENT_TYPE = [
 		'shared' => '#shared#',
 		'shared_crm' => '#shared_crm#',
-		'resource_booking' => '#resourcebooking#'
+		'resource_booking' => '#resourcebooking#',
+		'collab' => '#collab#',
+		'shared_collab' => '#shared_collab#',
+		'booking' => '#booking#',
 	];
 
 	public const MEETING_STATUS = [
@@ -45,5 +48,6 @@ class Dictionary
 		'company' => 'company_calendar',
 		'location' => 'location',
 		'resource' => 'resource',
+		'open_event' => 'open_event',
 	];
 }

@@ -1,0 +1,2026 @@
+<Sredstva_i_sistemy_ohrannopozharnoj_signalizacii>
+	<tip_ustroystva name="Аксессуары">
+		<brend name="AMC">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Alarmico">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Alfa">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="CARDDEX">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Dominanta">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="EctoControl">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Hunter">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="IEK">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Jcjunan">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Kerui">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="MicroLine">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="NAVIgard">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="PREMKO">
+			<model name="ZX 122/123"></model>
+		</brend>
+		<brend name="Power lai">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ps-link">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="R&amp;D instruments">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ritm">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Seven star">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Simpal">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Slt starlight technologies">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Sltech">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Sonitron">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="TLK">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Tdstel">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Zont">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аврора">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аврора-БиНиБ">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Альтоника">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аргус-Спектр">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Без бренда">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Болид">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Вистл">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Вэрс">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Гранит">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ДКС">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ЗМКП">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИВС-сигналспецавтоматика">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИП Раченков А.В.">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИПРо">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Интеграл+">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ирсэт-центр">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="К-инженеринг">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Квазар">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="КомплектСтройСервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Комтид">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ЛКД">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Магнито-Контакт">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Маяк">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Мертен">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Мираж">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ПТК &#34;ИВС&#34;">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Полисервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="РЗМКП">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Радий">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ритм">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Рубеж">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Рубикон">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="СОКРАТ">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Сибальянс">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Сибирский Арсенал">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Системсервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Союз">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Спецавтоматика">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Специнформатика-СИ">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Спецприбор">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Стрелец-Интеграл">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ТЕКО">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Технозащита">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Топаз">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Тромбон">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Феникс">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ЭТЕРНИС">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Электронстандарт-прибор">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Электротехника и Автоматика">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элемент">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элеста">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элтех-сервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Юнитест">
+			<model name="Не указана"></model>
+		</brend>
+	</tip_ustroystva>
+	<tip_ustroystva name="Датчики">
+		<brend name="AMC">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Alarmico">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Alfa">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ax Pro">
+			<model name="DS-PDPG12P-EG2-WE"></model>
+		</brend>
+		<brend name="CARDDEX">
+			<model name="DD-01"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Dominanta">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="EctoControl">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Hunter">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="IEK">
+			<model name="ДД 008"></model>
+			<model name="ДД 009"></model>
+			<model name="ДД 012"></model>
+			<model name="ДД 024"></model>
+			<model name="ДД 025"></model>
+			<model name="ДД 201"></model>
+			<model name="ДД 301"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Jcjunan">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Kerui">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="MicroLine">
+			<model name="МЛ-774"></model>
+			<model name="МЛ-778 (RS-485)"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="NAVIgard">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Power lai">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ps-link">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="R&amp;D instruments">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Radsel">
+			<model name="RTD-05"></model>
+		</brend>
+		<brend name="Ritm">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Seven star">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Simpal">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Slt starlight technologies">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Sltech">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Sonitron">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="TLK">
+			<model name="SHOCK-RSC"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Tdstel">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Zont">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аврора">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аврора-БиНиБ">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Альтоника">
+			<model name="TAVR-2"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аргус-Спектр">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Без бренда">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Болид">
+			<model name="Не указана"></model>
+			<model name="С2000-ДЗ"></model>
+		</brend>
+		<brend name="Вистл">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Вэрс">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Гранит">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ДКС">
+			<model name="Avanti 1"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ЗМКП">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИВС-сигналспецавтоматика">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИП Раченков А.В.">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИПРо">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Интеграл+">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ирсэт-центр">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="К-инженеринг">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Квазар">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="КомплектСтройСервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Комтид">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ЛКД">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Магнито-Контакт">
+			<model name="Венеция"></model>
+			<model name="ДПМГ-2-40"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Маяк">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Мертен">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Мираж">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ПТК &#34;ИВС&#34;">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Полисервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="РЗМКП">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Радий">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ритм">
+			<model name="RTD2-2"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Рубеж">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Рубикон">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="СОКРАТ">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Сибальянс">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Сибирский Арсенал">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Системсервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Союз">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Спецавтоматика">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Специнформатика-СИ">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Спецприбор">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Стрелец-Интеграл">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ТЕКО">
+			<model name="Астра-517"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Технозащита">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Топаз">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Тромбон">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Феникс">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ЭТЕРНИС">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Электронстандарт-прибор">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Электротехника и Автоматика">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элемент">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элеста">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элтех-сервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Юнитест">
+			<model name="Не указана"></model>
+		</brend>
+	</tip_ustroystva>
+	<tip_ustroystva name="Извещатели">
+		<brend name="AMC">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Alarmico">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Alfa">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Bosch">
+			<model name="MS 400"></model>
+		</brend>
+		<brend name="CARDDEX">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Dominanta">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="EctoControl">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Hunter">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="IEK">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Jcjunan">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Kerui">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="MicroLine">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="NAVIgard">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Power lai">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ps-link">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="R&amp;D instruments">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ritm">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Seven star">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Simpal">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Slt starlight technologies">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Sltech">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Sonitron">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="System Sensor">
+			<model name="ИП 212-73 (Профи-О)"></model>
+		</brend>
+		<brend name="TLK">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Tdstel">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Zont">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аврора">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аврора-БиНиБ">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Альтоника">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аргус-Спектр">
+			<model name="Аргус 3"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Без бренда">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Болид">
+			<model name="ДИП-31 (ИП 212-31)"></model>
+			<model name="ДИП-34А-03 (ИП 212-34А)"></model>
+			<model name="ДИП-34А-04"></model>
+			<model name="ДИП-34А-04 (ИП 212-34А)"></model>
+			<model name="ИПР 513-3АМ"></model>
+			<model name="ИПР 513-3АМ исп.01"></model>
+			<model name="ИПР 513-3АМ исп.01 IP67"></model>
+			<model name="ИПР 513-3АМ-С"></model>
+			<model name="ИПР 513-3М"></model>
+			<model name="ИПР 513-3М IP67"></model>
+			<model name="ИПР 513-3ПАМ"></model>
+			<model name="Не указана"></model>
+			<model name="УДП 513-3АМ"></model>
+			<model name="УДП 513-3АМ исп.01"></model>
+			<model name="УДП 513-3АМ исп.02"></model>
+			<model name="УДП 513-3АМ-C"></model>
+			<model name="УДП 513-3М"></model>
+			<model name="УДП 513-3М исп.01"></model>
+			<model name="УДП 513-3М исп.02"></model>
+		</brend>
+		<brend name="Вистл">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Вэрс">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Гранит">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ДКС">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ЗМКП">
+			<model name="ИО 102-16/1"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИВС-сигналспецавтоматика">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИП Раченков А.В.">
+			<model name="ИПР-55К"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИПРо">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Интеграл+">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ирсэт-центр">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="К-инженеринг">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Квазар">
+			<model name="ИП 212-47 &#34;АГАТ&#34;"></model>
+			<model name="ИПР 513-2 &#34;АГАТ&#34;"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="КомплектСтройСервис">
+			<model name="ИО 102-20"></model>
+			<model name="ИП212-212 &#34;КР-ДЫМ&#34;"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Комтид">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ЛКД">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Магнито-Контакт">
+			<model name="ИО 102 &#34;Люкс&#34;"></model>
+			<model name="ИО 102-26 исп.102"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Маяк">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Мертен">
+			<model name="ИП 212-130"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Мираж">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ПТК &#34;ИВС&#34;">
+			<model name="ИП 212-43"></model>
+			<model name="ИП 212-43М"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Полисервис">
+			<model name="ИПДЛ-Д-II/4Р"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="РЗМКП">
+			<model name="ИО 102-4"></model>
+			<model name="ИО 102-5"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Радий">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ритм">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Рубеж">
+			<model name="ИП 101-29-PR-R3 W1.02"></model>
+			<model name="ИП 212-142"></model>
+			<model name="ИП 212-45"></model>
+			<model name="ИП 212-64-R3 W1.02"></model>
+			<model name="ИПР 513-10"></model>
+			<model name="ИПР 513-10 исп.1"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Рубикон">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="СОКРАТ">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Сибальянс">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Сибирский Арсенал">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Системсервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Союз">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Спектрон">
+			<model name="Спектрон-512-Exd-А-ИПР-В"></model>
+		</brend>
+		<brend name="Спецавтоматика">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Специнформатика-СИ">
+			<model name="ИПР 513-2 &#34;АГАТ&#34; ИБ"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Спецприбор">
+			<model name="ИП 329"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Стрелец-Интеграл">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ТЕКО">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Технозащита">
+			<model name="ИП 212-52СИ"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Топаз">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Тромбон">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Феникс">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ЭТЕРНИС">
+			<model name="ИП 212-ГР2 «Гарант»"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Электронстандарт-прибор">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Электротехника и Автоматика">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элемент">
+			<model name="ИП 212-189 &#34;Шмель&#34;"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элеста">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элтех-сервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Юнитест">
+			<model name="Не указана"></model>
+		</brend>
+	</tip_ustroystva>
+	<tip_ustroystva name="Комплекты">
+		<brend name="AMC">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Alarmico">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Alfa">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="CARDDEX">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Dominanta">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="EctoControl">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Hunter">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="IEK">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Jcjunan">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Kerui">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="MicroLine">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="NAVIgard">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Power lai">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ps-link">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="R&amp;D instruments">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ritm">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Seven star">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Simpal">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Slt starlight technologies">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Sltech">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Sonitron">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="TLK">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Tdstel">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Zont">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аврора">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аврора-БиНиБ">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Альтоника">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аргус-Спектр">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Без бренда">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Болид">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Вистл">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Вэрс">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Гранит">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ДКС">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ЗМКП">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИВС-сигналспецавтоматика">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИП Раченков А.В.">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИПРо">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Интеграл+">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ирсэт-центр">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="К-инженеринг">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Квазар">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="КомплектСтройСервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Комтид">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ЛКД">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Магнито-Контакт">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Маяк">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Мертен">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Мираж">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ПТК &#34;ИВС&#34;">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Полисервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="РЗМКП">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Радий">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ритм">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Рубеж">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Рубикон">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="СОКРАТ">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Сибальянс">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Сибирский Арсенал">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Системсервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Союз">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Спецавтоматика">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Специнформатика-СИ">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Спецприбор">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Стрелец-Интеграл">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ТЕКО">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Технозащита">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Топаз">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Тромбон">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Феникс">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ЭТЕРНИС">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Электронстандарт-прибор">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Электротехника и Автоматика">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элемент">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элеста">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элтех-сервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Юнитест">
+			<model name="Не указана"></model>
+		</brend>
+	</tip_ustroystva>
+	<tip_ustroystva name="Контроллеры">
+		<brend name="AMC">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Alarmico">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Alfa">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="CARDDEX">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Dominanta">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="EctoControl">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Hunter">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="IEK">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Jcjunan">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Kerui">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="MicroLine">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="NAVIgard">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Nord Max">
+			<model name="Air"></model>
+		</brend>
+		<brend name="Power lai">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ps-link">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="R&amp;D instruments">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ritm">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Seven star">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Simpal">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Slt starlight technologies">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Sltech">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Sonitron">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="TLK">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Tdstel">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Zont">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аврора">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аврора-БиНиБ">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Альтоника">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аргус-Спектр">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Без бренда">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Болид">
+			<model name="Не указана"></model>
+			<model name="С2000-PGE исп.01"></model>
+			<model name="УО-4С исп.02"></model>
+		</brend>
+		<brend name="Вистл">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Вэрс">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Гранит">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ДКС">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ЗМКП">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИВС-сигналспецавтоматика">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИП Раченков А.В.">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИПРо">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Интеграл+">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ирсэт-центр">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="К-инженеринг">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Квазар">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="КомплектСтройСервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Комтид">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ЛКД">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Магнито-Контакт">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Маяк">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Мертен">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Мираж">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ПТК &#34;ИВС&#34;">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Полисервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="РЗМКП">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Радий">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ритм">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Рубеж">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Рубикон">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="СОКРАТ">
+			<model name="Не указана"></model>
+			<model name="Приток-А-КОП-02"></model>
+		</brend>
+		<brend name="Сибальянс">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Сибирский Арсенал">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Системсервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Союз">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Спецавтоматика">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Специнформатика-СИ">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Спецприбор">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Стрелец-Интеграл">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ТЕКО">
+			<model name="Security Hub (2.0)"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Технозащита">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Топаз">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Тромбон">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Феникс">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ЭТЕРНИС">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Электронстандарт-прибор">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Электротехника и Автоматика">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элемент">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элеста">
+			<model name="2443 (4 IP/GPRS)"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элтех-сервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Юнитест">
+			<model name="Не указана"></model>
+		</brend>
+	</tip_ustroystva>
+	<tip_ustroystva name="Оповещатели">
+		<brend name="AMC">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Alarmico">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Alfa">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="CARDDEX">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Dominanta">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="EctoControl">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Hunter">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="IEK">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Jcjunan">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Kerui">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="MicroLine">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="NAVIgard">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Power lai">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ps-link">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="R&amp;D instruments">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ritm">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Seven star">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Simpal">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Slt starlight technologies">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Sltech">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Sonitron">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="TLK">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Tdstel">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Zont">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аврора">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аврора-БиНиБ">
+			<model name="Не указана"></model>
+			<model name="Свирель-12V"></model>
+			<model name="Свирель-2 исп. 00"></model>
+			<model name="Свирель-2 исп. 01"></model>
+			<model name="Свирель-2 исп. 02"></model>
+			<model name="Свирель-2 исп. 03"></model>
+			<model name="Свирель-24V"></model>
+		</brend>
+		<brend name="Альтоника">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аргус-Спектр">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Без бренда">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Болид">
+			<model name="Не указана"></model>
+			<model name="Рупор-300"></model>
+		</brend>
+		<brend name="Вистл">
+			<model name="Молния-12"></model>
+			<model name="Молния-220"></model>
+			<model name="Молния-24"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Вэрс">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Гранит">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ДКС">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ЗМКП">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИВС-сигналспецавтоматика">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИП Раченков А.В.">
+			<model name="Г-12-К"></model>
+			<model name="М-12"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИПРо">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Интеграл+">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ирсэт-центр">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="К-инженеринг">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Квазар">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="КомплектСтройСервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Комтид">
+			<model name="Не указана"></model>
+			<model name="ПКИ-1 (Иволга)"></model>
+			<model name="ПКИ-1 (Иволга+)"></model>
+			<model name="ПКИ-1 (Иволга-Г)"></model>
+			<model name="ПКИ-2 (Иволга)"></model>
+			<model name="ПКИ-2 (Иволга+)"></model>
+			<model name="ПКИ-2 (Иволга-Г)"></model>
+			<model name="ПКИ-3 (Иволга)"></model>
+			<model name="ПКИ-3 (Иволга-Г)"></model>
+			<model name="ПКИ-РС2 &#34;Говорун&#34;"></model>
+		</brend>
+		<brend name="ЛКД">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Магнито-Контакт">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Маяк">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Мертен">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Мираж">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ПТК &#34;ИВС&#34;">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Полисервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="РЗМКП">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Радий">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ритм">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Рубеж">
+			<model name="Не указана"></model>
+			<model name="ОПОП 1-8 12В"></model>
+			<model name="ОПОП 1-8 220В"></model>
+			<model name="ОПОП 1-8 24В"></model>
+			<model name="ОПОП 1-R3"></model>
+			<model name="ОПОП 124-7 12В"></model>
+			<model name="ОПОП 124-7 24В"></model>
+			<model name="ОПОП 124-R3"></model>
+			<model name="ОПОП 124Б-R3"></model>
+			<model name="ОПОП 2-35 12В"></model>
+			<model name="ОПОП 2-35 24В"></model>
+		</brend>
+		<brend name="Рубикон">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="СОКРАТ">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Сибальянс">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Сибирский Арсенал">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Системсервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Союз">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Спецавтоматика">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Специнформатика-СИ">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Спецприбор">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Стрелец-Интеграл">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ТЕКО">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Технозащита">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Топаз">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Тромбон">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Феникс">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ЭТЕРНИС">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Электронстандарт-прибор">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Электротехника и Автоматика">
+			<model name="МАЯК-12-К"></model>
+			<model name="Маяк-12КП"></model>
+			<model name="Маяк-12С"></model>
+			<model name="Маяк-220-КПМ2-НИ"></model>
+			<model name="Маяк-220К"></model>
+			<model name="Маяк-24-К"></model>
+			<model name="Маяк-24-КПМ"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элемент">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элеста">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элтех-сервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Юнитест">
+			<model name="Не указана"></model>
+		</brend>
+	</tip_ustroystva>
+	<tip_ustroystva name="Приборы приемно-контрольные">
+		<brend name="AMC">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Alarmico">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Alfa">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="CARDDEX">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Dominanta">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="EctoControl">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Hunter">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="IEK">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Jcjunan">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Kerui">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="MicroLine">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="NAVIgard">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Power lai">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ps-link">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="R&amp;D instruments">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ritm">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Seven star">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Simpal">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Slt starlight technologies">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Sltech">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Sonitron">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="TLK">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Tdstel">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Zont">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аврора">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аврора-БиНиБ">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Альтоника">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аргус-Спектр">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Без бренда">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Болид">
+			<model name="Не указана"></model>
+			<model name="ППКУП &#34;Сириус&#34;"></model>
+			<model name="С2000"></model>
+			<model name="С2000-СП1"></model>
+			<model name="С2000-СП2"></model>
+			<model name="С2000-СП4/220"></model>
+			<model name="С2000М"></model>
+			<model name="С2000Р-АРР125"></model>
+			<model name="Сигнал"></model>
+			<model name="Сигнал-10"></model>
+			<model name="Сигнал-20"></model>
+			<model name="Сигнал-20М"></model>
+			<model name="Сигнал-20П"></model>
+			<model name="Сигнал-20П исп.01"></model>
+			<model name="Сигнал-GSM-Р"></model>
+		</brend>
+		<brend name="Вистл">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Вэрс">
+			<model name="ВЭРС-ПК 4 ТРИО-М"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Гранит">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ДКС">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ЗМКП">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИВС-сигналспецавтоматика">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИП Раченков А.В.">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИПРо">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Интеграл+">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ирсэт-центр">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="К-инженеринг">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Квазар">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="КомплектСтройСервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Комтид">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ЛКД">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Магнито-Контакт">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Маяк">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Мертен">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Мираж">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ПТК &#34;ИВС&#34;">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Полисервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="РЗМКП">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Радий">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ритм">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Рубеж">
+			<model name="R3-Рубеж-2ОП"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Рубикон">
+			<model name="Не указана"></model>
+			<model name="ППК-Р Рубикон"></model>
+		</brend>
+		<brend name="СОКРАТ">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Сибальянс">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Сибирский Арсенал">
+			<model name="Гранит-12"></model>
+			<model name="Гранит-12А GSM"></model>
+			<model name="Гранит-16"></model>
+			<model name="Гранит-20"></model>
+			<model name="Гранит-24"></model>
+			<model name="Гранит-3"></model>
+			<model name="Гранит-3 Эк"></model>
+			<model name="Гранит-5"></model>
+			<model name="Гранит-6 Эк"></model>
+			<model name="Гранит-8"></model>
+			<model name="Гранит-9 Эк"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Системсервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Союз">
+			<model name="Не указана"></model>
+			<model name="ППКП-Б-М"></model>
+		</brend>
+		<brend name="Спецавтоматика">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Специнформатика-СИ">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Спецприбор">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Стрелец-Интеграл">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ТЕКО">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Технозащита">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Топаз">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Тромбон">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Феникс">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ЭТЕРНИС">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Электронстандарт-прибор">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Электротехника и Автоматика">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элемент">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элеста">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элтех-сервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Юнитест">
+			<model name="Не указана"></model>
+		</brend>
+	</tip_ustroystva>
+	<tip_ustroystva name="Сигнализации">
+		<brend name="AMC">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Alarmico">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Alfa">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="CARDDEX">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Dominanta">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="EctoControl">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Hunter">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="IEK">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Jcjunan">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Kerui">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="MicroLine">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="NAVIgard">
+			<model name="NV 8321"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Power lai">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ps-link">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="R&amp;D instruments">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ritm">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Seven star">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Simpal">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Slt starlight technologies">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Sltech">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Sonitron">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="TLK">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Tdstel">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Zont">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аврора">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аврора-БиНиБ">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Альтоника">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Аргус-Спектр">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Без бренда">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Болид">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Вистл">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Вэрс">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Гранит">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ДКС">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ЗМКП">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИВС-сигналспецавтоматика">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИП Раченков А.В.">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ИПРо">
+			<model name="ИПРо 6"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Интеграл+">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ирсэт-центр">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="К-инженеринг">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Квазар">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="КомплектСтройСервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Комтид">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ЛКД">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Магнито-Контакт">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Маяк">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Мертен">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Мираж">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ПТК &#34;ИВС&#34;">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Полисервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="РЗМКП">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Радий">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Ритм">
+			<model name="GSM-2"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Рубеж">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Рубикон">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="СОКРАТ">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Сибальянс">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Сибирский Арсенал">
+			<model name="Аква"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Системсервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Союз">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Спецавтоматика">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Специнформатика-СИ">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Спецприбор">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Стрелец-Интеграл">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ТЕКО">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Технозащита">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Топаз">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Тромбон">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Феникс">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="ЭТЕРНИС">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Электронстандарт-прибор">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Электротехника и Автоматика">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элемент">
+			<model name="ИП 212-289-GSM-9В"></model>
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элеста">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Элтех-сервис">
+			<model name="Не указана"></model>
+		</brend>
+		<brend name="Юнитест">
+			<model name="Не указана"></model>
+		</brend>
+	</tip_ustroystva>
+</Sredstva_i_sistemy_ohrannopozharnoj_signalizacii>

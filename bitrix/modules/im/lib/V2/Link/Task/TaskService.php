@@ -3,14 +3,18 @@
 namespace Bitrix\Im\V2\Link\Task;
 
 use Bitrix\Disk\Uf\FileUserType;
-use Bitrix\Im\Dialog;
 use Bitrix\Im\Model\LinkTaskTable;
 use Bitrix\Im\V2\Chat;
+use Bitrix\Im\V2\Chat\ChannelChat;
 use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Link\File\TemporaryFileService;
 use Bitrix\Im\V2\Link\Push;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Entity\Task\TaskError;
+use Bitrix\Im\V2\Message\Params;
+use Bitrix\Im\V2\Message\Send\SendingConfig;
+use Bitrix\Im\V2\Message\Send\SendResult;
+use Bitrix\Im\V2\RelationCollection;
 use Bitrix\Im\V2\Result;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -29,30 +33,34 @@ class TaskService
 	protected const UPDATE_TASK_EVENT = 'taskUpdate';
 	protected const DELETE_TASK_EVENT = 'taskDelete';
 
-	public function registerTask(int $chatId, int $messageId, \Bitrix\Im\V2\Entity\Task\TaskItem $taskItem): Result
+	public function registerTask(Chat $chat, int $messageId, \Bitrix\Im\V2\Entity\Task\TaskItem $taskItem): Result
 	{
 		$result = new Result();
 
 		$userId = $this->getContext()->getUserId();
 
 		$taskLink = new TaskItem();
-		$taskLink->setEntity($taskItem)->setChatId($chatId)->setAuthorId($userId);
+		$taskLink->setEntity($taskItem)->setChatId($chat->getId())->setAuthorId($userId);
 
 		if ($messageId !== 0)
 		{
 			$taskLink->setMessageId($messageId);
 		}
 
-		$sendMessageResult = $this->sendMessageAboutTask($taskLink, $chatId);
-
-		if (!$sendMessageResult->isSuccess())
+		if ($chat->needToSendTaskCreationMessage())
 		{
-			$result->addErrors($sendMessageResult->getErrors());
+			$sendMessageResult = $this->sendMessageAboutTask($taskLink, $chat);
+
+			if (!$sendMessageResult->isSuccess())
+			{
+				$result->addErrors($sendMessageResult->getErrors());
+			}
+
+			$systemMessageId = $sendMessageResult->getMessageId();
+
+			$taskLink->setMessageId($messageId ?: $systemMessageId);
 		}
 
-		$systemMessageId = $sendMessageResult->getResult();
-
-		$taskLink->setMessageId($messageId ?: $systemMessageId);
 		$saveResult = $taskLink->save();
 
 		if (!$saveResult->isSuccess())
@@ -89,6 +97,7 @@ class TaskService
 		if (!$saveDelete)
 		{
 			$task->delete();
+			TaskItem::cleanCache($task->getEntityId() ?? 0);
 		}
 
 		return new Result();
@@ -129,6 +138,36 @@ class TaskService
 		return $result;
 	}
 
+	public function updateTaskLinks(TaskCollection $taskCollection): Result
+	{
+		$result = new Result();
+
+		if ($taskCollection->count() === 0)
+		{
+			return $result;
+		}
+
+		$saveResult = $taskCollection->save();
+
+		if (!$saveResult->isSuccess())
+		{
+			return $result->addErrors($saveResult->getErrors());
+		}
+
+		$taskCollection->fillEntities();
+
+		foreach ($taskCollection as $task)
+		{
+			$pushRecipient = ['RECIPIENT' => $task->getEntity()->getMembersIds()];
+			Push::getInstance()
+				->setContext($this->context)
+				->sendFull($task, self::UPDATE_TASK_EVENT, $pushRecipient)
+			;
+		}
+
+		return $result;
+	}
+
 	public function deleteLinkByTaskId(int $taskId): Result
 	{
 		LinkTaskTable::deleteByFilter(['=TASK_ID' => $taskId]);
@@ -155,11 +194,10 @@ class TaskService
 		$link = new Uri($taskPath);
 		$link->addParams([
 			'ta_sec' => 'chat',
-			'ta_el' => 'create_button',
+			'ta_el' => 'comment_context_menu',
 		]);
 
 		$data['LINK'] = $link->getUri();
-
 		$data['PARAMS']['RESPONSIBLE_ID'] = $userId;
 		$data['PARAMS']['IM_CHAT_ID'] = $chat->getChatId();
 
@@ -195,81 +233,137 @@ class TaskService
 				'FILES' => $this->getFilesForPrepareText($message)
 			]);
 
-			$fileIds = $this->getFilesIdsForTaskFromMessage($message);
+			$files = $this->getFilesDataForTaskFromMessage($message);
 
-			if (!empty($fileIds))
+			if (!empty($files))
 			{
+				$fileIds = $this->getFilesIds($files);
+
 				$diskFileUFCode = \Bitrix\Tasks\Integration\Disk\UserField::getMainSysUFCode();
 				$data['PARAMS'][$diskFileUFCode] = $fileIds;
 				$signer = new Signer();
 				$data['PARAMS'][$diskFileUFCode . '_SIGN'] = $signer->sign(Json::encode($fileIds), static::SIGNATURE_SALT);
+				$data['PARAMS'][$diskFileUFCode . '_DATA'] = $files;
 			}
 
 			$data['PARAMS']['IM_MESSAGE_ID'] = $message->getMessageId();
 		}
 
+		$data['PARAMS']['is_tasks_v2'] = $this->isTasksV2Form();
+
+		if ($data['PARAMS']['is_tasks_v2'])
+		{
+			$data['PARAMS']['entityId'] = $chat->getChatId();
+			$data['PARAMS']['subEntityId'] = $data['PARAMS']['IM_MESSAGE_ID'] ?? null;
+			$data['PARAMS']['ta_sec'] = 'chat';
+			$data['PARAMS']['ta_el'] = 'comment_context_menu';
+			$data['PARAMS']['description'] = $data['PARAMS']['DESCRIPTION'] ?? null;
+			$data['PARAMS']['auditors'] = $data['PARAMS']['AUDITORS'] ?? null;
+			$data['PARAMS']['groupId'] = $data['PARAMS']['GROUP_ID'] ?? null;
+		}
+
 		return $result->setResult($data);
 	}
 
-	protected function sendMessageAboutTask(TaskItem $taskLink, int $chatId): Result
+	protected function sendMessageAboutTask(TaskItem $taskLink, Chat $chat): SendResult
 	{
-		//todo: Replace with new API
-		$dialogId = Dialog::getDialogId($chatId);
 		$authorId = $this->getContext()->getUserId();
+		$messageText = $this->getTaskMessageText($taskLink);
 
-		$messageId = \CIMChat::AddMessage([
-			'DIALOG_ID' => $dialogId,
-			'SYSTEM' => 'Y',
-			'MESSAGE' => $this->getMessageText($taskLink),
-			'FROM_USER_ID' => $authorId,
-			'PARAMS' => ['CLASS' => "bx-messenger-content-item-system"],
-			'URL_PREVIEW' => 'N',
-			'SKIP_CONNECTOR' => 'Y',
-			'SKIP_COMMAND' => 'Y',
-			'SILENT_CONNECTOR' => 'Y',
-			'SKIP_URL_INDEX' => 'Y',
-		]);
+		$message =
+			(new Message())
+				->setAuthorId($authorId)
+				->setChatId($chat->getId())
+				->setMessage($messageText)
+				->markAsSystem(true)
+				->addParam(Params::STYLE_CLASS, 'bx-messenger-content-item-system')
+		;
 
-		$result = new Result();
+		$sendingConfig =
+			(new SendingConfig())
+				->disableGenerateUrlPreview()
+				->enableSkipConnectorSend()
+				->enableSkipCommandExecution()
+				->enableKeepConnectorSilence()
+				->enableSkipUrlIndex()
+		;
 
-		if ($messageId === false)
+		$result = $chat->sendMessage($message, $sendingConfig);
+
+		if (!$result->isSuccess())
 		{
 			return $result->addError(new TaskError(TaskError::ADD_TASK_MESSAGE_FAILED));
 		}
 
-		return $result->setResult($messageId);
+		return $result;
 	}
 
 	/**
 	 * @param Message $message
 	 * @return string[]
 	 */
-	protected function getFilesIdsForTaskFromMessage(Message $message): array
+	protected function getFilesDataForTaskFromMessage(Message $message): array
 	{
-		$copies = $message->getFiles()->getCopies();
-		$copies->addToTmp(TemporaryFileService::TASK_SOURCE);
-		$newIds = [];
-
-		foreach ($copies as $copy)
+		$copies = $message->getFiles()->copyToOwnUploadedFiles()->getResult();
+		if (!isset($copies))
 		{
-			$newIds[] = FileUserType::NEW_FILE_PREFIX . $copy->getId();
+			return [];
 		}
 
-		return $newIds;
+		$copies->addToTmp(TemporaryFileService::TASK_SOURCE);
+		$files = [];
+
+		foreach ($copies as $file)
+		{
+			$fileData = $file->toRestFormat();
+			$files[] = [
+				'id' => FileUserType::NEW_FILE_PREFIX . $file->getId(),
+				'objectId' => $fileData['viewerAttrs']['objectId'],
+				'name' => $fileData['name'],
+				'type' => $fileData['extension'],
+				'url' => $fileData['urlShow'],
+				'height' => $fileData['image']['height'] ?? 0,
+				'width' => $fileData['image']['width'] ?? 0,
+				'preview_url' => $fileData['urlPreview'],
+			];
+		}
+
+		return $files;
+	}
+
+	protected function getFilesIds(array $files): array
+	{
+		$fileIds = [];
+		foreach ($files as $file)
+		{
+			if (isset($file['id']))
+			{
+				$fileIds[] = $file['id'];
+			}
+		}
+
+		return $fileIds;
 	}
 
 	protected function getAuditors(Chat $chat): array
 	{
-		$userIds = $chat->getRelations(
-			[
-				'SELECT' => ['ID', 'USER_ID', 'CHAT_ID'],
-				'FILTER' => ['ACTIVE' => true, 'ONLY_INTERNAL_TYPE' => true],
-				'LIMIT' => 50,
-			]
-		)->getUsers()->filterExtranet()->getIds();
-		unset($userIds[$this->getContext()->getUserId()]);
+		if ($chat instanceof ChannelChat)
+		{
+			return [];
+		}
 
-		return $userIds;
+		return RelationCollection::find(
+			[
+				'ACTIVE' => true,
+				'ONLY_INTERNAL_TYPE' => true,
+				'CHAT_ID' => $chat->getId(),
+				'IS_HIDDEN' => false,
+				'ONLY_INTRANET' => true,
+				'!USER_ID' => $this->getContext()->getUserId()
+			],
+			limit: 50,
+			select: ['ID', 'USER_ID', 'CHAT_ID']
+		)->getUserIds();
 	}
 
 	protected function getFilesForPrepareText(Message $message): array
@@ -285,7 +379,7 @@ class TaskService
 		return $filesForPrepare;
 	}
 
-	protected function getMessageText(TaskItem $task): string
+	protected function getTaskMessageText(TaskItem $task): string
 	{
 		$genderModifier = ($this->getContext()->getUser()->getGender() === 'F') ? '_F' : '';
 
@@ -293,7 +387,7 @@ class TaskService
 		{
 			$text = (new Message($task->getMessageId()))->getQuotedMessage() . "\n";
 			$text .= Loc::getMessage(
-				'IM_CHAT_TASK_REGISTER_FROM_MESSAGE_NOTIFICATION' . $genderModifier,
+				'IM_CHAT_TASK_REGISTER_FROM_MESSAGE_NOTIFICATION' . $genderModifier . '_MSGVER_1',
 				[
 					'#LINK#' => $task->getEntity()->getUrl(),
 					'#USER_ID#' => $this->getContext()->getUserId(),
@@ -312,5 +406,12 @@ class TaskService
 				'#TASK_TITLE#' => $task->getEntity()->getTitle(),
 			]
 		);
+	}
+
+	private function isTasksV2Form(): bool
+	{
+		return class_exists(\Bitrix\Tasks\V2\FormV2Feature::class)
+			&& \Bitrix\Tasks\V2\FormV2Feature::isOn()
+		;
 	}
 }

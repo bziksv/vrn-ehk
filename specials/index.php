@@ -1,5 +1,7 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
+$APPLICATION->SetPageProperty("description", "Эксклюзивные акции на элементы ковки: сезонные скидки, оптовые цены при мелком заказе, уценённые коллекции. Только проверенное качество в ЦЧР. Успейте купить выгодно – предложения ограничены!");
+$APPLICATION->SetPageProperty("title", "Спецпредложения на ковку | Скидки до XX% | ЭХК");
 $APPLICATION->SetTitle("Спец. предложения компании «ЭХК»");
 ?><?$APPLICATION->IncludeComponent("bitrix:news", "news_common", array(
 	"IBLOCK_TYPE" => "info",

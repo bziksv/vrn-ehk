@@ -1,5 +1,4 @@
-<?
-global $DOCUMENT_ROOT, $MESS;
+<?php
 
 IncludeModuleLangFile(__FILE__);
 
@@ -160,6 +159,7 @@ class calendar extends CModule
 		$this->InstallEventHandlers();
 		$this->InstallAgents();
 		$this->InstallTemplateRules();
+		$this->InstallUrlPreviewHandlers();
 
 		return true;
 	}
@@ -167,8 +167,8 @@ class calendar extends CModule
 	function UnInstallDB($arParams = array())
 	{
 		global $DB, $APPLICATION;
+
 		$connection = \Bitrix\Main\Application::getConnection();
-		$errors = null;
 
 		if (array_key_exists("savedata", $arParams) && ($arParams["savedata"] !== 'Y'))
 		{
@@ -226,7 +226,7 @@ class calendar extends CModule
 			}
 		}
 
-		// Remove tasks from IM
+		// Remove tasks from 'im' module
 		if (IsModuleInstalled('im') && CModule::IncludeModule('im') && method_exists('CIMNotify', 'DeleteByModule'))
 		{
 			CIMNotify::DeleteByModule('calendar');
@@ -245,9 +245,8 @@ class calendar extends CModule
 			CopyDirFiles(
 				$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/intranet/install/templates/pub/",
 				$_SERVER["DOCUMENT_ROOT"]."/bitrix/templates/pub/",
-				$rewrite = true,
-				$recursive = true,
-				$delete_after_copy = false
+				true,
+				true
 			);
 		}
 
@@ -332,6 +331,36 @@ class calendar extends CModule
 		$eventManager->registerEventHandler('ai', 'onTuningLoad', 'calendar', '\Bitrix\Calendar\Integration\AI\Settings', 'onTuningLoad');
 
 		$eventManager->registerEventHandler('forum', 'OnCommentDelete', 'calendar', '\Bitrix\Calendar\Core\Managers\Comment', 'onCommentDeleteHandler');
+
+		$eventManager->registerEventHandler(
+			fromModuleId: 'im',
+			eventType: 'OnChatUserAddEntityTypeCalendarEventCategory',
+			toModuleId: 'calendar',
+			toClass: '\Bitrix\Calendar\Integration\Im\EventCategoryAttendees',
+			toMethod: 'onChannelUsersAdd',
+		);
+		$eventManager->registerEventHandler(
+			fromModuleId: 'im',
+			eventType: 'OnChatUserDeleteEntityTypeCalendarEventCategory',
+			toModuleId: 'calendar',
+			toClass: '\Bitrix\Calendar\Integration\Im\EventCategoryAttendees',
+			toMethod: 'onChannelUserDelete',
+		);
+		$eventManager->registerEventHandler(
+			fromModuleId: 'socialnetwork',
+			eventType: 'OnCollabAdd',
+			toModuleId: 'calendar',
+			toClass: '\Bitrix\Calendar\Integration\SocialNetwork\Collab\CollabEvent',
+			toMethod: 'onCollabAdd',
+		);
+
+		$eventManager->registerEventHandler(
+			fromModuleId: 'socialnetwork',
+			eventType: 'OnWorkgroupConvert',
+			toModuleId: 'calendar',
+			toClass: '\Bitrix\Calendar\Integration\SocialNetwork\Collab\Converter\ConverterEventHandler',
+			toMethod: 'onConvert',
+		);
 	}
 
 	function InstallAgents()
@@ -354,6 +383,15 @@ class calendar extends CModule
 		CAgent::AddAgent("Bitrix\\Calendar\\Core\\Queue\\Agent\\EventAttendeesUpdateAgent::runAgent();", "calendar", "N", 3600);
 		CAgent::AddAgent("\\Bitrix\\Calendar\\Sharing\\Util\\ExpiredLinkCleanAgent::runAgent();", "calendar");
 		CAgent::AddAgent("Bitrix\\Calendar\\Core\\Queue\\Agent\\SendingEmailNotificationAgent::runAgent();", "calendar", "N", 60);
+		CAgent::AddAgent(
+			'\\Bitrix\\Calendar\\Synchronization\\Infrastructure\\Agent\\Logger\\CleanLogAgent::runAgent();',
+			'calendar',
+			'N',
+			86400,
+			'',
+			'Y',
+			ConvertTimeStamp(time() + 7200, 'FULL')
+		);
 	}
 
 	function SetOptions()
@@ -373,7 +411,7 @@ class calendar extends CModule
 		global $DB;
 
 		$sIn = "'CALENDAR_INVITATION'";
-		$rs = $DB->Query("SELECT count(*) C FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$rs = $DB->Query("SELECT count(*) C FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ");
 		$ar = $rs->Fetch();
 
 		if($ar["C"] <= 0)
@@ -388,8 +426,8 @@ class calendar extends CModule
 	{
 		global $DB;
 		$sIn = "'CALENDAR_INVITATION', 'SEND_ICAL_INVENT', 'CALENDAR_SHARING'";
-		$DB->Query("DELETE FROM b_event_message WHERE EVENT_NAME IN (".$sIn.") ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		$DB->Query("DELETE FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query("DELETE FROM b_event_message WHERE EVENT_NAME IN (".$sIn.") ");
+		$DB->Query("DELETE FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ");
 		return true;
 	}
 
@@ -457,6 +495,36 @@ class calendar extends CModule
 		$eventManager->unregisterEventHandler('ai', 'onTuningLoad', 'calendar', '\Bitrix\Calendar\Integration\AI\Settings', 'onTuningLoad');
 
 		$eventManager->unregisterEventHandler('forum', 'OnCommentDelete', 'calendar', '\Bitrix\Calendar\Core\Managers\Comment', 'onCommentDeleteHandler');
+
+		$eventManager->unregisterEventHandler(
+			fromModuleId: 'im',
+			eventType: 'OnChatUserAddEntityTypeCalendarEventCategory',
+			toModuleId: 'calendar',
+			toClass: '\Bitrix\Calendar\Integration\Im\EventCategoryAttendees',
+			toMethod: 'onChannelUsersAdd',
+		);
+		$eventManager->unregisterEventHandler(
+			fromModuleId: 'im',
+			eventType: 'OnChatUserDeleteEntityTypeCalendarEventCategory',
+			toModuleId: 'calendar',
+			toClass: '\Bitrix\Calendar\Integration\Im\EventCategoryAttendees',
+			toMethod: 'onChannelUserDelete',
+		);
+		$eventManager->unregisterEventHandler(
+			fromModuleId: 'socialnetwork',
+			eventType: 'OnCollabAdd',
+			toModuleId: 'calendar',
+			toClass: '\Bitrix\Calendar\Integration\SocialNetwork\Collab\CollabEvent',
+			toMethod: 'onCollabAdd',
+		);
+
+		$eventManager->unRegisterEventHandler(
+			fromModuleId: 'socialnetwork',
+			eventType: 'OnWorkgroupConvert',
+			toModuleId: 'calendar',
+			toClass: '\Bitrix\Calendar\Integration\SocialNetwork\Collab\Converter\ConverterEventHandler',
+			toMethod: 'onConvert',
+		);
 	}
 
 	function UnInstallAgents()
@@ -473,7 +541,7 @@ class calendar extends CModule
 		{
 			$uf = new CUserTypeEntity;
 			$rsData = CUserTypeEntity::getList(array("ID" => "ASC"), array("ENTITY_ID" => 'CALENDAR_EVENT', "FIELD_NAME" => 'UF_WEBDAV_CAL_EVENT'));
-			if (!($rsData && ($arRes = $rsData->Fetch())))
+			if (!($rsData && $rsData->Fetch()))
 			{
 				$intID = $uf->add(array(
 					"ENTITY_ID" => 'CALENDAR_EVENT',
@@ -489,7 +557,7 @@ class calendar extends CModule
 					"IS_SEARCHABLE" => "Y"
 				), false);
 
-				if (false == $intID && ($strEx = $APPLICATION->getException()))
+				if (!$intID && ($strEx = $APPLICATION->getException()))
 				{
 					$errors[] = $strEx->getString();
 				}
@@ -501,7 +569,7 @@ class calendar extends CModule
 			$ENTITY_ID = 'CALENDAR_EVENT';
 			$FIELD_NAME = 'UF_WEBDAV_CAL_EVENT';
 			$arElement = $GLOBALS['USER_FIELD_MANAGER']->GetUserFields($ENTITY_ID, 0);
-			if (empty($arElement) || $arElement == array() ||$arElement == false || !isset($arElement[$FIELD_NAME]))
+			if (empty($arElement) || !isset($arElement[$FIELD_NAME]))
 			{
 				$arFields = array(
 					"ENTITY_ID" => $ENTITY_ID,
@@ -519,7 +587,7 @@ class calendar extends CModule
 
 				$obUserField  = new CUserTypeEntity;
 				$intID = $obUserField->Add($arFields, false);
-				if (false == $intID)
+				if (!$intID)
 				{
 					if ($strEx = $APPLICATION->GetException())
 					{
@@ -534,66 +602,63 @@ class calendar extends CModule
 
 	function InstallFiles()
 	{
-		if($_ENV["COMPUTERNAME"] !== 'BX')
+		CopyDirFiles(
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/calendar/install/tools",
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/tools",
+			true, true
+		);
+
+		CopyDirFiles(
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/calendar/install/components",
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/components",
+			true, true
+		);
+
+		CopyDirFiles(
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/calendar/install/admin",
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/admin",
+			true, true
+		);
+
+		CopyDirFiles(
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/calendar/install/js",
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/js",
+			true, true
+		);
+
+		CopyDirFiles(
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/calendar/install/images",
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/images",
+			true, true
+		);
+
+		CopyDirFiles(
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/calendar/install/activities",
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/activities",
+			true, true
+		);
+
+		CopyDirFiles(
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/calendar/install/services",
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/services",
+			true, true
+		);
+
+		CopyDirFiles(
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/calendar/install/templates",
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/templates",
+			true, true
+		);
+
+		$siteId = CSite::GetDefSite();
+		if ($siteId)
 		{
-			CopyDirFiles(
-				$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/calendar/install/tools",
-				$_SERVER["DOCUMENT_ROOT"]."/bitrix/tools",
-				true, true
-			);
-
-			CopyDirFiles(
-				$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/calendar/install/components",
-				$_SERVER["DOCUMENT_ROOT"]."/bitrix/components",
-				true, true
-			);
-
-			CopyDirFiles(
-				$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/calendar/install/admin",
-				$_SERVER["DOCUMENT_ROOT"]."/bitrix/admin",
-				true, true
-			);
-
-			CopyDirFiles(
-				$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/calendar/install/js",
-				$_SERVER["DOCUMENT_ROOT"]."/bitrix/js",
-				true, true
-			);
-
-			CopyDirFiles(
-				$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/calendar/install/images",
-				$_SERVER["DOCUMENT_ROOT"]."/bitrix/images",
-				true, true
-			);
-
-			CopyDirFiles(
-				$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/calendar/install/activities",
-				$_SERVER["DOCUMENT_ROOT"]."/bitrix/activities",
-				true, true
-			);
-
-			CopyDirFiles(
-				$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/calendar/install/services",
-				$_SERVER["DOCUMENT_ROOT"]."/bitrix/services",
-				true, true
-			);
-
-			CopyDirFiles(
-				$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/calendar/install/templates",
-				$_SERVER["DOCUMENT_ROOT"]."/bitrix/templates",
-				true, true
-			);
-
-			$siteId = \CSite::GetDefSite();
-			if ($siteId)
-			{
-				\Bitrix\Main\UrlRewriter::add($siteId, array(
-					"CONDITION" => "#^/stssync/calendar/#",
-					"RULE" => "",
-					"ID" => "bitrix:stssync.server",
-					"PATH" => "/bitrix/services/stssync/calendar/index.php",
-				));
-			}
+			\Bitrix\Main\UrlRewriter::add($siteId, array(
+				"CONDITION" => "#^/stssync/calendar/#",
+				"RULE" => "",
+				"ID" => "bitrix:stssync.server",
+				"PATH" => "/bitrix/services/stssync/calendar/index.php",
+			));
 		}
 
 		return true;
@@ -601,10 +666,7 @@ class calendar extends CModule
 
 	function UnInstallFiles()
 	{
-		if($_ENV["COMPUTERNAME"] !== 'BX')
-		{
-			DeleteDirFilesEx('/bitrix/templates/calendar_sharing/');
-		}
+		DeleteDirFilesEx('/bitrix/templates/calendar_sharing/');
 
 		return true;
 	}
@@ -619,15 +681,13 @@ class calendar extends CModule
 			$this->InstallDB();
 			$this->InstallEvents();
 
-			$GLOBALS["errors"] = $this->errors;
-
 			$APPLICATION->IncludeAdminFile(GetMessage("CAL_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/calendar/install/step1.php");
 		}
 	}
 
 	function DoUninstall()
 	{
-		global $DB, $APPLICATION, $USER, $step;
+		global $APPLICATION, $USER, $step;
 		if($USER->IsAdmin())
 		{
 			$step = (int)$step;
@@ -644,15 +704,33 @@ class calendar extends CModule
 			elseif ($step === 2)
 			{
 				$this->UnInstallDB(array(
-					"savedata" => $_REQUEST["savedata"],
+					"savedata" => $_REQUEST["savedata"] ?? null,
 				));
 				$this->UnInstallEvents();
 				$this->UnInstallFiles();
 
-				$GLOBALS["errors"] = $this->errors;
 				$APPLICATION->IncludeAdminFile(GetMessage("CAL_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/calendar/install/unstep2.php");
 			}
 		}
 	}
+
+	function InstallUrlPreviewHandlers()
+	{
+		$eventRoutes = [
+			'/workgroups/group/#group_id#/calendar/',
+			'/extranet/workgroups/group/#group_id#/calendar/',
+		];
+
+		foreach ($eventRoutes as $eventRoute)
+		{
+			Bitrix\Main\UrlPreview\Router::setRouteHandler(
+				$eventRoute,
+				'calendar',
+				'\Bitrix\Calendar\Ui\Preview\Event',
+				[
+					'eventId' => '$EVENT_ID',
+				],
+			);
+		}
+	}
 }
-?>

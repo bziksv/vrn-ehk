@@ -10,6 +10,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
 //use Bitrix\Main\Config;
 use Bitrix\Main;
+use Bitrix\Main\Application;
+use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
 
@@ -24,11 +26,11 @@ Loc::loadMessages(__FILE__);
 
 class CBitrixSaleLocationImportComponent extends CBitrixComponent
 {
-	protected $componentData = 	array();
-	protected $dbResult = 		array();
-	protected $errors = 		array('FATAL' => array(), 'NONFATAL' => array());
+	protected array $componentData = [];
+	protected array $dbResult = [];
+	protected array $errors = ['FATAL' => [], 'NONFATAL' => []];
 
-	protected $import = 		null;
+	protected ?Import\ImportProcess $import = null;
 
 	const LOC2_IMPORT_PERFORMED_OPTION = 'sale_locationpro_import_performed';
 
@@ -185,11 +187,13 @@ class CBitrixSaleLocationImportComponent extends CBitrixComponent
 	{
 		$this->import->turnOffCache();
 
-		$this->dbResult['LAYOUT'] = 		$this->import->getRemoteLayout();
-		$this->resortLayoutBundleAlphabetically('');
-
-		$this->dbResult['TYPE_LEVELS'] = 	$this->import->getTypeLevels();
-		$this->dbResult['STATISTICS'] = 	$this->import->getStatisticsAll();
+		if (self::checkRegion())
+		{
+			$this->dbResult['LAYOUT'] = $this->import->getRemoteLayout();
+			$this->resortLayoutBundleAlphabetically('');
+			$this->dbResult['TYPE_LEVELS'] = $this->import->getTypeLevels();
+		}
+		$this->dbResult['STATISTICS'] = $this->import->getStatisticsAll();
 
 		return true;
 	}
@@ -231,10 +235,25 @@ class CBitrixSaleLocationImportComponent extends CBitrixComponent
 		$this->includeComponentTemplate();
 	}
 
+	public static function checkRegion(): bool
+	{
+		$region = Application::getInstance()->getLicense()->getRegion();
+		$isBitrixSiteManagementOnly = !Loader::includeModule('bitrix24') && !Loader::includeModule('intranet');
+
+		return $region === 'ru' || $region === 'by' || $region === 'kz' || $isBitrixSiteManagementOnly;
+	}
+
 	public static function doAjaxStuff($parameters = array())
 	{
 		$errors = static::checkAccessPermissions(array('CHECK_CSRF' => true));
 		$data = 	array();
+
+		$options = Application::getInstance()->getContext()->getRequest()->get('OPTIONS') ?? [];
+		$source = $options['SOURCE'] ?? null;
+		if ($source === Import\ImportProcess::SOURCE_REMOTE && !self::checkRegion())
+		{
+			$errors[] = new Error('Region is not allowed');
+		}
 
 		if(count($errors) == 0)
 		{

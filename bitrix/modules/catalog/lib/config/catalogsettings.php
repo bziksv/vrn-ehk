@@ -47,12 +47,31 @@ final class CatalogSettings extends AbstractSettings
 		{
 			if (is_array($this->data['reservationSettings']))
 			{
-				foreach ($this->data['reservationSettings'] as $entityCode => $reservationSettingsValue)
+				if (Manager::isOnecMode())
 				{
-					Reservation\Config\EntityFactory::make($entityCode)
-						->setValues($reservationSettingsValue)
-						->save()
-					;
+					foreach ($this->data['reservationSettings'] as $entityCode => $reservationSettingsValue)
+					{
+						if (isset($reservationSettingsValue['autoWriteOffOnFinalize']))
+						{
+							Reservation\Config\EntityFactory::make($entityCode)
+								->setValue(
+									'autoWriteOffOnFinalize',
+									$reservationSettingsValue['autoWriteOffOnFinalize'],
+								)
+								->save()
+							;
+						}
+					}
+				}
+				else
+				{
+					foreach ($this->data['reservationSettings'] as $entityCode => $reservationSettingsValue)
+					{
+						Reservation\Config\EntityFactory::make($entityCode)
+							->setValues($reservationSettingsValue)
+							->save()
+						;
+					}
 				}
 			}
 		}

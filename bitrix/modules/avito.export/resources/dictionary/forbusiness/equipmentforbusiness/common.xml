@@ -1,0 +1,5 @@
+<Root>
+    <PriceWithVAT name="Да"/>
+    <PriceWithVAT name="Нет"/>
+    <invoice name="Предоставляются"/>
+</Root>

@@ -1,0 +1,225 @@
+<ProductType>
+	<Technic name="Автобусы"></Technic>
+	<Technic name="Автодома"></Technic>
+	<Technic name="Автокраны"></Technic>
+	<Technic name="Бульдозеры"></Technic>
+	<Technic name="Грузовики"></Technic>
+	<Technic name="Коммунальная техника"></Technic>
+	<Technic name="Лёгкий коммерческий транспорт"></Technic>
+	<Technic name="Навесное оборудование"></Technic>
+	<Technic name="Погрузчики"></Technic>
+	<Technic name="Прицепы"></Technic>
+	<Technic name="Сельхозтехника"></Technic>
+	<Technic name="Строительная техника"></Technic>
+	<Technic name="Техника для лесозаготовки"></Technic>
+	<Technic name="Тягачи"></Technic>
+	<Technic name="Экскаваторы"></Technic>
+	<Technic name="Другое"></Technic>
+	<SparePartType name="Двигатели и комплектующие">
+		<TechnicSparePartType name="Двигатели в сборе">
+			<Brand file="engine_Brand.xml"/>
+			<EmissionClass name="Евро 0"></EmissionClass>
+			<EmissionClass name="Евро 1"></EmissionClass>
+			<EmissionClass name="Евро 2"></EmissionClass>
+			<EmissionClass name="Евро 3"></EmissionClass>
+			<EmissionClass name="Евро 4"></EmissionClass>
+			<EmissionClass name="Евро 5"></EmissionClass>
+			<EmissionClass name="Евро 6"></EmissionClass>
+			<EngineBrand variable="text"/>
+			<EngineModel variable="text"/>
+		</TechnicSparePartType>
+		<TechnicSparePartType name="Блоки цилиндров, ГБЦ и картеры">
+			<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+		</TechnicSparePartType>
+		<TechnicSparePartType name="ГРМ">
+			<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+		</TechnicSparePartType>
+		<TechnicSparePartType name="Коленвалы, распредвалы и маховики">
+			<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+		</TechnicSparePartType>
+		<TechnicSparePartType name="Стартеры и генераторы">
+			<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+		</TechnicSparePartType>
+		<TechnicSparePartType name="Крепление и защита двигателя">
+			<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+		</TechnicSparePartType>
+		<TechnicSparePartType name="Система зажигания">
+			<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+		</TechnicSparePartType>
+		<TechnicSparePartType name="Система впуска">
+			<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+		</TechnicSparePartType>
+		<TechnicSparePartType name="Система выпуска">
+			<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+		</TechnicSparePartType>
+		<TechnicSparePartType name="Система смазки">
+			<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+		</TechnicSparePartType>
+		<TechnicSparePartType name="Система охлаждения ДВС">
+			<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+		</TechnicSparePartType>
+		<TechnicSparePartType name="Система кондиционирования и отопления">
+			<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+		</TechnicSparePartType>
+		<TechnicSparePartType name="Поршни, шатуны, кольца, вкладыши">
+			<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+		</TechnicSparePartType>
+		<TechnicSparePartType name="Турбины, компрессоры">
+			<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+		</TechnicSparePartType>
+		<TechnicSparePartType name="Топливная система">
+			<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+		</TechnicSparePartType>
+	</SparePartType>
+	<SparePartType name="Трансмиссия">
+		<TechnicSparePartType name="Сцепление"></TechnicSparePartType>
+		<TechnicSparePartType name="КПП в сборе"></TechnicSparePartType>
+		<TechnicSparePartType name="Детали КПП"></TechnicSparePartType>
+		<TechnicSparePartType name="Механизмы отбора мощности"></TechnicSparePartType>
+		<TechnicSparePartType name="Карданный вал, привод и полуось"></TechnicSparePartType>
+		<TechnicSparePartType name="Редуктор, муфта и дифференциалы"></TechnicSparePartType>
+		<TechnicSparePartType name="Подшипники и крестовины"></TechnicSparePartType>
+		<TechnicSparePartType name="Раздаточная коробка"></TechnicSparePartType>
+		<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+	</SparePartType>
+	<SparePartType name="Подвеска и рулевое управление">
+		<TechnicSparePartType name="Рулевые рейки и усилители"/>
+		<TechnicSparePartType name="Рычаги и шаровые опоры"/>
+		<TechnicSparePartType name="Пальцы и шкворни"/>
+		<TechnicSparePartType name="Амортизаторы и пружины"/>
+		<TechnicSparePartType name="Рессоры и листы"/>
+		<TechnicSparePartType name="Балки, стабилизаторы и балансиры"/>
+		<TechnicSparePartType name="Рулевые тяги и наконечники"/>
+		<TechnicSparePartType name="Кулаки и ступицы"/>
+		<TechnicSparePartType name="Втулки и сайлентблоки"/>
+		<TechnicSparePartType name="Запчасти для гусеничного хода"/>
+		<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+	</SparePartType>
+	<SparePartType name="Кабина">
+		<TechnicSparePartType name="Кабины в сборе"></TechnicSparePartType>
+		<TechnicSparePartType name="Окна и стёкла"></TechnicSparePartType>
+		<TechnicSparePartType name="Внешние элементы кабины"></TechnicSparePartType>
+		<TechnicSparePartType name="Подвеска кабины"></TechnicSparePartType>
+		<TechnicSparePartType name="Зеркала"></TechnicSparePartType>
+		<TechnicSparePartType name="Двери"></TechnicSparePartType>
+		<TechnicSparePartType name="Крылья"></TechnicSparePartType>
+		<TechnicSparePartType name="Капот"></TechnicSparePartType>
+		<TechnicSparePartType name="Бампера"></TechnicSparePartType>
+		<TechnicSparePartType name="Детали салона"></TechnicSparePartType>
+		<TechnicSparePartType name="Сиденья и спальники"></TechnicSparePartType>
+		<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+	</SparePartType>
+	<SparePartType name="Рамы, кузова и надстройки">
+		<TechnicSparePartType name="Надстройки и платформы в сборе">
+			<TechnicAddOnType name="Автобетоносмеситель"/>
+			<TechnicAddOnType name="Автоцистерна"/>
+			<TechnicAddOnType name="Бункер"/>
+			<TechnicAddOnType name="Коник"/>
+			<TechnicAddOnType name="Кузов самосвальный"/>
+			<TechnicAddOnType name="Кузов ломовозный"/>
+			<TechnicAddOnType name="Кузов зерновоз"/>
+			<TechnicAddOnType name="Кунг"/>
+			<TechnicAddOnType name="Пирамида"/>
+			<TechnicAddOnType name="Платформа лесовозная"/>
+			<TechnicAddOnType name="Платформа эвакуаторная"/>
+			<TechnicAddOnType name="Изотермический фургон"/>
+			<TechnicAddOnType name="Промтоварный фургон"/>
+			<TechnicAddOnType name="Тентованный фургон"/>
+			<TechnicAddOnType name="Бортовая платформа"/>
+			<TechnicAddOnType name="Фургон-бабочка"/>
+			<TechnicAddOnType name="Фургон-рефрижератор"/>
+			<TechnicAddOnType name="Мультилифт"/>
+			<TechnicAddOnType name="Станина КМУ"/>
+			<TechnicAddOnType name="Гидроборт"/>
+			<TechnicAddOnType name="Другое"/>
+		</TechnicSparePartType>
+		<TechnicSparePartType name="Борта и элементы кузова"/>
+		<TechnicSparePartType name="Тенты"/>
+		<TechnicSparePartType name="Топливные баки"/>
+		<TechnicSparePartType name="Рамы и лонжероны"/>
+		<TechnicLength variable="text"/>
+		<TechnicWidth variable="text"/>
+		<TechnicHeight variable="text"/>
+		<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+	</SparePartType>
+	<SparePartType name="Электроника и свет">
+		<TechnicSparePartType name="Фонари и фары"/>
+		<TechnicSparePartType name="Электронные блоки управления"/>
+		<TechnicSparePartType name="Электропроводка"/>
+		<TechnicSparePartType name="Контроллеры, реле и датчики"/>
+		<TechnicSparePartType name="Аккумуляторы"/>
+		<TechnicSparePartType name="Телематика, тахографы и рации"/>
+		<TechnicSparePartType name="Электродвигатели и актуаторы"/>
+		<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+	</SparePartType>
+	<SparePartType name="Гидравлические и пневмосистемы">
+		<TechnicSparePartType name="Пневматика сцепления и тормозов"></TechnicSparePartType>
+		<TechnicSparePartType name="Пневмоподвеска"></TechnicSparePartType>
+		<TechnicSparePartType name="Компрессоры, клапаны и воздухоподготовка"></TechnicSparePartType>
+		<TechnicSparePartType name="Шланги, трубки, патрубки"></TechnicSparePartType>
+		<TechnicSparePartType name="Гидромоторы и гидронасосы">
+			<HydraulicDesignType name="Аксиально-поршневой"/>
+			<HydraulicDesignType name="Винтовой"/>
+			<HydraulicDesignType name="Героторный"/>
+			<HydraulicDesignType name="Пластинчатый"/>
+			<HydraulicDesignType name="Радиально-поршневой"/>
+			<HydraulicDesignType name="Шестерённый"/>
+		</TechnicSparePartType>
+		<TechnicSparePartType name="Гидроцилиндры и баки">
+			<BoreDiameter variable="text"/>
+			<RodDiameter variable="text"/>
+			<HydraulicStroke variable="text"/>
+		</TechnicSparePartType>
+		<TechnicSparePartType name="Гидрораспределители">
+			<HydraulicDistributorType name="Моноблочный"/>
+			<HydraulicDistributorType name="Секционный"/>
+			<HydraulicDistributorType name="Пропорциональный"/>
+			<HydraulicDistributorType name="Самосвальный"/>
+			<HydraulicDistributorType name="Модульный"/>
+			<NumberOfSections name="1"/>
+			<NumberOfSections name="2"/>
+			<NumberOfSections name="3"/>
+			<NumberOfSections name="4"/>
+			<NumberOfSections name="5"/>
+			<NumberOfSections name="6"/>
+			<NumberOfSections name="7"/>
+			<NumberOfSections name="8"/>
+			<NumberOfSections name="9"/>
+			<NumberOfSections name="10"/>
+			<NumberOfSections name="11"/>
+			<NumberOfSections name="12"/>
+		</TechnicSparePartType>
+		<TechnicSparePartType name="Фильтры и фильтроэлементы"></TechnicSparePartType>
+		<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+	</SparePartType>
+	<SparePartType name="Тормозная система">
+		<TechnicSparePartType name="Диски и барабаны">
+			<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+		</TechnicSparePartType>
+		<TechnicSparePartType name="Колодки и накладки">
+			<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+		</TechnicSparePartType>
+		<TechnicSparePartType name="Ремкомплекты суппортов">
+			<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+		</TechnicSparePartType>
+		<TechnicSparePartType name="Суппорта в сборе">
+			<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+		</TechnicSparePartType>
+	</SparePartType>
+	<SparePartType name="Для навесного оборудования">
+		<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+	</SparePartType>
+	<SparePartType name="Для прицепной техники">
+		<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+	</SparePartType>
+	<SparePartType name="Техника на разбор">
+		<Brand file="/transportation/partsandaccessories/parts/partsbrands.xml"/>
+	</SparePartType>
+	<OEM variable="group_symbols"/>
+	<Availability name="В наличии"/>
+	<Availability name="Под заказ"/>
+	<PostponedPayment name="Есть"/>
+	<PostponedPayment name="Нет"/>
+	<PriceWithVAT name="Да"/>
+	<PriceWithVAT name="Нет"/>
+</ProductType>

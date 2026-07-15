@@ -79,8 +79,8 @@ if(!IsModuleInstalled("intranet"))
 \Bitrix\UI\Toolbar\Facade\Toolbar::addButton([
 		'link' => $arResult["LIST_SECTION_URL"],
 		'color' => \Bitrix\UI\Buttons\Color::LINK,
-		'text' => GetMessage("CT_BLEE_TOOLBAR_RETURN_LIST_ELEMENT"),
-		'classList' => ['lists-list-back'],
+		'text' => GetMessage("CT_BLEE_TOOLBAR_RETURN_LIST_ELEMENT_MSGVER_1"),
+		'icon' => Bitrix\UI\Buttons\Icon::BACK,
 	]
 );
 
@@ -122,7 +122,7 @@ foreach($arResult["FIELDS"] as $fieldId => $field)
 $tabSection = array(
 	array(
 		"id" => "IBLOCK_SECTION_ID",
-		"name" => $arResult["~IBLOCK"]["SECTIONS_NAME"],
+		"name" => $arResult["~IBLOCK"]["SECTIONS_NAME"] ?? null,
 		"type" => "list",
 		"items" => $arResult["LIST_SECTIONS"],
 		"params" => array("size" => 15),
@@ -130,14 +130,14 @@ $tabSection = array(
 );
 
 $arTabs = array(
-	array("id" => "tab_el", "name" => $arResult["~IBLOCK"]["ELEMENT_NAME"], "icon" => "", "fields" => $tabElement),
-	array("id" => "tab_se", "name" => $arResult["~IBLOCK"]["SECTION_NAME"], "icon" => "", "fields" => $tabSection)
+	array("id" => "tab_el", "name" => $arResult["~IBLOCK"]["ELEMENT_NAME"] ?? null, "icon" => "", "fields" => $tabElement),
+	array("id" => "tab_se", "name" => $arResult["~IBLOCK"]["SECTION_NAME"] ?? null, "icon" => "", "fields" => $tabSection)
 );
 
 if (
 	CModule::IncludeModule("bizproc")
 	&& CLists::isBpFeatureEnabled($arParams["IBLOCK_TYPE_ID"])
-	&& $arResult["IBLOCK"]["BIZPROC"] != "N"
+	&& ($arResult["IBLOCK"]["BIZPROC"] ?? null) != "N"
 )
 {
 	if ($arResult["ELEMENT_ID"] > 0)

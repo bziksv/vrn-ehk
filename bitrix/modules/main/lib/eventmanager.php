@@ -4,12 +4,10 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main;
-
-use Bitrix\Main\Type\Collection;
 
 class EventManager
 {
@@ -56,7 +54,7 @@ class EventManager
 
 	protected function addEventHandlerInternal($fromModuleId, $eventType, $callback, $includeFile, $sort, $version)
 	{
-		$arEvent = [
+		$event = [
 			'FROM_MODULE_ID' => $fromModuleId,
 			'MESSAGE_ID' => $eventType,
 			'CALLBACK' => $callback,
@@ -74,32 +72,32 @@ class EventManager
 			$this->handlers[$fromModuleId] = [];
 		}
 
-		$arEvents = &$this->handlers[$fromModuleId];
+		$events = &$this->handlers[$fromModuleId];
 
-		if (empty($arEvents[$eventType]) || !is_array($arEvents[$eventType]))
+		if (empty($events[$eventType]) || !is_array($events[$eventType]))
 		{
-			$arEvents[$eventType] = [$arEvent];
-			$iEventHandlerKey = 0;
+			$events[$eventType] = [$event];
+			$eventHandlerKey = 0;
 		}
 		else
 		{
 			$newEvents = [];
-			$iEventHandlerKey = max(array_keys($arEvents[$eventType])) + 1;
+			$eventHandlerKey = max(array_keys($events[$eventType])) + 1;
 
-			foreach ($arEvents[$eventType] as $key => $value)
+			foreach ($events[$eventType] as $key => $value)
 			{
-				if ($value['SORT'] > $arEvent['SORT'])
+				if ($value['SORT'] > $event['SORT'])
 				{
-					$newEvents[$iEventHandlerKey] = $arEvent;
+					$newEvents[$eventHandlerKey] = $event;
 				}
 
 				$newEvents[$key] = $value;
 			}
-			$newEvents[$iEventHandlerKey] = $arEvent;
-			$arEvents[$eventType] = $newEvents;
+			$newEvents[$eventHandlerKey] = $event;
+			$events[$eventType] = $newEvents;
 		}
 
-		return $iEventHandlerKey;
+		return $eventHandlerKey;
 	}
 
 	public function addEventHandler($fromModuleId, $eventType, $callback, $includeFile = false, $sort = 100)
@@ -138,10 +136,10 @@ class EventManager
 	{
 		$toMethodArg = (!is_array($toMethodArg) || empty($toMethodArg) ? '' : serialize($toMethodArg));
 
-		$con = Application::getConnection();
-		$sqlHelper = $con->getSqlHelper();
+		$connection = Application::getConnection();
+		$sqlHelper = $connection->getSqlHelper();
 
-		$strSql =
+		$sql =
 			"DELETE FROM b_module_to_module " .
 			"WHERE FROM_MODULE_ID='" . $sqlHelper->forSql($fromModuleId) . "'" .
 			"	AND MESSAGE_ID='" . $sqlHelper->forSql($eventType) . "' " .
@@ -151,9 +149,12 @@ class EventManager
 			(($toPath != '' && $toPath !== 1/*controller disconnect correction*/) ? " AND TO_PATH='" . $sqlHelper->forSql($toPath) . "'" : " AND (TO_PATH='' OR TO_PATH IS NULL) ") .
 			(($toMethodArg != '') ? " AND TO_METHOD_ARG='" . $sqlHelper->forSql($toMethodArg) . "'" : " AND (TO_METHOD_ARG='' OR TO_METHOD_ARG IS NULL) ");
 
-		$con->queryExecute($strSql);
+		$connection->queryExecute($sql);
 
-		$this->clearLoadedHandlers();
+		if ($connection->getAffectedRowsCount() > 0)
+		{
+			$this->clearLoadedHandlers();
+		}
 	}
 
 	public function registerEventHandler($fromModuleId, $eventType, $toModuleId, $toClass = '', $toMethod = '', $sort = 100, $toPath = '', $toMethodArg = [])
@@ -188,38 +189,42 @@ class EventManager
 		$fields = '(SORT, FROM_MODULE_ID, MESSAGE_ID, TO_MODULE_ID, TO_CLASS, TO_METHOD, TO_PATH, TO_METHOD_ARG, VERSION, UNIQUE_ID)';
 		$values = "(" . $sort . ", '" . $fromModuleId . "', '" . $eventType . "', '" . $toModuleId . "', " . "   '" . $toClass . "', '" . $toMethod . "', '" . $toPath . "', '" . $toMethodArg . "', " . $version . ", '" . $uniqueID . "')";
 		$sql = $sqlHelper->getInsertIgnore('b_module_to_module', $fields, 'VALUES ' . $values);
+
 		$connection->queryExecute($sql);
 
-		$this->clearLoadedHandlers();
+		if ($connection->getAffectedRowsCount() > 0)
+		{
+			$this->clearLoadedHandlers();
+		}
 	}
 
-	protected function formatEventName($arEvent)
+	protected function formatEventName($event)
 	{
-		$strName = '';
-		if (isset($arEvent['CALLBACK']))
+		$name = '';
+		if (isset($event['CALLBACK']))
 		{
-			if (is_array($arEvent['CALLBACK']))
+			if (is_array($event['CALLBACK']))
 			{
-				$strName .= (is_object($arEvent['CALLBACK'][0]) ? get_class($arEvent['CALLBACK'][0]) : $arEvent['CALLBACK'][0]) . '::' . $arEvent['CALLBACK'][1];
+				$name .= (is_object($event['CALLBACK'][0]) ? get_class($event['CALLBACK'][0]) : $event['CALLBACK'][0]) . '::' . $event['CALLBACK'][1];
 			}
-			elseif (is_callable($arEvent['CALLBACK']))
+			elseif (is_callable($event['CALLBACK']))
 			{
-				$strName .= 'callable';
+				$name .= 'callable';
 			}
 			else
 			{
-				$strName .= $arEvent['CALLBACK'];
+				$name .= $event['CALLBACK'];
 			}
 		}
 		else
 		{
-			$strName .= $arEvent['TO_CLASS'] . '::' . $arEvent['TO_METHOD'];
+			$name .= $event['TO_CLASS'] . '::' . $event['TO_METHOD'];
 		}
-		if (!empty($arEvent['TO_MODULE_ID']))
+		if (!empty($event['TO_MODULE_ID']))
 		{
-			$strName .= ' (' . $arEvent['TO_MODULE_ID'] . ')';
+			$name .= ' (' . $event['TO_MODULE_ID'] . ')';
 		}
-		return $strName;
+		return $name;
 	}
 
 	protected function loadEventHandlers()
@@ -293,12 +298,15 @@ class EventManager
 			{
 				foreach (array_keys($handlers[$moduleId]) as $event)
 				{
-					Collection::sortByColumn(
+					uasort(
 						$this->handlers[$moduleId][$event],
-						['SORT' => SORT_ASC],
-						'',
-						null,
-						true
+						function ($a, $b) {
+							if ($a['SORT'] == $b['SORT'])
+							{
+								return 0;
+							}
+							return ($a['SORT'] < $b['SORT'] ? -1 : 1);
+						}
 					);
 				}
 			}

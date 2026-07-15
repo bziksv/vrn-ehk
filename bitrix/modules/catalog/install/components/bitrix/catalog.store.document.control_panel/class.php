@@ -9,7 +9,11 @@ use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Config\State;
 use Bitrix\Catalog\Integration\Report\Dashboard\DashboardManager;
 use Bitrix\Catalog\Integration\Report\Dashboard\StoreStockDashboard;
+use Bitrix\Crm\Integration\Catalog\Contractor\CategoryRepository;
+use Bitrix\Crm\Security\Role\Manage\Manager\ContractorSelection;
+use Bitrix\Intranet\Settings\Tools\ToolsManager;
 use Bitrix\Main;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Iblock;
 use Bitrix\Catalog;
@@ -118,20 +122,58 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 		$buttons = $this->getPanelButtonsStoreDocuments();
 		$buttons[] = $this->getPanelButtonProducts();
 
-		if (
-			$this->accessController->check(ActionDictionary::ACTION_CATALOG_READ)
-			|| $this->accessController->check(ActionDictionary::ACTION_CATALOG_VIEW)
-		)
+		$analyticsButton = $this->getPanelButtonAnalytics();
+		if (!empty($analyticsButton))
 		{
-			$buttons[] = $this->getPanelButtonAnalytics();
+			$buttons[] = $analyticsButton;
 		}
-
 		array_push($buttons, ... $this->getPanelButtonsSettings());
 		array_push($buttons, ... $this->getPanelButtonsOther());
 
 		$buttons = array_filter($buttons, static fn($item) => !is_null($item) && (($item['IS_ACTIVE'] ?? false) || !($item['IS_HIDE'] ?? false)));
 
 		return $buttons;
+	}
+
+	private function getPanelButtonAnalytics(): array
+	{
+		$buttons = [
+			'ID' => 'analytics',
+			'TEXT' => Loc::getMessage('STORE_DOCUMENTS_ANALYTICS_BUTTON_TITLE'),
+			'SORT' => 45,
+			'ITEMS' => [],
+			'PARENT_ID' => '',
+		];
+
+		$biAnalytics = $this->getPanelButtonBiBuilder();
+
+		if (!empty($biAnalytics))
+		{
+			array_push($buttons['ITEMS'], ... $biAnalytics);
+		}
+
+		$crmAnalytics = [];
+		if (
+			$this->accessController->check(ActionDictionary::ACTION_CATALOG_READ)
+			|| $this->accessController->check(ActionDictionary::ACTION_CATALOG_VIEW)
+		)
+		{
+			$crmAnalytics = $this->getPanelButtonCRMAnalytics();
+			if (!empty($crmAnalytics))
+			{
+				if (!empty($biAnalytics) && $this->isBiConstructorAvailable())
+				{
+					array_push($buttons['ITEMS'], ... $crmAnalytics);
+				}
+				else
+				{
+					$buttons = $crmAnalytics[0];
+					$buttons['TEXT'] = Loc::getMessage('STORE_DOCUMENTS_ANALYTICS_BUTTON_TITLE');
+				}
+			}
+		}
+
+		return !empty($crmAnalytics) || !empty($biAnalytics) ? $buttons : [];
 	}
 
 	private function getPanelButtonsStoreDocuments(): array
@@ -252,8 +294,10 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 		return $result;
 	}
 
-	private function getPanelButtonAnalytics(): ?array
+	private function getPanelButtonCRMAnalytics(): array
 	{
+		$buttons = [];
+
 		$sliderPath = \CComponentEngine::makeComponentPath('bitrix:catalog.store.enablewizard');
 		$sliderPath = getLocalPath('components' . $sliderPath . '/slider.php');
 
@@ -271,7 +315,7 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 				$allowedDashboards = DashboardManager::getManager()->getAllowedDashboards();
 				if (!$allowedDashboards)
 				{
-					return null;
+					return [];
 				}
 
 				$linkKey = '';
@@ -285,9 +329,9 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 				}
 
 				$url = '/report/analytics/?analyticBoardKey=' . $linkKey;
-				return [
-					'ID' => 'analytics',
-					'TEXT' => Loc::getMessage('STORE_DOCUMENTS_ANALYTICS_BUTTON_TITLE'),
+				$buttons[] = [
+					'ID' => 'crm_analytics',
+					'TEXT' => Loc::getMessage('STORE_DOCUMENTS_CRM_ANALYTICS_BUTTON_TITLE'),
 					'URL' => $url,
 					'SORT' => 45,
 					'IS_ACTIVE' => $this->isActiveUrl($url),
@@ -295,16 +339,44 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 			}
 			else
 			{
-				return [
-					'ID' => 'analytics',
-					'TEXT' => Loc::getMessage('STORE_DOCUMENTS_ANALYTICS_BUTTON_TITLE'),
+				$buttons[] = [
+					'ID' => 'crm_analytics',
+					'TEXT' => Loc::getMessage('STORE_DOCUMENTS_CRM_ANALYTICS_BUTTON_TITLE'),
 					'SORT' => 45,
 					'ON_CLICK' => 'new BX.Catalog.Store.Document.ControlPanel().storeMasterOpenSlider(\''.$sliderPath.'\', ' . $masterSliderSettings . ');',
 				];
 			}
 		}
 
-		return null;
+		return $buttons;
+	}
+
+	private function getPanelButtonBiBuilder(): array
+	{
+		$menuItem = [];
+
+		if (
+			Main\Loader::includeModule('biconnector')
+			&& class_exists('\Bitrix\BIConnector\Superset\Scope\ScopeService')
+		)
+		{
+			/** @see \Bitrix\BIConnector\Superset\Scope\MenuItem\MenuItemCreatorStore::getMenuItemData */
+			$menuItem = \Bitrix\BIConnector\Superset\Scope\ScopeService::getInstance()->prepareScopeMenuItem(
+				\Bitrix\BIConnector\Superset\Scope\ScopeService::BIC_SCOPE_STORE
+			);
+		}
+
+		return $menuItem['ITEMS'] ?? [];
+	}
+
+	private function isBiConstructorAvailable(): bool
+	{
+		return
+			Loader::includeModule('biconnector')
+			&& \Bitrix\BIConnector\Configuration\Feature::isBuilderEnabled()
+			&& Loader::includeModule('intranet')
+			&& ToolsManager::getInstance()->checkAvailabilityByToolId('crm_bi')
+		;
 	}
 
 	private function getPanelButtonsSettings(): array
@@ -328,32 +400,7 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 			];
 		}
 
-		Main\UI\Extension::load('sidepanel');
-
-		$accessRightsButton = [
-			'ID' => 'access_rights',
-			'PARENT_ID' => '',
-			'TEXT' => Loc::getMessage('STORE_DOCUMENTS_ACCESS_RIGHT_BUTTON_TITLE'),
-			'SORT' => 65,
-		];
-
-		if (Catalog\Config\Feature::isAccessControllerCheckingEnabled())
-		{
-			$accessRightsButton['ON_CLICK'] = "BX.SidePanel.Instance.open('" . \CUtil::JSEscape('/shop/settings/permissions/') . "')";
-		}
-		else
-		{
-			$helpLink = Catalog\Config\Feature::getAccessControllerHelpLink();
-			if (!empty($helpLink))
-			{
-				$accessRightsButton['IS_LOCKED'] = true;
-				$accessRightsButton['ON_CLICK'] = $helpLink['LINK'];
-			}
-			else
-			{
-				$accessRightsButton = null;
-			}
-		}
+		$accessRightsButton = $this->getAccessRightsButton();
 
 		$result = [];
 
@@ -416,7 +463,7 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 			&& $this->accessController->check(ActionDictionary::ACTION_CATALOG_IMPORT_EXECUTION)
 		)
 		{
-			$url = '/marketplace/?tag[0]=migrator&tag[1]=inventory';
+			$url = '/market/collection/migration_inventory/';
 			$buttons[] = [
 				'ID' => 'transfer_data',
 				'TEXT' => Loc::getMessage('STORE_DOCUMENTS_TRANSFER_DATA_TITLE'),
@@ -523,5 +570,70 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 		);
 
 		return $clientsItem;
+	}
+
+	private function getAccessRightsButton(): ?array
+	{
+		$accessRightsButton = [
+			'ID' => 'access_rights',
+			'PARENT_ID' => '',
+			'TEXT' => Loc::getMessage('STORE_DOCUMENTS_ACCESS_RIGHT_BUTTON_TITLE'),
+			'SORT' => 65,
+		];
+
+		$isCrmIncluded = Main\Loader::includeModule('crm');
+		if (
+			$isCrmIncluded
+			&& class_exists(ContractorSelection::class)
+			&& CategoryRepository::isAtLeastOneContractorExists()
+		)
+		{
+			$inventoryManagementRightsButton = [
+				'ID' => 'access_rights_inventory_management',
+				'TEXT' => Loc::getMessage('STORE_DOCUMENTS_ACCESS_RIGHT_INVENTORY_MANAGEMENT_BUTTON_TITLE'),
+			];
+			$inventoryManagementRightsButton = $this->fillInventoryManagementRightsOnclick($inventoryManagementRightsButton);
+
+			$contractorRightsUrl = \CUtil::JSEscape((string)(new ContractorSelection())->getUrl());
+			$contractorRightsButton = [
+				'ID' => 'access_rights_contractor',
+				'TEXT' => Loc::getMessage('STORE_DOCUMENTS_ACCESS_RIGHT_CONTRACTOR_BUTTON_TITLE'),
+				'ON_CLICK' => "BX.SidePanel.Instance.open('{$contractorRightsUrl}')",
+			];
+
+			$accessRightsButton['ITEMS'] = [
+				$inventoryManagementRightsButton,
+				$contractorRightsButton,
+			];
+
+			return $accessRightsButton;
+		}
+
+		return $this->fillInventoryManagementRightsOnclick($accessRightsButton);
+	}
+
+	private function fillInventoryManagementRightsOnclick(array $accessRightsButton): ?array
+	{
+		Main\UI\Extension::load('sidepanel');
+
+		if (Catalog\Config\Feature::isAccessControllerCheckingEnabled())
+		{
+			$accessRightsButton['ON_CLICK'] = "BX.SidePanel.Instance.open('" . \CUtil::JSEscape('/shop/settings/permissions/') . "')";
+		}
+		else
+		{
+			$helpLink = Catalog\Config\Feature::getAccessControllerHelpLink();
+			if (!empty($helpLink))
+			{
+				$accessRightsButton['IS_LOCKED'] = true;
+				$accessRightsButton['ON_CLICK'] = $helpLink['LINK'];
+			}
+			else
+			{
+				return null;
+			}
+		}
+
+		return $accessRightsButton;
 	}
 }

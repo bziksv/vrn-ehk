@@ -4,6 +4,7 @@ namespace Bitrix\Calendar\Sync\Handlers;
 
 use Bitrix\Calendar\Core\Role\Role;
 use Bitrix\Calendar\Core;
+use Bitrix\Calendar\Integration\Pull\PushCommand;
 use Bitrix\Calendar\Util;
 
 class MasterPushHandler extends Core\Handlers\HandlerBase
@@ -29,11 +30,13 @@ class MasterPushHandler extends Core\Handlers\HandlerBase
 	/**
 	 * @var string $stage
 	 * //self::MASTER_STAGE
+	 *
+	 * @todo Unused
 	 */
 	public function __invoke(string $stage)
 	{
 		Util::addPullEvent(
-			'process_sync_connection',
+			PushCommand::ProcessSyncConnection,
 			$this->owner->getId(),
 			[
 				'vendorName' => $this->vendorName,

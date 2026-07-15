@@ -3,17 +3,20 @@
 namespace Bitrix\Im\V2\Chat;
 
 use Bitrix\Im\Recent;
-use Bitrix\Im\User;
+use Bitrix\Im\V2\Entity\User\User;
 use Bitrix\Im\V2\Message;
-use Bitrix\Im\V2\Message\PushFormat;
+use Bitrix\Im\V2\Message\Send\SendingConfig;
 use Bitrix\Im\V2\MessageCollection;
-use Bitrix\Im\V2\Relation;
+use Bitrix\Im\V2\Relation\AddUsersConfig;
+use Bitrix\Im\V2\Relation\DeleteUserConfig;
 use Bitrix\Im\V2\RelationCollection;
 use Bitrix\Im\V2\Result;
 use Bitrix\ImOpenLines\Config;
 use Bitrix\ImOpenLines\Model\ChatIndexTable;
+use Bitrix\ImOpenLines;
 use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
+use Bitrix\Pull\Event;
 
 class OpenLineChat extends EntityChat
 {
@@ -52,6 +55,9 @@ class OpenLineChat extends EntityChat
 			'silentMode',
 		],
 	];
+	protected bool $isSessionFilled = false;
+	protected ?RelationCollection $fakeRelation = null;
+	protected ?ImOpenLines\V2\Session\Session $session = null;
 
 	public function setEntityMap(array $entityMap): EntityChat
 	{
@@ -104,6 +110,113 @@ class OpenLineChat extends EntityChat
 		return parent::readMessages($messages, $byEvent);
 	}
 
+	public function getRelations(): RelationCollection
+	{
+		if (isset($this->fakeRelation))
+		{
+			return $this->fakeRelation;
+		}
+
+		return parent::getRelations();
+	}
+
+	public function setFakeRelation(array $userIds): self
+	{
+		$this->fakeRelation = RelationCollection::createFake($userIds, $this);
+
+		return $this;
+	}
+
+	public function unsetFakeRelation(): self
+	{
+		$this->fakeRelation = null;
+
+		return $this;
+	}
+
+	protected function onBeforeMessageSend(Message $message, SendingConfig $config): Result
+	{
+		if ($config->fakeRelation())
+		{
+			$this->setFakeRelation([$config->fakeRelation()]);
+		}
+		elseif (Loader::includeModule('imopenlines'))
+		{
+			$userIds = (new ImOpenLines\Relation($this->getId()))->getRelationUserIds();
+			if (!empty($userIds))
+			{
+				$this->setFakeRelation($userIds);
+			}
+		}
+
+		return parent::onBeforeMessageSend($message, $config);
+	}
+
+	public function getLineData(): ?array
+	{
+		$session = $this->getSession();
+
+		if (!isset($session))
+		{
+			return null;
+		}
+
+		return [
+			'id' => $session->getId(),
+			'status' => $session->getStatus(),
+			'date_create' => $session->getDateCreate(),
+			'statusGroup' => $session->getStatusGroup(),
+			'queueId' => $session->getConfigId(),
+			'pinned' => $session->getPinMode(),
+			'isClosed' => $session->isClosed(),
+			'operatorId' => $session->getOperatorId(),
+		];
+	}
+
+	public function getSessionId(): int
+	{
+		if (!isset($this->session))
+		{
+			return $this->getSession()?->getSessionId() ?? 0;
+		}
+
+		return $this->session->getSessionId();
+	}
+
+	protected function getSessionIdByEntityData(): int
+	{
+		if ($this->getEntityData1())
+		{
+			return (int)(explode('|', $this->getEntityData1())[5] ?? 0);
+		}
+
+		return 0;
+	}
+
+	public function getSession(): ?ImOpenLines\V2\Session\Session
+	{
+		if (isset($this->session))
+		{
+			return $this->session;
+		}
+
+		if (!Loader::includeModule('imopenlines'))
+		{
+			return null;
+		}
+
+		if ($sessionId = $this->getSessionIdByEntityData())
+		{
+			$this->session = ImOpenLines\V2\Session\Session::getInstance($sessionId);
+		}
+		else
+		{
+			$this->session = ImOpenLines\V2\Session\Session::getInstanceByChatId($this->chatId);
+		}
+
+		return $this->session;
+	}
+
 	protected function getDefaultType(): string
 	{
 		return self::IM_TYPE_OPEN_LINE;
@@ -114,26 +227,48 @@ class OpenLineChat extends EntityChat
 		return self::ENTITY_TYPE_LINE;
 	}
 
-	protected function checkAccessWithoutCaching(int $userId): bool
+	protected function checkAccessInternal(int $userId): Result
 	{
-		$inChat = parent::checkAccessWithoutCaching($userId);
+		$checkResult = parent::checkAccessInternal($userId);
 
-		if ($inChat)
+		if ($checkResult->isSuccess())
 		{
-			return true;
+			return $checkResult;
 		}
+
+		$result = new Result();
 
 		if (!Loader::includeModule('imopenlines'))
 		{
-			return false;
+			return $result->addError(new ChatError(ChatError::ACCESS_DENIED));
 		}
 
 		$entityData = $this->getEntityData(true);
-		return Config::canJoin(
-			$entityData['lineId'] ?? 0,
+		$canJoin = Config::canJoin(
+			$entityData['entityId']['lineId'] ?? 0,
 			$entityData['crmEntityType'] ?? null,
 			$entityData['crmEntityId'] ?? null
 		);
+
+		if (!$canJoin && !$this->checkAccessByRecentTable($userId))
+		{
+			$result->addError(new ChatError(ChatError::ACCESS_DENIED));
+		}
+
+		return $result;
+	}
+
+	protected function checkAccessByRecentTable(int $userId): bool
+	{
+		$result = ImOpenLines\Model\RecentTable::query()
+			->setSelect(['USER_ID'])
+			->where('CHAT_ID', $this->getChatId())
+			->where('USER_ID', $userId)
+			->setLimit(1)
+			->fetch()
+		;
+
+		return $result !== false;
 	}
 
 	public function canUpdateOwnMessage(): bool
@@ -172,9 +307,14 @@ class OpenLineChat extends EntityChat
 		return in_array($connectorType, \Bitrix\ImOpenlines\Connector::getListCanDeleteMessage(), true);
 	}
 
-	protected function needToSendMessageUserDelete(): bool
+	protected function validateAuthorId(int $authorId): Result
 	{
-		return true;
+		if ($authorId === 0)
+		{
+			return new Result();
+		}
+
+		return parent::validateAuthorId($authorId);
 	}
 
 	protected function prepareParams(array $params = []): Result
@@ -196,69 +336,110 @@ class OpenLineChat extends EntityChat
 		return true;
 	}
 
-	/**
-	 * @param Message $message
-	 * @return void
-	 */
-	public function riseInRecent(Message $message): void
+	protected function needToUpdateOpenlinesRecent(): bool
 	{
-		/** @var Relation $relation */
-		foreach ($this->getRelations() as $relation)
-		{
-			if (!User::getInstance($relation->getUserId())->isActive())
-			{
-				continue;
-			}
-
-			$sessionId = 0;
-			if ($this->getEntityType() == self::ENTITY_TYPE_LINE)
-			{
-				if (User::getInstance($relation->getUserId())->getExternalAuthId() == 'imconnector')
-				{
-					continue;
-				}
-
-				if ($this->getEntityData1())
-				{
-					//todo: replace it with method
-					$fieldData = explode("|", $this->getEntityData1());
-					$sessionId = (int)$fieldData[5];
-				}
-			}
-
-			\CIMContactList::SetRecent([
-				'ENTITY_ID' => $this->getChatId(),
-				'MESSAGE_ID' => $message->getMessageId(),
-				'CHAT_TYPE' => $this->getType(),
-				'USER_ID' => $relation->getUserId(),
-				'CHAT_ID' => $relation->getChatId(),
-				'RELATION_ID' => $relation->getId(),
-				'SESSION_ID' => $sessionId,
-			]);
-
-			if ($relation->getUserId() == $message->getAuthorId())
-			{
-				$relation
-					->setLastId($message->getMessageId())
-					->save();
-			}
-		}
+		return $this->getSessionId()
+			&& Loader::includeModule('imopenlines')
+			&& ImOpenLines\Recent::isRecentAvailableByStatus($this->getSession()?->getStatus())
+		;
 	}
 
-	protected function filterUsersToAdd(array $userIds): array
+	protected function updateRecentAfterMessageSend(Message $message, SendingConfig $config): Result
 	{
-		$filteredUsers = parent::filterUsersToAdd($userIds);
-
-		foreach ($filteredUsers as $key => $userId)
+		if ($this->needToUpdateOpenlinesRecent())
 		{
-			$user = \Bitrix\Im\V2\Entity\User\User::getInstance($userId);
-			if (!$user->isConnector() && ($user->isExtranet() || $user->isNetwork()))
-			{
-				unset($filteredUsers[$key]);
-			}
+			$this->updateOpenlinesRecentAfterMessageSend($message);
+
+			return new Result();
 		}
 
-		return $filteredUsers;
+		return parent::updateRecentAfterMessageSend($message, $config);
+	}
+
+	protected function updateOpenlinesRecentAfterMessageSend(Message $message): Result
+	{
+		if (!Loader::includeModule('imopenlines'))
+		{
+			return new Result();
+		}
+
+		foreach ($this->getRelationsForSendMessage() as $relation)
+		{
+			ImOpenLines\Recent::setRecent(
+				$relation->getUserId(),
+				$this->getId(),
+				$message->getId(),
+				$this->getSessionId()
+			);
+		}
+
+		return new Result();
+	}
+
+	protected function updateRelationsAfterMessageSend(Message $message): Result
+	{
+		if ($this->hasFakeRelations())
+		{
+			return new Result();
+		}
+
+		return parent::updateRelationsAfterMessageSend($message);
+	}
+
+	protected function updateCountersAfterMessageSend(Message $message, SendingConfig $sendingConfig): Result
+	{
+		if ($this->hasFakeRelations())
+		{
+			$counter = 1;
+			if ($this->getSession()?->isClosed())
+			{
+				$counter = 0;
+			}
+
+			$counters = [];
+			foreach ($this->fakeRelation as $fakeRelation)
+			{
+				$counters[$fakeRelation->getUserId()] = $counter;
+			}
+
+			return (new Result())->setResult(['COUNTERS' => $counters]);
+		}
+
+		return parent::updateCountersAfterMessageSend($message, $sendingConfig);
+	}
+
+	protected function getFieldsForRecent(int $userId, Message $message): array
+	{
+		$fields = parent::getFieldsForRecent($userId, $message);
+		if (!empty($fields))
+		{
+			$fields['ITEM_OLID'] = $this->getSessionIdByEntityData();
+		}
+
+		return $fields;
+	}
+
+	protected function getUpdatedFieldsForRecent(Message $message): array
+	{
+		$fields = parent::getUpdatedFieldsForRecent($message);
+		if (!empty($fields))
+		{
+			$fields['ITEM_OLID'] = $this->getSessionIdByEntityData();
+		}
+
+		return $fields;
+	}
+
+	protected function isValidToAdd(int $userId): bool
+	{
+		if(!parent::isValidToAdd($userId))
+		{
+			return false;
+		}
+
+		$user = User::getInstance($userId);
+
+		return $user->isConnector() || (!$user->isExtranet() && !$user->isConnector());
 	}
 
 	public function setExtranet(?bool $extranet): \Bitrix\Im\V2\Chat
@@ -271,9 +452,9 @@ class OpenLineChat extends EntityChat
 		return false;
 	}
 
-	protected function updateStateAfterUsersAdd(array $usersToAdd): self
+	protected function updateStateAfterRelationsAdd(array $usersToAdd): self
 	{
-		parent::updateStateAfterUsersAdd($usersToAdd);
+		parent::updateStateAfterRelationsAdd($usersToAdd);
 
 		if (Loader::includeModule('pull'))
 		{
@@ -283,12 +464,29 @@ class OpenLineChat extends EntityChat
 			}
 		}
 
+		if ($this->needToUpdateOpenlinesRecent())
+		{
+			$this->addUsersToOpenlinesRecent($usersToAdd);
+		}
+
 		return $this;
 	}
 
-	protected function addUsersToRelation(array $usersToAdd, array $managerIds = [], ?bool $hideHistory = null, \Bitrix\Im\V2\Relation\Reason $reason = \Bitrix\Im\V2\Relation\Reason::DEFAULT)
+	protected function addUsersToOpenlinesRecent(array $userIds): self
 	{
-		parent::addUsersToRelation($usersToAdd, $managerIds, false, $reason);
+		$lastMessageId = $this->getLastMessageId();
+		foreach ($userIds as $userId)
+		{
+			ImOpenLines\Recent::setRecent($userId, $this->getId(), $lastMessageId, $this->getSessionId());
+		}
+
+		return $this;
+	}
+
+	protected function addUsersToRelation(array $usersToAdd, AddUsersConfig $config): void
+	{
+		$config = $config->setHideHistory(false);
+		parent::addUsersToRelation($usersToAdd, $config);
 	}
 
 	protected function addIndex(): \Bitrix\Im\V2\Chat
@@ -313,5 +511,43 @@ class OpenLineChat extends EntityChat
 		ChatIndexTable::updateIndex($this->getId(), $this->getTitle());
 
 		return $this;
+	}
+
+	protected function hasFakeRelations(): bool
+	{
+		return isset($this->fakeRelation);
+	}
+
+	public function getPopupData(array $excludedList = []): \Bitrix\Im\V2\Rest\PopupData
+	{
+		$popupData = parent::getPopupData($excludedList);
+		$session = $this->getSession();
+
+		if (isset($session))
+		{
+			$popupData->add($session);
+		}
+
+		return $popupData;
+	}
+
+	protected function prepareMessageParamsFromUserDelete(string $message, bool $skipRecent): array
+	{
+		return [
+			'TO_CHAT_ID' => $this->getId(),
+			'MESSAGE' => $message,
+			'FROM_USER_ID' => $this->getContext()->getUserId(),
+			'SYSTEM' => 'Y',
+			'RECENT_ADD' => $skipRecent ? 'N' : 'Y',
+			'PARAMS' => ['CODE' => 'CHAT_LEAVE', 'NOTIFY' => 'Y'],
+			'PUSH' => 'N',
+			'SKIP_USER_CHECK' => 'Y',
+			'SKIP_COUNTER_INCREMENTS' => 'Y',
+		];
+	}
+
+	protected function sendNotificationUserDelete(int $userId, DeleteUserConfig $config): void
+	{
+		return;
 	}
 }

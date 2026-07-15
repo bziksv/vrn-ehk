@@ -22,6 +22,8 @@ abstract class Cashbox
 
 	const EVENT_ON_GET_CUSTOM_CASHBOX_HANDLERS = 'OnGetCustomCashboxHandlers';
 
+	protected const MAX_UUID_LENGTH = 100;
+
 	/** @var array $fields */
 	private $fields = array();
 
@@ -156,7 +158,7 @@ abstract class Cashbox
 	 */
 	public function getField($name)
 	{
-		return $this->fields[$name];
+		return $this->fields[$name] ?? null;
 	}
 
 	/**
@@ -203,15 +205,15 @@ abstract class Cashbox
 		$map = $this->fields['SETTINGS'];
 		if (isset($map[$name]))
 		{
-			if (is_array($map[$name]))
+			if (!is_array($map[$name]))
 			{
-				if (isset($map[$name][$code]))
-					return $map[$name][$code];
-
-				return null;
+				return $map[$name];
 			}
 
-			return $map[$name];
+			if (isset($map[$name][$code]))
+			{
+				return $map[$name][$code];
+			}
 		}
 
 		$settings = static::getSettings($this->getField('KKM_ID'));
@@ -225,12 +227,23 @@ abstract class Cashbox
 	 */
 	public function getCheckLink(array $linkParams)
 	{
-		if ($linkParams)
+		if (!$linkParams)
+		{
+			return '';
+		}
+
+		if (static::isSupportedDirectCheckLink() && isset($linkParams[Check::PARAM_OFD_RECEIPT_URL]))
+		{
+			return $linkParams[Check::PARAM_OFD_RECEIPT_URL];
+		}
+		else
 		{
 			/** @var Ofd $ofd */
 			$ofd = $this->getOfd();
 			if ($ofd !== null)
+			{
 				return $ofd->generateCheckLink($linkParams);
+			}
 		}
 
 		return '';
@@ -430,8 +443,16 @@ abstract class Cashbox
 		$context = Main\Application::getInstance()->getContext();
 		$server = $context->getServer();
 		$domain = $server->getServerName();
+		$timestamp = time();
 
-		return $type.static::UUID_DELIMITER.$domain.static::UUID_DELIMITER.$id;
+		$uuid =
+			$type.static::UUID_DELIMITER.
+			$domain.static::UUID_DELIMITER.
+			$id.static::UUID_DELIMITER.
+			$timestamp
+		;
+
+		return mb_substr($uuid, 0, static::MAX_UUID_LENGTH);
 	}
 
 	/**
@@ -496,5 +517,20 @@ abstract class Cashbox
 	public static function isSupportedFFD105()
 	{
 		return static::getFfdVersion() >= 1.05;
+	}
+
+	protected static function isSupportedDirectCheckLink(): bool
+	{
+		return false;
+	}
+
+	public static function isOfdSettingsNeeded(): bool
+	{
+		if (static::isSupportedDirectCheckLink())
+		{
+			return false;
+		}
+
+		return true;
 	}
 }

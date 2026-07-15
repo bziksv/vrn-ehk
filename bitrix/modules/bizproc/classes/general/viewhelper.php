@@ -1,10 +1,16 @@
 <?php
 
 use Bitrix\Main\ArgumentException;
+use Bitrix\Bizproc\Result\Entity\ResultTable;
+use Bitrix\Main\Type\DateTime;
+use Bitrix\Main\Localization\Loc;
 
 class CBPViewHelper
 {
 	private static $cachedTasks = array();
+
+	public const DESKTOP_CONTEXT = 'desktop';
+	public const MOBILE_CONTEXT = 'mobile';
 
 	public static function renderUserSearch($ID, $searchInputID, $dataInputID, $componentName, $siteID = '', $nameFormat = '', $delay = 0)
 	{
@@ -88,6 +94,7 @@ class CBPViewHelper
 					'ACTIVITY_NAME',
 					'CREATED_DATE',
 					'DELEGATION_TYPE',
+					'OVERDUE_DATE',
 				],
 			);
 			while ($task = $taskIterator->getNext())
@@ -149,6 +156,20 @@ class CBPViewHelper
 			false
 		);
 		return $arFileTmp['src'];
+	}
+
+	public static function getUserFullNameById(int $userId): ?string
+	{
+		$user = \Bitrix\Main\UserTable::getRow([
+			'filter' => ['ID' => $userId],
+			'select' => ['ID', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'LOGIN'],
+		]);
+		if ($user)
+		{
+			return self::getUserFullName($user);
+		}
+
+		return null;
 	}
 
 	public static function getUserFullName(array $user)
@@ -275,13 +296,19 @@ class CBPViewHelper
 			{
 				try
 				{
-					$attributes = \Bitrix\Main\UI\Viewer\ItemAttributes::tryBuildByFileId(
+					$attributes = \Bitrix\Main\UI\Viewer\ItemAttributes::buildByFileId(
 						$query['i'],
 						$matches[1].$matches[2]
 					);
 					return "<a href=\"".$matches[1].$matches[2]."\" ".$attributes.">";
 				}
-				catch (ArgumentException $e) {}
+				catch (ArgumentException $e)
+				{
+					return sprintf(
+						'<a class="bizproc-file-not-found" data-hint="%s" data-hint-no-icon data-hint-center>',
+						Loc::getMessage('BIZPROC_VIEW_HELPER_FILE_NOT_FOUND')
+					);
+				}
 			}
 
 			return $matches[0];
@@ -336,13 +363,19 @@ class CBPViewHelper
 				{
 					try
 					{
-						$attributes = \Bitrix\Main\UI\Viewer\ItemAttributes::tryBuildByFileId(
+						$attributes = \Bitrix\Main\UI\Viewer\ItemAttributes::buildByFileId(
 							$attach->getFileId(),
 							$matches[1].$matches[2]
 						);
 						return "<a href=\"".$matches[1].$matches[2]."\" ".$attributes.">".$matches[3];
 					}
-					catch (ArgumentException $e) {}
+					catch (ArgumentException $e)
+					{
+						return sprintf(
+							'<a class="bizproc-file-not-found" data-hint="%s" data-hint-no-icon data-hint-center>',
+							Loc::getMessage('BIZPROC_VIEW_HELPER_FILE_NOT_FOUND')
+						);
+					}
 				}
 			}
 
@@ -363,5 +396,65 @@ class CBPViewHelper
 			return '<a href="#" data-url="'.SITE_DIR.'mobile/ajax.php?'.http_build_query($query)
 				.'" data-name="'.htmlspecialcharsbx($filename).'" onclick="BXMobileApp.UI.Document.open({url: this.getAttribute(\'data-url\'), filename: this.getAttribute(\'data-name\')}); return false;">'.$matches[3];
 		};
+	}
+
+	public static function getWorkflowResult(
+		string $workflowId,
+		int $userId,
+		string $context = self::DESKTOP_CONTEXT
+	): array
+	{
+		static $cache = [];
+
+		if (!isset($cache[$workflowId]))
+		{
+			$cache[$workflowId] = ResultTable::getList([
+				'filter' => [
+					'=WORKFLOW_ID' => $workflowId,
+				],
+				'select' => ['ACTIVITY', 'RESULT'],
+			])->fetch();
+		}
+
+		$result = $cache[$workflowId];
+		$renderedResult = null;
+		if ($result)
+		{
+			$renderedResult = \CBPActivity::callStaticMethod(
+				$result['ACTIVITY'],
+				'renderResult',
+				[
+					$result['RESULT'],
+					$workflowId,
+					$userId,
+				],
+			);
+		}
+
+		$processedResult =
+			($context === self::MOBILE_CONTEXT)
+				? (new \Bitrix\Bizproc\Result\MobileResultHandler($workflowId))->handle($renderedResult)
+				: (new \Bitrix\Bizproc\Result\WebResultHandler($workflowId))->handle($renderedResult)
+		;
+
+		return $processedResult;
+	}
+
+	public static function formatDateTime(?DateTime $date): string
+	{
+		if (!$date)
+		{
+			return '';
+		}
+
+		$thisYear = $date->format('Y') === date('Y');
+		$culture = \Bitrix\Main\Application::getInstance()->getContext()->getCulture();
+		$df = $thisYear
+			? $culture?->getDayMonthFormat() ?? 'j F'
+			: $culture?->getLongDateFormat() ?? 'j F Y'
+		;
+		$tf = $culture?->getShortTimeFormat() ?? 'H:i';
+
+		return \FormatDate("$df, $tf", $date->toUserTime());
 	}
 }

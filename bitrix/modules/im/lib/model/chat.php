@@ -12,6 +12,7 @@ use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Search\MapBuilder;
+use Bitrix\Im\Text;
 
 
 /**
@@ -93,8 +94,9 @@ class ChatTable extends Entity\DataManager
 			'DESCRIPTION' => array(
 				'data_type' => 'text',
 				//'title' => Loc::getMessage('CHAT_ENTITY_DESCRIPTION_FIELD'),
-				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
-				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
+				'save_data_modification' => array(Text::class, 'getSaveModificator'),
+				'fetch_data_modification' => array(Text::class, 'getFetchModificator'),
+				'nullable' => true,
 			),
 			'COLOR' => array(
 				'data_type' => 'string',
@@ -184,7 +186,7 @@ class ChatTable extends Entity\DataManager
 			),
 			'LAST_MESSAGE_STATUS' => array(
 				'data_type' => 'string',
-				'default_value' => "IM_MESSAGE_STATUS_RECEIVED",
+				'default_value' => IM_MESSAGE_STATUS_RECEIVED,
 				'validation' => array(__CLASS__, 'validateMessageStatus'),
 			),
 			'DATE_CREATE' => array(
@@ -273,11 +275,16 @@ class ChatTable extends Entity\DataManager
 		{
 			Chat::cleanCache($chatId);
 		}
+		elseif (static::needCacheUpdate($fields))
+		{
+			Chat::updateStateAfterOrmEvent($chatId, $fields);
+			Chat::cleanCache($chatId, false);
+		}
 
 		Sync\Logger::getInstance()->add(
 			new Sync\Event(Sync\Event::ADD_EVENT, Sync\Event::CHAT_ENTITY, $chatId),
 			static fn () => Chat::getInstance($chatId)->getRelations()->getUserIds(),
-			Chat::getInstance($chatId)->getType()
+			Chat::getInstance($chatId)
 		);
 
 		return new Entity\EventResult();
@@ -362,14 +369,22 @@ class ChatTable extends Entity\DataManager
 	protected static function needCacheInvalidate(array $updatedFields): bool
 	{
 		$cacheInvalidatingFields = [
+			'TYPE',
+			'ENTITY_TYPE',
+		];
+
+		return !empty(array_intersect($cacheInvalidatingFields, array_keys($updatedFields)));
+	}
+
+	protected static function needCacheUpdate(array $updatedFields): bool
+	{
+		$cacheUpdatingFields = [
 			'TITLE',
 			'DESCRIPTION',
 			'COLOR',
-			'TYPE',
 			'EXTRANET',
 			'AUTHOR_ID',
 			'AVATAR',
-			'ENTITY_TYPE',
 			'ENTITY_ID',
 			'ENTITY_DATA_1',
 			'ENTITY_DATA_2',
@@ -382,7 +397,7 @@ class ChatTable extends Entity\DataManager
 			'CAN_POST',
 		];
 
-		return !empty(array_intersect($cacheInvalidatingFields, array_keys($updatedFields)));
+		return !empty(array_intersect($cacheUpdatingFields, array_keys($updatedFields)));
 	}
 
 
@@ -472,7 +487,7 @@ class ChatTable extends Entity\DataManager
 						->whereNot('ENTITY_TYPE', 'LIVECHAT')
 						->whereNull('ENTITY_TYPE')
 				)
-				->whereNotIn('TYPE', [\Bitrix\Im\Chat::TYPE_SYSTEM, \Bitrix\Im\Chat::TYPE_PRIVATE, Chat::IM_TYPE_COPILOT])
+				->whereNotIn('TYPE', [\Bitrix\Im\Chat::TYPE_SYSTEM, \Bitrix\Im\Chat::TYPE_PRIVATE])
 				->fetch()
 			;
 	}

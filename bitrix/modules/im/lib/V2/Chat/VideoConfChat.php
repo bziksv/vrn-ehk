@@ -5,12 +5,12 @@ namespace Bitrix\Im\V2\Chat;
 use Bitrix\Im\Alias;
 use Bitrix\Im\Call\Conference;
 use Bitrix\Im\Color;
-use Bitrix\IM\Model\AliasTable;
 use Bitrix\Im\Model\BlockUserTable;
 use Bitrix\IM\Model\ConferenceTable;
 use Bitrix\IM\Model\ConferenceUserRoleTable;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Entity\User\User;
+use Bitrix\Im\V2\Relation\DeleteUserConfig;
 use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Service\Context;
 use Bitrix\Main\Application;
@@ -18,6 +18,7 @@ use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Localization\Loc;
 use CGlobalCounter;
 use CIMMessageParamAttach;
+use Bitrix\Im\V2\Chat\Add\AddResult;
 
 class VideoConfChat extends GroupChat
 {
@@ -33,18 +34,15 @@ class VideoConfChat extends GroupChat
 		return true;
 	}
 
-	public function add(array $params, ?Context $context = null): Result
+	public function add(array $params, ?Context $context = null): AddResult
 	{
 		$addResult = parent::add($params, $context);
-		if (!$addResult->isSuccess() || !$addResult->hasResult())
+		$chat = $addResult->getChat();
+
+		if (!isset($chat) || !$addResult->isSuccess())
 		{
 			return $addResult;
 		}
-
-		$chatResult = $addResult->getResult();
-		/** @var Chat $chat */
-		$chat = $chatResult['CHAT'];
-
 
 		if (
 			!isset($params['VIDEOCONF']['ALIAS_DATA'])
@@ -61,7 +59,7 @@ class VideoConfChat extends GroupChat
 		{
 			$aliasData = $params['VIDEOCONF']['ALIAS_DATA'];
 
-			AliasTable::update($aliasData['ID'], ['ENTITY_ID' => $chat->getChatId()]);
+			Alias::update($aliasData['ID'], ['ENTITY_ID' => $chat->getChatId()]);
 		}
 
 		$conferenceData = [
@@ -129,12 +127,11 @@ class VideoConfChat extends GroupChat
 			'SKIP_USER_CHECK' => 'Y',
 		]);
 
-		$addResult->setResult([
-			'CHAT_ID' => $chat->getChatId(),
-			'CHAT' => $chat,
-			'ALIAS' => $aliasData['ALIAS'],
-			'LINK' => $aliasData['LINK'],
-		]);
+		$addResult
+			->setChat($chat)
+			->setAlias($aliasData['ALIAS'])
+			->setLink($aliasData['LINK'])
+		;
 
 		$chat->isFilledNonCachedData = false;
 
@@ -151,11 +148,6 @@ class VideoConfChat extends GroupChat
 		if (!isset($params['TITLE']))
 		{
 			$params['TITLE'] = $this->generateTitle();
-		}
-
-		if (isset($params['OWNER_ID']))
-		{
-			$params['OWNER_ID'] = (int)$params['OWNER_ID'];
 		}
 
 		if (!isset($params['VIDEOCONF']['PASSWORD']) && isset($params['CONFERENCE_PASSWORD']))
@@ -215,9 +207,9 @@ class VideoConfChat extends GroupChat
 		return false;
 	}
 
-	protected function updateStateAfterUsersAdd(array $usersToAdd): self
+	protected function updateStateAfterRelationsAdd(array $usersToAdd): self
 	{
-		parent::updateStateAfterUsersAdd($usersToAdd);
+		parent::updateStateAfterRelationsAdd($usersToAdd);
 
 		$wasUserBlocked = BlockUserTable::query()
 			->setSelect(['ID'])
@@ -237,9 +229,9 @@ class VideoConfChat extends GroupChat
 		return $this;
 	}
 
-	protected function updateStateAfterUserDelete(int $deletedUserId): Chat
+	protected function updateStateAfterUserDelete(int $deletedUserId, DeleteUserConfig $config): Chat
 	{
-		parent::updateStateAfterUserDelete($deletedUserId);
+		parent::updateStateAfterUserDelete($deletedUserId, $config);
 
 		$externalAuthId = User::getInstance($deletedUserId)->getExternalAuthId();
 		if ($externalAuthId === 'call')
@@ -254,5 +246,10 @@ class VideoConfChat extends GroupChat
 		}
 
 		return $this;
+	}
+
+	protected function needToSendMessageUserDelete(): bool
+	{
+		return false;
 	}
 }

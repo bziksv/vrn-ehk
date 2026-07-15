@@ -4,4 +4,8 @@ export type AvatarOptions = {
 	bgImage?: string,
 	border?: string,
 	borderRadius?: string,
+	outline?: string,
+	outlineOffset?: string,
+	icon?: string,
+	iconColor?: string,
 };

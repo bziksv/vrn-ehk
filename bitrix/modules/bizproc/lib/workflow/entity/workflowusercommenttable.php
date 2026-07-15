@@ -70,6 +70,8 @@ class WorkflowUserCommentTable extends DataManager
 		$sqlHelper = $connection->getSqlHelper();
 		$modified = new DateTime();
 
+		$tableName = static::getTableName();
+
 		$insert = [
 			'WORKFLOW_ID' => $workflowId,
 			'UNREAD_CNT' => 1,
@@ -77,20 +79,21 @@ class WorkflowUserCommentTable extends DataManager
 			'LAST_TYPE' => $commentType,
 		];
 		$update = [
-			'UNREAD_CNT' => new \Bitrix\Main\DB\SqlExpression('?# + ?i', 'UNREAD_CNT', 1),
+			'UNREAD_CNT' => new \Bitrix\Main\DB\SqlExpression('?#.?# + ?i', $tableName, 'UNREAD_CNT', 1),
 			'MODIFIED' => $modified,
 			'LAST_TYPE' => $commentType,
 		];
 
+		$primary = [
+			'WORKFLOW_ID',
+			'USER_ID',
+		];
+
 		foreach ($userIds as $userId)
 		{
-			$primary = [
-				'WORKFLOW_ID' => $workflowId,
-				'USER_ID' => $userId,
-			];
 			$insert['USER_ID'] = $userId;
 
-			$queries = $sqlHelper->prepareMerge(static::getTableName(), $primary, $insert, $update);
+			$queries = $sqlHelper->prepareMerge($tableName, $primary, $insert, $update);
 
 			foreach ($queries as $query)
 			{
@@ -133,6 +136,39 @@ class WorkflowUserCommentTable extends DataManager
 		);
 	}
 
+	public static function verifyUserUnread(int $userId): void
+	{
+		$rows = static::query()
+			->where('USER_ID', $userId)
+			->setSelect(['WORKFLOW_ID'])
+			->fetchAll()
+		;
+
+		$workflowIds = array_column($rows, 'WORKFLOW_ID');
+
+		if (!$workflowIds)
+		{
+			return;
+		}
+
+		$workflowRows = WorkflowUserTable::query()
+			->whereIn('WORKFLOW_ID', $workflowIds)
+			->where('USER_ID', $userId)
+			->setSelect(['WORKFLOW_ID'])
+			->fetchAll();
+
+		$realIds = array_column($workflowRows, 'WORKFLOW_ID');
+		$oldIds = array_diff($workflowIds, $realIds);
+
+		foreach ($oldIds as $id)
+		{
+			static::delete([
+				'USER_ID' => $userId,
+				'WORKFLOW_ID' => $id,
+			]);
+		}
+	}
+
 	public static function getCountUserUnread(int $userId): int
 	{
 		$row = static::query()
@@ -155,6 +191,17 @@ class WorkflowUserCommentTable extends DataManager
 		while ($row = $iterator->fetch())
 		{
 			static::delete($row);
+		}
+	}
+
+	public static function deleteUsersByWorkflow(array $userIds, string $workflowId): void
+	{
+		foreach ($userIds as $userId)
+		{
+			static::delete([
+				'USER_ID' => $userId,
+				'WORKFLOW_ID' => $workflowId,
+			]);
 		}
 	}
 }

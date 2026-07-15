@@ -1,4 +1,13 @@
 <?
+$PERM["filecleaner_backup"]["2"]="D";
+$PERM["filecleaner_backup"]["5"]="D";
+$PERM["filecleaner_backup"]["8"]="D";
+$PERM["filecleaner_backup"]["6"]="D";
+$PERM["filecleaner_backup"]["9"]="D";
+$PERM["filecleaner_backup"]["12"]="D";
+$PERM["filecleaner_backup"]["7"]="D";
+$PERM["filecleaner_backup"]["11"]="D";
+$PERM["filecleaner_backup"]["*"]="D";
 $PERM["video"]["*"]="R";
 $PERM["online"]["*"]="R";
 $PERM["desktop_app"]["*"]="R";

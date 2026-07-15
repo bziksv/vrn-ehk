@@ -5,6 +5,7 @@ namespace Bitrix\Im\V2\Entity\User;
 use Bitrix\Im\Color;
 use Bitrix\Im\Model\StatusTable;
 use Bitrix\Im\Model\UserTable;
+use Bitrix\Im\V2\Integration\Extranet\CollaberService;
 use Bitrix\Main\Application;
 use Bitrix\Main\Data\Cache;
 use Bitrix\Main\Loader;
@@ -26,12 +27,13 @@ class UserFactory
 		'WORK_POSITION',
 		'PERSONAL_GENDER',
 		'EXTERNAL_AUTH_ID',
-		'TIME_ZONE_OFFSET',
 		'PERSONAL_WWW',
 		'ACTIVE',
 		'LANGUAGE_ID',
 		'WORK_PHONE',
+		'TIME_ZONE',
 		'PERSONAL_MOBILE',
+		'PERSONAL_PHONE',
 		'COLOR' => 'ST.COLOR',
 		'STATUS' => 'ST.STATUS',
 	];
@@ -60,9 +62,7 @@ class UserFactory
 		$cachedUser = $cache->getVars();
 		if ($cachedUser !== false)
 		{
-			$userData = $this->prepareUserData($cachedUser);
-
-			return $this->initUser($userData);
+			return $this->initUser($cachedUser);
 		}
 
 		$userData = $this->getUserFromDb($id);
@@ -72,17 +72,23 @@ class UserFactory
 			return new NullUser();
 		}
 
-		$this->saveInCache($cache, $userData);
 		$userData = $this->prepareUserData($userData);
+		$this->saveInCache($cache, $userData);
 
 		return $this->initUser($userData);
 	}
 
 	public function initUser(array $userData): User
 	{
+		$userData = $this->prepareNonCachedUserData($userData);
+
 		if ($userData['IS_BOT'])
 		{
 			return UserBot::initByArray($userData);
+		}
+		if (CollaberService::getInstance()->isCollaber((int)$userData['ID']))
+		{
+			return UserCollaber::initByArray($userData);
 		}
 		if ($userData['IS_EXTRANET'])
 		{
@@ -117,19 +123,31 @@ class UserFactory
 		$preparedUserData['IS_NETWORK'] = $this->isNetwork($userData);
 		$preparedUserData['IS_BOT'] = $this->isBot($userData);
 		$preparedUserData['IS_CONNECTOR'] = $this->isConnector($userData);
-		$preparedUserData['ABSENT'] = \CIMContactList::formatAbsentResult((int)$userData['ID']) ?: null;
 		$preparedUserData['LANGUAGE_ID'] = $userData['LANGUAGE_ID'] ?? null;
 
 		if (Loader::includeModule('voximplant'))
 		{
 			$preparedUserData['WORK_PHONE'] = CVoxImplantPhone::Normalize($userData['WORK_PHONE']) ?: null;
 			$preparedUserData['PERSONAL_MOBILE'] = CVoxImplantPhone::Normalize($userData['PERSONAL_MOBILE']) ?: null;
+			$preparedUserData['PERSONAL_PHONE'] = CVoxImplantPhone::Normalize($userData['PERSONAL_PHONE']) ?: null;
 		}
 
 		if (Loader::includeModule('intranet'))
 		{
-			$preparedUserData['INNER_PHONE'] = $userData['UF_PHONE_INNER'] ?? null;
+			$innerPhone = preg_replace("/[^0-9\#\*]/i", "", $userData['UF_PHONE_INNER'] ?? '');
+			if ($innerPhone)
+			{
+				$preparedUserData['INNER_PHONE'] = $innerPhone;
+			}
 		}
+
+		return $preparedUserData;
+	}
+
+	protected function prepareNonCachedUserData(array $userData): array
+	{
+		$preparedUserData = $userData;
+		$preparedUserData['ABSENT'] = \CIMContactList::formatAbsentResult((int)$userData['ID']) ?: null;
 
 		return $preparedUserData;
 	}
@@ -153,8 +171,18 @@ class UserFactory
 
 		if (Loader::includeModule('intranet'))
 		{
-			$query->addSelect('UF_DEPARTMENT');
-			$query->addSelect('UF_PHONE_INNER');
+			$query
+				->addSelect('UF_DEPARTMENT')
+				->addSelect('UF_PHONE_INNER')
+				->addSelect('UF_ZOOM')
+				->addSelect('UF_SKYPE')
+				->addSelect('UF_SKYPE_LINK')
+			;
+		}
+
+		if (Loader::includeModule('voximplant'))
+		{
+			$query->addSelect('UF_VI_PHONE');
 		}
 
 		return $query->fetch() ?: null;
@@ -245,7 +273,13 @@ class UserFactory
 		$cacheSubDir = $id % 100;
 		$cacheSubSubDir = ($id % 10000) / 100;
 
-		return "/bx/imc/userdata_v5/{$cacheSubDir}/{$cacheSubSubDir}/{$id}";
+		return "/bx/imc/userdata_v8/{$cacheSubDir}/{$cacheSubSubDir}/{$id}";
+	}
+
+	public function clearCache(int $id): void
+	{
+		User::clearStaticCache($id);
+		Application::getInstance()->getCache()->cleanDir($this->getCacheDir($id));
 	}
 
 	//endregion

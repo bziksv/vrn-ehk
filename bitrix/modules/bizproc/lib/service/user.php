@@ -4,6 +4,10 @@ namespace Bitrix\Bizproc\Service;
 use Bitrix\Bizproc\FieldType;
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\HumanResources\Service\Container;
+use Bitrix\HumanResources\Item\NodeMember;
+use Bitrix\HumanResources\Compatibility\Utils\DepartmentBackwardAccessCode;
+use Bitrix\Main\UserGroupTable;
 
 class User extends \CBPRuntimeService
 {
@@ -14,31 +18,8 @@ class User extends \CBPRuntimeService
 
 	public function getUserDepartments(int $userId): array
 	{
-		if (isset($this->users[$userId]['UF_DEPARTMENT']))
-		{
-			return is_array($this->users[$userId]['UF_DEPARTMENT']) ? $this->users[$userId]['UF_DEPARTMENT'] : [];
-		}
-
-		$departments = [];
-		$result = \CUser::getList(
-			'id', 'asc',
-			['ID_EQUAL_EXACT' => $userId],
-			['FIELDS' => ['ID'], 'SELECT' => ['UF_DEPARTMENT']]
-		);
-
-		if ($user = $result->fetch())
-		{
-			if (isset($user['UF_DEPARTMENT']))
-			{
-				$user['UF_DEPARTMENT'] = (array) $user['UF_DEPARTMENT'];
-				foreach ($user['UF_DEPARTMENT'] as $dpt)
-				{
-					$departments[] = (int) $dpt;
-				}
-			}
-		}
-
-		return $departments;
+		// it's OK for now to use old api
+		return $this->getUserDepartmentsOld($userId);
 	}
 
 	public function getUserInfo(int $userId): ?array
@@ -65,13 +46,13 @@ class User extends \CBPRuntimeService
 		if ($this->canUseIntranet())
 		{
 			$fields['UF_DEPARTMENT'] = [
-				'Name' => Loc::getMessage('BP_SERVICE_USER_DEPARTMENT'),
+				'Name' => Loc::getMessage('BP_SERVICE_USER_DEPARTMENT_1'),
 				'Type' => 'int',
 				'Multiple' => true,
 			];
 
 			$fields['UF_DEPARTMENT_PRINTABLE'] = [
-				'Name' => Loc::getMessage('BP_SERVICE_USER_DEPARTMENT_PRINTABLE'),
+				'Name' => Loc::getMessage('BP_SERVICE_USER_DEPARTMENT_PRINTABLE_1'),
 				'Type' => 'string',
 				'Multiple' => true,
 			];
@@ -81,7 +62,7 @@ class User extends \CBPRuntimeService
 				'Type' => 'bool',
 			];
 
-			if ($this->canUseIblockApi())
+			if ($this->canUseIblockApi() || $this->canUseHumanResources())
 			{
 				$fields['UF_HEAD'] = [
 					'Name' => Loc::getMessage('BP_SERVICE_USER_HEAD'),
@@ -102,6 +83,20 @@ class User extends \CBPRuntimeService
 					'PAUSED' => Loc::getMessage('BP_SERVICE_USER_TIMEMAN_STATUS_PAUSED'),
 					'CLOSED' => Loc::getMessage('BP_SERVICE_USER_TIMEMAN_STATUS_CLOSED'),
 				],
+			];
+		}
+
+		if ($this->canUseHumanResources())
+		{
+			$fields['HR_NODE_IDS'] = [
+				'Name' => Loc::getMessage('BP_SERVICE_USER_HR_NODE_IDS'),
+				'Type' => 'int',
+				'Multiple' => true,
+			];
+			$fields['HR_NODE'] = [
+				'Name' => Loc::getMessage('BP_SERVICE_USER_HR_NODE'),
+				'Type' => 'user',
+				'Multiple' => true,
 			];
 		}
 
@@ -164,7 +159,7 @@ class User extends \CBPRuntimeService
 				'Type' => 'string',
 			],
 			'UF_DEPARTMENT' => [
-				'Name' => Loc::getMessage('BP_SERVICE_USER_DEPARTMENT'),
+				'Name' => Loc::getMessage('BP_SERVICE_USER_DEPARTMENT_1'),
 				'Type' => 'int',
 				'Multiple' => true,
 			],
@@ -209,22 +204,31 @@ class User extends \CBPRuntimeService
 
 	public function getDepartmentChain(int $departmentId): array
 	{
-		$chain = [];
-
-		if (!$this->canUseIblockApi())
+		if (!$this->canUseHumanResources())
 		{
-			return $chain;
+			return $this->getDepartmentChainOld($departmentId);
 		}
 
-		$departmentIblockId = $this->getDepartmentIblockId();
-		$chain = \CIBlockSection::getNavChain($departmentIblockId, $departmentId, ['ID'], true);
+		$chain = [];
+		$node = $this->getDepartmentNode($departmentId);
 
-		$chain = array_map(
-			static fn($value) => (int)$value['ID'],
-			$chain
-		);
+		if ($node)
+		{
+			$nodes = Container::getNodeRepository()->getParentOf(
+				$node,
+				\Bitrix\HumanResources\Enum\DepthLevel::FULL,
+			);
+			foreach ($nodes as $parent)
+			{
+				$idByAccessCode = DepartmentBackwardAccessCode::extractIdFromCode($parent->accessCode);
+				if ($idByAccessCode !== null)
+				{
+					$chain[] = $idByAccessCode;
+				}
+			}
+		}
 
-		return array_reverse($chain);
+		return $chain;
 	}
 
 	public function getUserHeads(int $userId): array
@@ -253,21 +257,20 @@ class User extends \CBPRuntimeService
 
 	public function getDepartmentHead(int $departmentId): ?int
 	{
-		if (!$this->canUseIblockApi())
+		if (!$this->canUseHumanResources())
+		{
+			return $this->getDepartmentHeadOld($departmentId);
+		}
+
+		$node = $this->getDepartmentNode($departmentId);
+		if (!$node)
 		{
 			return null;
 		}
 
-		$departmentIblockId = $this->getDepartmentIblockId();
-		$sectionResult = \CIBlockSection::GetList(
-			[],
-			['IBLOCK_ID' => $departmentIblockId, 'ID' => $departmentId],
-			false,
-			['ID', 'UF_HEAD']
-		);
-		$section = $sectionResult->fetch();
+		$head = current(Container::getNodeMemberService()->getDefaultHeadRoleEmployees($node->id)->getItemMap());
 
-		return $section ? (int) $section['UF_HEAD'] : null;
+		return $head->entityId ?? null;
 	}
 
 	public function getUserSchedule(int $userId): Sub\UserSchedule
@@ -281,6 +284,11 @@ class User extends \CBPRuntimeService
 			static::DEPARTMENT_MODULE_ID,
 			static::DEPARTMENT_OPTION_NAME
 		);
+	}
+
+	private function canUseHumanResources(): bool
+	{
+		return Main\Loader::includeModule('humanresources');
 	}
 
 	private function canUseIblockApi()
@@ -319,7 +327,7 @@ class User extends \CBPRuntimeService
 				'%=FIELD_NAME' => 'UF_USR_%',
 			],
 			'runtime' => [
-				Main\UserFieldTable::getLabelsReference('LABELS', \LANGUAGE_ID)
+				Main\UserFieldTable::getLabelsReference('LABELS', \LANGUAGE_ID),
 			],
 		])->fetchAll();
 
@@ -349,6 +357,133 @@ class User extends \CBPRuntimeService
 		}
 
 		return $fields;
+	}
+
+	public function extractUsersFromDepartment(int $departmentId, bool $recursive = false): ?array
+	{
+		if (!$this->canUseHumanResources())
+		{
+			return $this->extractUsersFromDepartmentOld($departmentId, $recursive);
+		}
+
+		$node = $this->getDepartmentNode($departmentId);
+		if (!$node)
+		{
+			return null;
+		}
+
+		return $this->extractUsersFromHrNode($node->id, $recursive);
+	}
+
+	public function extractUsersFromGroup(int $groupId): array
+	{
+		if ($groupId <= 0)
+		{
+			return [];
+		}
+
+		$userIds =
+			array_column(
+				UserGroupTable::query()
+					->setSelect(['USER_ID'])
+					->where('GROUP_ID', $groupId)
+					->setOrder(['USER_ID' => 'ASC'])
+					->exec()
+					->fetchAll(),
+				'USER_ID'
+			)
+		;
+
+		Main\Type\Collection::normalizeArrayValuesByInt($userIds, false);
+
+		return $userIds;
+	}
+
+	public function extractUsersFromAllDepartments(): bool | array
+	{
+		if (!$this->canUseHumanResources())
+		{
+			return $this->extractUsersFromAllDepartmentsOld();
+		}
+
+		$rootNode = \Bitrix\HumanResources\Util\StructureHelper::getRootStructureDepartment();
+		if ($rootNode)
+		{
+			$employees = Container::getNodeMemberService()->getAllEmployees($rootNode->id, true);
+
+			$result = array_map(static fn(NodeMember $item) => $item->entityId, [...$employees->getItemMap()]);
+			Main\Type\Collection::normalizeArrayValuesByInt($result);
+
+			return $result;
+		}
+
+		return false;
+	}
+
+	/**
+	 * @deprecated
+	 * @return bool|array
+	 * @throws Main\LoaderException
+	 */
+	private function extractUsersFromAllDepartmentsOld(): bool | array
+	{
+		if (Main\Loader::includeModule('intranet'))
+		{
+			$result = [];
+			$iterator = \CUser::GetList(
+				'ID',
+				'ASC',
+				['ACTIVE' => 'Y', '>UF_DEPARTMENT' => 0],
+				['FIELDS' => ['ID']]
+			);
+			while ($user = $iterator->Fetch())
+			{
+				$result[] = (int)$user['ID'];
+			}
+
+			return $result;
+		}
+
+		return false;
+	}
+
+	public function extractUsersFromSocNetGroup(int $groupId, string $role = 'K'): bool | array
+	{
+		if (Main\Loader::includeModule('socialnetwork'))
+		{
+			$result = [];
+			$iterator = \CSocNetUserToGroup::GetList(
+				['USER_ID' => 'ASC'],
+				['=GROUP_ID' => $groupId, '<=ROLE' => $role, 'USER_ACTIVE' => 'Y'],
+				false,
+				false,
+				['USER_ID']
+			);
+			while ($user = $iterator->Fetch())
+			{
+				$result[] = (int)$user['USER_ID'];
+			}
+
+			return $result;
+		}
+
+		return false;
+	}
+
+	public function extractUsersFromHrNode(int $nodeId, bool $recursive = true): ?array
+	{
+		if ($nodeId <= 0 || !$this->canUseHumanResources())
+		{
+			return null;
+		}
+
+		$employeesCollection = Container::getNodeMemberService()->getPagedEmployees($nodeId, $recursive);
+
+		return array_values(
+			array_unique(
+				array_map(static fn(NodeMember $item) => $item->entityId, [...$employeesCollection->getItemMap()])
+			)
+		);
 	}
 
 	private function convertValues(array &$values, array $userFields): void
@@ -441,8 +576,8 @@ class User extends \CBPRuntimeService
 					'UF_XING',
 					'UF_WEB_SITES',
 					'UF_PHONE_INNER',
-					...array_keys($fields)
-				]
+					...array_keys($fields),
+				],
 			]
 		);
 
@@ -450,6 +585,17 @@ class User extends \CBPRuntimeService
 
 		if (is_array($user))
 		{
+			if ($this->canUseHumanResources())
+			{
+				$user['HR_NODE_IDS'] =
+					array_map(
+						static fn (\Bitrix\HumanResources\Item\Node $node) => $node->id,
+						[...Container::getNodeRepository()->findAllByUserId($userId)->getItemMap()]
+					)
+				;
+				$user['HR_NODE'] = array_map(static fn(int $id) => 'group_hr' . $id, $user['HR_NODE_IDS']);
+			}
+
 			$this->convertValues($user, $fields);
 			$this->users[$userId] = $user;
 
@@ -466,6 +612,95 @@ class User extends \CBPRuntimeService
 
 	private function loadDepartmentNames(array $ids): array
 	{
+		if (!$this->canUseHumanResources())
+		{
+			return $this->loadDepartmentNamesOld($ids);
+		}
+
+		$codes = array_map(
+			static fn($id) => DepartmentBackwardAccessCode::makeById($id),
+			$ids
+		);
+
+		$collection = Container::getNodeRepository()->findAllByAccessCodes($codes);
+		$names = [];
+		foreach ($collection as $node)
+		{
+			$names[DepartmentBackwardAccessCode::extractIdFromCode($node->accessCode)] = $node->name;
+		}
+
+		return array_values(array_filter(
+			array_map(
+				static fn($id) => $names[$id] ?? null,
+				$ids
+			)
+		));
+	}
+
+	private function getDepartmentNode(int $departmentId): ?\Bitrix\HumanResources\Item\Node
+	{
+		return Container::getNodeRepository()->getByAccessCode(DepartmentBackwardAccessCode::makeById($departmentId));
+	}
+
+	/**
+	 * @deprecated
+	 * @param int $departmentId
+	 * @param bool $recursive
+	 * @return array|null
+	 */
+	private function extractUsersFromDepartmentOld(int $departmentId, bool $recursive = false): ?array
+	{
+		if (!$this->canUseIntranet() || !$this->canUseIblockApi())
+		{
+			return null;
+		}
+
+		$iblockId = $this->getDepartmentIblockId();
+		$departmentIds = [$departmentId];
+
+		if ($recursive)
+		{
+			$iterator = \CIBlockSection::GetList(
+				['ID' => 'ASC'],
+				['=IBLOCK_ID' => $iblockId, 'ID' => $departmentId],
+				false,
+				['ID', 'LEFT_MARGIN', 'RIGHT_MARGIN', 'DEPTH_LEVEL']
+			);
+			$section = $iterator->fetch();
+			$filter = [
+				'=IBLOCK_ID' => $iblockId,
+				">LEFT_MARGIN" => $section["LEFT_MARGIN"],
+				"<RIGHT_MARGIN" => $section["RIGHT_MARGIN"],
+				">DEPTH_LEVEL" => $section['DEPTH_LEVEL'],
+			];
+			$iterator = \CIBlockSection::GetList(["left_margin" => "asc"], $filter, false, ['ID']);
+			while ($section = $iterator->fetch())
+			{
+				$departmentIds[] = $section['ID'];
+			}
+			unset($iterator, $section, $filter);
+		}
+		$result = [];
+		$iterator = \CUser::GetList("departmentId", "asc",
+			['ACTIVE' => 'Y', 'UF_DEPARTMENT' => $departmentIds],
+			['FIELDS' => ['ID']]
+		);
+		while ($user = $iterator->fetch())
+		{
+			$result[] = (int)$user['ID'];
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @deprecated
+	 * @param array $ids
+	 * @return array
+	 * @throws Main\LoaderException
+	 */
+	private function loadDepartmentNamesOld(array $ids): array
+	{
 		$names = [];
 
 		if (!Main\Loader::includeModule('intranet') || !Main\Loader::includeModule('iblock'))
@@ -473,7 +708,7 @@ class User extends \CBPRuntimeService
 			return $names;
 		}
 
-		$iblockId = Main\Config\Option::get('intranet', 'iblock_structure');
+		$iblockId = $this->getDepartmentIblockId();
 
 		$iterator = \CIBlockSection::GetList(
 			['ID' => 'ASC'],
@@ -497,5 +732,88 @@ class User extends \CBPRuntimeService
 				$ids
 			)
 		));
+	}
+
+	/**
+	 * @deprecated
+	 * @param int $userId
+	 * @return array
+	 */
+	private function getUserDepartmentsOld(int $userId): array
+	{
+		if (isset($this->users[$userId]['UF_DEPARTMENT']))
+		{
+			return is_array($this->users[$userId]['UF_DEPARTMENT']) ? $this->users[$userId]['UF_DEPARTMENT'] : [];
+		}
+
+		$departments = [];
+		$result = \CUser::getList(
+			'id', 'asc',
+			['ID_EQUAL_EXACT' => $userId],
+			['FIELDS' => ['ID'], 'SELECT' => ['UF_DEPARTMENT']]
+		);
+
+		if ($user = $result->fetch())
+		{
+			if (isset($user['UF_DEPARTMENT']))
+			{
+				$user['UF_DEPARTMENT'] = (array) $user['UF_DEPARTMENT'];
+				foreach ($user['UF_DEPARTMENT'] as $dpt)
+				{
+					$departments[] = (int) $dpt;
+				}
+			}
+		}
+
+		return $departments;
+	}
+
+	/**
+	 * @deprecated
+	 * @param int $departmentId
+	 * @return array
+	 */
+	private function getDepartmentChainOld(int $departmentId): array
+	{
+		$chain = [];
+
+		if (!$this->canUseIblockApi())
+		{
+			return $chain;
+		}
+
+		$departmentIblockId = $this->getDepartmentIblockId();
+		$chain = \CIBlockSection::getNavChain($departmentIblockId, $departmentId, ['ID'], true);
+
+		$chain = array_map(
+			static fn($value) => (int)$value['ID'],
+			$chain
+		);
+
+		return array_reverse($chain);
+	}
+
+	/**
+	 * @deprecated
+	 * @param int $departmentId
+	 * @return int|null
+	 */
+	private function getDepartmentHeadOld(int $departmentId): ?int
+	{
+		if (!$this->canUseIblockApi())
+		{
+			return null;
+		}
+
+		$departmentIblockId = $this->getDepartmentIblockId();
+		$sectionResult = \CIBlockSection::GetList(
+			[],
+			['IBLOCK_ID' => $departmentIblockId, 'ID' => $departmentId],
+			false,
+			['ID', 'UF_HEAD']
+		);
+		$section = $sectionResult->fetch();
+
+		return $section ? (int) $section['UF_HEAD'] : null;
 	}
 }

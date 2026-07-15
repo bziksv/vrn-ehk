@@ -7,16 +7,16 @@ use Bitrix\Im\Model\ChatTable;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Entity\User\User;
 use Bitrix\Im\V2\Integration\HumanResources\Structure;
-use Bitrix\Im\V2\Relation;
+use Bitrix\Im\V2\Relation\AddUsersConfig;
 use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Service\Context;
 use Bitrix\Intranet\Settings\CommunicationSettings;
 use Bitrix\Main\Application;
-use Bitrix\Main\Config\Option;
 use Bitrix\Main\Data\Cache;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
-use CAllSite;
+use CSite;
+use Bitrix\Im\V2\Chat\Add\AddResult;
 
 class GeneralChannel extends OpenChannelChat
 {
@@ -26,6 +26,7 @@ class GeneralChannel extends OpenChannelChat
 
 	protected static ?self $instance = null;
 	protected static bool $wasSearched = false;
+	protected static int $idStaticCache;
 
 	protected function getDefaultEntityType(): string
 	{
@@ -54,13 +55,20 @@ class GeneralChannel extends OpenChannelChat
 
 	public static function getGeneralChannelId(): ?int
 	{
+		if (isset(self::$idStaticCache))
+		{
+			return self::$idStaticCache;
+		}
+
 		$cache = static::getCache(self::ID_CACHE_ID);
 
 		$cachedId = $cache->getVars();
 
 		if ($cachedId !== false)
 		{
-			return $cachedId ?? 0;
+			self::$idStaticCache = $cachedId ?? 0;
+
+			return self::$idStaticCache;
 		}
 
 		$result = ChatTable::query()
@@ -70,11 +78,11 @@ class GeneralChannel extends OpenChannelChat
 			->fetch() ?: []
 		;
 
-		$chatId = $result['ID'] ?? 0;
+		self::$idStaticCache = $result['ID'] ?? 0;
 		$cache->startDataCache();
-		$cache->endDataCache($chatId);
+		$cache->endDataCache(self::$idStaticCache);
 
-		return $chatId;
+		return self::$idStaticCache;
 	}
 
 	protected function getGeneralChannelIdWithoutCache(): ?int
@@ -94,17 +102,14 @@ class GeneralChannel extends OpenChannelChat
 		return null;
 	}
 
-	public function add(array $params, ?Context $context = null): Result
+	public function add(array $params, ?Context $context = null): AddResult
 	{
-		$result = new Result;
+		$result = new AddResult();
 
 		$generalChannel = Chat::getInstance($this->getGeneralChannelIdWithoutCache());
 		if ($generalChannel instanceof self)
 		{
-			return 	$result->setResult([
-				'CHAT_ID' => $generalChannel->getChatId(),
-				'CHAT' => $generalChannel,
-			]);
+			return $result->setChat($generalChannel);
 		}
 
 		$portalLanguage = self::getPortalLanguage();
@@ -127,13 +132,13 @@ class GeneralChannel extends OpenChannelChat
 
 	private static function getPortalLanguage(): ?string
 	{
-		$defSite = CAllSite::GetDefSite();
+		$defSite = CSite::GetDefSite();
 		if ($defSite === false)
 		{
 			return null;
 		}
 
-		$portalData = CAllSite::GetByID($defSite)->Fetch();
+		$portalData = CSite::GetByID($defSite)->Fetch();
 		if ($portalData)
 		{
 			$languageId = $portalData['LANGUAGE_ID'];
@@ -146,14 +151,7 @@ class GeneralChannel extends OpenChannelChat
 		return null;
 	}
 
-	public function addUsers(
-		array $userIds,
-		array $managerIds = [],
-		?bool $hideHistory = null,
-		bool $withMessage = true,
-		bool $skipRecent = false,
-		Relation\Reason $reason = Relation\Reason::DEFAULT
-	): self
+	public function addUsers(array $userIds, AddUsersConfig $config = new AddUsersConfig()): self
 	{
 		$managerIds = [];
 		foreach ($userIds as $userId)
@@ -179,8 +177,14 @@ class GeneralChannel extends OpenChannelChat
 		}
 
 		$managerIds = array_unique($managerIds);
+		$config = $config->setManagerIds($managerIds);
 
-		return parent::addUsers($userIds, $managerIds, $hideHistory, $withMessage, $skipRecent, $reason);
+		return parent::addUsers($userIds, $config);
+	}
+
+	protected function sendMessageUsersAdd(array $usersToAdd, AddUsersConfig $config): void
+	{
+		return;
 	}
 
 	protected function getCompanyStructureId(): ?string
@@ -307,11 +311,7 @@ class GeneralChannel extends OpenChannelChat
 		$result['generalChannelCanPostList'] = self::getCanPostList();
 		$result['generalChannelCanPost'] = $this->getManageMessages();
 		$result['generalChannelShowManagersList'] = self::MANAGE_RIGHTS_MANAGERS;
-		$managerIds = $this->getRelations([
-			'FILTER' => [
-				'MANAGER' => 'Y'
-			]
-		])->getUserIds();
+		$managerIds = $this->getRelationFacade()->getManagerOnly()->getUserIds();
 		$managers = array_map(function ($managerId) {
 			return 'U' . $managerId;
 		}, $managerIds);

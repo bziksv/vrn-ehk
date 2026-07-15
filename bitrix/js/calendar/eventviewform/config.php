@@ -22,6 +22,9 @@ return [
 		'main.core.events',
 		'calendar.sectionmanager',
 		'viewer',
+		'main.date',
+		'calendar.entityrelation',
+		'ui.avatar',
 	],
 	'skip_core' => false,
 	'lang' => '/bitrix/modules/calendar/classes/general/calendar_js.php'

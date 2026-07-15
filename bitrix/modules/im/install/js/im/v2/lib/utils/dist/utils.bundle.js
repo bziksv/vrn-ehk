@@ -48,7 +48,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return null;
 	  },
 	  openLink(link, target = '_blank') {
-	    window.open(link, target, '', true);
+	    window.open(link, target);
 	  },
 	  waitForSelectionToUpdate() {
 	    return new Promise(resolve => {
@@ -89,6 +89,18 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  },
 	  isSameHour(firstDate, secondDate) {
 	    return firstDate.getFullYear() === secondDate.getFullYear() && firstDate.getMonth() === secondDate.getMonth() && firstDate.getDate() === secondDate.getDate() && firstDate.getHours() === secondDate.getHours();
+	  },
+	  formatMediaDurationTime(seconds) {
+	    const padZero = num => {
+	      return num.toString().padStart(2, '0');
+	    };
+	    const hours = Math.floor(seconds / 3600);
+	    const minutes = Math.floor(seconds % 3600 / 60);
+	    const remainingSeconds = Math.floor(seconds % 60);
+	    const formattedHours = hours > 0 ? `${hours}:` : '';
+	    const formattedMinutes = hours > 0 ? padZero(minutes) : minutes.toString();
+	    const formattedSeconds = padZero(remainingSeconds);
+	    return `${formattedHours}${formattedMinutes}:${formattedSeconds}`;
 	  }
 	};
 
@@ -255,9 +267,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }).innerText;
 	  },
 	  convertSnakeToCamelCase(text) {
-	    return text.replace(/(_[a-z])/gi, $1 => {
+	    return text.replaceAll(/(_[a-z])/gi, $1 => {
 	      return $1.toUpperCase().replace('_', '');
 	    });
+	  },
+	  convertCamelToSnakeCase(text) {
+	    return text.replaceAll(/([A-Z])/g, match => `_${match.toLowerCase()}`);
 	  },
 	  escapeRegex(string) {
 	    return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
@@ -371,22 +386,31 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    return `[USER=${dialogId}]${name}[/USER]`;
 	  },
-	  getMessageLink(dialogId, messageId) {
-	    return `${location.origin}/online/?${im_v2_const.GetParameter.openChat}=${dialogId}&${im_v2_const.GetParameter.openMessage}=${messageId}`;
-	  },
 	  async copyToClipboard(textToCopy) {
 	    var _BX$clipboard;
-	    if (navigator.clipboard) {
-	      return navigator.clipboard.writeText(textToCopy);
+	    if (!main_core.Type.isString(textToCopy)) {
+	      return Promise.reject();
+	    }
+
+	    // navigator.clipboard defined only if window.isSecureContext === true
+	    // so or https should be activated, or localhost address
+	    if (window.isSecureContext && navigator.clipboard) {
+	      // safari not allowed clipboard manipulation as result of ajax request
+	      // so timeout is hack for this, to prevent "not have permission"
+	      return new Promise((resolve, reject) => {
+	        setTimeout(() => navigator.clipboard.writeText(textToCopy).then(() => resolve()).catch(e => reject(e)), 0);
+	      });
 	    }
 	    return (_BX$clipboard = BX.clipboard) != null && _BX$clipboard.copy(textToCopy) ? Promise.resolve() : Promise.reject();
 	  }
 	};
 
 	const settings = main_core.Extension.getSettings('im.v2.lib.utils');
+	const USER_ENTITY_ID = 'user';
 	const UserUtil = {
 	  getLastDateText(params = {}) {
-	    if (params.bot || params.network || !params.lastActivityDate) {
+	    const isBot = params.type === im_v2_const.UserType.bot;
+	    if (isBot || params.network || !params.lastActivityDate) {
 	      return '';
 	    }
 	    const isOnline = this.isOnline(params.lastActivityDate);
@@ -480,6 +504,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return false;
 	    }
 	    return userId.startsWith(im_v2_const.UserIdNetworkPrefix);
+	  },
+	  prepareSelectorIds(userId) {
+	    let idList = userId;
+	    if (main_core.Type.isNumber(userId)) {
+	      idList = [idList];
+	    }
+	    return idList.map(id => {
+	      return [USER_ENTITY_ID, Number(id)];
+	    });
 	  }
 	};
 
@@ -488,7 +521,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (!main_core.Type.isStringFilled(fileName)) {
 	      return '';
 	    }
-	    return fileName.split('.').splice(-1)[0];
+	    return fileName.split('.').splice(-1)[0].toLowerCase();
 	  },
 	  getIconTypeByFilename(fileName) {
 	    const extension = this.getFileExtension(fileName);
@@ -560,6 +593,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      case 'plist':
 	        icon = 'set';
 	        break;
+	      case 'board':
+	        icon = 'board';
+	        break;
 	      default:
 	        icon = 'empty';
 	    }
@@ -588,12 +624,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      case '3gp':
 	      case 'flv':
 	      case 'm4v':
-	      case 'ogg':
+	      case 'ogv':
 	      case 'wmv':
 	      case 'mov':
 	        type = im_v2_const.FileType.video;
 	        break;
 	      case 'mp3':
+	      case 'ogg':
+	      case 'm4a':
 	        type = im_v2_const.FileType.audio;
 	        break;
 	      default:
@@ -638,16 +676,27 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    const secondPart = fileNameWithoutExtension.slice(-SYMBOLS_TO_TAKE_BEFORE_EXTENSION).trim();
 	    return `${firstPart}${DELIMITER}${secondPart}.${extension}`;
 	  },
-	  getViewerDataAttributes(viewerAttributes) {
+	  getViewerDataAttributes({
+	    viewerAttributes,
+	    previewImageSrc,
+	    context
+	  }) {
+	    const dataAttributes = {};
 	    if (!viewerAttributes) {
-	      return {};
+	      return dataAttributes;
 	    }
-	    const dataAttributes = {
-	      'data-viewer': true
-	    };
 	    Object.entries(viewerAttributes).forEach(([key, value]) => {
-	      dataAttributes[`data-${main_core.Text.toKebabCase(key)}`] = value;
+	      dataAttributes[`data-${main_core.Text.toKebabCase(key)}`] = value === null ? '' : value;
 	    });
+
+	    // it should be the same link, which we use in src attribute in <img> or <video> tag
+	    if (previewImageSrc) {
+	      dataAttributes['data-viewer-preview'] = previewImageSrc;
+	    }
+	    if (context) {
+	      dataAttributes['data-viewer-group-by'] = `${context}${dataAttributes['data-viewer-group-by']}`;
+	    }
+	    dataAttributes['data-viewer'] = '';
 	    return dataAttributes;
 	  },
 	  createDownloadLink(text, urlDownload, fileName) {
@@ -694,6 +743,52 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      height: newHeight,
 	      width: newWidth
 	    };
+	  },
+	  downloadFiles(files) {
+	    const a = main_core.Dom.create('a');
+	    main_core.Dom.style(a, {
+	      display: 'none'
+	    });
+	    main_core.Dom.append(a, document.body);
+
+	    // we need delay for some browsers, like Safari
+	    const downloadFileWithDelay = index => {
+	      if (index >= files.length) {
+	        return;
+	      }
+	      main_core.Dom.attr(a, 'download', files[index].name);
+	      a.setAttribute('href', files[index].urlDownload);
+	      a.click();
+	      setTimeout(() => {
+	        downloadFileWithDelay(index + 1);
+	      }, 500);
+	    };
+	    downloadFileWithDelay(0);
+	    main_core.Dom.remove(a);
+	  },
+	  getViewerDataForImageSrc({
+	    src,
+	    viewerGroupBy,
+	    objectId = null,
+	    context = im_v2_const.FileViewerContext.dialog,
+	    actions = '[]',
+	    title = '',
+	    viewer = null
+	  }) {
+	    const defaultAttributes = {
+	      viewerAttributes: {
+	        actions,
+	        objectId,
+	        src,
+	        title,
+	        viewer,
+	        viewerGroupBy,
+	        viewerType: 'image'
+	      },
+	      previewImageSrc: src,
+	      context
+	    };
+	    return this.getViewerDataAttributes(defaultAttributes);
 	  }
 	};
 

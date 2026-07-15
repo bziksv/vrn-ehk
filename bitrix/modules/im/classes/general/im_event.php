@@ -21,7 +21,7 @@ class CIMEvent
 		]);
 		while ($row = $result->fetch())
 		{
-			IM\Model\ChatTable::update($row['ID'], ['AVATAR' => '']);
+			IM\Model\ChatTable::update($row['ID'], ['AVATAR' => null]);
 		}
 	}
 
@@ -760,45 +760,18 @@ class CIMEvent
 
 	public static function OnAfterUserAdd($arParams)
 	{
-		if(($arParams["ID"] ?? 0) <= 0)
-		{
-			return false;
-		}
-
-		if ($arParams['ACTIVE'] == 'N')
-		{
-			return false;
-		}
-
-		if (IsModuleInstalled('intranet') && !CIMContactList::IsExtranet($arParams))
-		{
-			$commonChatId = CIMChat::GetGeneralChatId();
-			if ($commonChatId <= 0)
-			{
-				return true;
-			}
-
-			if (\Bitrix\Im\User::getInstance($arParams["ID"])->isBot())
-			{
-				return true;
-			}
-
-			if (!CIMChat::CanJoinGeneralChatId($arParams["ID"]))
-			{
-				return true;
-			}
-
-			$CIMChat = new CIMChat(0);
-			$CIMChat->AddUser($commonChatId, [$arParams["ID"]], null, true);
-		}
-
 		return true;
 	}
 
 	public static function OnAfterUserUpdate($arParams)
 	{
+		$chat = new CIMChat(0);
+		$user = IM\V2\Entity\User\User::getInstance((int)$arParams["ID"]);
+		IM\V2\Entity\User\UserFactory::getInstance()->clearCache((int)$arParams["ID"]);
+
 		IM\V2\Message\CounterService::onAfterUserUpdate($arParams);
 		IM\V2\Chat\User\OwnerService::onAfterUserUpdate($arParams);
+
 		$commonChatId = CIMChat::GetGeneralChatId();
 		if ($commonChatId > 0 && (isset($arParams['ACTIVE']) || isset($arParams['UF_DEPARTMENT'])))
 		{
@@ -808,12 +781,7 @@ class CIMEvent
 
 				if ($commonChatId && CIMChat::GetRelationById($commonChatId, $arParams["ID"], true, false))
 				{
-					$CIMChat = new CIMChat($arParams["ID"]);
-					$CIMChat->DeleteUser(
-						$commonChatId,
-						$arParams["ID"],
-						additionalParams: ['SKIP_RIGHTS' => true]
-					);
+					$chat->DeleteUser($commonChatId, $arParams["ID"], false);
 				}
 			}
 			else
@@ -821,12 +789,12 @@ class CIMEvent
 				$commonChatId = CIMChat::GetGeneralChatId();
 				if ($commonChatId)
 				{
-					if (\Bitrix\Im\User::getInstance($arParams["ID"])->isBot())
+					if ($user->isBot())
 					{
 						return true;
 					}
 
-					if ($arParams['ACTIVE'] != 'Y' && !\Bitrix\Im\User::getInstance($arParams["ID"])->isActive())
+					if ($arParams['ACTIVE'] != 'Y' && !$user->isActive())
 					{
 						return true;
 					}
@@ -836,17 +804,11 @@ class CIMEvent
 
 					if ($userInChat && !$userCanJoin)
 					{
-						$CIMChat = new CIMChat($arParams["ID"]);
-						$CIMChat->DeleteUser(
-							$commonChatId,
-							$arParams["ID"],
-							additionalParams: ['SKIP_RIGHTS' => true]
-						);
+						$chat->DeleteUser($commonChatId, $arParams["ID"], false);
 					}
 					else if (!$userInChat && $userCanJoin)
 					{
-						$CIMChat = new CIMChat(0);
-						$CIMChat->AddUser($commonChatId, [$arParams["ID"]], null, true, true);
+						$chat->AddUser($commonChatId, [$arParams["ID"]], false, true, true);
 					}
 				}
 			}

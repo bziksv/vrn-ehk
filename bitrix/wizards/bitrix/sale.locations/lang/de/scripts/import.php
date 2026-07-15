@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["WSL_IMPORT_ERROR_ACCESS_DENIED"] = "Fehler! Zugriff verweigert";
 $MESS["WSL_IMPORT_ERROR_FILES"] = "Fehler: Falscher Dateiname.";
 $MESS["WSL_IMPORT_FILES_LOADING"] = "Dateibearbeitung...";
@@ -14,4 +14,3 @@ $MESS["WSL_IMPORT_LOC_STATS"] = "Standorte:<ul>
 $MESS["WSL_IMPORT_ZIP_STATS"] = "PLZ:<ul>
 <li>PLZ importiert: #NUMZIP#</li>
 <li>für Städte: #NUMCITIES#</li></ul>";
-?>

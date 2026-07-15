@@ -1,0 +1,64 @@
+<FireplacesAndHeaters>
+	<GoodsSubType name="Печи и камины">
+		<OvensType name="Печи для бани и сауны">
+			<FuelType name="Дрова"/>
+			<FuelType name="Электричество"/>
+			<FuelType name="Уголь"/>
+			<FuelType name="Газ"/>
+			<StoveMaterial name="Чугун"/>
+			<StoveMaterial name="Сталь"/>
+			<StoveMaterial name="Камень"/>
+			<SteamVolume variable="int"/>
+			<Heater name="Открытая"/>
+			<Heater name="Закрытая"/>
+			<Heater name="Комбинированная"/>
+			<DoorMaterial name="Чугун"/>
+			<DoorMaterial name="Сталь"/>
+			<DoorMaterial name="Со стеклом"/>
+		</OvensType>
+		<OvensType name="Камины и печи для дома">
+			<ProductType name="Печь">
+				<Material name="Чугун"/>
+				<Material name="Сталь"/>
+				<Material name="Камень"/>
+				<FuelType name="Дрова"/>
+				<FuelType name="Газ"/>
+				<FuelType name="Уголь"/>
+				<FuelType name="Пеллета"/>
+			</ProductType>
+			<ProductType name="Печь-камин">
+				<Material name="Чугун"/>
+				<Material name="Сталь"/>
+				<Material name="Камень"/>
+				<FuelType name="Дрова"/>
+				<FuelType name="Газ"/>
+				<FuelType name="Уголь"/>
+				<FuelType name="Пеллета"/>
+			</ProductType>
+			<ProductType name="Электрический камин"/>
+			<ProductType name="Биокамин"/>
+			<Capacity variable="int"/>
+		</OvensType>
+	</GoodsSubType>
+	<GoodsSubType name="Отопительные системы">
+		<HeatingType name="Радиаторы отопления и конвекторы"/>
+		<HeatingType name="Котлы">
+			<BoilerType name="Газовый"/>
+			<BoilerType name="Твердотопливный"/>
+			<BoilerType name="Электрический"/>
+			<BoilerType name="Другой"/>
+			<MountingType name="Настенный"/>
+			<MountingType name="Напольный"/>
+			<CircuitAmount name="Одноконтурный"/>
+			<CircuitAmount name="Двухконтурный"/>
+		</HeatingType>
+		<HeatingType name="Тёплые полы"/>
+	</GoodsSubType>
+	<GoodsSubType name="Обогреватели"/>
+	<GoodsSubType name="Комплектующие и аксессуары">
+		<ComponentsType name="Дымоходы"/>
+		<ComponentsType name="Топливные брикеты, уголь"/>
+		<ComponentsType name="Комплектующие для системы отопления"/>
+	</GoodsSubType>
+	<GoodsSubType name="Другое"/>
+</FireplacesAndHeaters>

@@ -17,6 +17,10 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var string $parentComponentName */
 /** @var string $parentComponentPath */
 /** @var string $parentComponentTemplate */
+
+use Bitrix\Main\Application;
+use Bitrix\Main\DB\SqlQueryException;
+
 $this->setFrameMode(false);
 
 if(!\Bitrix\Main\Loader::includeModule('lists'))
@@ -92,9 +96,17 @@ $lists_perm = $checkPermissionResult->getPermission();
 $arResult["IBLOCK_PERM"] = $lists_perm;
 $arResult["USER_GROUPS"] = $USER->GetUserGroupArray();
 $arIBlock = CIBlock::GetArrayByID(intval($arParams["~IBLOCK_ID"]));
+
+if (empty($arIBlock))
+{
+	ShowError(\Bitrix\Main\Localization\Loc::getMessage('CC_BLEE_WRONG_IBLOCK'));
+
+	return;
+}
+
 $arResult["~IBLOCK"] = $arIBlock;
 $arResult["IBLOCK"] = htmlspecialcharsex($arIBlock);
-$arResult["IBLOCK_ID"] = $arIBlock["ID"];
+$arResult["IBLOCK_ID"] = $arIBlock["ID"] ?? null;
 
 if(isset($arParams["SOCNET_GROUP_ID"]) && $arParams["SOCNET_GROUP_ID"] > 0)
 	$arParams["SOCNET_GROUP_ID"] = intval($arParams["SOCNET_GROUP_ID"]);
@@ -110,7 +122,7 @@ else
 $bBizproc = (
 	\Bitrix\Main\Loader::includeModule('bizproc')
 	&& CLists::isBpFeatureEnabled($arParams["IBLOCK_TYPE_ID"])
-	&& ($arIBlock["BIZPROC"] != "N")
+	&& (($arIBlock["BIZPROC"] ?? null) != "N")
 );
 
 $arResult["~LISTS_URL"] = str_replace(
@@ -161,7 +173,7 @@ else
 
 $arResult["COPY_ID"] = $copy_id;
 
-$obList = new CList($arIBlock["ID"]);
+$obList = new CList($arIBlock["ID"] ?? 0);
 
 $arResult["FIELDS"] = $obList->GetFields();
 if($bBizproc)
@@ -749,27 +761,49 @@ if(
 		{
 			$obElement = new CIBlockElement;
 
-			if($arResult["ELEMENT_ID"])
+			$conn = Application::getConnection();
+			$conn->startTransaction();
+
+			try
 			{
-				if (CLists::isEnabledLockFeature($arResult["IBLOCK_ID"]) &&
-					CIBlockElement::WF_IsLocked($ELEMENT_ID, $lockedBy, $dateLock))
+				if ($arResult["ELEMENT_ID"])
 				{
-					$strError = GetMessage("CC_BLEE_ELEMENT_LOCKED");
+					if (CLists::isEnabledLockFeature($arResult["IBLOCK_ID"]) &&
+						CIBlockElement::WF_IsLocked($ELEMENT_ID, $lockedBy, $dateLock))
+					{
+						$strError = GetMessage("CC_BLEE_ELEMENT_LOCKED");
+					}
+					else
+					{
+						$res = $obElement->Update($arResult["ELEMENT_ID"], $arElement, false, true, true);
+						if (!$res)
+							$strError = $obElement->LAST_ERROR;
+					}
 				}
 				else
 				{
-					$res = $obElement->Update($arResult["ELEMENT_ID"], $arElement, false, true, true);
-					if(!$res)
+					$res = $obElement->Add($arElement, false, true, true);
+					if ($res)
+						$arResult["ELEMENT_ID"] = $res;
+					else
 						$strError = $obElement->LAST_ERROR;
 				}
 			}
+			catch(SqlQueryException)
+			{
+				$strError =
+					$arResult['ELEMENT_ID']
+						? GetMessage('CC_BLEE_INTERNAL_ERROR_ELEMENT_UPDATE')
+						: GetMessage('CC_BLEE_INTERNAL_ERROR_ELEMENT_ADD')
+				;
+			}
+			if (!$strError)
+			{
+				$conn->commitTransaction();
+			}
 			else
 			{
-				$res = $obElement->Add($arElement, false, true, true);
-				if($res)
-					$arResult["ELEMENT_ID"] = $res;
-				else
-					$strError = $obElement->LAST_ERROR;
+				$conn->rollbackTransaction();
 			}
 		}
 
@@ -1151,7 +1185,7 @@ while($arSection = $rsSections->Fetch())
 	$arResult["LIST_SECTIONS"][$arSection["ID"]] = str_repeat(" . ", $arSection["DEPTH_LEVEL"]).$arSection["NAME"];
 
 if(
-	$arResult["IBLOCK"]["RIGHTS_MODE"] == 'E'
+	($arResult["IBLOCK"]["RIGHTS_MODE"] ?? null) == 'E'
 	&& $arResult["CAN_EDIT_RIGHTS"]
 )
 {
@@ -1199,12 +1233,12 @@ $this->IncludeComponentTemplate();
 
 if($arResult["ELEMENT_ID"] && !empty($arResult["ELEMENT_FIELDS"]["NAME"]))
 {
-	$APPLICATION->SetTitle($arResult["IBLOCK"]["ELEMENT_NAME"] . ": " . $arResult["ELEMENT_FIELDS"]["NAME"]);
+	$APPLICATION->SetTitle(($arResult["IBLOCK"]["ELEMENT_NAME"] ?? '') . ": " . $arResult["ELEMENT_FIELDS"]["NAME"]);
 }
 else
 	$APPLICATION->SetTitle($arResult["IBLOCK"]["ELEMENT_NAME"]);
 
-$APPLICATION->AddChainItem($arResult["IBLOCK"]["NAME"], $arResult["~LIST_URL"]);
+$APPLICATION->AddChainItem(($arResult["IBLOCK"]["NAME"] ?? ''), $arResult["~LIST_URL"]);
 if($arResult["SECTION"])
 {
 	foreach($arResult["SECTION_PATH"] as $arPath)
@@ -1212,6 +1246,3 @@ if($arResult["SECTION"])
 		$APPLICATION->AddChainItem($arPath["NAME"], $arPath["URL"]);
 	}
 }
-
-
-?>

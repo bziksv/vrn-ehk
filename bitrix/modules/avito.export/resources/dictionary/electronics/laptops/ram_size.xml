@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RamSizeValues>
+	<RamSize>0.5</RamSize>
+	<RamSize>0.25</RamSize>
+	<RamSize>0.125</RamSize>
+	<RamSize>1</RamSize>
+	<RamSize>1.5</RamSize>
+	<RamSize>2</RamSize>
+	<RamSize>3</RamSize>
+	<RamSize>4</RamSize>
+	<RamSize>6</RamSize>
+	<RamSize>7</RamSize>
+	<RamSize>8</RamSize>
+	<RamSize>12</RamSize>
+	<RamSize>13</RamSize>
+	<RamSize>16</RamSize>
+	<RamSize>18</RamSize>
+	<RamSize>24</RamSize>
+	<RamSize>32</RamSize>
+	<RamSize>36</RamSize>
+	<RamSize>48</RamSize>
+	<RamSize>64</RamSize>
+	<RamSize>96</RamSize>
+	<RamSize>128</RamSize>
+</RamSizeValues>

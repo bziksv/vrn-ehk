@@ -1,0 +1,108 @@
+<Tourism>
+	<GoodsSubType name="Красота и здоровье">
+		<FranchiseSubType name="Аптеки и оптики"/>
+		<FranchiseSubType name="Косметологии"/>
+		<FranchiseSubType name="Медицинские центры"/>
+		<FranchiseSubType name="Парикмахерские и барбершопы"/>
+		<FranchiseSubType name="Салоны красоты"/>
+		<FranchiseSubType name="Стоматологии"/>
+		<FranchiseSubType name="Студии маникюра"/>
+		<FranchiseSubType name="Студии массажа"/>
+	</GoodsSubType>
+	<GoodsSubType name="Производство">
+		<FranchiseSubType name="Автомобильное производство"/>
+		<FranchiseSubType name="Деревообрабатывающее производство"/>
+		<FranchiseSubType name="Мебельное производство"/>
+		<FranchiseSubType name="Пищевое производство"/>
+		<FranchiseSubType name="Производство строительных материалов"/>
+		<FranchiseSubType name="Производство товаров"/>
+		<FranchiseSubType name="Химическое производство"/>
+	</GoodsSubType>
+	<GoodsSubType name="IT бизнес">
+		<FranchiseSubType name="Интернет-сервисы"/>
+		<FranchiseSubType name="Разработка"/>
+	</GoodsSubType>
+	<GoodsSubType name="Арендный бизнес">
+		<FranchiseSubType name="Аренда недвижимости"/>
+		<FranchiseSubType name="Аренда спецтехники"/>
+		<FranchiseSubType name="Прокатные компании"/>
+		<FranchiseSubType name="Таксопарки и автопрокат"/>
+	</GoodsSubType>
+	<GoodsSubType name="Общественное питание">
+		<FranchiseSubType name="Бары и пабы"/>
+		<FranchiseSubType name="Кальянные"/>
+		<FranchiseSubType name="Кондитерские и пекарни"/>
+		<FranchiseSubType name="Кофейни"/>
+		<FranchiseSubType name="Рестораны и кафе"/>
+		<FranchiseSubType name="Фастфуд"/>
+	</GoodsSubType>
+	<GoodsSubType name="Строительство"/>
+	<GoodsSubType name="Сфера услуг">
+		<FranchiseSubType name="Агентства недвижимости"/>
+		<FranchiseSubType name="Бытовые услуги"/>
+		<FranchiseSubType name="Деловые услуги"/>
+		<FranchiseSubType name="Образование"/>
+		<FranchiseSubType name="Перевозки и склад"/>
+		<FranchiseSubType name="Реклама и печать"/>
+		<FranchiseSubType name="Ремонт и обслуживание техники"/>
+		<FranchiseSubType name="Специализированные услуги"/>
+	</GoodsSubType>
+	<GoodsSubType name="Торговля">
+		<FranchiseSubType name="Автомобильные магазины"/>
+		<FranchiseSubType name="Алкогольные магазины"/>
+		<FranchiseSubType name="Вендинговые магазины"/>
+		<FranchiseSubType name="Детские магазины"/>
+		<FranchiseSubType name="Для дома и офиса"/>
+		<FranchiseSubType name="Зоомагазины"/>
+		<FranchiseSubType name="Косметические магазины"/>
+		<FranchiseSubType name="Одежда, обувь, аксессуары"/>
+		<FranchiseSubType name="Продуктовые магазины"/>
+		<FranchiseSubType name="Табачные магазины"/>
+		<FranchiseSubType name="Техника и электроника"/>
+		<FranchiseSubType name="Универсальные магазины"/>
+		<FranchiseSubType name="Цветочные магазины"/>
+	</GoodsSubType>
+	<GoodsSubType name="Автобизнес">
+		<FranchiseSubType name="Автомойки и детейлинг"/>
+		<FranchiseSubType name="Автосервис"/>
+		<FranchiseSubType name="Автоуслуги"/>
+		<FranchiseSubType name="АЗС и ЭЗС"/>
+		<FranchiseSubType name="Шиномонтаж"/>
+	</GoodsSubType>
+	<GoodsSubType name="Пункты выдачи заказов"/>
+	<GoodsSubType name="Сельское хозяйство"/>
+	<GoodsSubType name="Сфера развлечений">
+		<FranchiseSubType name="Аттракционы"/>
+		<FranchiseSubType name="Виртуальная реальность"/>
+		<FranchiseSubType name="Ночные и караоке клубы"/>
+		<FranchiseSubType name="Развлечения для детей"/>
+		<FranchiseSubType name="Компьютерные клубы"/>
+		<FranchiseSubType name="Досуг и творчество"/>
+		<FranchiseSubType name="Культура и просвещение"/>
+		<FranchiseSubType name="Спорт и активный отдых"/>
+		<FranchiseSubType name="Бани и сауны"/>
+	</GoodsSubType>
+	<GoodsSubType name="Туризм"/>
+	<FranchiseFee variable="text"/>
+	<FranchisePayback variable="text"/>
+	<FranchiseRoyalty name="Есть">
+		<FranchiseTypeRoyalty name="Комбинированное">
+			<FranchiseRoyaltyFix variable="text"/>
+			<FranchiseRoyaltyPerc variable="text"/>
+		</FranchiseTypeRoyalty>
+		<FranchiseTypeRoyalty name="Процентное">
+			<FranchiseRoyaltyPerc variable="text"/>
+		</FranchiseTypeRoyalty>
+		<FranchiseTypeRoyalty name="Фиксированное">
+			<FranchiseRoyaltyFix variable="text"/>
+		</FranchiseTypeRoyalty>
+	</FranchiseRoyalty>
+	<FranchiseRoyalty name="Нет"/>
+	<FranchiseSupport name="Есть">
+		<FranchiseTypeSupport name="Обучение для франчайзи"/>
+		<FranchiseTypeSupport name="Обучение для персонала"/>
+		<FranchiseTypeSupport name="Консультации и сопровождение"/>
+		<FranchiseTypeSupport name="Помощь в открытии"/>
+	</FranchiseSupport>
+	<FranchiseSupport name="Нет"/>
+</Tourism>

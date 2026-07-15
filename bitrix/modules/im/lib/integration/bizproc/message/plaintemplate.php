@@ -33,7 +33,7 @@ class PlainTemplate extends Template
 
 	protected function buildDescriptionText(): string
 	{
-		$text = mb_substr(\CBPHelper::convertBBtoText($this->messageText), 0, 200);
+		$text = mb_substr(\CTextParser::clearAllTags($this->getTextContents()), 0, 200);
 		if (mb_strlen($text) === 200)
 		{
 			$text .= '...';
@@ -42,13 +42,18 @@ class PlainTemplate extends Template
 		return $text;
 	}
 
+	protected function getTextContents(): string
+	{
+		return $this->messageText;
+	}
+
 	/**
 	 * @intrnal
 	 * @return string
 	 */
 	protected function buildRobotText()
 	{
-		return '[i]'. Loc::getMessage('IM_BIZPROC_MESSAGE_PLAIN_TEMPLATE_SENT_BY_ROBOT') .'[/i]';
+		return '[size=10][i]'. Loc::getMessage('IM_BIZPROC_MESSAGE_PLAIN_TEMPLATE_SENT_BY_ROBOT') .'[/i][/size]';
 	}
 
 	protected function validate(): void

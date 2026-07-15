@@ -66,7 +66,7 @@
 				},
 		}));
 		this.streamScrollWrap.addEventListener('scroll', this.scrollHandle.bind(this));
-		this.streamScrollWrap.addEventListener('wheel', this.mouseWheelHandle.bind(this));
+		this.streamScrollWrap.addEventListener('wheel', this.mouseWheelHandle.bind(this), { passive: true });
 
 		this.streamContentWrap = this.streamScrollWrap.appendChild(BX.create('DIV', {
 			props: {
@@ -179,7 +179,7 @@
 	{
 		if (this.filterMode)
 		{
-			if (!this.calendar.search.isFilterEmpty())
+			if (this.calendar.search && !this.calendar.search.isFilterEmpty())
 			{
 				this.calendar.search.applyFilter();
 			}
@@ -521,13 +521,27 @@
 				timeLabel = this.calendar.util.formatTime(entry.from.getHours(), entry.from.getMinutes()) + ' &ndash; ' + this.calendar.util.formatTime(entry.to.getHours(), entry.to.getMinutes())
 			}
 
+			let wrapAdditionalClass = '';
+			if (this.shouldEntryLookLikeSharing(entry))
+			{
+				wrapAdditionalClass = 'calendar-timeline-stream-content-event-sharing';
+			}
+			else if (this.shouldEntryLookLikeCollab(entry))
+			{
+				wrapAdditionalClass = 'calendar-timeline-stream-content-event-collab';
+			}
+			else if (this.shouldEntryLookLineBooking(entry))
+			{
+				wrapAdditionalClass = 'calendar-timeline-stream-content-event-booking';
+			}
 			wrap = group.content.appendChild(BX.create('DIV', {
 				attrs: {
 					'data-bx-calendar-entry': entry.uid
 				},
 				props: {
-					className: 'calendar-timeline-stream-content-event'
-						+ (entry.isSharingEvent() ? ' calendar-timeline-stream-content-event-sharing' : '')
+					className: ['calendar-timeline-stream-content-event', wrapAdditionalClass]
+						.filter(cn => cn)
+						.join(' ')
 				}
 			}));
 
@@ -554,9 +568,9 @@
 					+ ')</span>';
 			}
 
-			const titleNode = BX.create('DIV', {
+			const titleWrap = BX.create('DIV', {
 				props: {
-					className: 'calendar-timeline-stream-content-event-name',
+					className: 'calendar-timeline-stream-content-event-title-wrap',
 				},
 				html: '<div class="calendar-timeline-stream-content-event-name-link"><span>'
 					+ BX.util.htmlspecialchars(entry.name)
@@ -569,16 +583,16 @@
 				wrap.className += ' calendar-timeline-stream-content-event-invited';
 				if (this.isFirstVisibleRecursiveEntry(entry))
 				{
-					titleNode.prepend(BX.create('SPAN', {props: {className: 'calendar-event-invite-counter'}, text: '1'}));
+					titleWrap.prepend(BX.create('SPAN', {props: {className: 'calendar-event-invite-counter'}, text: '1'}));
 				}
 				else
 				{
-					titleNode.prepend(BX.create('SPAN', {props: {className: 'calendar-event-invite-counter-dot'}}));
+					titleWrap.prepend(BX.create('SPAN', {props: {className: 'calendar-event-invite-counter-dot'}}));
 				}
 			}
 			else
 			{
-				titleNode.prepend(BX.create('SPAN', {
+				titleWrap.prepend(BX.create('SPAN', {
 					props: {
 						className: 'calendar-timeline-stream-content-event-color',
 					},
@@ -588,8 +602,42 @@
 				}));
 			}
 
-			wrap.append(titleNode);
+			const titleNode = BX.create('DIV', {
+				props: {
+					className: 'calendar-timeline-stream-content-event-name',
+				},
+			});
 
+			titleNode.append(titleWrap);
+
+			if (this.shouldEntryLookLikeCollab(entry) && entry.getCollabId())
+			{
+				const collab = this.calendar.collabManager.getById(entry.getCollabId());
+				const isCurrentCollabCalendar = this.calendar.util.config.type === 'group'
+					&& this.calendar.util.config.ownerId === collab.getId();
+				if (collab && !isCurrentCollabCalendar)
+				{
+					const prefixedTitle = BX.Loc.getMessage(
+						'EC_VIEW_COLLAB_PREFIXED_NAME',
+						{
+							'#TITLE#': collab.getName(),
+							'[collab_prefix]': '<span class="collab-prefix">',
+							'[/collab_prefix]': '</span>',
+						},
+					);
+					const collabNameNode = BX.Tag.render`
+						<div class="calendar-timeline-stream-content-collab-block">
+							<span class="calendar-timeline-stream-content-collab-name">
+								${prefixedTitle}
+							</span>
+						</div>
+					`;
+
+					titleNode.append(collabNameNode);
+				}
+			}
+
+			wrap.append(titleNode);
 
 			if (
 				(parseInt(this.calendar.util.userId) !== parseInt(entry.data.MEETING_HOST))
@@ -650,13 +698,28 @@
 				if (user.STATUS === 'Y' || user.STATUS === 'H')
 				{
 					attendeesCount++;
-					if (user.AVATAR !== '/bitrix/images/1.gif')
+					if (user.COLLAB_USER)
+					{
+						const avatar = new BX.UI.AvatarRoundGuest(
+							{
+								size: 22,
+								userName: user.DISPLAY_NAME,
+								userpicPath: user.AVATAR && user.AVATAR !== '/bitrix/images/1.gif'
+									? user.AVATAR
+									: null,
+								baseColor: '#19cc45',
+							},
+						).getContainer();
+						wrapper.appendChild(avatar);
+					}
+					else if (user.AVATAR !== '/bitrix/images/1.gif')
 					{
 						wrapper.appendChild(BX.create('IMG', {
 							attrs: {
 								id: 'simple_view_popup_' + user.ID,
 								src: encodeURI(user.AVATAR) || '',
 								'bx-tooltip-user-id': user.ID,
+								'bx-tooltip-context': 'b24',
 							},
 							props: {
 								className: 'calendar-member'
@@ -671,6 +734,7 @@
 								attrs: {
 									id: 'simple_view_popup_' + user.ID,
 									'bx-tooltip-user-id': user.ID,
+									'bx-tooltip-context': 'b24',
 								},
 								props: {
 									className: 'calendar-event-block-icon-sharing calendar-event-block-icon-sharing-view-list',
@@ -1205,7 +1269,6 @@
 			this.streamScrollWrap.style.height = this.calendar.viewsCont.style.height;
 			this.loadMoreEntriesDebounce({mode: 'next'});
 		}
-		event.preventDefault();
 	};
 
 	ListView.prototype.getFirstVisibleDate = function()
@@ -1493,6 +1556,14 @@
 			</div>`;
 		}
 
+		if (this.calendar.util.config.type !== 'user' || this.calendar.isCollabUser)
+		{
+			return `<div class="calendar-list-view-empty">
+				<div class="calendar-list-view-empty-icon"></div>
+				<div class="calendar-list-view-empty-title">${BX.message('EC_CALENDAR_NO_EVENTS_TITLE')}</div>
+			</div>`;
+		}
+
 		return `<div class="calendar-list-view-empty">
 			<div class="calendar-list-view-empty-icon"></div>
 			<div class="calendar-list-view-empty-title">${BX.message('EC_CALENDAR_NO_EVENTS_TITLE')}</div>
@@ -1562,7 +1633,7 @@
 		{
 			return;
 		}
-		
+
 		this.filterMode = false;
 		this.resultEntries = [];
 
@@ -1571,7 +1642,7 @@
 
 		if (!params || params.resetSearchFilter !== false)
 		{
-			this.calendar.search.resetFilter();
+			this.calendar.search?.resetFilter();
 		}
 
 		if (BX.Type.isUndefined(params.viewName) && this.calendar.viewNameBeforeFilter !== this.name)

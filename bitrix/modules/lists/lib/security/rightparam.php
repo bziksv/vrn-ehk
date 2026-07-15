@@ -23,7 +23,7 @@ class RightParam
 
 		$this->setIblockTypeId($params["IBLOCK_TYPE_ID"]);
 		$this->setIblockId(Utils::getIblockId($params));
-		$this->setSocnetGroupId($params["SOCNET_GROUP_ID"]);
+		$this->setSocnetGroupId($params["SOCNET_GROUP_ID"] ?? 0);
 	}
 
 	/**
@@ -55,7 +55,7 @@ class RightParam
 	 */
 	public function setIblockTypeId($iblockTypeId)
 	{
-		$this->iblockTypeId = ($iblockTypeId ? $iblockTypeId : "");
+		$this->iblockTypeId = (is_string($iblockTypeId) ? $iblockTypeId : '');
 	}
 
 	/**

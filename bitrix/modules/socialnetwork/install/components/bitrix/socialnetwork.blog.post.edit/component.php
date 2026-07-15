@@ -21,6 +21,7 @@ use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Loader;
 use Bitrix\Socialnetwork\Component\BlogPostEdit;
 use Bitrix\Socialnetwork\ComponentHelper;
+use Bitrix\Socialnetwork\Helper\Analytics\FeedAnalytics;
 use Bitrix\Socialnetwork\Helper\Mention;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Config\Option;
@@ -1694,6 +1695,39 @@ if (
 								$bAdd = true;
 								$bNeedMail = false;
 							}
+
+							$analytics = FeedAnalytics::getInstance();
+
+							$postType = '';
+							switch($this->request->get('changePostFormTab'))
+							{
+								case 'message':
+									$postType = $analytics::TYPE_POST;
+
+									break;
+								case 'vote':
+									$postType = $analytics::TYPE_POLL;
+
+									break;
+								case 'grat':
+									$postType = $analytics::TYPE_APPRECIATION;
+
+									break;
+								case 'important':
+									$postType = $analytics::TYPE_ANNOUNCEMENT;
+
+									break;
+							}
+
+							$analytics->onPostCreate(
+								$arParams['SOCNET_GROUP_ID'] > 0
+									? $analytics::SECTION_PROJECT
+									: $analytics::SECTION_FEED
+								,
+								'',
+								$newID > 0,
+								$postType,
+							);
 						}
 
 						if ((int)$newID > 0)
@@ -2507,7 +2541,7 @@ if (
 				defined("SITE_SERVER_NAME")
 				&& SITE_SERVER_NAME <> ''
 					? SITE_SERVER_NAME
-					: COption::GetOptionString("main", "server_name", "www.bitrixsoft.com")
+					: COption::GetOptionString("main", "server_name")
 			);
 
 			if ($serverName == '')
@@ -2668,7 +2702,7 @@ if (
 
 				if (empty($arResult['PostToShow']['FEED_DESTINATION']['SELECTED']))
 				{
-					$arResult['FATAL_MESSAGE'] .= Loc::getMessage('BLOG_SONET_MODULE_NOT_AVAIBLE');
+					$arResult['FATAL_MESSAGE'] = Loc::getMessage('BLOG_SONET_MODULE_NOT_AVAIBLE');
 				}
 			}
 			elseif ($bDefaultToAll)

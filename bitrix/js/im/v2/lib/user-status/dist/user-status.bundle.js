@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core,im_v2_application_core,im_v2_lib_utils,im_v2_provider_service) {
+(function (exports,main_core,im_v2_application_core,im_v2_lib_utils,im_v2_provider_service_recent) {
 	'use strict';
 
 	const DAY = 1000 * 60 * 60 * 24;
@@ -129,9 +129,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return;
 	  }
 	  babelHelpers.classPrivateFieldLooseBase(this, _birthdayLoadInterval)[_birthdayLoadInterval] = setTimeout(() => {
-	    im_v2_provider_service.RecentService.getInstance().loadFirstPage();
+	    void im_v2_provider_service_recent.LegacyRecentService.getInstance().loadFirstPage();
 	    setInterval(() => {
-	      im_v2_provider_service.RecentService.getInstance().loadFirstPage();
+	      void im_v2_provider_service_recent.LegacyRecentService.getInstance().loadFirstPage();
 	    }, DAY);
 	  }, im_v2_lib_utils.Utils.date.getTimeToNextMidnight());
 	}
@@ -142,5 +142,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.UserStatusManager = UserStatusManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Service));
 //# sourceMappingURL=user-status.bundle.js.map

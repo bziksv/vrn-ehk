@@ -1,10 +1,11 @@
 import { Text, Tag, Type, Dom, Uri, Loc } from 'main.core';
 import { Task, InlineTaskView } from 'bizproc.task';
 import type { UserProcesses } from './user-processes';
+import 'ui.hint';
 import { WorkflowData } from './workflow-loader';
 import { WorkflowFaces } from 'bizproc.workflow.faces';
 import { Summary } from 'bizproc.workflow.faces.summary';
-import { Counter, CounterColor } from 'ui.cnt';
+import { WorkflowResult } from 'bizproc.workflow.result';
 
 export class WorkflowRenderer
 {
@@ -55,12 +56,20 @@ export class WorkflowRenderer
 	{
 		const itemName = Type.isString(this.#data?.name) ? this.#data.name : '';
 		const typeName = Type.isString(this.#data?.typeName) ? this.#data.typeName : '';
-		const documentUrl = this.#data.task?.url || this.#getWorkflowInfoUrl();
+		const documentUrl = this.#data.task?.url || this.#data.workflowUrl || this.#getWorkflowInfoUrl();
 
 		const description = Type.isString(this.#data?.description) ? this.#data.description : '';
 		const lengthLimit = 80;
 		const collapsedDescription = Dom.create('span', { html: description?.replace(/(<br \/>)+/gm, ' ') }).textContent.replace(/\n+/, ' ').slice(0, lengthLimit);
 		const collapsed = description?.length > lengthLimit;
+
+		const descriptionNode = Tag.render`
+			<span class="bp-user-processes__description">
+				${description}
+			</span>
+		`;
+
+		BX.UI.Hint.init(descriptionNode);
 
 		return Tag.render`
 				<div class="bp-user-processes">
@@ -73,9 +82,7 @@ export class WorkflowRenderer
 							${Text.encode(collapsedDescription)}
 							...<a href="#" onclick="this.closest('div').classList.add('--expanded'); return false;" class="bp-user-processes__description-link">${Loc.getMessage('BIZPROC_USER_PROCESSES_TEMPLATE_DESCRIPTION_MORE')}</a>
 						</span>
-						<span class="bp-user-processes__description">
-							${description}
-						</span>
+						${descriptionNode}
 					</div>
 			</div>
 		`;
@@ -83,13 +90,8 @@ export class WorkflowRenderer
 
 	#getWorkflowInfoUrl(): string
 	{
-		const uri = new Uri('/bitrix/components/bitrix/bizproc.workflow.info/');
-		uri.setQueryParam('workflow', this.#data.workflowId);
-
-		if (!Type.isNil(this.#data.task?.id))
-		{
-			uri.setQueryParam('task', this.#data.task?.id);
-		}
+		const idParam = Type.isNil(this.#data.task?.id) ? this.#data.workflowId : this.#data.task.id;
+		const uri = new Uri(`/company/personal/bizproc/${idParam}/`);
 
 		return uri.toString();
 	}
@@ -104,13 +106,19 @@ export class WorkflowRenderer
 		if (!this.#data.task || this.#data.userId !== this.#currentUserId)
 		{
 			const completedClassName = this.#data.isCompleted ? '--success' : '';
+			let resultNode = '';
+
+			if (this.#data.isCompleted && (this.#data.workflowResult !== null))
+			{
+				resultNode = (new WorkflowResult(this.#data.workflowResult)).render();
+			}
 
 			return Tag.render`
 				<div class="bp-status-panel ${completedClassName}">
-						<div class="bp-status-item">
-							<div class="bp-status-name">${Text.encode(this.#data.statusText.toUpperCase())}</div>
-							${''/* completedClassName ? '' : '<div class="ui-icon-set --help bp-status-icon"></div>' */}
-						</div>
+					<div class="bp-status-item">
+						<div class="bp-status-name">${Text.encode(this.#data.statusText.toUpperCase())}</div>
+						${resultNode}
+					</div>
 				</div>
 			`;
 		}
@@ -140,59 +148,45 @@ export class WorkflowRenderer
 	{
 		const target = Tag.render`<div></div>`;
 
-		this.#faces = (new WorkflowFaces({
-			workflowId: this.#data.workflowId,
-			targetUserId: this.#targetUserId,
-			target,
-			data: {
-				...this.#data.taskProgress,
-				summaryProps: {
-					showContent: false,
-				},
-			},
-		}));
-		this.#faces.render();
+		if (this.#data.workflowId && this.#data.taskProgress)
+		{
+			try
+			{
+				this.#faces = (new WorkflowFaces({
+					workflowId: this.#data.workflowId,
+					targetUserId: this.#targetUserId,
+					target,
+					data: {
+						steps: this.#data.taskProgress.steps,
+						progressBox: this.#data.taskProgress.progressBox,
+					},
+					showArrow: true,
+				}));
+				this.#faces.render();
+			}
+			catch (e)
+			{
+				console.error(e);
+			}
+		}
 
 		return target;
 	}
 
-	renderSummary(): HTMLElement
+	renderSummary(): ?HTMLElement
 	{
+		if (!this.#data.workflowId || !this.#data.taskProgress?.timeStep)
+		{
+			return null;
+		}
+
 		return (
 			(new Summary({
 				workflowId: this.#data.workflowId,
-				time: this.#data.taskProgress.time.total,
-				workflowIsCompleted: this.#data.taskProgress.workflowIsCompleted,
-				showArrow: false,
+				data: this.#data.taskProgress.timeStep,
 			})
 			).render()
 		);
-	}
-
-	renderModified(): HTMLElement
-	{
-		let counter = null;
-		if (this.#data.userId === this.#currentUserId && (this.#data.taskCnt > 0 || this.#data.commentCnt > 0))
-		{
-			const primaryColor = this.#data.taskCnt === 0 && this.#data.commentCnt > 0
-				? CounterColor.SUCCESS
-				: CounterColor.DANGER
-			;
-
-			counter = new Counter({
-				value: this.#data.taskCnt || this.#data.commentCnt,
-				color: primaryColor,
-				secondaryColor: CounterColor.SUCCESS,
-				isDouble: this.#data.taskCnt > 0 && this.#data.commentCnt > 0,
-			});
-		}
-
-		return Tag.render`
-			<div class="bp-modified-cell">
-				<span class="bp-row-counters">${counter?.getContainer()}</span>
-				<span>${Text.encode(this.#data.modified)}</span>
-			</div>
-		`;
 	}
 
 	destroy()

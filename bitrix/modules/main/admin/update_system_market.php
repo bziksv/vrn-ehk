@@ -18,7 +18,7 @@ $sort = "sort";
 $category = "";
 $arResult = array();
 
-if(in_array(LANGUAGE_ID, array("ru", "ua", "bg")))
+if (in_array(LANGUAGE_ID, array("ru", "kz")))
 {
 	$arShow = array("all", "not_free", "free", "action");
 	$arSort = array("sort", "date", "price", "alfa");
@@ -81,7 +81,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/update_client_partner.php");
 
 
-if(!in_array(LANGUAGE_ID, array("ru", "ua", "bg")))
+if (!in_array(LANGUAGE_ID, array("ru", "kz")))
 {
 	if(!$USER->CanDoOperation('install_updates'))
 		$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
@@ -142,7 +142,6 @@ else
 			$arFields["MODULE_SORT"] = "SORT";
 			break;
 	}
-	$ht = new CHTTP();
 
 	if(isset($_REQUEST["PAGEN_1"]) && intval($_REQUEST["PAGEN_1"]) > 0)
 		$arFields["PAGEN_1"] = intval($_REQUEST["PAGEN_1"]);
@@ -169,9 +168,12 @@ else
 		$sectionName = GetMessage("USM_SEARCH");
 
 	$arModules = array();
-	if($res = $ht->Get("https://marketplace.1c-bitrix.ru/".$url."?".$getData))
+
+	$http = new \Bitrix\Main\Web\HttpClient();
+
+	if ($res = $http->get("https://marketplace.1c-bitrix.ru/".$url."?".$getData))
 	{
-		if(in_array($ht->status, array("200")))
+		if ($http->getStatus() == 200)
 		{
 			$res = \Bitrix\Main\Text\Encoding::convertEncoding($res, "windows-1251", SITE_CHARSET);
 

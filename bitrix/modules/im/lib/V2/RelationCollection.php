@@ -3,7 +3,12 @@
 namespace Bitrix\Im\V2;
 
 use Bitrix\Im\Model\RelationTable;
+use Bitrix\Im\V2\Chat\OpenLineLiveChat;
 use Bitrix\Im\V2\Entity\User\UserCollection;
+use Bitrix\Im\V2\Entity\User\UserPopupItem;
+use Bitrix\Im\V2\Rest\PopupData;
+use Bitrix\Im\V2\Rest\PopupDataAggregatable;
+use Bitrix\Im\V2\Rest\RestConvertible;
 use Bitrix\Im\V2\Service\Context;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\UserTable;
@@ -13,13 +18,29 @@ use Bitrix\Main\UserTable;
  * @implements Registry<Relation>
  * @method Relation offsetGet($key)
  */
-class RelationCollection extends Collection
+class RelationCollection extends Collection implements RestConvertible, PopupDataAggregatable
 {
-	public const COMMON_FIELDS = ['ID', 'MESSAGE_TYPE', 'CHAT_ID', 'USER_ID', 'START_ID', 'LAST_FILE_ID', 'LAST_ID', 'UNREAD_ID', 'NOTIFY_BLOCK', 'MANAGER', 'REASON'];
+	public const COMMON_FIELDS = [
+		'ID',
+		'MESSAGE_TYPE',
+		'CHAT_ID',
+		'USER_ID',
+		'START_ID',
+		'LAST_FILE_ID',
+		'LAST_ID',
+		'LAST_SEND_MESSAGE_ID',
+		'UNREAD_ID',
+		'NOTIFY_BLOCK',
+		'MANAGER',
+		'REASON',
+		'IS_HIDDEN',
+	];
 
 	protected static array $startIdStaticCache = [];
 
 	protected array $relationsByUserId = [];
+	protected ?self $activeOnly = null;
+	protected ?self $notifyOnly = null;
 
 	public static function getCollectionElementClass(): string
 	{
@@ -43,7 +64,49 @@ class RelationCollection extends Collection
 
 		static::processFilters($query, $filter, $order);
 
-		return new static($query->fetchCollection());
+		return new static($query->fetchAll());
+	}
+
+	public function toRestFormat(array $option = []): ?array
+	{
+		$rest = [];
+		foreach ($this as $relation)
+		{
+			$rest[] = $relation->toRestFormat($option);
+		}
+
+		return $rest;
+	}
+
+	public static function getRestEntityName(): string
+	{
+		return 'relations';
+	}
+
+	public function getPopupData(array $excludedList = []): PopupData
+	{
+		return new PopupData([new UserPopupItem($this->getUserIds())], $excludedList);
+	}
+
+	public static function createFake(array $userIds, Chat $chat): self
+	{
+		$relations = new static();
+
+		foreach ($userIds as $userId)
+		{
+			$relation = new Relation();
+			$relation
+				->setId(0)
+				->setUserId($userId)
+				->setChatId($chat->getId())
+				->setMessageType($chat->getType())
+				->setNotifyBlock(false)
+				->markAsFake()
+			;
+			$relations->add($relation);
+		}
+
+		return $relations;
 	}
 
 	public static function getStartId(int $userId, int $chatId): int
@@ -66,6 +129,47 @@ class RelationCollection extends Collection
 	public function getByUserId(int $userId, int $chatId): ?Relation
 	{
 		return $this->relationsByUserId[$chatId][$userId] ?? null;
+	}
+
+	public function filterActive(): self
+	{
+		if (isset($this->activeOnly))
+		{
+			return $this->activeOnly;
+		}
+
+		$this->activeOnly = new static();
+
+		foreach ($this as $relation)
+		{
+			$isLiveChat = $relation->getChat() instanceof OpenLineLiveChat;
+			if ($relation->getUser()->isActive() && ($isLiveChat || !$relation->getUser()->isConnector()))
+			{
+				$this->activeOnly->add($relation);
+			}
+		}
+
+		return $this->activeOnly;
+	}
+
+	public function filterNotifySubscribed(): self
+	{
+		if (isset($this->notifyOnly))
+		{
+			return $this->notifyOnly;
+		}
+
+		$this->notifyOnly = new static();
+
+		foreach ($this as $relation)
+		{
+			if (!($relation->getNotifyBlock() ?? false))
+			{
+				$this->notifyOnly->add($relation);
+			}
+		}
+
+		return $this->notifyOnly;
 	}
 
 	public function hasUser(int $userId, int $chatId): bool
@@ -173,6 +277,24 @@ class RelationCollection extends Collection
 					->whereNull('USER.EXTERNAL_AUTH_ID')
 			);
 		}
+
+		if (isset($filter['ONLY_INTRANET']) && $filter['ONLY_INTRANET'])
+		{
+			if (\Bitrix\Main\Loader::includeModule('extranet'))
+			{
+				$query->where('USER.IS_INTRANET_USER', true);
+			}
+		}
+
+		if (isset($filter['REASON']))
+		{
+			$query->where('REASON', (string)$filter['REASON']);
+		}
+
+		if (isset($filter['IS_HIDDEN']))
+		{
+			$query->where('IS_HIDDEN', $filter['IS_HIDDEN']);
+		}
 	}
 
 	public function offsetSet($key, $value): void
@@ -188,5 +310,34 @@ class RelationCollection extends Collection
 				static::$startIdStaticCache[$value->getChatId()][$value->getUserId()] = $value->getStartId();
 			}
 		}
+
+		$this->activeOnly = null;
+		$this->notifyOnly = null;
+	}
+
+	public function offsetUnset(mixed $key)
+	{
+		/** @var Relation|null $value */
+		$value = $this[$key] ?? null;
+		if ($value)
+		{
+			unset($this->relationsByUserId[$value->getChatId()][$value->getUserId()]);
+			unset(static::$startIdStaticCache[$value->getChatId()][$value->getUserId()]);
+		}
+		parent::offsetUnset($key);
+
+		$this->activeOnly = null;
+		$this->notifyOnly = null;
+	}
+
+	public function onAfterRelationDelete(int $chatId, int $userId): void
+	{
+		$relation = $this->getByUserId($userId, $chatId);
+		if ($relation)
+		{
+			unset($this[$relation->getId()]);
+		}
+		unset($this->relationsByUserId[$chatId][$userId]);
+		unset(self::$startIdStaticCache[$chatId][$userId]);
 	}
 }

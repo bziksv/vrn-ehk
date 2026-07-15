@@ -1,0 +1,75 @@
+<?xml version="1.0" ?>
+<Dictionary>
+    <Apparel name="Брюки">
+	    <WomenPantsModel name="Палаццо"/>
+	    <WomenPantsModel name="Легинсы"/>
+	    <WomenPantsModel name="Карго"/>
+	    <WomenPantsModel name="Чиносы"/>
+	    <WomenPantsModel name="Джоггеры"/>
+	    <WomenPantsModel name="Кюлоты"/>
+	    <WomenPantsModel name="Прямые"/>
+	    <WomenPantsModel name="Зауженные"/>
+    </Apparel>
+    <Apparel name="Верхняя одежда">
+        <ApparelType name="Шубы"></ApparelType>
+        <ApparelType name="Пальто"></ApparelType>
+        <ApparelType name="Зимние куртки и пуховики"></ApparelType>
+        <ApparelType name="Демисезонные куртки"></ApparelType>
+        <ApparelType name="Плащи и тренчи"></ApparelType>
+        <ApparelType name="Парки"></ApparelType>
+        <ApparelType name="Жилеты"></ApparelType>
+        <ApparelType name="Джинсовые куртки"></ApparelType>
+        <ApparelType name="Лёгкие куртки и ветровки"></ApparelType>
+        <ApparelType name="Дублёнки"></ApparelType>
+        <ApparelType name="Кожаные куртки"></ApparelType>
+        <ApparelType name="Косухи"></ApparelType>
+        <ApparelType name="Бомберы"></ApparelType>
+        <ApparelType name="Пончо"></ApparelType>
+        <ApparelType name="Анораки"></ApparelType>
+        <ApparelType name="Другое"></ApparelType>
+    </Apparel>
+    <Apparel name="Джинсы"></Apparel>
+    <Apparel name="Купальники"></Apparel>
+    <Apparel name="Нижнее бельё"></Apparel>
+    <Apparel name="Пиджаки и костюмы">
+	    <SuitStyle name="Вечерний"/>
+	    <SuitStyle name="Классический"/>
+	    <SuitStyle name="Повседневный"/>
+    </Apparel>
+    <Apparel name="Платья">
+	    <DressType name="Повседневные"></DressType>
+	    <DressType name="Вечерние"></DressType>
+	    <DressType name="Сарафаны"></DressType>
+    </Apparel>
+    <Apparel name="Рубашки и блузки">
+	    <SleeveType name="Короткий"/>
+	    <SleeveType name="Длинный"/>
+	    <SleeveType name="Без рукавов"/>
+	    <ShirtBlouseModel name="Прямой"/>
+	    <ShirtBlouseModel name="Приталенный"/>
+	    <ShirtBlouseModel name="Оверсайз"/>
+    </Apparel>
+    <Apparel name="Свадебные платья"></Apparel>
+    <Apparel name="Топы и футболки">
+	    <TopType name="Футболка"/>
+	    <TopType name="Майка"/>
+	    <TopType name="Топ"/>
+	    <TopType name="Лонгслив"/>
+	    <TopType name="Поло"/>
+	    <Model variable="text"/>
+    </Apparel>
+	<Apparel name="Джемперы, свитеры, кардиганы">
+		<GoodsSubType name="Джемпер"></GoodsSubType>
+		<GoodsSubType name="Кардиган"></GoodsSubType>
+		<GoodsSubType name="Водолазка"></GoodsSubType>
+		<GoodsSubType name="Свитер"></GoodsSubType>
+		<GoodsSubType name="Кофта"></GoodsSubType>
+	</Apparel>
+	<Apparel name="Толстовки и свитшоты">
+		<GoodsSubType name="Свитшот"></GoodsSubType>
+		<GoodsSubType name="Толстовка"></GoodsSubType>
+		<GoodsSubType name="Кофта"></GoodsSubType>
+	</Apparel>
+    <Apparel name="Юбки"></Apparel>
+    <Apparel name="Другое"></Apparel>
+</Dictionary>

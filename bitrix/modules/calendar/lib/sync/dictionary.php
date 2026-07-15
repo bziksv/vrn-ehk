@@ -6,6 +6,7 @@ namespace Bitrix\Calendar\Sync;
 class Dictionary
 {
 	public const RECURRENCE_SYNC_MODE = [
+		'exceptionNewSeries' => 0b110,
 		'exception' => 0b100,
 		'oldMaster' => 0b011,
 		'newMaster' => 0b010,
@@ -29,11 +30,14 @@ class Dictionary
 		'inactive'  => 'inactive',
 	];
 
+	/**
+	 * @deprecated Use \Bitrix\Calendar\Synchronization\Entity\Push\ProcessingStatus
+	 */
 	public const PUSH_STATUS_PROCESS = [
 		'block'       => 'B',
 		'unprocessed' => 'U',
 		'unblocked' => 'N',
-		'process' => 'Y',
+		'process' => 'Y', // @todo Unused?
 	];
 
 	public const SYNC_SECTION_ACTION = [

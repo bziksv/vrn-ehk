@@ -15,6 +15,9 @@
  * @var CBitrixComponent $this
  */
 
+use Bitrix\Main\Authentication;
+use Bitrix\Main\Authentication\Method;
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 global $USER_FIELD_MANAGER;
@@ -52,14 +55,7 @@ $arParamsToDelete = array(
 	"confirm_user_id",
 );
 
-if(defined("AUTH_404"))
-{
-	$arResult["AUTH_URL"] = POST_FORM_ACTION_URI;
-}
-else
-{
-	$arResult["AUTH_URL"] = $APPLICATION->GetCurPageParam("register=yes", $arParamsToDelete);
-}
+$arResult["AUTH_URL"] = $APPLICATION->GetCurPageParam("register=yes", $arParamsToDelete);
 
 $arResult["AUTH_AUTH_URL"] = $APPLICATION->GetCurPageParam("login=yes", $arParamsToDelete);
 
@@ -169,7 +165,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_REQUEST["code_submit_button
 					$user->Update($userId, ["ACTIVE" => "Y"]);
 				}
 				// authorize user
-				$USER->Authorize($userId);
+				$context = (new Authentication\Context())
+					->setUserId($userId)
+					->setMethod(Method::Registration)
+				;
+				$USER->Authorize($context);
 				LocalRedirect($APPLICATION->GetCurPageParam("", $arParamsToDelete));
 			}
 			else

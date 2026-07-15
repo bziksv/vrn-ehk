@@ -8,9 +8,9 @@ use Bitrix\Main\ORM\Fields\ArrayField;
 use Bitrix\Main\ORM\Fields\BooleanField;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Fields\Field;
-use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Fields\Relations\ManyToMany;
 use Bitrix\Main\ORM\Fields\Relations\OneToMany;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Fields\ScalarField;
 use Bitrix\Main\ORM\Fields\TextField;
 use Bitrix\Main\ORM\Query\Filter\ConditionTree as Filter;
@@ -507,6 +507,11 @@ class Query
 	 */
 	public function addOrder($definition, $order = 'ASC')
 	{
+		if (!is_string($order))
+		{
+			throw new Main\ArgumentException('Order must be a string');
+		}
+
 		$order = strtoupper($order);
 
 		if (!in_array($order, array('ASC', 'DESC'), true))
@@ -590,7 +595,7 @@ class Query
 
 	/**
 	 * Puts additional query to union with current.
-	 * Accepts one ore more Query / SqlExpression.
+	 * Accepts one or more Query / SqlExpression.
 	 *
 	 * @return $this
 	 * @throws Main\ArgumentException
@@ -608,7 +613,7 @@ class Query
 
 	/**
 	 * Puts additional query to union (all) with current.
-	 * Accepts one ore more Query / SqlExpression.
+	 * Accepts one or more Query / SqlExpression.
 	 *
 	 * @return $this
 	 * @throws Main\ArgumentException
@@ -940,7 +945,7 @@ class Query
 		$ttl = 0;
 		$result = null;
 
-		if($this->cacheTtl > 0 && (empty($this->join_map) || $this->cacheJoins == true))
+		if($this->cacheTtl > 0 && (empty($this->join_map) || $this->cacheJoins))
 		{
 			$ttl = $this->entity->getCacheTtl($this->cacheTtl);
 		}
@@ -949,6 +954,17 @@ class Query
 		{
 			$cacheId = md5($query);
 			$result = $this->entity->readFromCache($ttl, $cacheId, $this->countTotal);
+		}
+
+		if (!is_null($this->limit) && empty($this->limit))
+		{
+			// return empty result TODO
+
+			// or warning for now
+			/*trigger_error(sprintf(
+				'Limit must be different from %s',
+				var_export($this->limit, true)
+			), E_USER_WARNING);*/
 		}
 
 		if($result === null)
@@ -1179,7 +1195,7 @@ class Query
 
 						// skip uf utm single
 						if (
-							str_starts_with($field->getName(), 'UF_') && substr($field->getName(), -7) == '_SINGLE'
+							str_starts_with($field->getName(), 'UF_') && str_ends_with($field->getName(), '_SINGLE')
 							&& $localEntity->hasField(substr($field->getName(), 0, -7))
 						)
 						{
@@ -1374,7 +1390,6 @@ class Query
 					// hold entity, but get real closing field
 					$dstBuildFromChains = $dstField->getBuildFromChains();
 
-					/** @var Chain $firstChain */
 					$firstChain = $dstBuildFromChains[0];
 					$dstField = $firstChain->getLastElement()->getValue();
 				}
@@ -1416,7 +1431,7 @@ class Query
 				// continue
 				$registerChain = true;
 
-				// if data doubling disabled and it is back-reference - do not register, it will be overwritten
+				// if data doubling disabled, and it is back-reference - do not register, it will be overwritten
 				if ($chain->forcesDataDoublingOff() || ($this->data_doubling_off && $chain->hasBackReference()))
 				{
 					$registerChain = false;
@@ -1503,7 +1518,6 @@ class Query
 						// hold entity, but get real closing field
 						$dstBuildFromChains = $dstField->getBuildFromChains();
 
-						/** @var Chain $firstChain */
 						$firstChain = $dstBuildFromChains[0];
 						$dstField = $firstChain->getLastElement()->getValue();
 					}
@@ -1544,7 +1558,7 @@ class Query
 					// continue
 					$registerChain = true;
 
-					// if data doubling disabled and it is back-reference - do not register, it will be overwritten
+					// if data doubling disabled, and it is back-reference - do not register, it will be overwritten
 					if ($chain->forcesDataDoublingOff() || ($this->data_doubling_off && $chain->hasBackReference()))
 					{
 						$registerChain = false;
@@ -1606,7 +1620,7 @@ class Query
 
 		if ($logic == 'OR')
 		{
-			// if has aggr then move all to having
+			// if it has aggr then move all to having
 			if ($this->checkFilterAggregation($this->filter))
 			{
 				$this->where = array();
@@ -1672,7 +1686,7 @@ class Query
 
 		if ($logic == 'or')
 		{
-			// if has aggr then move all to having
+			// if it has aggr then move all to having
 			if ($this->checkFilterHandlerAggregation($this->filterHandler))
 			{
 				$this->havingHandler = $this->filterHandler;
@@ -2001,8 +2015,9 @@ class Query
 					$prev_alias = $tmpChain->getLastElement()->getParameter('talias');
 					$element->setParameter('talias', $prev_alias);
 
-					// skip any standard actions, continue with next element
-					continue;
+					// save mapping for next elements and skip later
+					$ref_field = $element->getValue();
+					$dst_entity = $element->getValue()->getRefEntity();
 				}
 				else
 				{
@@ -2029,6 +2044,16 @@ class Query
 				$map_key .= '/' . $ref_field->getName() . '/' . $dst_entity->getName();
 
 				$currentDefinition[] = $element->getDefinitionFragment();
+
+				//  skip any further actions for ManyToMany as long as it has its own buildJoinMap call
+				if ($element->getValue() instanceof ManyToMany)
+				{
+					// also replace definition from mediator.ref to mtm
+					$lastKey = array_key_last($this->join_map);
+					$this->join_map[$lastKey]['definition'] = join('.', $currentDefinition);
+
+					continue;
+				}
 
 				if (isset($this->join_registry[$map_key]))
 				{
@@ -2627,7 +2652,7 @@ class Query
 						$filter_match = $field->normalizeValue($filter_match);
 					}
 				}
-				elseif ($field_type == 'float')
+				elseif ($field_type == 'float' || $field_type == 'decimal')
 				{
 					$field_type = 'double';
 				}
@@ -3286,7 +3311,7 @@ class Query
 				$expression = $field->getFullExpression();
 				$expression = ExpressionField::removeSubqueries($expression);
 
-				preg_match_all('/(?:^|[^a-z0-9_])(DISTINCT)[\s\(]+/i', $expression, $matches);
+				preg_match_all('/(?:^|[^a-z0-9_])(DISTINCT)[\s(]+/i', $expression, $matches);
 
 				if (!empty($matches[1]))
 				{
@@ -3368,7 +3393,6 @@ class Query
 				// replace "build_from" chain end by registered chain end
 				// actually it's better and more correctly to replace the whole chain
 				$bf_chain->removeLastElement();
-				/** @var Chain $reg_chain */
 				$bf_chain->addElement($reg_chain->getLastElement());
 
 				// return buildFrom elements with original start of chain for this query
@@ -3427,7 +3451,7 @@ class Query
 			{
 				// we have a collision
 				// like book.author_id and book.author.id have the same aliases, but different definitions
-				// in most of the cases it's not a problem, there would be the same expected data
+				// in most of the cases it's not a problem, there would be the same expected data,
 				// but we need register this chain separately to be available for internal usage
 				$reg_chain = $chain;
 

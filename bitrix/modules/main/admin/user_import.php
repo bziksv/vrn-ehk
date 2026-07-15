@@ -606,11 +606,11 @@ if(CModule::IncludeModule("iblock")):
 					{
 						if(!fields[field])
 						{
-							res += '<tr><td><input type="checkbox" name="LDAPMAP['+field+']" id="'+field+'" value="'+AllMaps[field]['MAP']+'" onclick="ChCh(this.checked)" checked></td><td><label for="'+field+'">'+AllFields[field]['NAME']+'</label></td></tr>';
+							res += '<tr><td><input type="checkbox" name="LDAPMAP['+field+']" id="'+field+'" value="'+AllMaps[field]['MAP']+'" onclick="ChCh(this.checked)"></td><td><label for="'+field+'">'+AllFields[field]['NAME']+'</label></td></tr>';
 						}
 					}
 					if(res.length>0)
-						definedfields.innerHTML = '<table id="chb"><tr><td><input type="checkbox" id="eall" onclick="Ch(this.checked)" checked></td><td><label for="eall"><?echo GetMessage("USER_IMPORT_ALL")?></label></td></tr>'+res+'</table>';
+						definedfields.innerHTML = '<table id="chb"><tr><td><input type="checkbox" id="eall" onclick="Ch(this.checked)"></td><td><label for="eall"><?echo GetMessage("USER_IMPORT_ALL")?></label></td></tr>'+res+'</table>';
 				}
 				setTimeout('OnLdapSelect(<?=$indSelected?>);', 1);
 			</script>
@@ -749,7 +749,6 @@ $tabControl->Buttons();
 <iframe style="display:none;" id="progress" name="progress" src="javascript:''"></iframe>
 
 <script>
-<!--
 
 function Start(position, cntExecuted)
 {
@@ -916,7 +915,6 @@ function OnLdapServerChange(select)
 		jsUtils.addEvent(window, "load", function() {window.Start(0,0);});
 	<?endif?>
 <?endif;?>
-//-->
 </script>
 
 <?require_once ($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");?>

@@ -4,6 +4,7 @@ IncludeModuleLangFile(__FILE__);
 
 $GLOBALS["SONET_FEATURES_CACHE"] = array();
 
+use Bitrix\Socialnetwork\FeatureTable;
 use Bitrix\Socialnetwork\Integration;
 
 class CAllSocNetFeatures
@@ -99,8 +100,12 @@ class CAllSocNetFeatures
 
 			if (!array_key_exists($arFields["FEATURE"], $arSocNetFeaturesSettings))
 			{
-				$APPLICATION->ThrowException(GetMessage("SONET_GF_ERROR_NO_FEATURE_ID"), "ERROR_NO_FEATURE");
-				return false;
+				$parameters = $arFields['parameters'] ?? [];
+				if (!($parameters['isCollab'] ?? false) && $arFields["FEATURE"] === 'chat')
+				{
+					$APPLICATION->ThrowException(GetMessage("SONET_GF_ERROR_NO_FEATURE_ID"), "ERROR_NO_FEATURE");
+					return false;
+				}
 			}
 		}
 
@@ -161,6 +166,8 @@ class CAllSocNetFeatures
 				$CACHE_MANAGER->ClearByTag('sonet_features');
 				$CACHE_MANAGER->ClearByTag("sonet_feature_".$ID);
 			}
+
+			FeatureTable::cleanCache();
 		}
 		else
 		{
@@ -238,6 +245,8 @@ class CAllSocNetFeatures
 				$CACHE_MANAGER->ClearByTag('sonet_features');
 				$CACHE_MANAGER->ClearByTag("sonet_feature_".$ID);
 			}
+
+			FeatureTable::cleanCache();
 		}
 		else
 		{
@@ -247,7 +256,7 @@ class CAllSocNetFeatures
 		return $ID;
 	}
 
-	public static function SetFeature($type, $id, $feature, $active, $featureName = false)
+	public static function SetFeature($type, $id, $feature, $active, $featureName = false, array $parameters = [])
 	{
 		global $arSocNetAllowedEntityTypes, $APPLICATION, $CACHE_MANAGER;
 
@@ -278,8 +287,11 @@ class CAllSocNetFeatures
 			|| !in_array($type, $arSocNetFeaturesSettings[$feature]["allowed"])
 		)
 		{
-			$APPLICATION->ThrowException(GetMessage("SONET_GF_ERROR_NO_FEATURE_ID"), "ERROR_NO_FEATURE_ID");
-			return false;
+			if (!($parameters['isCollab'] ?? false) && $feature === 'chat')
+			{
+				$APPLICATION->ThrowException(GetMessage("SONET_GF_ERROR_NO_FEATURE_ID"), "ERROR_NO_FEATURE_ID");
+				return false;
+			}
 		}
 
 		$active = ($active ? "Y" : "N");
@@ -320,7 +332,8 @@ class CAllSocNetFeatures
 				"FEATURE_NAME" => $featureName,
 				"ACTIVE" => $active,
 				"=DATE_UPDATE" => CDatabase::CurrentTimeFunction(),
-				"=DATE_CREATE" => CDatabase::CurrentTimeFunction()
+				"=DATE_CREATE" => CDatabase::CurrentTimeFunction(),
+				'parameters' => $parameters,
 			));
 		}
 

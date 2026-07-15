@@ -4,7 +4,7 @@
 	border-radius: 20px;
 	font-weight: 600;
 	font-size: 14px;
-	font-family: var(--ui-font-family-system);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-system));
 	font-style: normal;
 }
 
@@ -25,9 +25,9 @@
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
-	-webkit-box-align: center;
-	    -ms-flex-align: center;
-	        align-items: center;
+	-webkit-box-align: end;
+	    -ms-flex-align: end;
+	        align-items: end;
 	-webkit-box-pack: center;
 	    -ms-flex-pack: center;
 	        justify-content: center;

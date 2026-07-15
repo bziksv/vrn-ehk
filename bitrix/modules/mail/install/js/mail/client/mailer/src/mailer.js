@@ -37,6 +37,7 @@ export class Mailer
 		}
 
 		const mailCounterWrapper = document.querySelector('[data-role="mail-counter-toolbar"]');
+
 		const mailErrorBoxWrapper = document.querySelector('[data-role="mail-error-box-wrapper"]');
 
 		const errorBox = new ErrorBox({

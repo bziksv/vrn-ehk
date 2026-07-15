@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TextileTypeValues>
+	<TextileType>Трикотаж</TextileType>
+	<TextileType>Атлас</TextileType>
+	<TextileType>Бархат</TextileType>
+	<TextileType>Блэкаут</TextileType>
+	<TextileType>Бязь</TextileType>
+	<TextileType>Вельвет</TextileType>
+	<TextileType>Велюр</TextileType>
+	<TextileType>Габардин</TextileType>
+	<TextileType>Гобелен</TextileType>
+	<TextileType>Деним</TextileType>
+	<TextileType>Жаккард</TextileType>
+	<TextileType>Креп</TextileType>
+	<TextileType>Кулирка</TextileType>
+	<TextileType>Лён</TextileType>
+	<TextileType>Махра</TextileType>
+	<TextileType>Микрофибра</TextileType>
+	<TextileType>Муслин</TextileType>
+	<TextileType>Неопрен</TextileType>
+	<TextileType>Оксфорд</TextileType>
+	<TextileType>Перкаль</TextileType>
+	<TextileType>Плащёвка</TextileType>
+	<TextileType>Полисатин</TextileType>
+	<TextileType>Поплин</TextileType>
+	<TextileType>Ранфорс</TextileType>
+	<TextileType>Рогожка</TextileType>
+	<TextileType>Сатин</TextileType>
+	<TextileType>Сатин-жаккард</TextileType>
+	<TextileType>Страйп-сатин</TextileType>
+	<TextileType>Ситец</TextileType>
+	<TextileType>Твил</TextileType>
+	<TextileType>Фланель</TextileType>
+	<TextileType>Флис</TextileType>
+	<TextileType>Штапель</TextileType>
+	<TextileType>Экокожа</TextileType>
+</TextileTypeValues>

@@ -82,10 +82,7 @@ class Application
 
 			if (
 				$appDetailInfo
-				&& (
-					!Access::isAvailable($code)
-					|| !Access::isAvailableCount(Access::ENTITY_TYPE_APP, $code)
-				)
+				&& !Access::canInstallApp($appDetailInfo)
 			)
 			{
 				$result = [
@@ -344,7 +341,7 @@ class Application
 					&& Client::isSubscriptionDemo()
 				)
 				{
-					$result = ['error' => Loc::getMessage('RMP_TRIAL_HOLD_INSTALL')];
+					$result = ['error' => Loc::getMessage('RMP_TRIAL_HOLD_INSTALL_MSGVER_1')];
 				}
 				else
 				{
@@ -374,7 +371,7 @@ class Application
 		{
 			if ($result['error'] === 'SUBSCRIPTION_REQUIRED')
 			{
-				$result['errorDescription'] = Loc::getMessage('RMP_ERROR_SUBSCRIPTION_REQUIRED');
+				$result['errorDescription'] = Loc::getMessage('RMP_ERROR_SUBSCRIPTION_REQUIRED_MSGVER_1');
 			}
 			elseif ($result['error'] === 'verification_needed')
 			{
@@ -428,13 +425,13 @@ class Application
 				}
 				else
 				{
-					$errorMessage = '';
+					$errorMessage = [];
 					foreach ($checkResult as $error)
 					{
-						$errorMessage .= $error->getMessage() . '\n';
+						$errorMessage[] = $error->getMessage();
 					}
 
-					$result = ['error' => $errorMessage];
+					$result = ['error' => implode(PHP_EOL, $errorMessage)];
 					$appType = AppTable::getAppType($appInfo['CODE']);
 					if (
 						$checkResult->isEmpty()

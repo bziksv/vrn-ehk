@@ -1,18 +1,21 @@
 <?php
 
-use Bitrix\Main\Localization\Loc;
-
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
-\Bitrix\Main\UI\Extension::load([
+use Bitrix\Catalog\Store\EnableWizard\Manager;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Extension;
+
+Extension::load([
 	'ui.alerts',
 	'ui.tooltip',
 	'ui.icons',
 	'ui.notification',
 	'ui.tour',
+	'ui.banner-dispatcher',
 	'main.core',
 	'catalog.document-grid',
 	'catalog.store-enable-wizard',
@@ -136,9 +139,9 @@ if ($arResult['OPEN_INVENTORY_MANAGEMENT_SLIDER'])
 
 	function openInventoryMarketplaceSlider()
 	{
-		var url = '/marketplace/?tag[0]=migrator&tag[1]=inventory'
-		var rule = BX.SidePanel.Instance.getUrlRule(url);
-		var options = (rule && BX.type.isPlainObject(rule.options)) ? rule.options : {};
+		const url = '/market/collection/migration_inventory/';
+		const rule = BX.SidePanel.Instance.getUrlRule(url);
+		const options = (rule && BX.type.isPlainObject(rule.options)) ? rule.options : {};
 		options["cacheable"] = false;
 		options["allowChangeHistory"] = false;
 		options["requestMethod"] = "post";
@@ -168,40 +171,9 @@ if ($arResult['OPEN_INVENTORY_MANAGEMENT_SLIDER'])
 				],
 				onEvents: true,
 			});
-			guide.showNextStep();
-		});
-	}
-
-	function showProfitReportTour()
-	{
-		let target = document.getElementById('store_documents_analytics');
-		if (BX.Main.interfaceButtonsManager.data.store_documents?.getHiddenItems().find((el) => el === target))
-		{
-			target = document.getElementById('store_documents_more_button');
-		}
-
-		BX.Runtime.loadExtension('ui.tour').then((exports) => {
-			const { Guide } = exports;
-			const guide = new Guide({
-				steps: [
-					{
-						target,
-						title: <?= CUtil::PhpToJSObject(Loc::getMessage('PROFIT_TOUR_TITLE')) ?>,
-						text: <?= CUtil::PhpToJSObject(Loc::getMessage('PROFIT_TOUR_TEXT')) ?>,
-						events: {
-							onClose: () => {
-								BX.userOptions.save('catalog', 'document-list', 'was_profit_report_tour_shown', 'Y');
-							},
-						}
-					},
-				],
-				onEvents: true,
+			BX.UI.BannerDispatcher.high.toQueue(() => {
+				guide.showNextStep();
 			});
-			guide.showNextStep();
-		});
-
-		BX.addCustomEvent('Step:onShow', (event) => {
-			event.data.guide.popup.contentContainer.parentElement.style.zIndex = 100;
 		});
 	}
 
@@ -278,12 +250,6 @@ if ($arResult['OPEN_INVENTORY_MANAGEMENT_SLIDER'])
 			showAddDocumentGuide();
 		}
 
-		const isShowProfitReportTour = <?= CUtil::PhpToJSObject($arResult['IS_SHOW_PROFIT_REPORT_TOUR']) ?>;
-		if (isShowProfitReportTour)
-		{
-			showProfitReportTour();
-		}
-
 		const isShowProductBatchMethodPopup = <?= CUtil::PhpToJSObject($arResult['IS_SHOW_PRODUCT_BATCH_METHOD_POPUP']) ?>;
 		if (isShowProductBatchMethodPopup)
 		{
@@ -355,6 +321,4 @@ if ($arResult['OPEN_INVENTORY_MANAGEMENT_SLIDER'])
 </script>
 
 <?php
-\Bitrix\Catalog\Store\EnableWizard\Manager::showEnabledJsNotificationIfNeeded();
-?>
-
+Manager::showEnabledJsNotificationIfNeeded();

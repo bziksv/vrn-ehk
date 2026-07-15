@@ -109,10 +109,16 @@ export class FileUnsorted
 
 	updateModels(resultData): Promise
 	{
-		const { users, files } = resultData;
+		const { users, files, tariffRestrictions = {} } = resultData;
+
+		const isHistoryLimitExceeded = Boolean(tariffRestrictions.isHistoryLimitExceeded);
+		const historyLimitPromise = this.store.dispatch('sidebar/files/setHistoryLimitExceeded', {
+			chatId: this.chatId,
+			isHistoryLimitExceeded,
+		});
 
 		const preparedFiles = files.map((file) => {
-			return { ...file, subType: SidebarDetailBlock.fileUnsorted };
+			return { ...file, group: SidebarDetailBlock.fileUnsorted };
 		});
 
 		const addUsersPromise = this.userManager.setUsersToModel(users);
@@ -120,29 +126,34 @@ export class FileUnsorted
 		const setSidebarFilesPromise = this.store.dispatch('sidebar/files/set', {
 			chatId: this.chatId,
 			files: preparedFiles,
-			subType: SidebarDetailBlock.fileUnsorted,
+			group: SidebarDetailBlock.fileUnsorted,
 		});
 
 		const hasNextPagePromise = this.store.dispatch('sidebar/files/setHasNextPage', {
 			chatId: this.chatId,
-			subType: SidebarDetailBlock.fileUnsorted,
+			group: SidebarDetailBlock.fileUnsorted,
 			hasNextPage: preparedFiles.length === REQUEST_ITEMS_LIMIT,
 		});
 
 		const setLastIdPromise = this.store.dispatch('sidebar/files/setLastId', {
 			chatId: this.chatId,
-			subType: SidebarDetailBlock.fileUnsorted,
+			group: SidebarDetailBlock.fileUnsorted,
 			lastId: getLastElementId(preparedFiles),
 		});
 
 		return Promise.all([
-			setFilesPromise, setSidebarFilesPromise, addUsersPromise, hasNextPagePromise, setLastIdPromise,
+			setFilesPromise,
+			setSidebarFilesPromise,
+			addUsersPromise,
+			hasNextPagePromise,
+			setLastIdPromise,
+			historyLimitPromise,
 		]);
 	}
 
-	getFilesCountFromModel(subType): number
+	getFilesCountFromModel(group): number
 	{
-		return this.store.getters['sidebar/files/getSize'](this.chatId, subType);
+		return this.store.getters['sidebar/files/getSize'](this.chatId, group);
 	}
 
 	getChatId(): number

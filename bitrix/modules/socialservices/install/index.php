@@ -1,4 +1,5 @@
-<?
+<?php
+
 IncludeModuleLangFile(__FILE__);
 
 class socialservices extends CModule
@@ -25,6 +26,7 @@ class socialservices extends CModule
 	function InstallDB($arParams = array())
 	{
 		global $DB, $APPLICATION;
+
 		$connection = \Bitrix\Main\Application::getConnection();
 		$errors = false;
 
@@ -56,16 +58,17 @@ class socialservices extends CModule
 		RegisterModuleDependences('perfmon', 'OnGetTableSchema', 'socialservices', 'socialservices', 'OnGetTableSchema');
 		RegisterModuleDependences('socialservices', 'OnFindSocialservicesUser', 'socialservices', "CSocServAuthManager", "checkOldUser");
 		RegisterModuleDependences('socialservices', 'OnFindSocialservicesUser', 'socialservices', "CSocServAuthManager", "checkAbandonedUser");
+		RegisterModuleDependences('socialservices', 'OnUserInitialize', 'intranet', "CIntranetEventHandlers", "OnAfterUserInitialize");
 
 		if(
 			\Bitrix\Main\Loader::includeModule('socialservices')
-			&& \Bitrix\Main\Config\Option::get('socialservices', 'bitrix24net_id', '') === ''
+			&& \Bitrix\Main\Config\Option::get('socialservices', 'bitrix24net_id') === ''
 		)
 		{
 			$request = \Bitrix\Main\Context::getCurrent()->getRequest();
 			$host = ($request->isHttps() ? 'https://' : 'http://').$request->getHttpHost();
 
-			$registerResult = \CSocServBitrix24Net::registerSite($host);
+			$registerResult = CSocServBitrix24Net::registerSite($host);
 
 			if(is_array($registerResult) && isset($registerResult["client_id"]) && isset($registerResult["client_secret"]))
 			{
@@ -83,6 +86,7 @@ class socialservices extends CModule
 	function UnInstallDB($arParams = array())
 	{
 		global $APPLICATION, $DB;
+
 		$connection = \Bitrix\Main\Application::getConnection();
 
 		if(!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y")
@@ -104,6 +108,7 @@ class socialservices extends CModule
 		UnRegisterModuleDependences('perfmon', 'OnGetTableSchema', 'socialservices', 'socialservices', 'OnGetTableSchema');
 		UnRegisterModuleDependences('socialservices', 'OnFindSocialservicesUser', 'socialservices', "CSocServAuthManager", "checkOldUser");
 		UnRegisterModuleDependences('socialservices', 'OnFindSocialservicesUser', 'socialservices', "CSocServAuthManager", "checkAbandonedUser");
+		UnRegisterModuleDependences('socialservices', 'OnUserInitialize', 'intranet', "CIntranetEventHandlers", "OnAfterUserInitialize");
 
 		$dbSites = CSite::GetList("sort", "asc", array("ACTIVE" => "Y"));
 		while ($arSite = $dbSites->Fetch())
@@ -118,63 +123,51 @@ class socialservices extends CModule
 		return true;
 	}
 
-	function InstallEvents()
-	{
-		return true;
-	}
-
-	function UnInstallEvents()
-	{
-		return true;
-	}
-
 	function InstallFiles($arParams = array())
 	{
-		if($_ENV["COMPUTERNAME"]!='BX')
-		{
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialservices/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialservices/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialservices/install/images", $_SERVER["DOCUMENT_ROOT"]."/bitrix/images", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialservices/install/tools", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialservices/install/gadgets", $_SERVER["DOCUMENT_ROOT"]."/bitrix/gadgets", true, true);
-		}
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialservices/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialservices/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialservices/install/images", $_SERVER["DOCUMENT_ROOT"]."/bitrix/images", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialservices/install/tools", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialservices/install/gadgets", $_SERVER["DOCUMENT_ROOT"]."/bitrix/gadgets", true, true);
+
 		return true;
 	}
 
 	function UnInstallFiles()
 	{
-		if($_ENV["COMPUTERNAME"]!='BX')
-		{
-			DeleteDirFilesEx("/bitrix/js/socialservices/");
-			DeleteDirFilesEx("/bitrix/images/socialservices/");
-			DeleteDirFilesEx("/bitrix/tools/oauth/");
-		}
+		DeleteDirFilesEx("/bitrix/js/socialservices/");
+		DeleteDirFilesEx("/bitrix/images/socialservices/");
+		DeleteDirFilesEx("/bitrix/tools/oauth/");
+
 		return true;
 	}
 
 	function DoInstall()
 	{
-		global $DOCUMENT_ROOT, $APPLICATION, $step;
+		global $APPLICATION, $step;
+
 		$step = intval($step);
 		if($step<2)
 		{
-			$APPLICATION->IncludeAdminFile(GetMessage("socialservices_install_title_inst"), $DOCUMENT_ROOT."/bitrix/modules/socialservices/install/step1.php");
+			$APPLICATION->IncludeAdminFile(GetMessage("socialservices_install_title_inst"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialservices/install/step1.php");
 		}
 		else
 		{
 			$this->InstallFiles();
 			$this->InstallDB();
-			$APPLICATION->IncludeAdminFile(GetMessage("socialservices_install_title_inst"), $DOCUMENT_ROOT."/bitrix/modules/socialservices/install/step2.php");
+			$APPLICATION->IncludeAdminFile(GetMessage("socialservices_install_title_inst"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialservices/install/step2.php");
 		}
 	}
 
 	function DoUninstall()
 	{
-		global $DOCUMENT_ROOT, $APPLICATION, $step, $errors;
+		global $APPLICATION, $step, $errors;
+
 		$step = intval($step);
 		if($step<2)
 		{
-			$APPLICATION->IncludeAdminFile(GetMessage("socialservices_install_title_inst"), $DOCUMENT_ROOT."/bitrix/modules/socialservices/install/unstep1.php");
+			$APPLICATION->IncludeAdminFile(GetMessage("socialservices_install_title_inst"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialservices/install/unstep1.php");
 		}
 		elseif($step==2)
 		{
@@ -186,13 +179,8 @@ class socialservices extends CModule
 
 			$this->UnInstallFiles();
 
-			$APPLICATION->IncludeAdminFile(GetMessage("socialservices_install_title_inst"), $DOCUMENT_ROOT."/bitrix/modules/socialservices/install/unstep2.php");
+			$APPLICATION->IncludeAdminFile(GetMessage("socialservices_install_title_inst"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialservices/install/unstep2.php");
 		}
-	}
-
-	public function migrateToBox()
-	{
-		COption::RemoveOption($this->MODULE_ID);
 	}
 
 	public static function OnGetTableSchema()

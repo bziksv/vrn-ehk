@@ -1,17 +1,16 @@
 import { Messenger } from 'im.public';
-import { ChatActionType } from 'im.v2.const';
+import { ActionByRole } from 'im.v2.const';
 import { CallManager } from 'im.v2.lib.call';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { Type } from 'main.core';
 
-import { Button as ButtonComponent, ButtonSize, ButtonIcon } from 'im.v2.component.elements';
+import { ChatButton, ButtonSize, ButtonIcon, type CustomColorScheme } from 'im.v2.component.elements.button';
 import { BaseMessage } from 'im.v2.component.message.base';
 import { MessageHeader, DefaultMessageContent } from 'im.v2.component.message.elements';
 import { Utils } from 'im.v2.lib.utils';
 
 import './css/call-invite.css';
 
-import type { CustomColorScheme } from 'im.v2.component.elements';
 import type { ImModelMessage } from 'im.v2.model';
 
 type ComponentParams = {
@@ -24,7 +23,7 @@ const BUTTON_COLOR = '#00ace3';
 export const CallInviteMessage = {
 	name: 'CallInviteMessage',
 	components: {
-		ButtonComponent,
+		ChatButton,
 		BaseMessage,
 		DefaultMessageContent,
 		MessageHeader,
@@ -86,7 +85,7 @@ export const CallInviteMessage = {
 			}
 
 			const chatCanBeCalled = CallManager.getInstance().chatCanBeCalled(this.dialogId);
-			const chatIsAllowedToCall = PermissionManager.getInstance().canPerformAction(ChatActionType.call, this.dialogId);
+			const chatIsAllowedToCall = PermissionManager.getInstance().canPerformActionByRole(ActionByRole.call, this.dialogId);
 
 			return chatCanBeCalled && chatIsAllowedToCall;
 		},
@@ -132,7 +131,7 @@ export const CallInviteMessage = {
 						</div>
 						<div v-if="isAvailable" class="bx-im-message-call-invite__buttons_container">
 							<div class="bx-im-message-call-invite__buttons_item">
-								<ButtonComponent
+								<ChatButton
 									:size="ButtonSize.L"
 									:icon="ButtonIcon.Call"
 									:customColorScheme="buttonColorScheme"

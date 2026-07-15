@@ -1,8 +1,13 @@
 <?php
 
+use Bitrix\HumanResources\Compatibility\Utils\DepartmentBackwardAccessCode;
+use Bitrix\HumanResources\Service\Container;
+use Bitrix\HumanResources\Type\MemberEntityType;
+use Bitrix\HumanResources\Type\MemberSubordinateRelationType;
 use Bitrix\Main;
 use Bitrix\Bitrix24;
 use Bitrix\Bizproc;
+use Bitrix\Main\Loader;
 
 class CBPHelper
 {
@@ -44,7 +49,7 @@ class CBPHelper
 						|| is_array($arWorkflowTemplate) && CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $r[0]) != null
 						)
 					{
-						return "{=".$r[0].":".$r[1]."}";
+						return '{=' . $r[0] . ':' . $r[1] . '}';
 					}
 				}
 			}
@@ -83,7 +88,7 @@ class CBPHelper
 							'EMAIL',
 							'NAME',
 							'LAST_NAME',
-							'SECOND_NAME'
+							'SECOND_NAME',
 						],
 					]
 				);
@@ -98,10 +103,11 @@ class CBPHelper
 					return str_replace(",", " ", $str);
 				}
 			}
-			else if (mb_strpos($arUsers, 'group_') === 0)
+			else if (str_starts_with($arUsers, 'group_'))
 			{
 				$str = self::getExtendedGroupName($arUsers, $appendId);
-				return str_replace(array(',', ';'), array(' ', ' '), $str);
+
+				return str_replace([',', ';'], [' ', ' '], $str);
 			}
 
 			return str_replace(",", " ", $arUsers);
@@ -112,7 +118,7 @@ class CBPHelper
 	{
 		if (static::isEmptyValue($users))
 		{
-			return "";
+			return '';
 		}
 
 		$uniqueUsers = is_array($users) ? [] : $users;
@@ -172,7 +178,8 @@ class CBPHelper
 
 		$arAllowableUserGroups = null;
 
-		$arResult = $arResultAlt = [];
+		$result = [];
+		$resultAlt = [];
 		foreach ($arUsers as $user)
 		{
 			$bCorrectUser = false;
@@ -180,7 +187,7 @@ class CBPHelper
 			if (CBPActivity::isExpression($user))
 			{
 				$bCorrectUser = true;
-				$arResult[] = $user;
+				$result[] = $user;
 			}
 			else
 			{
@@ -197,17 +204,37 @@ class CBPHelper
 				if (array_key_exists(mb_strtolower($user), $arAllowableUserGroups))
 				{
 					$bCorrectUser = true;
-					$arResult[] = $user;
+					$result[] = $user;
 				}
 				elseif (($k1 = array_search(mb_strtolower($user), $arAllowableUserGroups)) !== false)
 				{
 					$bCorrectUser = true;
-					$arResult[] = $k1;
+					$result[] = $k1;
 				}
-				elseif (preg_match('#\[([A-Z]{1,}[0-9A-Z_]+)\]$#i', $user, $arMatches))
+				elseif (preg_match('#\[([A-Z]{1,}[0-9A-Z_]+)\]$#i', $user, $matches))
 				{
 					$bCorrectUser = true;
-					$arResult[] = 'group_' . mb_strtolower($arMatches[1]);
+					$code = $matches[1];
+
+					if (
+						preg_match('/^(D|DR)(\d+)$/', $code, $match)
+						&& Loader::includeModule('humanresources')
+					)
+					{
+						$departmentId = $match[2];
+						$node =
+							Container::getNodeRepository()
+								->getByAccessCode(
+									DepartmentBackwardAccessCode::makeById((int)$departmentId)
+								)
+						;
+						if ($node)
+						{
+							$code = 'hr' . ($match[1] === 'DR' ? 'r' : '') . $node->id;
+						}
+					}
+
+					$result[] = 'group_' . mb_strtolower($code);
 				}
 				else
 				{
@@ -216,7 +243,7 @@ class CBPHelper
 					if ($cnt == 1)
 					{
 						$bCorrectUser = true;
-						$arResult[] = 'user_' . $ar[0];
+						$result[] = 'user_' . $ar[0];
 					}
 					elseif ($cnt > 1)
 					{
@@ -235,7 +262,7 @@ class CBPHelper
 						$s = call_user_func_array($callbackFunction, [$user]);
 						if ($s != null)
 						{
-							$arResultAlt[] = $s;
+							$resultAlt[] = $s;
 							$bCorrectUser = true;
 						}
 					}
@@ -258,7 +285,7 @@ class CBPHelper
 			}
 		}
 
-		return ($callbackFunction != null) ? [$arResult, $arResultAlt] : $arResult;
+		return ($callbackFunction != null) ? [$result, $resultAlt] : $result;
 	}
 
 	private static function searchUserByName($user)
@@ -297,7 +324,7 @@ class CBPHelper
 				$arFilter,
 				[
 					'FIELDS' => ['ID'],
-					'NAV_PARAMS' => false
+					'NAV_PARAMS' => false,
 				]
 			);
 		}
@@ -853,7 +880,7 @@ class CBPHelper
 			"FROM" => $strSqlFrom,
 			"WHERE" => $strSqlWhere,
 			"GROUPBY" => $strSqlGroupBy,
-			"ORDERBY" => $strSqlOrderBy
+			"ORDERBY" => $strSqlOrderBy,
 		);
 	}
 
@@ -895,6 +922,11 @@ class CBPHelper
 			throw new CBPArgumentNullException("entity");
 		}
 
+		if ($moduleId && !Main\ModuleManager::isValidModule($moduleId))
+		{
+			throw new CBPArgumentNullException("moduleId");
+		}
+
 		return [$moduleId, $entity, $documentId];
 	}
 
@@ -927,7 +959,7 @@ class CBPHelper
 		$entity = trim($entity);
 		if ($entity == '')
 		{
-			throw new Exception("entity");
+			throw new CBPArgumentNullException("entity");
 		}
 
 		if (is_array($documentId))
@@ -1039,8 +1071,8 @@ class CBPHelper
 					'EMAIL',
 					'NAME',
 					'LAST_NAME',
-					'SECOND_NAME'
-				]
+					'SECOND_NAME',
+				],
 			]
 		);
 
@@ -1055,168 +1087,19 @@ class CBPHelper
 		return $str;
 	}
 
+	/**
+	 * @deprecated
+	 * @param $objectName
+	 * @param $arDocumentFields
+	 * @param $arDocumentFieldTypes
+	 * @return false|string
+	 */
 	public static function getJSFunctionsForFields($objectName, $arDocumentFields, $arDocumentFieldTypes)
 	{
 		ob_start();
-
 		CAdminCalendar::ShowScript();
-		?>
-		<script>
-		<?= $objectName ?>.GetGUIFieldEdit = function(field, value, showAddButton, inputName)
-		{
-			alert("Deprecated method GetGUIFieldEdit used");
 
-			if (!this.arDocumentFields[field])
-				return "";
-
-			if (typeof showAddButton == "undefined")
-				showAddButton = false;
-
-			if (typeof inputName == "undefined")
-				inputName = field;
-
-			var type = this.arDocumentFields[field]["Type"];
-
-			var bAddSelection = false;
-			var bAddButton = true;
-
-			s = "";
-			if (type == "int" || type == "double")
-			{
-				s += '<input type="text" size="10" id="id_' + field + '" name="' + inputName + '" value="' + this.HtmlSpecialChars(value) + '">';
-			}
-			else if (type == "select")
-			{
-				s += '<select name="' + inputName + '_1">';
-				s += '<option value=""></option>';
-				for (k in this.arDocumentFields[field]["Options"])
-				{
-					s += '<option value="' + k + '"' + (value == this.arDocumentFields[field]["Options"][k] ? " selected" : "") + '>' + this.arDocumentFields[field]["Options"][k] + '</option>';
-					if (value == this.arDocumentFields[field]["Options"][k])
-						value = "";
-				}
-				s += '</select>';
-				bAddSelection = true;
-			}
-			else if (type == "file")
-			{
-				s += '<input type="file" id="id_' + field + '_1" name="' + inputName + '">';
-				bAddSelection = true;
-				bAddButton = true;
-			}
-			else if (type == "bool")
-			{
-				s += '<select name="' + inputName + '_1">';
-				s += '<option value=""></option>';
-				s += '<option value="Y"' + (value == "Y" ? " selected" : "") + '><?= GetMessage("BPCGHLP_YES") ?></option>';
-				s += '<option value="N"' + (value == "N" ? " selected" : "") + '><?= GetMessage("BPCGHLP_NO") ?></option>';
-				s += '</select>';
-				bAddSelection = true;
-				if (value == "Y" || value == "N")
-					value = "";
-			}
-			else if (type == "datetime" || type == "date")
-			{
-				s += '<span style="white-space:nowrap;">';
-				s += '<input type="text" name="' + inputName + '" id="id_' + field + '" size="10" value="' + this.HtmlSpecialChars(value) + '">';
-				s += '<a href="javascript:void(0);" title="<?= GetMessage("BPCGHLP_CALENDAR") ?>">';
-				s += '<img src="<?= ADMIN_THEMES_PATH ?>/<?= ADMIN_THEME_ID ?>/images/calendar/icon.gif" alt="<?= GetMessage("BPCGHLP_CALENDAR") ?>" class="calendar-icon" onclick="jsAdminCalendar.Show(this, \'' + inputName + '\', \'\', \'\', ' + ((type == "datetime") ? 'true' : 'false') + ', <?= time() + date("Z") + CTimeZone::GetOffset() ?>);" onmouseover="this.className+=\' calendar-icon-hover\';" onmouseout="this.className = this.className.replace(/\s*calendar-icon-hover/ig, \'\');">';
-				s += '</a></span>';
-			}
-			else // type == "S"
-			{
-				s += '<input type="text" size="40" id="id_' + field + '" name="' + inputName + '" value="' + this.HtmlSpecialChars(value) + '">';
-			}
-
-			if (bAddSelection)
-				s += '<br /><input type="text" id="id_' + field + '" name="' + inputName + '" value="' + this.HtmlSpecialChars(value) + '">';
-
-			if (bAddButton && showAddButton)
-				s += '<input type="button" value="..." onclick="BPAShowSelector(\'id_' + field + '\', \'' + type + '\');">';
-
-			return s;
-		}
-
-		<?= $objectName ?>.SetGUIFieldEdit = function(field)
-		{
-			alert("Deprecated method SetGUIFieldEdit used");
-		}
-
-		<?= $objectName ?>.GetGUIFieldEditSimple = function(type, value, name)
-		{
-			alert("Deprecated method GetGUIFieldEditSimple used");
-
-			if (typeof name == "undefined" || name.length <= 0)
-				name = "BPVDDefaultValue";
-
-			if (typeof value == "undefined")
-			{
-				value = "";
-
-				var obj = document.getElementById('id_' + name);
-				if (obj)
-				{
-					if (obj.type.substr(0, "select".length) == "select")
-						value = obj.options[obj.selectedIndex].value;
-					else
-						value = obj.value;
-				}
-			}
-
-			s = "";
-			if (type == "file")
-			{
-				s += '';
-			}
-			else if (type == "bool")
-			{
-				s += '<select name="' + name + '" id="id_' + name + '">';
-				s += '<option value=""></option>';
-				s += '<option value="Y"' + (value == "Y" ? " selected" : "") + '><?= GetMessage("BPCGHLP_YES") ?></option>';
-				s += '<option value="N"' + (value == "N" ? " selected" : "") + '><?= GetMessage("BPCGHLP_NO") ?></option>';
-				s += '</select>';
-			}
-			else if (type == "user")
-			{
-				s += '<input type="text" size="10" id="id_' + name + '" name="' + name + '" value="' + this.HtmlSpecialChars(value) + '">';
-				s += '<input type="button" value="..." onclick="BPAShowSelector(\'id_' + name + '\', \'user\')">';
-			}
-			else
-			{
-				s += '<input type="text" size="10" id="id_' + name + '" name="' + name + '" value="' + this.HtmlSpecialChars(value) + '">';
-			}
-
-			return s;
-		}
-
-		<?= $objectName ?>.SetGUIFieldEditSimple = function(type, name)
-		{
-			alert("Deprecated method SetGUIFieldEditSimple used");
-
-			if (typeof name == "undefined" || name.length <= 0)
-				name = "BPVDDefaultValue";
-
-			s = "";
-			if (type != "file")
-			{
-				var obj = document.getElementById('id_' + name);
-				if (obj)
-				{
-					if (obj.type.substr(0, "select".length) == "select")
-						s = obj.options[obj.selectedIndex].value;
-					else
-						s = obj.value;
-				}
-			}
-
-			return s;
-		}
-		</script>
-		<?
-		$str = ob_get_contents();
-		ob_end_clean();
-
-		return $str;
+		return ob_get_clean();
 	}
 
 	public static function getDocumentFieldTypes()
@@ -1835,7 +1718,7 @@ class CBPHelper
 			'VIDEO' => 'N',
 			'TABLE' => 'N',
 			'CUT_ANCHOR' => 'N',
-			'ALIGN' => 'N'
+			'ALIGN' => 'N',
 		];
 
 		return $textParser->convertText($text);
@@ -1947,7 +1830,7 @@ class CBPHelper
 
 	/**
 	 * Method return array of user ids, extracting from special codes. Supported: user (U), group (G),
-	 * intranet (IU, D, DR, Dextranet, UA), socnet (SU, SG1_A, SG1_E, SG1_K)
+	 * intranet (IU, D, DR, UA), socnet (SU, SG1_A, SG1_E, SG1_K), humanresources(HR, HRR)
 	 *
 	 * @param string $code - group code, ex. group_D1
 	 * @return bool|array
@@ -1961,145 +1844,56 @@ class CBPHelper
 			return $cache[$code];
 		}
 
-		if (mb_strpos($code, 'group_') !== 0)
+		if (!str_starts_with($code, 'group_'))
 		{
 			return false;
 		}
+
 		$code = mb_strtoupper(mb_substr($code, mb_strlen('group_')));
+		$userService = CBPRuntime::getRuntime()->getUserService();
 
-		if (mb_strpos($code, 'G') === 0)
+		if (str_starts_with($code, 'G'))
 		{
-			$group = (int)mb_substr($code, 1);
-			if ($group <= 0)
-			{
-				return [];
-			}
-			$result = [];
+			$groupId = (int)mb_substr($code, 1);
+			$cache[$code] = $userService->extractUsersFromGroup($groupId);
 
-			$iterator = CUser::GetList(
-				"ID",
-				"ASC",
-				[
-					"GROUPS_ID" => $group,
-					"ACTIVE" => "Y",
-				],
-				['FIELDS' => ['ID']]
-			);
-			while ($user = $iterator->fetch())
-			{
-				$result[] = $user['ID'];
-			}
-			$cache[$code] = $result;
-
-			return $result;
+			return $cache[$code];
 		}
 
 		if (preg_match('/^(U|IU|SU)([0-9]+)$/i', $code, $match))
 		{
-			return array($match[2]);
+			return [(int)$match[2]];
 		}
 
-		if ($code == 'UA' && CModule::IncludeModule('intranet'))
+		if ($code === 'UA')
 		{
-			$result = [];
-			$iterator = CUser::GetList("id", "asc",
-				array('ACTIVE' => 'Y', '>UF_DEPARTMENT' => 0),
-				array('FIELDS' => array('ID'))
-			);
-			while($user = $iterator->fetch())
-			{
-				$result[] = $user['ID'];
-			}
-			$cache[$code] = $result;
+			$cache[$code] = $userService->extractUsersFromAllDepartments();
 
-			return $result;
+			return $cache[$code];
 		}
 
-		if (preg_match('/^(D|DR)([0-9]+)$/', $code, $match) && CModule::IncludeModule('intranet'))
+		if (preg_match('/^(D|DR)(\d+)$/', $code, $match))
 		{
-			$recursive = $match[1] == 'DR';
-			$id = $match[2];
-			$iblockId = COption::GetOptionInt('intranet', 'iblock_structure');
-			$departmentIds = array($id);
+			$cache[$code] = $userService->extractUsersFromDepartment($match[2], $match[1] === 'DR');
 
-			if ($recursive)
-			{
-				//TODO: replace with \Bitrix\HumanResources\Contract\Repository\NodeRepository::getChildOf when humanresources will be done
-				$iterator = CIBlockSection::GetList(
-					array('ID' => 'ASC'),
-					array('=IBLOCK_ID' => $iblockId, 'ID'=> $id),
-					false,
-					array('ID', 'LEFT_MARGIN', 'RIGHT_MARGIN', 'DEPTH_LEVEL')
-				);
-				$section = $iterator->fetch();
-				$filter = array (
-					'=IBLOCK_ID' => $iblockId,
-					">LEFT_MARGIN" => $section["LEFT_MARGIN"],
-					"<RIGHT_MARGIN" => $section["RIGHT_MARGIN"],
-					">DEPTH_LEVEL" => $section['DEPTH_LEVEL'],
-				);
-				$iterator = CIBlockSection::GetList(array("left_margin"=>"asc"), $filter, false, array('ID'));
-				while($section = $iterator->fetch())
-				{
-					$departmentIds[] =  $section['ID'];
-				}
-				unset($iterator, $section, $filter);
-			}
-			$result = array();
-			$iterator = CUser::GetList("id", "asc",
-				array('ACTIVE' => 'Y', 'UF_DEPARTMENT' => $departmentIds),
-				array('FIELDS' => array('ID'))
-			);
-			while($user = $iterator->fetch())
-			{
-				$result[] = $user['ID'];
-			}
-			$cache[$code] = $result;
-
-			return $result;
+			return $cache[$code];
 		}
-		if ($code == 'Dextranet' && CModule::IncludeModule('extranet'))
-		{
-			$result = array();
-			$iterator = CUser::GetList("id", "asc",
-				array(COption::GetOptionString("extranet", "extranet_public_uf_code", "UF_PUBLIC") => "1",
-					"!UF_DEPARTMENT" => false,
-					"GROUPS_ID" => array(CExtranet::GetExtranetUserGroupID())
-				),
-				array('FIELDS' => array('ID'))
-			);
-			while($user = $iterator->fetch())
-			{
-				$result[] = $user['ID'];
-			}
-			$cache[$code] = $result;
 
-			return $result;
-		}
-		if (preg_match('/^SG([0-9]+)_?([AEK])?$/', $code, $match) && CModule::IncludeModule('socialnetwork'))
+		if (preg_match('/^SG([0-9]+)_?([AEK])?$/', $code, $match))
 		{
 			$groupId = (int)$match[1];
-			$role = isset($match[2])? $match[2] : 'K';
+			$role = $match[2] ?? 'K';
+			$cache[$code] = $userService->extractUsersFromSocNetGroup($groupId, $role);
 
-			$iterator = CSocNetUserToGroup::GetList(
-				array("USER_ID" => "ASC"),
-				array(
-					"=GROUP_ID" => $groupId,
-					"<=ROLE" => $role,
-					"USER_ACTIVE" => "Y"
-				),
-				false,
-				false,
-				array("USER_ID")
-			);
-			$result = array();
-			while($user = $iterator->fetch())
-			{
-				$result[] = $user['USER_ID'];
-			}
-			$cache[$code] = $result;
+			return $cache[$code];
+		}
 
-			return $result;
+		if (preg_match('/^(HR|HRR)(\d+)$/', $code, $match))
+		{
+			$nodeId = (int)$match[2];
+			$cache[$code] = $userService->extractUsersFromHrNode($nodeId, $match[1] === 'HRR');
+
+			return $cache[$code];
 		}
 
 		return false;
@@ -2141,7 +1935,7 @@ class CBPHelper
 				$parsed = \CBPActivity::parseExpression($user);
 				if ($parsed && $parsed['object'] === 'Document')
 				{
-					$document = $documentService->GetDocument($documentId);
+					$document = $documentService->GetDocument($documentId, select: [$parsed['field']]);
 					if ($document && $document[$parsed['field']])
 					{
 						foreach ((array) $document[$parsed['field']] as $docUser)
@@ -2292,7 +2086,7 @@ class CBPHelper
 			||
 			$value === false
 			||
-			is_array($value) && count(array_filter($value, $filter)) === 0
+			(is_array($value) && count(array_filter($value, $filter)) === 0)
 		);
 	}
 
@@ -2345,16 +2139,28 @@ class CBPHelper
 	 */
 	public static function getUserExtendedGroups($userId)
 	{
+		$canUseHrModule = Loader::includeModule('humanresources');
+
 		if (!isset(self::$groupsCache[$userId]))
 		{
-			self::$groupsCache[$userId] = array();
-			$access = self::getAccessProvider();
-			$userCodes = $access->GetUserCodesArray($userId);
-			foreach ($userCodes AS $code)
+			self::$groupsCache[$userId] = [];
+			$access = static::getAccessProvider();
+			$userCodes = $access::GetUserCodesArray($userId);
+
+			foreach ($userCodes as $code)
 			{
-				self::$groupsCache[$userId][] = 'group_'.mb_strtolower($code);
+				self::$groupsCache[$userId][] = 'group_' . mb_strtolower($code);
+				if ($canUseHrModule && preg_match('/^(d|dr)(\d+)$/', mb_strtolower($code), $match))
+				{
+					$node = Container::getNodeRepository()->getByAccessCode($code);
+					if ($node)
+					{
+						self::$groupsCache[$userId][] = 'group_' . ($match[1] === 'dr' ? 'hrr' : 'hr') . $node->id;
+					}
+				}
 			}
 		}
+
 		return self::$groupsCache[$userId];
 	}
 
@@ -2365,14 +2171,47 @@ class CBPHelper
 	 */
 	public static function getExtendedGroupName($group, $appendId = true)
 	{
-		if (mb_strpos($group, 'group_') === 0)
+		if (str_starts_with($group, 'group_'))
+		{
 			$group = mb_substr($group, mb_strlen('group_'));
+		}
+
+		if (
+			preg_match('/^(d|dr)(\d+)$/', $group, $match)
+			&& Loader::includeModule('humanresources')
+		)
+		{
+			$departmentId = $match[2];
+			$node =
+				Container::getNodeRepository()
+					->getByAccessCode(DepartmentBackwardAccessCode::makeById((int)$departmentId))
+			;
+			if ($node)
+			{
+				return ($node->name ?? '') . ($appendId ? ' [HR' . ($match[1] === 'dr' ? 'R' : '') . $node->id . ']' : '');
+			}
+		}
+
+		if (preg_match('/^(hr|hrr)(\d+)$/', $group, $match))
+		{
+			$groupId = $match[2];
+			$groupName = '';
+			if (Loader::includeModule('humanresources'))
+			{
+				$nodeRepository = Container::getNodeRepository();
+				$node = $nodeRepository->getById((int)$groupId);
+				$groupName = $node->name ?? '';
+			}
+
+			return $groupName . ($appendId ? ' [' . mb_strtoupper($group) . ']' : '');
+		}
+
 		$group = mb_strtoupper($group);
-		$access = self::getAccessProvider();
+		$access = static::getAccessProvider();
 		$arNames = $access->GetNames(array($group));
 		$groupName = $arNames[$group]['name'] ?? null;
 
-		return $groupName . ($appendId ? ' ['.$group.']' : '');
+		return $groupName . ($appendId ? ' [' . $group . ']' : '');
 	}
 
 	/**
@@ -2457,7 +2296,7 @@ class CBPHelper
 				'XML_ID' => 'bizproc_workflow',
 				'SITES' => array($defaultSiteId => '/'),
 				'ACTIVE' => 'Y',
-				'DEDUPLICATION' => 'N'
+				'DEDUPLICATION' => 'N',
 			));
 			COption::SetOptionString("bizproc", "forum_id", $forumId);
 		}
@@ -2475,23 +2314,57 @@ class CBPHelper
 	 * @param int $subUserId
 	 * @return bool
 	 */
-	public static function checkUserSubordination($headUserId, $subUserId)
+	public static function checkUserSubordination(mixed $headUserId, mixed $subUserId): bool
 	{
-		if (CModule::IncludeModule('intranet'))
+		if (Loader::includeModule('intranet'))
 		{
-			$headUserId = (int)$headUserId;
-			$subUserId = (int)$subUserId;
-
-			if ($headUserId && $subUserId)
+			if (Loader::IncludeModule('humanresources'))
 			{
-				$headDepts = (array) CIntranetUtils::GetSubordinateDepartments($headUserId, true);
-				if (!empty($headDepts))
+				$headNodes = Container::getNodeMemberRepository()->findAllByEntityIdAndEntityType(
+					(int)$headUserId,
+					MemberEntityType::USER,
+				);
+				$subNodes = Container::getNodeMemberRepository()->findAllByEntityIdAndEntityType(
+					(int)$subUserId,
+					MemberEntityType::USER,
+				);
+
+				foreach ($headNodes as $headNode)
 				{
-					$subDepts = (array) CIntranetUtils::GetUserDepartments($subUserId);
-					return (sizeof(array_intersect($headDepts, $subDepts)) > 0);
+					foreach ($subNodes as $subNode)
+					{
+						$relation = Container::getNodeMemberService()->getMemberSubordination(
+							$headNode->id,
+							$subNode->id,
+						);
+						if ($relation === MemberSubordinateRelationType::RELATION_HIGHER)
+						{
+							return true;
+						}
+					}
 				}
 			}
+			else
+			{
+				return self::checkUserSubordinationDeprecated((int)$headUserId, (int)$subUserId);
+			}
 		}
+
+		return false;
+	}
+
+	private static function checkUserSubordinationDeprecated(int $headUserId, int $subUserId): bool
+	{
+		if ($headUserId && $subUserId)
+		{
+			$headDepts = (array) CIntranetUtils::GetSubordinateDepartments($headUserId, true);
+			if (!empty($headDepts))
+			{
+				$subDepts = (array) CIntranetUtils::GetUserDepartments($subUserId);
+				return (sizeof(array_intersect($headDepts, $subDepts)) > 0);
+			}
+		}
+
 		return false;
 	}
 
@@ -2499,7 +2372,7 @@ class CBPHelper
 	{
 		$selectorProps = \Bitrix\Main\Web\Json::encode(array(
 			'controlId' => $controlId,
-			'baseType' => $baseType
+			'baseType' => $baseType,
 		));
 
 		$mode = isset($options['mode']) ? $options['mode'] : '';
@@ -2520,7 +2393,17 @@ class CBPHelper
 
 	public static function decodeTemplatePostData(&$data)
 	{
-		$jsonParams = ['arWorkflowTemplate', 'arWorkflowParameters', 'arWorkflowGlobalVariables', 'arWorkflowVariables', 'arWorkflowGlobalConstants', 'arWorkflowConstants', 'USER_PARAMS'];
+		$jsonParams = [
+			'arWorkflowTemplate',
+			'arWorkflowParameters',
+			'arWorkflowGlobalVariables',
+			'arWorkflowVariables',
+			'arWorkflowGlobalConstants',
+			'arWorkflowConstants',
+			'USER_PARAMS',
+			'documentCategories',
+			'workflowTemplateSettings',
+		];
 
 		foreach ($jsonParams as $k)
 		{
@@ -2559,6 +2442,18 @@ class CBPHelper
 			return $date->getTimestamp();
 		}
 
+		if ($date instanceof Bitrix\Bizproc\BaseType\Value\Time)
+		{
+			$time = $date->toSystemObject();
+			$currentDate = new \Bitrix\Main\Type\DateTime();
+
+			return $time->setDate(
+				$currentDate->format('Y'),
+				$currentDate->format('m'),
+				$currentDate->format('d')
+			)->getTimestamp();
+		}
+
 		if (intval($date) . '!' === $date . '!')
 		{
 			return $date;
@@ -2581,18 +2476,18 @@ class CBPHelper
 	public static function isWorkTimeAvailable(): bool
 	{
 		if (
-			Main\Loader::includeModule('bitrix24')
+			Loader::includeModule('bitrix24')
 			&& !Bitrix24\Feature::isFeatureEnabled('bizproc_timeman')
 		)
 		{
 			return false;
 		}
 
-		if (Main\Loader::includeModule('intranet'))
+		if (Loader::includeModule('intranet'))
 		{
 			$workTime = \Bitrix\Intranet\Site\Sections\TimemanSection::getWorkTime();
 
-			return $workTime['available'] && \Bitrix\Main\Loader::includeModule('timeman');
+			return $workTime['available'] && Loader::includeModule('timeman');
 		}
 
 		return false;
@@ -2610,5 +2505,36 @@ class CBPHelper
 			&& (string)$documentA[1] === (string)$documentB[1]
 			&& (string)$documentA[2] === (string)$documentB[2]
 		);
+	}
+
+	/**
+	 * @throws CBPArgumentNullException
+	 */
+	public static function isWorkflowFinished(string $workflowId): bool
+	{
+		if (!$workflowId)
+		{
+			throw new CBPArgumentNullException('workflowId');
+		}
+
+		$runtime = CBPRuntime::getRuntime();
+		if ($runtime->hasWorkflow($workflowId))
+		{
+			return $runtime->getWorkflow($workflowId)->isFinished();
+		}
+
+		return !Bizproc\WorkflowInstanceTable::exists($workflowId);
+	}
+
+	public static function normalizeComplexDocumentId(array $complexId): ?array
+	{
+		try
+		{
+			return self::parseDocumentId($complexId);
+		}
+		catch (\CBPArgumentNullException $exception)
+		{
+			return null;
+		}
 	}
 }

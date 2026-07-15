@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BrandValues>
+	<Brand>A2DM</Brand>
+	<Brand>ABRO</Brand>
+	<Brand>ACDelco</Brand>
+	<Brand>ACQ</Brand>
+	<Brand>Active Sword</Brand>
+	<Brand>AD</Brand>
+	<Brand>Aido</Brand>
+	<Brand>Airline</Brand>
+	<Brand>Alca</Brand>
+	<Brand>AMD</Brand>
+	<Brand>Amiwa</Brand>
+	<Brand>AMP</Brand>
+	<Brand>Anvo</Brand>
+	<Brand>Artway</Brand>
+	<Brand>Ashika</Brand>
+	<Brand>Asin</Brand>
+	<Brand>ASM</Brand>
+	<Brand>AT</Brand>
+	<Brand>Audi</Brand>
+	<Brand>Auger</Brand>
+	<Brand>Auto-GUR</Brand>
+	<Brand>Autobacs</Brand>
+	<Brand>Autogur73</Brand>
+	<Brand>Autoled-Opt</Brand>
+	<Brand>AUTOPROFI</Brand>
+	<Brand>Autoram</Brand>
+	<Brand>Autostandart</Brand>
+	<Brand>Autovirazh</Brand>
+	<Brand>Avantech</Brand>
+	<Brand>AVE</Brand>
+	<Brand>AVG</Brand>
+	<Brand>Aviel</Brand>
+	<Brand>AVS</Brand>
+	<Brand>AvtoElectrica</Brand>
+	<Brand>AvtoGrad</Brand>
+	<Brand>Avtomoe</Brand>
+	<Brand>AVTOPRIBOR</Brand>
+	<Brand>AWM</Brand>
+	<Brand>Aywiparts</Brand>
+	<Brand>Azard</Brand>
+	<Brand>BAW</Brand>
+	<Brand>Beru</Brand>
+	<Brand>BiBiCare</Brand>
+	<Brand>Blue Print</Brand>
+	<Brand>BMW</Brand>
+	<Brand>Bosch</Brand>
+	<Brand>Brave</Brand>
+	<Brand>Bremax</Brand>
+	<Brand>Britpart</Brand>
+	<Brand>Brush</Brand>
+	<Brand>BSG (Basbug)</Brand>
+	<Brand>Bullsone</Brand>
+	<Brand>Burner</Brand>
+	<Brand>BYD</Brand>
+	<Brand>C2R</Brand>
+	<Brand>Ca-Re</Brand>
+	<Brand>Carall</Brand>
+	<Brand>Carberry</Brand>
+	<Brand>Carfashion</Brand>
+	<Brand>Carfort</Brand>
+	<Brand>Cartrec</Brand>
+	<Brand>Caterpillar</Brand>
+	<Brand>CGA</Brand>
+	<Brand>Champion</Brand>
+	<Brand>Changan</Brand>
+	<Brand>Chery</Brand>
+	<Brand>Chevrolet</Brand>
+	<Brand>Chrysler</Brand>
+	<Brand>Citroen</Brand>
+	<Brand>Climair</Brand>
+	<Brand>Clim Art</Brand>
+	<Brand>Clingo</Brand>
+	<Brand>Continental</Brand>
+	<Brand>Crauft Aero</Brand>
+	<Brand>Cworks</Brand>
+	<Brand>Daewoo</Brand>
+	<Brand>DAF</Brand>
+	<Brand>Defly</Brand>
+	<Brand>Dello Automega</Brand>
+	<Brand>Denckermann</Brand>
+	<Brand>Denso</Brand>
+	<Brand>Deppul</Brand>
+	<Brand>Doda</Brand>
+	<Brand>Dominant</Brand>
+	<Brand>Double Force</Brand>
+	<Brand>DPA</Brand>
+	<Brand>DP Group</Brand>
+	<Brand>Dragon</Brand>
+	<Brand>DSV</Brand>
+	<Brand>DT</Brand>
+	<Brand>Dupont</Brand>
+	<Brand>Dynamatrix</Brand>
+	<Brand>Endurovision</Brand>
+	<Brand>Era</Brand>
+	<Brand>Erik Guscher</Brand>
+	<Brand>Eurorepar</Brand>
+	<Brand>Expert</Brand>
+	<Brand>Fast</Brand>
+	<Brand>FAW</Brand>
+	<Brand>Federal-Mogul</Brand>
+	<Brand>Fenox</Brand>
+	<Brand>Fiat</Brand>
+	<Brand>Finwhale</Brand>
+	<Brand>Flamingo</Brand>
+	<Brand>Fora</Brand>
+	<Brand>Force</Brand>
+	<Brand>Ford</Brand>
+	<Brand>Forra</Brand>
+	<Brand>Foton</Brand>
+	<Brand>Galex</Brand>
+	<Brand>Gallant</Brand>
+	<Brand>Gamma</Brand>
+	<Brand>Ganz</Brand>
+	<Brand>Garde</Brand>
+	<Brand>Geely</Brand>
+	<Brand>General Motors</Brand>
+	<Brand>Golden Snail</Brand>
+	<Brand>Goodwill</Brand>
+	<Brand>Goodyear</Brand>
+	<Brand>Gorizont</Brand>
+	<Brand>GParts</Brand>
+	<Brand>Grand Prix</Brand>
+	<Brand>Great Wall</Brand>
+	<Brand>Green Star</Brand>
+	<Brand>Haima</Brand>
+	<Brand>Hans Pries/Topran</Brand>
+	<Brand>Haruma</Brand>
+	<Brand>Haval</Brand>
+	<Brand>HD-Parts</Brand>
+	<Brand>HelFest</Brand>
+	<Brand>Hella</Brand>
+	<Brand>Hemen</Brand>
+	<Brand>Herzog</Brand>
+	<Brand>Heyner</Brand>
+	<Brand>Hito</Brand>
+	<Brand>Hofer</Brand>
+	<Brand>Hola</Brand>
+	<Brand>Honda</Brand>
+	<Brand>HST</Brand>
+	<Brand>HS Technology</Brand>
+	<Brand>Hyundai/Kia</Brand>
+	<Brand>Ilsa</Brand>
+	<Brand>Infiniti</Brand>
+	<Brand>Integer</Brand>
+	<Brand>Isuzu</Brand>
+	<Brand>Iveco</Brand>
+	<Brand>Jaguar</Brand>
+	<Brand>Japanparts</Brand>
+	<Brand>Japko</Brand>
+	<Brand>JCB</Brand>
+	<Brand>Jikiu</Brand>
+	<Brand>JMC</Brand>
+	<Brand>Jorden</Brand>
+	<Brand>JP Group</Brand>
+	<Brand>Just Drive</Brand>
+	<Brand>Kamoka</Brand>
+	<Brand>Kavo parts</Brand>
+	<Brand>KCW</Brand>
+	<Brand>Klaxcar France</Brand>
+	<Brand>Kortex</Brand>
+	<Brand>Kraft</Brand>
+	<Brand>Krauf</Brand>
+	<Brand>KS-Auto</Brand>
+	<Brand>KurumaKit</Brand>
+	<Brand>Lada</Brand>
+	<Brand>Land Rover</Brand>
+	<Brand>Lariomi</Brand>
+	<Brand>Lavita</Brand>
+	<Brand>Lavr</Brand>
+	<Brand>Lecar</Brand>
+	<Brand>Ledo</Brand>
+	<Brand>Lexus</Brand>
+	<Brand>Lifan</Brand>
+	<Brand>LivCar</Brand>
+	<Brand>Loro</Brand>
+	<Brand>LSA</Brand>
+	<Brand>Lucky Way</Brand>
+	<Brand>Lynx</Brand>
+	<Brand>M-TEX</Brand>
+	<Brand>Magneti Marelli</Brand>
+	<Brand>Maine Coon</Brand>
+	<Brand>MAN</Brand>
+	<Brand>Mando</Brand>
+	<Brand>Mapco</Brand>
+	<Brand>Mapis</Brand>
+	<Brand>Maruenu</Brand>
+	<Brand>Mashinomesto</Brand>
+	<Brand>Masuma</Brand>
+	<Brand>Mazda</Brand>
+	<Brand>MegaPower</Brand>
+	<Brand>Mejicar</Brand>
+	<Brand>Mersedes-Benz</Brand>
+	<Brand>Metaco</Brand>
+	<Brand>Metalcaucho</Brand>
+	<Brand>MetalPart</Brand>
+	<Brand>Meyle</Brand>
+	<Brand>Michelin</Brand>
+	<Brand>Miles</Brand>
+	<Brand>Mitsuba</Brand>
+	<Brand>Mitsubishi</Brand>
+	<Brand>Mobis</Brand>
+	<Brand>Motgum</Brand>
+	<Brand>MotorCraft</Brand>
+	<Brand>Motrio</Brand>
+	<Brand>MTF Light</Brand>
+	<Brand>MU-CHAMP</Brand>
+	<Brand>Narichin</Brand>
+	<Brand>NeoVision</Brand>
+	<Brand>New Galaxy</Brand>
+	<Brand>NIPParts</Brand>
+	<Brand>Nissan</Brand>
+	<Brand>Nord YADA</Brand>
+	<Brand>Nova Bright</Brand>
+	<Brand>NWB</Brand>
+	<Brand>Onnuri</Brand>
+	<Brand>Opel</Brand>
+	<Brand>Opt-Standart</Brand>
+	<Brand>Optima</Brand>
+	<Brand>Origana</Brand>
+	<Brand>Osawa</Brand>
+	<Brand>Ossca</Brand>
+	<Brand>Parts-Mall</Brand>
+	<Brand>Patron</Brand>
+	<Brand>Peak</Brand>
+	<Brand>Peugeot</Brand>
+	<Brand>Phantom</Brand>
+	<Brand>PIAA</Brand>
+	<Brand>Piece of Mind</Brand>
+	<Brand>Pilenga</Brand>
+	<Brand>Polcar</Brand>
+	<Brand>Porsche</Brand>
+	<Brand>ProTechnic</Brand>
+	<Brand>PSA</Brand>
+	<Brand>R.B.W</Brand>
+	<Brand>Rain-X</Brand>
+	<Brand>RainBox</Brand>
+	<Brand>RD5</Brand>
+	<Brand>Redmark</Brand>
+	<Brand>Redskin</Brand>
+	<Brand>Rekzit</Brand>
+	<Brand>Renault</Brand>
+	<Brand>Rinco</Brand>
+	<Brand>Ring</Brand>
+	<Brand>Riyue</Brand>
+	<Brand>RoadRunner</Brand>
+	<Brand>RTD</Brand>
+	<Brand>Ruei</Brand>
+	<Brand>RunWay</Brand>
+	<Brand>Ryobi</Brand>
+	<Brand>Sailing</Brand>
+	<Brand>Sampa</Brand>
+	<Brand>Samsung</Brand>
+	<Brand>Sangsin Brake</Brand>
+	<Brand>SAT</Brand>
+	<Brand>Save Car</Brand>
+	<Brand>Schermann</Brand>
+	<Brand>Schoffer</Brand>
+	<Brand>SCT</Brand>
+	<Brand>Siger</Brand>
+	<Brand>Skoda</Brand>
+	<Brand>Sky.Parts</Brand>
+	<Brand>SkyBear</Brand>
+	<Brand>SkyWay</Brand>
+	<Brand>Sparco</Brand>
+	<Brand>Speed Wiper</Brand>
+	<Brand>SsangYong</Brand>
+	<Brand>ST (Support Technology)</Brand>
+	<Brand>Steingart</Brand>
+	<Brand>Stellox</Brand>
+	<Brand>Stels</Brand>
+	<Brand>Subaru</Brand>
+	<Brand>Sufix</Brand>
+	<Brand>Suzuki</Brand>
+	<Brand>SVS</Brand>
+	<Brand>SWF</Brand>
+	<Brand>Tatsumi</Brand>
+	<Brand>TMC</Brand>
+	<Brand>TopCover</Brand>
+	<Brand>Torso</Brand>
+	<Brand>ToyoGuard</Brand>
+	<Brand>Toyota</Brand>
+	<Brand>Trico</Brand>
+	<Brand>Trucktec</Brand>
+	<Brand>Trustauto</Brand>
+	<Brand>TSN</Brand>
+	<Brand>UniPoint</Brand>
+	<Brand>UXClent</Brand>
+	<Brand>V12</Brand>
+	<Brand>VAG</Brand>
+	<Brand>Vaico</Brand>
+	<Brand>Valeo</Brand>
+	<Brand>Vettler</Brand>
+	<Brand>Vika</Brand>
+	<Brand>VK Technology</Brand>
+	<Brand>Voil</Brand>
+	<Brand>Volkswagen</Brand>
+	<Brand>Volvo</Brand>
+	<Brand>VPM</Brand>
+	<Brand>Ween</Brand>
+	<Brand>Wiiix</Brand>
+	<Brand>Winkod</Brand>
+	<Brand>Wiper Blade</Brand>
+	<Brand>WittelWood Forest</Brand>
+	<Brand>WOG</Brand>
+	<Brand>Wonderful</Brand>
+	<Brand>Wurth</Brand>
+	<Brand>YTK</Brand>
+	<Brand>Zebra</Brand>
+	<Brand>Zekkert</Brand>
+	<Brand>Zikmar</Brand>
+	<Brand>ZiPower</Brand>
+	<Brand>Zommer</Brand>
+	<Brand>Zork</Brand>
+	<Brand>ZZVF</Brand>
+	<Brand>БелАК</Brand>
+	<Brand>БРТ</Brand>
+	<Brand>ГАЗ</Brand>
+	<Brand>КАМАЗ</Brand>
+	<Brand>Лента</Brand>
+	<Brand>МАЗ</Brand>
+	<Brand>Медведь</Brand>
+	<Brand>ОПМИР</Brand>
+	<Brand>Попутчик</Brand>
+	<Brand>УАЗ</Brand>
+	<Brand>Хорс</Brand>
+	<Brand>Чистая Миля</Brand>
+</BrandValues>

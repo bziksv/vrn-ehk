@@ -12,6 +12,8 @@ type CountersState = {
 	unloadedChatCounters: {[chatId: string]: number},
 	unloadedLinesCounters: {[chatId: string]: number},
 	unloadedCopilotCounters: {[chatId: string]: number},
+	unloadedCollabCounters: {[chatId: string]: number},
+	unloadedTaskCounters: {[chatId: string]: number},
 	commentCounters: CommentsCounters,
 };
 
@@ -39,6 +41,8 @@ export class CountersModel extends BuilderModel
 			unloadedChatCounters: {},
 			unloadedLinesCounters: {},
 			unloadedCopilotCounters: {},
+			unloadedCollabCounters: {},
+			unloadedTaskCounters: {},
 			commentCounters: {},
 		};
 	}
@@ -47,14 +51,14 @@ export class CountersModel extends BuilderModel
 	getGetters(): GetterTree
 	{
 		return {
+			/** @function counters/getUnloadedChatCounters */
+			getUnloadedChatCounters: (state: CountersState): number => {
+				return state.unloadedChatCounters;
+			},
 			/** @function counters/getTotalChatCounter */
 			getTotalChatCounter: (state: CountersState): number => {
-				let loadedChatsCounter = 0;
 				const recentCollection = Core.getStore().getters['recent/getRecentCollection'];
-				recentCollection.forEach((recentItem: ImModelRecentItem) => {
-					const recentItemCounter = this.#getRecentItemCounter(recentItem);
-					loadedChatsCounter += recentItemCounter;
-				});
+				const loadedChatsCounter = this.#getLoadedChatsCounter(recentCollection);
 
 				let unloadedChatsCounter = 0;
 				Object.values(state.unloadedChatCounters).forEach((counter) => {
@@ -67,19 +71,35 @@ export class CountersModel extends BuilderModel
 			},
 			/** @function counters/getTotalCopilotCounter */
 			getTotalCopilotCounter: (state: CountersState): number => {
-				let loadedChatsCounter = 0;
 				const recentCollection = Core.getStore().getters['recent/getCopilotCollection'];
-				recentCollection.forEach((recentItem: ImModelRecentItem) => {
-					const chat = this.#getChat(recentItem.dialogId);
-					if (this.#isChatMuted(chat))
-					{
-						return;
-					}
-					loadedChatsCounter += chat.counter;
-				});
+				const loadedChatsCounter = this.#getLoadedChatsCounter(recentCollection);
 
 				let unloadedChatsCounter = 0;
 				Object.values(state.unloadedCopilotCounters).forEach((counter) => {
+					unloadedChatsCounter += counter;
+				});
+
+				return loadedChatsCounter + unloadedChatsCounter;
+			},
+			/** @function counters/getTotalCollabCounter */
+			getTotalCollabCounter: (state: CountersState): number => {
+				const recentCollection = Core.getStore().getters['recent/getCollabCollection'];
+				const loadedChatsCounter = this.#getLoadedChatsCounter(recentCollection);
+
+				let unloadedChatsCounter = 0;
+				Object.values(state.unloadedCollabCounters).forEach((counter) => {
+					unloadedChatsCounter += counter;
+				});
+
+				return loadedChatsCounter + unloadedChatsCounter;
+			},
+			/** @function counters/getTotalTaskCounter */
+			getTotalTaskCounter: (state: CountersState): number => {
+				const recentCollection = Core.getStore().getters['recent/getTaskCollection'];
+				const loadedChatsCounter = this.#getLoadedChatsCounter(recentCollection);
+
+				let unloadedChatsCounter = 0;
+				Object.values(state.unloadedTaskCounters).forEach((counter) => {
 					unloadedChatsCounter += counter;
 				});
 
@@ -203,6 +223,24 @@ export class CountersModel extends BuilderModel
 
 				store.commit('setUnloadedCopilotCounters', payload);
 			},
+			/** @function counters/setUnloadedCollabCounters */
+			setUnloadedCollabCounters: (store, payload: {[chatId: string]: number}) => {
+				if (!Type.isPlainObject(payload))
+				{
+					return;
+				}
+
+				store.commit('setUnloadedCollabCounters', payload);
+			},
+			/** @function counters/setUnloadedTaskCounters */
+			setUnloadedTaskCounters: (store, payload: {[chatId: string]: number}) => {
+				if (!Type.isPlainObject(payload))
+				{
+					return;
+				}
+
+				store.commit('setUnloadedTaskCounters', payload);
+			},
 			/** @function counters/setCommentCounters */
 			setCommentCounters: (store, payload: CommentsCounters) => {
 				if (!Type.isPlainObject(payload))
@@ -220,6 +258,19 @@ export class CountersModel extends BuilderModel
 				}
 
 				store.commit('readAllChannelComments', channelChatId);
+			},
+			/** @function counters/deleteForChannel */
+			deleteForChannel: (store, payload: {channelChatId: number, commentChatId?: number}) => {
+				if (!Type.isPlainObject(payload))
+				{
+					return;
+				}
+
+				store.commit('deleteForChannel', payload);
+			},
+			/** @function counters/clear */
+			clear: (store) => {
+				store.commit('clear');
 			},
 		};
 	}
@@ -260,6 +311,28 @@ export class CountersModel extends BuilderModel
 					state.unloadedCopilotCounters[chatId] = counter;
 				});
 			},
+			setUnloadedCollabCounters: (state: CountersState, payload: {[chatId: string]: number}) => {
+				Object.entries(payload).forEach(([chatId, counter]) => {
+					if (counter === 0)
+					{
+						delete state.unloadedCollabCounters[chatId];
+
+						return;
+					}
+					state.unloadedCollabCounters[chatId] = counter;
+				});
+			},
+			setUnloadedTaskCounters: (state: CountersState, payload: {[chatId: string]: number}) => {
+				Object.entries(payload).forEach(([chatId, counter]) => {
+					if (counter === 0)
+					{
+						delete state.unloadedTaskCounters[chatId];
+
+						return;
+					}
+					state.unloadedTaskCounters[chatId] = counter;
+				});
+			},
 			setCommentCounters: (state: CountersState, payload: CommentsCounters) => {
 				Object.entries(payload).forEach(([channelChatId, countersMap]) => {
 					if (!state.commentCounters[channelChatId])
@@ -282,6 +355,30 @@ export class CountersModel extends BuilderModel
 			},
 			readAllChannelComments: (state: CountersState, channelChatId: number) => {
 				delete state.commentCounters[channelChatId];
+			},
+			deleteForChannel: (state: CountersState, payload: {channelChatId: number, commentChatId?: number}) => {
+				const { channelChatId, commentChatId } = payload;
+				if (!state.commentCounters[channelChatId])
+				{
+					return;
+				}
+
+				if (!commentChatId)
+				{
+					delete state.commentCounters[channelChatId];
+
+					return;
+				}
+
+				delete state.commentCounters[channelChatId][commentChatId];
+			},
+			clear: (state: CountersState) => {
+				state.unloadedChatCounters = {};
+				state.unloadedLinesCounters = {};
+				state.unloadedCopilotCounters = {};
+				state.unloadedCollabCounters = {};
+				state.unloadedTaskCounters = {};
+				state.commentCounters = {};
 			},
 		};
 	}
@@ -315,5 +412,17 @@ export class CountersModel extends BuilderModel
 		}
 
 		return chat.counter;
+	}
+
+	#getLoadedChatsCounter(recentCollection: ImModelRecentItem[]): number
+	{
+		let loadedChatsCounter = 0;
+
+		recentCollection.forEach((recentItem: ImModelRecentItem) => {
+			const recentItemCounter = this.#getRecentItemCounter(recentItem);
+			loadedChatsCounter += recentItemCounter;
+		});
+
+		return loadedChatsCounter;
 	}
 }

@@ -2,13 +2,19 @@
 
 IncludeModuleLangFile(__FILE__);
 
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Text\Emoji;
+use Bitrix\Socialnetwork\FeatureTable;
 use Bitrix\Socialnetwork\Helper\Workgroup;
 use Bitrix\Socialnetwork\Helper\Path;
+use Bitrix\Socialnetwork\Internals\Registry\GroupRegistry;
+use Bitrix\Socialnetwork\Item\Workgroup\AvatarType;
+use Bitrix\Socialnetwork\Item\Workgroup\Type;
 use Bitrix\Socialnetwork\UserToGroupTable;
+use Bitrix\Tasks\Util\Restriction\Bitrix24Restriction\Limit\ProjectLimit;
 use Bitrix\Tasks\Util\Restriction\Bitrix24Restriction\Limit\ScrumLimit;
 use Bitrix\Tasks\Control\Tag;
 use Bitrix\Socialnetwork\Internals\EventService;
@@ -178,7 +184,7 @@ class CAllSocNetGroup
 			is_set($arFields, "IMAGE_ID")
 			&& is_array($arFields["IMAGE_ID"])
 			&& ($arFields["IMAGE_ID"]["name"] ?? '') == ''
-			&& ($arFields["IMAGE_ID"]["del"] == '' || $arFields["IMAGE_ID"]["del"] !== "Y")
+			&& (($arFields["IMAGE_ID"]["del"] ?? null) == '' || $arFields["IMAGE_ID"]["del"] !== "Y")
 		)
 		{
 			unset($arFields["IMAGE_ID"]);
@@ -194,12 +200,23 @@ class CAllSocNetGroup
 			}
 		}
 
+		$avatarType = $arFields['AVATAR_TYPE'] ?? null;
 		if (
 			is_set($arFields, 'AVATAR_TYPE')
 			&& !array_key_exists($arFields['AVATAR_TYPE'], Workgroup::getAvatarTypes())
 		)
 		{
 			unset($arFields['AVATAR_TYPE']);
+		}
+
+		$canSetEmptyAvatarType =
+			($arFields['TYPE'] ?? null) === Type::Collab->value
+			&& $avatarType === AvatarType::None->value
+		;
+
+		if ($canSetEmptyAvatarType)
+		{
+			$arFields['AVATAR_TYPE'] = '';
 		}
 
 		if (!$USER_FIELD_MANAGER->CheckFields("SONET_GROUP", $ID, $arFields))
@@ -212,12 +229,45 @@ class CAllSocNetGroup
 			$arFields['NAME'] = Emoji::encode($arFields['NAME']);
 		}
 
+		if (isset($arFields['NAME']))
+		{
+			$isCollab = $arFields['TYPE'] === Bitrix\Socialnetwork\Item\Workgroup\Type::Collab->value;
+			$isCheckNameNeeded = $isCollab || (Option::get('socialnetwork', 'check_group_name_enable', 'Y') === 'Y');
+
+			if ($isCheckNameNeeded)
+			{
+				$groupProvider = Bitrix\Socialnetwork\Provider\GroupProvider::getInstance();
+
+				if ($groupProvider->isExistingGroup($arFields['NAME'], $ID))
+				{
+					$APPLICATION->ThrowException(GetMessage("SONET_ERROR_SAME_GROUP_NAME_EXISTS"), 'ERROR_GROUP_NAME_EXISTS');
+					return false;
+				}
+			}
+		}
+
 		if (!empty($arFields['DESCRIPTION']))
 		{
 			$arFields['DESCRIPTION'] = Emoji::encode($arFields['DESCRIPTION']);
 		}
 
-		return True;
+		if (isset($arFields['TYPE']))
+		{
+			if (!Type::isValid($arFields['TYPE']))
+			{
+				$APPLICATION->ThrowException('Wrong type', 'WRONG_GROUP_TYPE');
+				return false;
+			}
+
+			$arFields['TYPE'] = Type::getValue($arFields['TYPE']);
+		}
+
+		if (!is_string($arFields['KEYWORDS'] ?? ''))
+		{
+			unset($arFields['KEYWORDS']);
+		}
+
+		return true;
 	}
 
 	public static function Delete($ID)
@@ -240,12 +290,18 @@ class CAllSocNetGroup
 			}
 		}
 
-		$arGroup = CSocNetGroup::GetByID($ID);
+		$queryObject = \Bitrix\Socialnetwork\WorkgroupTable::getList([
+			'filter' => ['ID' => $ID],
+			'select' => ['IMAGE_ID', 'NAME', 'PROJECT', 'TYPE'],
+		]);
+		$arGroup = $queryObject->fetch();
 		if (!$arGroup)
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_NO_GROUP"), "ERROR_NO_GROUP");
 			return false;
 		}
+
+		$isCollab = $arGroup['TYPE'] === Type::Collab->value;
 
 		$DB->StartTransaction();
 
@@ -273,9 +329,14 @@ class CAllSocNetGroup
 
 		if ($bSuccess)
 		{
-			Bitrix\Socialnetwork\Integration\Im\Chat\Workgroup::unlinkChat(array(
-				'group_id' => $ID
-			));
+			if (!$isCollab)
+			{
+				Bitrix\Socialnetwork\Integration\Im\Chat\Workgroup::unlinkChat([
+					'group_id' => $ID,
+					'group_name' => $arGroup['NAME'],
+					'group_project' => $arGroup['PROJECT'],
+				]);
+			}
 
 			$bSuccessTmp = true;
 			$dbResult = CSocNetFeatures::GetList(
@@ -378,6 +439,8 @@ class CAllSocNetGroup
 
 			unset($sonetGroupCache[$ID]);
 			self::setStaticCache($sonetGroupCache);
+			GroupRegistry::getInstance()->invalidate($ID);
+			FeatureTable::cleanCache();
 		}
 
 		if ($bSuccess)
@@ -421,6 +484,12 @@ class CAllSocNetGroup
 			$USER_FIELD_MANAGER->Delete("SONET_GROUP", $ID);
 		}
 
+		$groupId = (int)$ID;
+		if ($bSuccess && $groupId > 0)
+		{
+			GroupRegistry::getInstance()->invalidate($groupId);
+		}
+
 		if (Loader::includeModule('tasks'))
 		{
 			$tagService = new Tag(0);
@@ -461,7 +530,7 @@ class CAllSocNetGroup
 		}
 	}
 
-	public static function SetStat($ID): void
+	public static function SetStat($ID, int $currentUserId = 0): void
 	{
 		if (!CSocNetGroup::__ValidateID($ID))
 			return;
@@ -492,7 +561,8 @@ class CAllSocNetGroup
 			$ID,
 			array(
 				"NUMBER_OF_MEMBERS" => $num,
-				"NUMBER_OF_MODERATORS" => $num_mods
+				"NUMBER_OF_MODERATORS" => $num_mods,
+				'INITIATED_BY_USER_ID' => $currentUserId,
 			),
 			true,
 			false,
@@ -606,7 +676,7 @@ class CAllSocNetGroup
 				'IMAGE_ID', 'AVATAR_TYPE',
 				"NUMBER_OF_MEMBERS", "NUMBER_OF_MODERATORS",
 				"INITIATE_PERMS", "SPAM_PERMS",
-				"DATE_ACTIVITY", "SUBJECT_NAME", "UF_*",
+				"DATE_ACTIVITY", "SUBJECT_NAME", 'TYPE', "UF_*",
 			];
 			if (ModuleManager::isModuleInstalled('intranet'))
 			{
@@ -816,9 +886,37 @@ class CAllSocNetGroup
 
 		if (!empty($arFields['SCRUM_MASTER_ID']) && CModule::includeModule("tasks"))
 		{
-			if (ScrumLimit::isLimitExceeded())
+			$isScrumLimitExceeded = ScrumLimit::isLimitExceeded() || !ScrumLimit::isFeatureEnabled();
+			if (ScrumLimit::canTurnOnTrial())
+			{
+				$isScrumLimitExceeded = false;
+			}
+			if ($isScrumLimitExceeded)
 			{
 				$APPLICATION->ThrowException("Scrum limit exceeded");
+
+				return false;
+			}
+		}
+		elseif (isset($arFields['TYPE']) && $arFields['TYPE'] === 'collab')
+		{
+			if (!\Bitrix\Socialnetwork\Collab\CollabFeature::isFeatureEnabled())
+			{
+				$APPLICATION->ThrowException('Collab feature not available');
+
+				return false;
+			}
+		}
+		elseif (empty($arFields['SCRUM_MASTER_ID']) && CModule::includeModule("tasks"))
+		{
+			$isProjectLimitExceeded = !ProjectLimit::isFeatureEnabled();
+			if (ProjectLimit::canTurnOnTrial())
+			{
+				$isProjectLimitExceeded = false;
+			}
+			if ($isProjectLimitExceeded)
+			{
+				$APPLICATION->ThrowException("Project limit exceeded");
 
 				return false;
 			}
@@ -839,6 +937,11 @@ class CAllSocNetGroup
 		if (!isset($arFields["DATE_ACTIVITY"]))
 		{
 			$arFields["=DATE_ACTIVITY"] = CDatabase::currentTimeFunction();
+		}
+
+		if (!isset($arFields['TYPE']))
+		{
+			$arFields['TYPE'] = static::getTypeByFields($arFields);
 		}
 
 		$arFields["ACTIVE"] = "Y";
@@ -1440,7 +1543,7 @@ class CAllSocNetGroup
 		}
 	}
 
-	public static function ConfirmAllRequests($groupId, $bAutoSubscribe = true)
+	public static function ConfirmAllRequests($groupId, $bAutoSubscribe = true, $currentUserId = 0)
 	{
 		$dbRequests = CSocNetUserToGroup::GetList(
 			array(),
@@ -1460,8 +1563,34 @@ class CAllSocNetGroup
 			{
 				$arIDs[] = $arRequests["ID"];
 			}
-			CSocNetUserToGroup::ConfirmRequestToBeMember($GLOBALS["USER"]->GetID(), $groupId, $arIDs, $bAutoSubscribe);
+
+			if (!$currentUserId)
+			{
+				$currentUserId = \Bitrix\Socialnetwork\Helper\User::getCurrentUserId();
+			}
+
+			CSocNetUserToGroup::ConfirmRequestToBeMember(
+				$currentUserId,
+				$groupId,
+				$arIDs,
+				$bAutoSubscribe,
+			);
 		}
+	}
+
+	private static function getTypeByFields(array $fields): Type
+	{
+		if (isset($fields['SCRUM_MASTER_ID']))
+		{
+			return Type::Scrum;
+		}
+
+		if (($fields['PROJECT'] ?? 'N') === 'Y')
+		{
+			return Type::Project;
+		}
+
+		return Type::getDefault();
 	}
 
 }

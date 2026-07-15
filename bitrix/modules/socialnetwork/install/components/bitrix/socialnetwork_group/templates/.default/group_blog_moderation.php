@@ -16,8 +16,9 @@ $pageId = "group_blog";
 $blogPageId = 'moderation';
 include("util_group_menu.php");
 include("util_group_profile.php");
+include("util_group_limit.php");
 
-if (SITE_TEMPLATE_ID === 'bitrix24')
+if (SITE_TEMPLATE_ID === 'bitrix24' || SITE_TEMPLATE_ID === 'air')
 {
 	include('util_group_blog_menu.php');
 }

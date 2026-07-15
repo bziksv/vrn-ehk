@@ -52,7 +52,7 @@ export class StyleForm extends BaseForm
 
 		if (
 			this.specialType && this.specialType === 'crm_forms'
-			&& Env.getInstance().getOptions().specialType === 'crm_forms'
+			&& Env.getInstance().getSpecialType() === 'crm_forms'
 		)
 		{
 			this.#addReplaceByTemplateCard();
@@ -194,14 +194,6 @@ export class StyleForm extends BaseForm
 
 				return;
 			}
-
-			// todo: migrate to new analytics?
-			const metrika = new BX.Landing.Metrika(true);
-			metrika.sendLabel(
-				null,
-				'templateMarket',
-				'open&replaceLid=' + landingParams['LANDING_ID']
-			);
 
 			const templatesMarketUrl = landingParams['PAGE_URL_LANDING_REPLACE_FROM_STYLE'];
 			if (templatesMarketUrl)

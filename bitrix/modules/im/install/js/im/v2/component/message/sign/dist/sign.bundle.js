@@ -3,10 +3,11 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_application_core,im_v2_lib_utils,im_v2_component_message_base,im_v2_component_message_elements,im_v2_component_message_default,main_core,im_v2_component_elements) {
+(function (exports,im_v2_application_core,im_v2_lib_utils,im_v2_component_message_base,im_v2_component_message_elements,im_v2_component_message_default,main_core,im_v2_component_elements_button) {
 	'use strict';
 
 	const Await = Object.freeze({
+	  // initiated by company
 	  inviteCompany: 'inviteCompany',
 	  inviteCompanyWithInitiator: 'inviteCompanyWithInitiator',
 	  inviteEmployeeSes: 'inviteEmployeeSes',
@@ -17,23 +18,38 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  inviteReviewer: 'inviteReviewer',
 	  inviteReviewerWithInitiator: 'inviteReviewerWithInitiator',
 	  inviteEditor: 'inviteEditor',
-	  inviteEditorWithInitiator: 'inviteEditorWithInitiator'
+	  inviteEditorWithInitiator: 'inviteEditorWithInitiator',
+	  inviteB2bDocumentSigning: 'inviteB2bDocumentSigning',
+	  // initiated by employee
+	  byEmployeeInviteCompany: 'byEmployeeInviteCompany',
+	  byEmployeeInviteReviewer: 'byEmployeeInviteReviewer',
+	  byEmployeeInviteEmployee: 'byEmployeeInviteEmployee',
+	  byEmployeeSignedByEmployee: 'byEmployeeSignedByEmployee'
 	});
 	const Success = Object.freeze({
+	  // initiated by company
 	  doneCompany: 'doneCompany',
 	  doneEmployee: 'doneEmployee',
 	  doneEmployeeGosKey: 'doneEmployeeGosKey',
 	  doneFromAssignee: 'doneFromAssignee',
 	  doneFromEditor: 'doneFromEditor',
-	  doneFromReviewer: 'doneFromReviewer'
+	  doneFromReviewer: 'doneFromReviewer',
+	  // initiated by employee
+	  byEmployeeDoneEmployee: 'byEmployeeDoneEmployee',
+	  byEmployeeDoneEmployeeM: 'byEmployeeDoneEmployeeM',
+	  byEmployeeDoneEmployeeF: 'byEmployeeDoneEmployeeF',
+	  byEmployeeDoneCompany: 'byEmployeeDoneCompany',
+	  doneB2bDocumentSigning: 'doneB2bDocumentSigning'
 	});
 	const Failure = Object.freeze({
+	  // initiated by company
 	  refusedCompanyV2: 'refusedCompanyV2',
 	  refusedCompanyV2M: 'refusedCompanyV2M',
 	  refusedCompanyV2F: 'refusedCompanyV2F',
 	  employeeStoppedToCompanyV2: 'employeeStoppedToCompanyV2',
 	  employeeStoppedToCompanyV2M: 'employeeStoppedToCompanyV2M',
 	  employeeStoppedToCompanyV2F: 'employeeStoppedToCompanyV2F',
+	  documentExpiredToCompany: 'documentExpiredToCompany',
 	  documentStoppedToInitiator: 'documentStoppedToInitiator',
 	  documentStoppedToInitiatorM: 'documentStoppedToInitiatorM',
 	  documentStoppedToInitiatorF: 'documentStoppedToInitiatorF',
@@ -54,7 +70,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  stoppedToEmployeeM: 'stoppedToEmployeeM',
 	  stoppedToEmployeeF: 'stoppedToEmployeeF',
 	  signingError: 'signingError',
-	  repeatSigning: 'repeatSigning'
+	  repeatSigning: 'repeatSigning',
+	  // initiated by employee
+	  byEmployeeStoppedToEmployee: 'byEmployeeStoppedToEmployee',
+	  byEmployeeStoppedToEmployeeM: 'byEmployeeStoppedToEmployeeM',
+	  byEmployeeStoppedToEmployeeF: 'byEmployeeStoppedToEmployeeF',
+	  byEmployeeExpiredToEmployee: 'byEmployeeExpiredToEmployee'
 	});
 
 	const metaData = {
@@ -69,7 +90,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.Primary
+	      color: im_v2_component_elements_button.ButtonColor.Primary
 	    }
 	  },
 	  [Await.inviteCompanyWithInitiator]: {
@@ -83,12 +104,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.Primary
+	      color: im_v2_component_elements_button.ButtonColor.Primary
 	    }
 	  },
 	  [Await.inviteEmployeeSes]: {
 	    title: main_core.Loc.getMessage('IM_MESSAGE_SIGN_INVITE_EMPLOYEE_SES_TITLE'),
-	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_INVITE_EMPLOYEE_SES_DESCRIPTION_MSGVER_1'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_INVITE_EMPLOYEE_SES_DESCRIPTION_MSGVER_2'),
 	    button: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SIGN_INVITE_EMPLOYEE_SES_BUTTON_TEXT'),
 	      callback: ({
@@ -97,12 +118,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.Primary
+	      color: im_v2_component_elements_button.ButtonColor.Primary
 	    }
 	  },
 	  [Await.inviteEmployeeSesWithInitiator]: {
 	    title: main_core.Loc.getMessage('IM_MESSAGE_SIGN_INVITE_EMPLOYEE_SES_TITLE'),
-	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_INVITE_EMPLOYEE_SES_DESCRIPTION_INITIATOR'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_INVITE_EMPLOYEE_SES_DESCRIPTION_INITIATOR_MSGVER_1'),
 	    button: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SIGN_INVITE_EMPLOYEE_SES_BUTTON_TEXT'),
 	      callback: ({
@@ -111,7 +132,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.Primary
+	      color: im_v2_component_elements_button.ButtonColor.Primary
 	    }
 	  },
 	  [Await.inviteEmployeeGosKey]: {
@@ -130,7 +151,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.PrimaryBorder
+	      color: im_v2_component_elements_button.ButtonColor.PrimaryBorder
 	    }
 	  },
 	  [Await.inviteEmployeeGosKeyWithInitiator]: {
@@ -144,7 +165,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.PrimaryBorder
+	      color: im_v2_component_elements_button.ButtonColor.PrimaryBorder
 	    }
 	  },
 	  [Await.inviteReviewer]: {
@@ -158,7 +179,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.Primary
+	      color: im_v2_component_elements_button.ButtonColor.Primary
 	    }
 	  },
 	  [Await.inviteReviewerWithInitiator]: {
@@ -172,7 +193,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.Primary
+	      color: im_v2_component_elements_button.ButtonColor.Primary
 	    }
 	  },
 	  [Await.inviteEditor]: {
@@ -186,7 +207,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.Primary
+	      color: im_v2_component_elements_button.ButtonColor.Primary
 	    }
 	  },
 	  [Await.inviteEditorWithInitiator]: {
@@ -200,8 +221,69 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.Primary
+	      color: im_v2_component_elements_button.ButtonColor.Primary
 	    }
+	  },
+	  [Await.byEmployeeInviteCompany]: {
+	    title: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_INVITE_COMPANY_TITLE'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_INVITE_COMPANY_DESCRIPTION'),
+	    button: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_INVITE_COMPANY_BUTTON_TEXT'),
+	      callback: ({
+	        initiator,
+	        document
+	      }) => {
+	        goToPrimaryLink(document, true);
+	      },
+	      color: im_v2_component_elements_button.ButtonColor.Primary
+	    }
+	  },
+	  [Await.byEmployeeInviteReviewer]: {
+	    title: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_INVITE_REVIEWER_TITLE'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_INVITE_REVIEWER_DESCRIPTION'),
+	    button: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_INVITE_REVIEWER_BUTTON_TEXT'),
+	      callback: ({
+	        initiator,
+	        document
+	      }) => {
+	        goToPrimaryLink(document, true);
+	      },
+	      color: im_v2_component_elements_button.ButtonColor.Primary
+	    }
+	  },
+	  [Await.byEmployeeInviteEmployee]: {
+	    title: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_INVITE_EMPLOYEE_TITLE'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_INVITE_EMPLOYEE_DESCRIPTION'),
+	    button: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_INVITE_EMPLOYEE_BUTTON_TEXT'),
+	      callback: ({
+	        initiator,
+	        document
+	      }) => {
+	        goToPrimaryLink(document, true);
+	      },
+	      color: im_v2_component_elements_button.ButtonColor.Primary
+	    }
+	  },
+	  [Await.byEmployeeSignedByEmployee]: {
+	    title: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_SIGNED_EMPLOYEE_TITLE'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_SIGNED_EMPLOYEE_DESCRIPTION'),
+	    button: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_SIGNED_EMPLOYEE_BUTTON_TEXT'),
+	      callback: ({
+	        initiator,
+	        document
+	      }) => {
+	        goToPrimaryLink(document, true);
+	      },
+	      color: im_v2_component_elements_button.ButtonColor.PrimaryBorder
+	    }
+	  },
+	  [Await.inviteB2bDocumentSigning]: {
+	    title: main_core.Loc.getMessage('IM_MESSAGE_SIGN_INVITE_B2B_DOCUMENT_SIGNING_TITLE'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_INVITE_B2B_DOCUMENT_SIGNING_DESCRIPTION'),
+	    button: null
 	  },
 	  [Success.doneCompany]: {
 	    title: main_core.Loc.getMessage('IM_MESSAGE_SIGN_DONE_COMPANY_TITLE_MSGVER_1'),
@@ -214,12 +296,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, false);
 	      },
-	      color: im_v2_component_elements.ButtonColor.PrimaryBorder
+	      color: im_v2_component_elements_button.ButtonColor.PrimaryBorder
 	    }
 	  },
 	  [Success.doneEmployee]: {
 	    title: main_core.Loc.getMessage('IM_MESSAGE_SIGN_DONE_EMPLOYEE_TITLE'),
-	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_DONE_EMPLOYEE_DESCRIPTION'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_DONE_EMPLOYEE_DESCRIPTION_MSGVER_1'),
 	    button: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SIGN_DONE_EMPLOYEE_BUTTON_TEXT'),
 	      callback: ({
@@ -228,12 +310,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.PrimaryBorder
+	      color: im_v2_component_elements_button.ButtonColor.PrimaryBorder
 	    }
 	  },
 	  [Success.doneEmployeeGosKey]: {
 	    title: main_core.Loc.getMessage('IM_MESSAGE_SIGN_DONE_EMPLOYEE_GOS_KEY_TITLE'),
-	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_DONE_EMPLOYEE_GOS_KEY_DESCRIPTION'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_DONE_EMPLOYEE_GOS_KEY_DESCRIPTION_MSGVER_1'),
 	    button: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SIGN_DONE_EMPLOYEE_GOS_KEY_BUTTON_TEXT'),
 	      callback: ({
@@ -242,7 +324,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.PrimaryBorder
+	      color: im_v2_component_elements_button.ButtonColor.PrimaryBorder
 	    }
 	  },
 	  [Success.doneFromAssignee]: {
@@ -260,6 +342,57 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_DONE_FROM_REVIEWER_DESCRIPTION_MSGVER_1'),
 	    button: null
 	  },
+	  [Success.doneB2bDocumentSigning]: {
+	    title: main_core.Loc.getMessage('IM_MESSAGE_SIGN_DONE_B2B_DOCUMENT_SIGNING_TITLE'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_DONE_B2B_DOCUMENT_SIGNING_DESCRIPTION'),
+	    button: null
+	  },
+	  [Success.byEmployeeDoneEmployee]: {
+	    title: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_DONE_EMPLOYEE_TITLE'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_DONE_EMPLOYEE_DESCRIPTION'),
+	    button: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_DONE_EMPLOYEE_BUTTON_TEXT'),
+	      callback: ({
+	        user,
+	        document
+	      }) => {
+	        goToPrimaryLink(document, true);
+	      },
+	      color: im_v2_component_elements_button.ButtonColor.PrimaryBorder
+	    }
+	  },
+	  [Success.byEmployeeDoneEmployeeM]: {
+	    title: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_DONE_EMPLOYEE_TITLE'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_DONE_EMPLOYEE_DESCRIPTIONM'),
+	    button: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_DONE_EMPLOYEE_BUTTON_TEXT'),
+	      callback: ({
+	        user,
+	        document
+	      }) => {
+	        goToPrimaryLink(document, true);
+	      },
+	      color: im_v2_component_elements_button.ButtonColor.PrimaryBorder
+	    }
+	  },
+	  [Success.byEmployeeDoneEmployeeF]: {
+	    title: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_DONE_EMPLOYEE_TITLE'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_DONE_EMPLOYEE_DESCRIPTIONF'),
+	    button: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_DONE_EMPLOYEE_BUTTON_TEXT'),
+	      callback: ({
+	        user,
+	        document
+	      }) => {
+	        goToPrimaryLink(document, true);
+	      },
+	      color: im_v2_component_elements_button.ButtonColor.PrimaryBorder
+	    }
+	  },
+	  [Success.byEmployeeDoneCompany]: {
+	    title: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_DONE_COMPANY_TITLE'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_DONE_COMPANY_DESCRIPTION')
+	  },
 	  [Failure.refusedCompanyV2]: {
 	    title: main_core.Loc.getMessage('IM_MESSAGE_SIGN_REFUSED_COMPANY_TITLE'),
 	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_REFUSED_COMPANY_DESCRIPTION_MSGVER_1'),
@@ -271,7 +404,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.Primary
+	      color: im_v2_component_elements_button.ButtonColor.Primary
 	    }
 	  },
 	  [Failure.refusedCompanyV2M]: {
@@ -285,7 +418,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.Primary
+	      color: im_v2_component_elements_button.ButtonColor.Primary
 	    }
 	  },
 	  [Failure.refusedCompanyV2F]: {
@@ -299,7 +432,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.Primary
+	      color: im_v2_component_elements_button.ButtonColor.Primary
 	    }
 	  },
 	  [Failure.stoppedToEmployee]: {
@@ -314,6 +447,62 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    title: main_core.Loc.getMessage('IM_MESSAGE_SIGN_STOPPED_TO_EMPLOYEE_TITLE'),
 	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_STOPPED_TO_EMPLOYEE_TITLE_DESCRIPTIONF')
 	  },
+	  [Failure.byEmployeeExpiredToEmployee]: {
+	    title: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_EXPIRED_TO_EMPLOYEE_TITLE'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_EXPIRED_TO_EMPLOYEE_TITLE_DESCRIPTION'),
+	    button: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_EXPIRED_TO_EMPLOYEE_BUTTON_TEXT'),
+	      callback: ({
+	        user,
+	        document
+	      }) => {
+	        goToPrimaryLink(document, true);
+	      },
+	      color: im_v2_component_elements_button.ButtonColor.LightBorder
+	    }
+	  },
+	  [Failure.byEmployeeStoppedToEmployee]: {
+	    title: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_TITLE'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_TITLE_DESCRIPTION'),
+	    button: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_BUTTON_TEXT'),
+	      callback: ({
+	        user,
+	        document
+	      }) => {
+	        goToPrimaryLink(document, true);
+	      },
+	      color: im_v2_component_elements_button.ButtonColor.LightBorder
+	    }
+	  },
+	  [Failure.byEmployeeStoppedToEmployeeM]: {
+	    title: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_TITLE'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_TITLE_DESCRIPTIONM'),
+	    button: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_BUTTON_TEXT'),
+	      callback: ({
+	        user,
+	        document
+	      }) => {
+	        goToPrimaryLink(document, true);
+	      },
+	      color: im_v2_component_elements_button.ButtonColor.LightBorder
+	    }
+	  },
+	  [Failure.byEmployeeStoppedToEmployeeF]: {
+	    title: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_TITLE'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_TITLE_DESCRIPTIONF'),
+	    button: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SIGN_BY_EMPLOYEE_STOPPED_TO_EMPLOYEE_BUTTON_TEXT'),
+	      callback: ({
+	        user,
+	        document
+	      }) => {
+	        goToPrimaryLink(document, true);
+	      },
+	      color: im_v2_component_elements_button.ButtonColor.LightBorder
+	    }
+	  },
 	  [Failure.employeeStoppedToCompanyV2]: {
 	    title: main_core.Loc.getMessage('IM_MESSAGE_SIGN_EMPLOYEE_STOPPED_TO_COMPANY_TITLE'),
 	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_EMPLOYEE_STOPPED_TO_COMPANY_DESCRIPTION_MSGVER_1'),
@@ -325,7 +514,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.Primary
+	      color: im_v2_component_elements_button.ButtonColor.Primary
 	    }
 	  },
 	  [Failure.employeeStoppedToCompanyV2M]: {
@@ -339,7 +528,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.Primary
+	      color: im_v2_component_elements_button.ButtonColor.Primary
 	    }
 	  },
 	  [Failure.employeeStoppedToCompanyV2F]: {
@@ -353,7 +542,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.Primary
+	      color: im_v2_component_elements_button.ButtonColor.Primary
 	    }
 	  },
 	  [Failure.documentStoppedToAssignee]: {
@@ -403,7 +592,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.Primary
+	      color: im_v2_component_elements_button.ButtonColor.Primary
 	    }
 	  },
 	  [Failure.documentStoppedToInitiatorM]: {
@@ -417,7 +606,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.Primary
+	      color: im_v2_component_elements_button.ButtonColor.Primary
 	    }
 	  },
 	  [Failure.documentStoppedToInitiatorF]: {
@@ -431,7 +620,21 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.Primary
+	      color: im_v2_component_elements_button.ButtonColor.Primary
+	    }
+	  },
+	  [Failure.documentExpiredToCompany]: {
+	    title: main_core.Loc.getMessage('IM_MESSAGE_SIGN_DOCUMENT_EXPIRED_COMPANY_TITLE'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SIGN_DOCUMENT_EXPIRED_COMPANY_DESCRIPTION'),
+	    button: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SIGN_DOCUMENT_EXPIRED_COMPANY_BUTTON_TEXT'),
+	      callback: ({
+	        user,
+	        document
+	      }) => {
+	        goToPrimaryLink(document, true);
+	      },
+	      color: im_v2_component_elements_button.ButtonColor.Primary
 	    }
 	  },
 	  [Failure.refusedCompany]: {
@@ -457,7 +660,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.Primary
+	      color: im_v2_component_elements_button.ButtonColor.Primary
 	    }
 	  },
 	  [Failure.signingError]: {
@@ -471,7 +674,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.Primary
+	      color: im_v2_component_elements_button.ButtonColor.Primary
 	    }
 	  },
 	  [Failure.repeatSigning]: {
@@ -485,7 +688,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }) => {
 	        goToPrimaryLink(document, true);
 	      },
-	      color: im_v2_component_elements.ButtonColor.Primary
+	      color: im_v2_component_elements_button.ButtonColor.Primary
 	    }
 	  }
 	};
@@ -547,7 +750,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const SignMessage = {
 	  name: 'SignMessage',
 	  components: {
-	    ButtonComponent: im_v2_component_elements.Button,
+	    ChatButton: im_v2_component_elements_button.ChatButton,
 	    BaseMessage: im_v2_component_message_base.BaseMessage,
 	    DefaultMessage: im_v2_component_message_default.DefaultMessage,
 	    MessageStatus: im_v2_component_message_elements.MessageStatus
@@ -566,7 +769,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    message() {
 	      return this.item;
 	    },
-	    ButtonSize: () => im_v2_component_elements.ButtonSize,
+	    ButtonSize: () => im_v2_component_elements_button.ButtonSize,
 	    componentParams() {
 	      return this.message.componentParams;
 	    },
@@ -668,7 +871,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					</div>
 					<div class="bx-im-message-sign__description" v-html="replacePhrase(description)" />
 					<div class="bx-im-message-sign__buttons_container">
-						<ButtonComponent
+						<ChatButton
 							v-if="button"
 							:size="ButtonSize.L"
 							isRounded

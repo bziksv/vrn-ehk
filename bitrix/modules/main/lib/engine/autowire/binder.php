@@ -2,7 +2,11 @@
 
 namespace Bitrix\Main\Engine\AutoWire;
 
+use Bitrix\Main\DI\ServiceLocator;
+use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Main\Result;
+use Bitrix\Main\Validation\Engine\AutoWire\ValidationChecker;
+use Psr\Container\NotFoundExceptionInterface;
 
 class Binder
 {
@@ -215,12 +219,10 @@ class Binder
 		catch (\TypeError $exception)
 		{
 			throw $exception;
-//			$this->processException($exception);
 		}
 		catch (\ErrorException $exception)
 		{
 			throw $exception;
-//			$this->processException($exception);
 		}
 
 		return null;
@@ -330,6 +332,11 @@ class Binder
 		return $result;
 	}
 
+	/**
+	 * @throws NotFoundExceptionInterface
+	 * @throws BinderArgumentException
+	 * @throws \ReflectionException
+	 */
 	private function getParameterValue(\ReflectionParameter $parameter)
 	{
 		$sourceParameters = $this->getSourcesParametersToMap();
@@ -382,12 +389,69 @@ class Binder
 					);
 				}
 
+				(new ValidationChecker($parameter, $constructedValue))->check();
+
 				return $constructedValue;
+			}
+
+			$reflectionClass = new \ReflectionClass($reflectionType->getName());
+			if ($reflectionClass->isEnum())
+			{
+				$enum = new \ReflectionEnum($reflectionType->getName());
+				$backedType = $enum->getBackingType();
+				if ($backedType && $enum->isBacked())
+				{
+					$backedValue = $this->findParameterInSourceList($parameter->getName(), $status);
+					if ($status === self::STATUS_NOT_FOUND)
+					{
+						if ($parameter->isDefaultValueAvailable())
+						{
+							return $parameter->getDefaultValue();
+						}
+
+						throw new BinderArgumentException(
+							"Could not find value for parameter {{$parameter->getName()}}",
+							$parameter
+						);
+					}
+					$declarationChecker = new TypeDeclarationChecker($backedType, $backedValue);
+					if (!$declarationChecker->isSatisfied())
+					{
+						throw new BinderArgumentException(
+							"Invalid value {{$backedValue}} to match with parameter {{$parameter->getName()}}. Should be value of type {$backedType->getName()}.",
+							$parameter
+						);
+					}
+
+					$enumValue = $reflectionType->getName()::tryFrom($backedValue);
+					if ($enumValue)
+					{
+						return $enumValue;
+					}
+				}
 			}
 
 			if ($parameter->isDefaultValueAvailable())
 			{
 				return $parameter->getDefaultValue();
+			}
+
+			try
+			{
+				if (class_exists($reflectionType->getName()))
+				{
+					if ($object = ServiceLocator::getInstance()->get($reflectionType->getName()))
+					{
+						return $object;
+					}
+				}
+			}
+			catch (ObjectNotFoundException $exception)
+			{
+				throw new BinderArgumentException(
+					$exception->getMessage(),
+					$parameter
+				);
 			}
 
 			$exceptionMessage = "Could not find value for parameter to build auto wired argument {{$reflectionType->getName()} \${$parameter->getName()}}";
@@ -429,6 +493,8 @@ class Binder
 			{
 				$value = (array)$value;
 			}
+
+			(new ValidationChecker($parameter, $value))->check();
 		}
 
 		return $value;

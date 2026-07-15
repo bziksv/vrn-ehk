@@ -31,7 +31,7 @@ class Signaling
 			'call' => $this->call->toArray(($senderId == $toUserId ? $toUserId : 0)),
 			'users' => $users,
 			'invitedUsers' => $invitedUsers,
-			'userData' => Util::getUsers($users),
+			'userData' => $this->call->getUserData(),
 			'senderId' => $senderId,
 			'publicIds' => $this->getPublicIds([$toUserId]),
 			'isLegacyMobile' => $isLegacyMobile,
@@ -71,7 +71,7 @@ class Signaling
 				'call' => $this->call->toArray((count($toUserIds) == 1 ? $toUserId : 0)),
 				'users' => $users,
 				'invitedUsers' => $toUserIds,
-				'userData' => Util::getUsers($users),
+				'userData' => $this->call->getUserData(),
 				'senderId' => $senderId,
 				'publicIds' => $this->getPublicIds($users),
 				'isLegacyMobile' => $isLegacyMobile,
@@ -155,12 +155,17 @@ class Signaling
 		return $push;
 	}
 
+	/**
+	 * @param int $senderId
+	 * @param int[] $joinedUsers
+	 * @return bool
+	 */
 	public function sendUsersJoined(int $senderId, array $joinedUsers)
 	{
 		$config = [
 			'call' => $this->call->toArray(),
 			'users' => $joinedUsers,
-			'userData' => Util::getUsers($joinedUsers),
+			'userData' => $this->call->prepareUserData($joinedUsers),
 			'senderId' => $senderId,
 			'publicIds' => $this->getPublicIds($joinedUsers),
 		];
@@ -173,7 +178,7 @@ class Signaling
 		$config = [
 			'call' => $this->call->toArray(),
 			'users' => $users,
-			'userData' => Util::getUsers($users),
+			'userData' => $this->call->prepareUserData($users),
 			'senderId' => $senderId,
 			'publicIds' => $this->getPublicIds($users),
 			'show' => $show,
@@ -215,7 +220,6 @@ class Signaling
 				'notificationsToCancel' => ['IM_CALL_'.$this->call->getId()],
 				'isVoip' => true,
 				'callkit' => true,
-				'filterCallback' => [static::class, 'filterPushesForApple'],
 			]
 		];
 
@@ -314,6 +318,18 @@ class Signaling
 		return $this->send('Call::finish', $this->call->getUsers(), [], $push, 3600);
 	}
 
+	public function sendSwitchTrackRecordStatus(int $senderId, bool $isTrackRecordOn, string $errorCode = '')
+	{
+		$toUserIds = array_diff($this->call->getUsers(), [$senderId]);
+
+		return $this->send('Call::switchTrackRecordStatus', $toUserIds, [
+			'senderId' => $senderId,
+			'isTrackRecordOn' => $isTrackRecordOn,
+			'callUuid' => $this->call->getUuid(),
+			'errorCode' => $errorCode,
+		]);
+	}
+
 	public static function filterPushesForApple($message, $deviceType, $deviceToken)
 	{
 		if (!Loader::includeModule('pull'))
@@ -353,7 +369,12 @@ class Signaling
 
 		if (!isset($params['call']))
 		{
-			$params['call'] = ['ID' => $this->call->getId()];
+			$params['call'] = [
+				'ID' => $this->call->getId(),
+				'UUID' => $this->call->getUuid(),
+				'PROVIDER' => $this->call->getProvider(),
+				'SCHEME' => $this->call->getScheme(),
+			];
 		}
 
 		if (!isset($params['callId']))

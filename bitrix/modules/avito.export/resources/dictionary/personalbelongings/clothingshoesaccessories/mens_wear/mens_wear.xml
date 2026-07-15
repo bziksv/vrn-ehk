@@ -1,0 +1,49 @@
+<?xml version="1.0" ?>
+<Dictionary>
+	<Apparel name="Джинсы"></Apparel>
+    <Apparel name="Брюки">
+	    <PantsStyle name="Классический"/>
+	    <PantsStyle name="Повседневный"/>
+	    <PantsStyle name="Спортивный"/>
+    </Apparel>
+    <Apparel name="Верхняя одежда">
+        <ApparelType name="Зимние куртки и пуховики"></ApparelType>
+        <ApparelType name="Лёгкие куртки и ветровки"></ApparelType>
+        <ApparelType name="Демисезонные куртки"></ApparelType>
+        <ApparelType name="Пальто"></ApparelType>
+        <ApparelType name="Дублёнки и шубы"></ApparelType>
+        <ApparelType name="Жилеты"></ApparelType>
+        <ApparelType name="Парки"></ApparelType>
+        <ApparelType name="Джинсовые куртки"></ApparelType>
+        <ApparelType name="Кожаные куртки"></ApparelType>
+        <ApparelType name="Бомберы"></ApparelType>
+        <ApparelType name="Плащи и тренчи"></ApparelType>
+        <ApparelType name="Косухи"></ApparelType>
+        <ApparelType name="Анораки"></ApparelType>
+        <ApparelType name="Другое"></ApparelType>
+    </Apparel>
+    <Apparel name="Пиджаки и костюмы"></Apparel>
+    <Apparel name="Рубашки">
+	    <SleeveType name="Короткий"/>
+	    <SleeveType name="Длинный"/>
+	    <SleeveType name="Без рукавов"/>
+    </Apparel>
+	<Apparel name="Спортивные костюмы">
+		<Model variable="text"/>
+	</Apparel>
+	<Apparel name="Шорты"></Apparel>
+	<Apparel name="Нижнее бельё"></Apparel>
+	<Apparel name="Кофты и футболки">
+		<GoodsSubType name="Футболка"></GoodsSubType>
+		<GoodsSubType name="Поло"></GoodsSubType>
+		<GoodsSubType name="Майка"></GoodsSubType>
+		<GoodsSubType name="Свитшот"></GoodsSubType>
+		<GoodsSubType name="Толстовка / худи"></GoodsSubType>
+		<GoodsSubType name="Джемпер"></GoodsSubType>
+		<GoodsSubType name="Свитер"></GoodsSubType>
+		<GoodsSubType name="Кардиган"></GoodsSubType>
+		<GoodsSubType name="Кофта"></GoodsSubType>
+		<Model variable="text"/>
+	</Apparel>
+    <Apparel name="Другое"></Apparel>
+</Dictionary>

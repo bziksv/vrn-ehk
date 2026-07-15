@@ -1,6 +1,0 @@
-<?
-$MESS ['PHOENIX_T_IBLOCK_CABINET'] = "Личный кабинет";
-$MESS ['PHOENIX_T_IBLOCK_CABINET_DESC'] = "Личный кабинет";
-$MESS ['PHOENIX_T_IBLOCK_DESC_PAGE_GENERATOR'] = "Феникс";
-$MESS ['PHOENIX_T_IBLOCK_DESC_COMPANY_GENERATOR'] = "Концепт";
-?>

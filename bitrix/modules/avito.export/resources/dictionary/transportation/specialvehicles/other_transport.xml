@@ -1,0 +1,1520 @@
+
+<TypeOfVehicles>
+	<TypeOfVehicle name="Авиатехника">
+		<SubTypeOfVehicle name="Автожир"></SubTypeOfVehicle>
+		<SubTypeOfVehicle name="Аэростат"></SubTypeOfVehicle>
+		<SubTypeOfVehicle name="Вертолёт"></SubTypeOfVehicle>
+		<SubTypeOfVehicle name="Дельталёт"></SubTypeOfVehicle>
+		<SubTypeOfVehicle name="Паралёт"></SubTypeOfVehicle>
+		<SubTypeOfVehicle name="Планер"></SubTypeOfVehicle>
+		<SubTypeOfVehicle name="Самолёт"></SubTypeOfVehicle>
+	</TypeOfVehicle>
+	<TypeOfVehicle name="Агрегат депарафинизации нефтяных скважин"></TypeOfVehicle>
+	<TypeOfVehicle name="Аэродромный подъемник"></TypeOfVehicle>
+	<TypeOfVehicle name="Баня на колёсах"></TypeOfVehicle>
+	<TypeOfVehicle name="Генераторы и электростанции"></TypeOfVehicle>
+	<TypeOfVehicle name="Дезинфекционная установка">
+		<Make name="Авиаисток">
+			<Model name="Аист-2С"></Model>
+		</Make>
+	</TypeOfVehicle>
+	<TypeOfVehicle name="Демилитаризованная техника"></TypeOfVehicle>
+	<TypeOfVehicle name="Железнодорожный транспорт">
+		<SubTypeOfVehicle name="Вагон"></SubTypeOfVehicle>
+		<SubTypeOfVehicle name="Тепловоз"></SubTypeOfVehicle>
+		<SubTypeOfVehicle name="Трамвай"></SubTypeOfVehicle>
+	</TypeOfVehicle>
+	<TypeOfVehicle name="Кареты и сани"></TypeOfVehicle>
+	<TypeOfVehicle name="Каротажный подъёмник"></TypeOfVehicle>
+	<TypeOfVehicle name="Катафалк"></TypeOfVehicle>
+	<TypeOfVehicle name="Колтюбинговая установка"></TypeOfVehicle>
+	<TypeOfVehicle name="Кровлеоборщик шахтный">
+		<Make name="Normet">
+			<Model name="Scamec 2000 М"></Model>
+		</Make>
+	</TypeOfVehicle>
+	<TypeOfVehicle name="Моторный подогреватель">
+		<Make name="УралСпецТранс">
+			<Model name="УМП-400"></Model>
+		</Make>
+	</TypeOfVehicle>
+	<TypeOfVehicle name="Насосная станция"></TypeOfVehicle>
+	<TypeOfVehicle name="Передвижная лаборатория"></TypeOfVehicle>
+	<TypeOfVehicle name="Передвижная парогенераторная установка"></TypeOfVehicle>
+	<TypeOfVehicle name="Передвижная ремонтная мастерская"></TypeOfVehicle>
+	<TypeOfVehicle name="Передвижной компрессор"></TypeOfVehicle>
+	<TypeOfVehicle name="Передвижной учебный центр"></TypeOfVehicle>
+	<TypeOfVehicle name="Подъёмник">
+		<SubTypeOfVehicle name="Коленчатый">
+			<Make name="ALTA">
+				<Model name="TBL-010A"></Model>
+				<Model name="TBL-012A"></Model>
+				<Model name="TBL-012C"></Model>
+				<Model name="TBL-014A"></Model>
+				<Model name="TBL-014C"></Model>
+				<Model name="TBL-016A"></Model>
+				<Model name="TBL-016C"></Model>
+				<Model name="TBL-018A"></Model>
+				<Model name="TBL-018C"></Model>
+				<Model name="TBL-020A"></Model>
+				<Model name="TBL-020C"></Model>
+				<Model name="TBL-022C"></Model>
+			</Make>
+			<Make name="ANT">
+				<Model name="14-7"></Model>
+			</Make>
+			<Make name="Aerial">
+				<Model name="K17T"></Model>
+			</Make>
+			<Make name="Airo">
+				<Model name="A12 E"></Model>
+			</Make>
+			<Make name="Aurora">
+				<Model name="A14Е"></Model>
+			</Make>
+			<Make name="Bison-Palfinger">
+				<Model name="GK 12"></Model>
+			</Make>
+			<Make name="Bluelift">
+				<Model name="C14/6.5"></Model>
+			</Make>
+			<Make name="Bronto skylift">
+				<Model name="10-2h"></Model>
+			</Make>
+			<Make name="CTE">
+				<Model name="Traccess 135 E"></Model>
+				<Model name="Traccess 135-1"></Model>
+				<Model name="Traccess 170"></Model>
+				<Model name="Traccess 230"></Model>
+			</Make>
+			<Make name="Denyo">
+				<Model name="HW-10SB"></Model>
+			</Make>
+			<Make name="Dingli">
+				<Model name="BA11NE"></Model>
+				<Model name="BA16CERT"></Model>
+				<Model name="BA16CERT2"></Model>
+				<Model name="BA16CHRT"></Model>
+				<Model name="BA16CHRT2"></Model>
+				<Model name="BA16CRT"></Model>
+				<Model name="BA16CRT2"></Model>
+				<Model name="BA16NE"></Model>
+				<Model name="BA16NE Li"></Model>
+				<Model name="BA18CERT"></Model>
+				<Model name="BA18CERT2"></Model>
+				<Model name="BA18CHRT2"></Model>
+				<Model name="BA18CRT"></Model>
+				<Model name="BA18CRT2"></Model>
+				<Model name="BA18NE"></Model>
+				<Model name="BA18NE Li"></Model>
+				<Model name="BA20CERT2"></Model>
+				<Model name="BA20CHRT"></Model>
+				<Model name="BA20CHRT2"></Model>
+				<Model name="BA20CRT"></Model>
+				<Model name="BA20CRT2"></Model>
+				<Model name="BA20ERT"></Model>
+				<Model name="BA20ERT Li"></Model>
+				<Model name="BA22CERT2"></Model>
+				<Model name="BA22CHRT"></Model>
+				<Model name="BA22CHRT2"></Model>
+				<Model name="BA22CRT"></Model>
+				<Model name="BA22CRT2"></Model>
+				<Model name="BA22ERT"></Model>
+				<Model name="BA22ERT Li"></Model>
+				<Model name="BA24HRT"></Model>
+				<Model name="BA28ERT"></Model>
+				<Model name="BA28RT"></Model>
+				<Model name="BA36ERT"></Model>
+				<Model name="BA36HRT"></Model>
+				<Model name="BA36RT"></Model>
+				<Model name="BA41ERT"></Model>
+				<Model name="BA41HRT"></Model>
+				<Model name="BA41RT"></Model>
+				<Model name="BA44ERT"></Model>
+				<Model name="BA44HRT"></Model>
+				<Model name="BA44RT"></Model>
+				<Model name="GTBZ16A"></Model>
+				<Model name="GTBZ16AE"></Model>
+				<Model name="GTBZ18AE"></Model>
+			</Make>
+			<Make name="Dino">
+				<Model name="160XT"></Model>
+				<Model name="160XTB"></Model>
+				<Model name="165XTC"></Model>
+				<Model name="180XT"></Model>
+				<Model name="180XTB"></Model>
+				<Model name="185XTC"></Model>
+				<Model name="185XTS"></Model>
+				<Model name="205RXT"></Model>
+				<Model name="210XT"></Model>
+				<Model name="210XTB"></Model>
+				<Model name="220XTC"></Model>
+				<Model name="240RXT"></Model>
+				<Model name="260XTD"></Model>
+				<Model name="265RXT"></Model>
+			</Make>
+			<Make name="Easy-Lift">
+				<Model name="R130"></Model>
+			</Make>
+			<Make name="Genie">
+				<Model name="TZ-50"></Model>
+				<Model name="Z135-70"></Model>
+				<Model name="Z33-18"></Model>
+				<Model name="Z34-22N"></Model>
+				<Model name="Z45-22D"></Model>
+				<Model name="Z45-22DC"></Model>
+				<Model name="Z45-25"></Model>
+				<Model name="Z45-25J Bi-Energy"></Model>
+				<Model name="Z51-30JRT"></Model>
+				<Model name="Z60-34"></Model>
+				<Model name="Z80-60"></Model>
+				<Model name="ZX135-70"></Model>
+			</Make>
+			<Make name="Grove">
+				<Model name="A 125 J"></Model>
+				<Model name="A 62 J"></Model>
+				<Model name="AMZ 131 XT"></Model>
+				<Model name="AMZ 51 E"></Model>
+			</Make>
+			<Make name="Haulotte">
+				<Model name="1300 RT"></Model>
+				<Model name="15 I"></Model>
+				<Model name="HA 12 IP"></Model>
+				<Model name="HA 15 DX"></Model>
+				<Model name="HA 15 IP"></Model>
+				<Model name="HA 16 PX"></Model>
+				<Model name="HA 16 PXNT"></Model>
+				<Model name="HA 16 RTJ"></Model>
+				<Model name="HA 16 SPX"></Model>
+				<Model name="HA 16 X"></Model>
+				<Model name="HA 16 РЕ"></Model>
+				<Model name="HA 18 PX"></Model>
+				<Model name="HA 18 PXNT"></Model>
+				<Model name="HA 18 SPX"></Model>
+				<Model name="HA 20 PX"></Model>
+				<Model name="HA 20 RTJ Pro"></Model>
+				<Model name="HA 26 PX"></Model>
+				<Model name="HA 26 RTJ O"></Model>
+				<Model name="HA 26 RTJ Pro"></Model>
+				<Model name="HA 260 PX"></Model>
+				<Model name="HA 32 PX"></Model>
+				<Model name="HA 32 RTJ PRO"></Model>
+				<Model name="Star 6 (коленчатый)"></Model>
+				<Model name="НA 41 PX-NT"></Model>
+			</Make>
+			<Make name="Hinowa">
+				<Model name="Aerea Cingolata GL1470IIIS"></Model>
+				<Model name="GL 14.70 Lithium ion"></Model>
+				<Model name="Gold Lift 14.70"></Model>
+				<Model name="Gold Lift 17.80XL IIIS"></Model>
+				<Model name="Light Lift 14.72"></Model>
+				<Model name="Light Lift 14.72 IIIS"></Model>
+				<Model name="Light Lift 19.65 IIIS"></Model>
+				<Model name="Light Lift 19.65 IIIS Lithium ion"></Model>
+				<Model name="Light Lift 23.12 IIIS"></Model>
+			</Make>
+			<Make name="Ihimer">
+				<Model name="LEM 1200"></Model>
+				<Model name="LEM 1350"></Model>
+				<Model name="LEM 1500"></Model>
+				<Model name="LEM 1800"></Model>
+				<Model name="LEM 2200"></Model>
+			</Make>
+			<Make name="Imer">
+				<Model name="IM R 13"></Model>
+				<Model name="IM R 15"></Model>
+				<Model name="IM R 19"></Model>
+				<Model name="IT 100 E"></Model>
+				<Model name="IT 150 E"></Model>
+			</Make>
+			<Make name="Italmec">
+				<Model name="NCS"></Model>
+			</Make>
+			<Make name="JHC">
+				<Model name="AB14EJ"></Model>
+				<Model name="AB17"></Model>
+				<Model name="AB18EJ"></Model>
+				<Model name="AB20J"></Model>
+				<Model name="Z-45E"></Model>
+				<Model name="Z-48J"></Model>
+			</Make>
+			<Make name="JLG">
+				<Model name="1250AJP"></Model>
+				<Model name="150HAX Articulating Boom Lift"></Model>
+				<Model name="340AJ Articulating Boom Lift"></Model>
+				<Model name="450A Series II Articulating Boom Lift"></Model>
+				<Model name="450AJ Series II Articulating Boom Lift"></Model>
+				<Model name="510AJ"></Model>
+				<Model name="520AJ"></Model>
+				<Model name="600A Articulating Boom Lift"></Model>
+				<Model name="600AJ Articulating Boom Lift"></Model>
+				<Model name="600AN Articulating Narrow Boom Lift"></Model>
+				<Model name="60HA"></Model>
+				<Model name="800A Articulating Boom Lift"></Model>
+				<Model name="800AJ Articulating Boom Lift"></Model>
+				<Model name="E300AJ Electric Boom Lift"></Model>
+				<Model name="E300AJP Electric Boom Lift"></Model>
+				<Model name="E400AJP Electric Boom Lift"></Model>
+				<Model name="E400AJPN Electric Boom Lift"></Model>
+				<Model name="E400AN Electric Boom Lift"></Model>
+				<Model name="E450A Electric Boom Lift"></Model>
+				<Model name="E450AJ"></Model>
+				<Model name="E450AJ Electric Boom Lift"></Model>
+				<Model name="E600J Electric Boom Lift"></Model>
+				<Model name="E600JP Electric Boom Lift"></Model>
+				<Model name="M400AJP Electric Boom Lift"></Model>
+				<Model name="M400AJPN"></Model>
+				<Model name="M400AN Electric Boom Lift"></Model>
+				<Model name="M450A Electric Boom Lift"></Model>
+				<Model name="M450AJ Electric Boom Lift"></Model>
+				<Model name="M600J Electric Boom Lift"></Model>
+				<Model name="M600JP Electric Boom Lift"></Model>
+				<Model name="X14J"></Model>
+				<Model name="X14J-H"></Model>
+				<Model name="X17J"></Model>
+				<Model name="X19J"></Model>
+				<Model name="X23J"></Model>
+			</Make>
+			<Make name="LGMG">
+				<Model name="A14J"></Model>
+				<Model name="A14JE"></Model>
+				<Model name="AR16J"></Model>
+			</Make>
+			<Make name="Leguan">
+				<Model name="125"></Model>
+				<Model name="130-1"></Model>
+				<Model name="130-2"></Model>
+				<Model name="160"></Model>
+				<Model name="50"></Model>
+			</Make>
+			<Make name="Lema">
+				<Model name="LM WPAPD-023-140"></Model>
+				<Model name="LM WPTPD-023-140"></Model>
+				<Model name="LM WPTPD-023-240"></Model>
+				<Model name="LM WPTPD-023-260"></Model>
+				<Model name="LM WPTPD-023-320"></Model>
+				<Model name="LM WPTPD-023-360"></Model>
+				<Model name="LM WPTPD-023-400"></Model>
+				<Model name="LM WPTPD-034-300"></Model>
+				<Model name="LM WPTPD-034-340"></Model>
+				<Model name="LM WPTPD-034-380"></Model>
+			</Make>
+			<Make name="Manitou">
+				<Model name="100 VJR"></Model>
+				<Model name="120 AETJ-C"></Model>
+				<Model name="150 AETJ-C"></Model>
+				<Model name="150 AETJ-L BI"></Model>
+				<Model name="160 ATJ"></Model>
+				<Model name="160 ATJ+"></Model>
+				<Model name="170 AETJ-L"></Model>
+				<Model name="170 AETJ-L BI"></Model>
+				<Model name="180 ATJ"></Model>
+				<Model name="200 ATJ"></Model>
+				<Model name="MAN GO 12"></Model>
+			</Make>
+			<Make name="Mantall">
+				<Model name="HZ-160J"></Model>
+				<Model name="HZ-160JRT"></Model>
+				<Model name="HZ-180JRT"></Model>
+			</Make>
+			<Make name="Matilsa">
+				<Model name="Parma-15"></Model>
+			</Make>
+			<Make name="Nagano">
+				<Model name="NUL060"></Model>
+			</Make>
+			<Make name="Niftylift">
+				<Model name="DR15"></Model>
+				<Model name="HR10"></Model>
+				<Model name="HR12 2x4"></Model>
+				<Model name="HR12 4x4"></Model>
+				<Model name="HR12N"></Model>
+				<Model name="HR15 4x4"></Model>
+				<Model name="HR15N"></Model>
+				<Model name="HR17 4x4"></Model>
+				<Model name="HR17 Hybrid 4x4"></Model>
+				<Model name="HR17N"></Model>
+				<Model name="HR18 4x4 Construction"></Model>
+				<Model name="HR21 2x4"></Model>
+				<Model name="HR21 4x4"></Model>
+				<Model name="HR21 Hybrid AWD"></Model>
+				<Model name="N90 E"></Model>
+				<Model name="Nifty 120"></Model>
+				<Model name="Nifty 120T"></Model>
+				<Model name="Nifty 140"></Model>
+				<Model name="Nifty 150T"></Model>
+				<Model name="Nifty 170"></Model>
+				<Model name="Nifty 210"></Model>
+				<Model name="Nifty 90"></Model>
+				<Model name="SD120T"></Model>
+				<Model name="SD170"></Model>
+				<Model name="SD210 4x4x4"></Model>
+				<Model name="TD120T"></Model>
+				<Model name="TD120TN"></Model>
+				<Model name="TD150T"></Model>
+				<Model name="TD170"></Model>
+				<Model name="V130T"></Model>
+			</Make>
+			<Make name="Oil&amp;Steel">
+				<Model name="Octopussy 1055"></Model>
+				<Model name="Octopussy 1401 Classic"></Model>
+				<Model name="Octopussy 1402 Classic"></Model>
+				<Model name="Octopussy 1412 Twin"></Model>
+				<Model name="Octopussy 1500 EVO"></Model>
+				<Model name="Octopussy 1715 Twin"></Model>
+				<Model name="Octopussy 1800 EVO"></Model>
+				<Model name="Octopussy 2190"></Model>
+			</Make>
+			<Make name="Palazzani">
+				<Model name=" XTJ 30"></Model>
+				<Model name="TZX 170"></Model>
+			</Make>
+			<Make name="Paus">
+				<Model name="GT 16A"></Model>
+				<Model name="GT 18A"></Model>
+			</Make>
+			<Make name="Platform Basket">
+				<Model name="Spider 18.90"></Model>
+			</Make>
+			<Make name="SOBR">
+				<Model name="ABL-16"></Model>
+				<Model name="ABL-18"></Model>
+				<Model name="ABL-20"></Model>
+				<Model name="ABL-22"></Model>
+				<Model name="ABL-24"></Model>
+				<Model name="ABL-28"></Model>
+				<Model name="ABL-30"></Model>
+			</Make>
+			<Make name="Sami">
+				<Model name="TR210"></Model>
+			</Make>
+			<Make name="Sinoboom">
+				<Model name="GTJZ1623RD"></Model>
+				<Model name="GTZZ14E"></Model>
+				<Model name="GTZZ15"></Model>
+				<Model name="GTZZ15J"></Model>
+				<Model name="GTZZ18"></Model>
+				<Model name="GTZZ18J"></Model>
+				<Model name="GTZZ25"></Model>
+			</Make>
+			<Make name="Skyboom">
+				<Model name="GTZZ"></Model>
+			</Make>
+			<Make name="Skyjack">
+				<Model name="SJ 46AJ"></Model>
+				<Model name="SJ 51AJ"></Model>
+			</Make>
+			<Make name="Snorkel / UpRight">
+				<Model name="AB38 (UpRight AB38N)"></Model>
+				<Model name="AB46E"></Model>
+				<Model name="AB60J"></Model>
+				<Model name="AB60JCU"></Model>
+				<Model name="ATB60ALCU"></Model>
+				<Model name="TL38"></Model>
+				<Model name="UpRight TL37"></Model>
+			</Make>
+			<Make name="Socage">
+				<Model name="Forste"></Model>
+			</Make>
+			<Make name="Sunhecrane">
+				<Model name="ZX 22 M"></Model>
+			</Make>
+			<Make name="Sunward">
+				<Model name="SWA16J"></Model>
+				<Model name="SWA16JE"></Model>
+			</Make>
+			<Make name="TCA Lift">
+				<Model name="FS330Z"></Model>
+			</Make>
+			<Make name="Tecchio">
+				<Model name="K416AJ"></Model>
+			</Make>
+			<Make name="Terex">
+				<Model name="TA50RT"></Model>
+			</Make>
+			<Make name="Thomas">
+				<Model name="130NW"></Model>
+			</Make>
+			<Make name="XCMG">
+				<Model name="XGA16AC"></Model>
+				<Model name="XGA20AC"></Model>
+				<Model name="XGA20K"></Model>
+			</Make>
+			<Make name="Zoomlion">
+				<Model name="ZA10RJE"></Model>
+				<Model name="ZA14J"></Model>
+				<Model name="ZA14JE"></Model>
+				<Model name="ZA14NJE"></Model>
+				<Model name="ZA18J"></Model>
+				<Model name="ZA20J"></Model>
+				<Model name="ZA20JE"></Model>
+				<Model name="ZA24J"></Model>
+				<Model name="ZA32J"></Model>
+			</Make>
+			<Make name="Аист">
+				<Model name="АИСТ-14"></Model>
+				<Model name="АИСТ-18"></Model>
+			</Make>
+			<Make name="ДСТ-УРАЛ">
+				<Model name="ПМ-40 «Бурлак-400»"></Model>
+			</Make>
+			<Make name="ООО &#34;Торговый Дом &#34;Гидроремсервис&#34;">
+				<Model name="АИСТ-10"></Model>
+				<Model name="АИСТ-12"></Model>
+				<Model name="АИСТ-14"></Model>
+				<Model name="АИСТ-16"></Model>
+				<Model name="АИСТ-18"></Model>
+			</Make>
+		</SubTypeOfVehicle>
+		<SubTypeOfVehicle name="Ножничный">
+			<Make name="3J Tech">
+				<Model name="JC-21"></Model>
+				<Model name="JC-25"></Model>
+				<Model name="JC-30"></Model>
+				<Model name="JC-35"></Model>
+				<Model name="JC-40"></Model>
+			</Make>
+			<Make name="Aichi">
+				<Model name="RV041"></Model>
+				<Model name="SV-120"></Model>
+			</Make>
+			<Make name="Airo">
+				<Model name="XP5 E"></Model>
+			</Make>
+			<Make name="Aurora">
+				<Model name="AS0607W"></Model>
+				<Model name="AS0608"></Model>
+				<Model name="AS0808"></Model>
+				<Model name="AS0812E"></Model>
+				<Model name="AS1012"></Model>
+				<Model name="AS1212"></Model>
+				<Model name="AS1413"></Model>
+				<Model name="SR1623D"></Model>
+				<Model name="SS0407E"></Model>
+			</Make>
+			<Make name="Changfa">
+				<Model name="SJYO.5-16"></Model>
+			</Make>
+			<Make name="DUX">
+				<Model name="P1 SL6000"></Model>
+				<Model name="P1 SL6000S"></Model>
+				<Model name="P1 SLP5000N"></Model>
+			</Make>
+			<Make name="Dingli">
+				<Model name="JCPT0507"></Model>
+				<Model name="JCPT0607"></Model>
+				<Model name="JCPT0607A"></Model>
+				<Model name="JCPT0607DCM"></Model>
+				<Model name="JCPT0607PA"></Model>
+				<Model name="JCPT0708DCM"></Model>
+				<Model name="JCPT0807AC"></Model>
+				<Model name="JCPT0807HA"></Model>
+				<Model name="JCPT0807PA"></Model>
+				<Model name="JCPT0808HA"></Model>
+				<Model name="JCPT0812HA"></Model>
+				<Model name="JCPT0812HA Li"></Model>
+				<Model name="JCPT1008AC"></Model>
+				<Model name="JCPT1008ACS"></Model>
+				<Model name="JCPT1008HA"></Model>
+				<Model name="JCPT1008HAZ"></Model>
+				<Model name="JCPT1012AC"></Model>
+				<Model name="JCPT1012HA"></Model>
+				<Model name="JCPT1017RT"></Model>
+				<Model name="JCPT1208HA"></Model>
+				<Model name="JCPT1212AC"></Model>
+				<Model name="JCPT1212HA"></Model>
+				<Model name="JCPT1212HA Li"></Model>
+				<Model name="JCPT1212HAZ"></Model>
+				<Model name="JCPT1217RT"></Model>
+				<Model name="JCPT1218DC"></Model>
+				<Model name="JCPT1218RT"></Model>
+				<Model name="JCPT1223RT"></Model>
+				<Model name="JCPT1412HA"></Model>
+				<Model name="JCPT1412HAZ"></Model>
+				<Model name="JCPT1418DC"></Model>
+				<Model name="JCPT1418RT"></Model>
+				<Model name="JCPT1523DCB"></Model>
+				<Model name="JCPT1523RT"></Model>
+				<Model name="JCPT1523RTL"></Model>
+				<Model name="JCPT1612ACS"></Model>
+				<Model name="JCPT1612HA"></Model>
+				<Model name="JCPT1612HAS"></Model>
+				<Model name="JCPT1612HAZ"></Model>
+				<Model name="JCPT1712DCL"></Model>
+				<Model name="JCPT1823DCB"></Model>
+				<Model name="JCPT1823RT"></Model>
+				<Model name="JCPT1823RTL"></Model>
+				<Model name="JCPT1912DCL"></Model>
+				<Model name="JCPT1923DC"></Model>
+				<Model name="JCPT1923RTB"></Model>
+				<Model name="JCPT2212DC"></Model>
+				<Model name="JCPT2223DC"></Model>
+				<Model name="JCPT2223RTB"></Model>
+				<Model name="JCPT2814DC"></Model>
+				<Model name="JCPT2825DC"></Model>
+				<Model name="JCPT2825RT"></Model>
+				<Model name="JCPT3214DC"></Model>
+				<Model name="JCPT3225DC"></Model>
+				<Model name="JCPT3225RT"></Model>
+			</Make>
+			<Make name="ELS Lift">
+				<Model name="EL10"></Model>
+				<Model name="EL10-T"></Model>
+				<Model name="EL12"></Model>
+				<Model name="EL14"></Model>
+				<Model name="EL6-S"></Model>
+				<Model name="EL8-S"></Model>
+				<Model name="EL8-T"></Model>
+			</Make>
+			<Make name="Force vector">
+				<Model name="SJYO 5-11A"></Model>
+				<Model name="SJYO 5-12A"></Model>
+				<Model name="SJYO 5-14A"></Model>
+				<Model name="SJYO 5-7A"></Model>
+				<Model name="SJYO 5-9A"></Model>
+			</Make>
+			<Make name="Genie">
+				<Model name="GS-1530"></Model>
+				<Model name="GS-1532"></Model>
+				<Model name="GS-1930"></Model>
+				<Model name="GS-1932"></Model>
+				<Model name="GS-2032"></Model>
+				<Model name="GS-2046"></Model>
+				<Model name="GS-2632"></Model>
+				<Model name="GS-2646 RT"></Model>
+				<Model name="GS-2669"></Model>
+				<Model name="GS-3232"></Model>
+				<Model name="GS-3246"></Model>
+				<Model name="GS-3268"></Model>
+				<Model name="GS-3369 RT"></Model>
+				<Model name="GS-3384 RT"></Model>
+				<Model name="GS-3390 RT"></Model>
+				<Model name="GS-4047"></Model>
+				<Model name="GS-4069 RT"></Model>
+				<Model name="GS-4390 RT"></Model>
+				<Model name="GS-5390 RT"></Model>
+				<Model name="V-2470E"></Model>
+			</Make>
+			<Make name="Grost">
+				<Model name="PX 05-9000 (DC)"></Model>
+				<Model name="SPX F3-12000"></Model>
+				<Model name="SPX F3-6000"></Model>
+				<Model name="SPX F3-8000"></Model>
+				<Model name="SPX S3-6000"></Model>
+				<Model name="SPX S3-8000"></Model>
+				<Model name="SPX T3-3000"></Model>
+				<Model name="SPX T3-3900"></Model>
+				<Model name="Sky 0.3-13"></Model>
+				<Model name="Sky 0.5-9"></Model>
+				<Model name="Tower 0.3-16"></Model>
+				<Model name="Tower 0.5-11"></Model>
+				<Model name="Tower 0.5-14"></Model>
+				<Model name="Tower 0.5-7"></Model>
+				<Model name="Tower 0.5-9"></Model>
+			</Make>
+			<Make name="Grove">
+				<Model name="SM 2632E"></Model>
+				<Model name="SM 3248E"></Model>
+			</Make>
+			<Make name="H.A.B.">
+				<Model name="S 142 - 12 E2WD"></Model>
+			</Make>
+			<Make name="HENAN TONGHE">
+				<Model name="SJPT0607"></Model>
+				<Model name="SJPT0607T"></Model>
+				<Model name="SJPT0607TL"></Model>
+				<Model name="SJPT0812"></Model>
+				<Model name="SJPT1012"></Model>
+				<Model name="SJPT1212"></Model>
+				<Model name="SJPT1212RT"></Model>
+				<Model name="SJPT1213RT"></Model>
+			</Make>
+			<Make name="Hangcha">
+				<Model name="100XEN"></Model>
+				<Model name="120XEN"></Model>
+				<Model name="140XEN"></Model>
+			</Make>
+			<Make name="Haulotte">
+				<Model name="Compact 10"></Model>
+				<Model name="Compact 10 DX"></Model>
+				<Model name="Compact 10 N"></Model>
+				<Model name="Compact 10 RTE"></Model>
+				<Model name="Compact 12"></Model>
+				<Model name="Compact 12 DX"></Model>
+				<Model name="Compact 12 RTE"></Model>
+				<Model name="Compact 14"></Model>
+				<Model name="Compact 8"></Model>
+				<Model name="Compact 8 W"></Model>
+				<Model name="H 1150E"></Model>
+				<Model name="H 12 SX"></Model>
+				<Model name="H 12 SXL"></Model>
+				<Model name="H 15 SX"></Model>
+				<Model name="H 15 SXL"></Model>
+				<Model name="H 18 SX"></Model>
+				<Model name="H 18 SXL"></Model>
+				<Model name="Optimum 6"></Model>
+				<Model name="Optimum 8"></Model>
+			</Make>
+			<Make name="Holland Lift">
+				<Model name="Ministar N140EL12"></Model>
+				<Model name="Ministar N165EL12"></Model>
+				<Model name="Ministar N195EL12"></Model>
+				<Model name="Ministar Q135EL18"></Model>
+				<Model name="Ministar Q135EL24"></Model>
+				<Model name="Ministar X105EL12"></Model>
+				<Model name="Ministar X105EL16"></Model>
+				<Model name="Ministar Y83EL12"></Model>
+				<Model name="Ministar Y83EL16"></Model>
+				<Model name="Ministar Z45EL8"></Model>
+			</Make>
+			<Make name="Iteco">
+				<Model name="Easy Up 5 SP"></Model>
+				<Model name="IG 8150"></Model>
+			</Make>
+			<Make name="JCHI">
+				<Model name="GTJY10A"></Model>
+				<Model name="GTJY6"></Model>
+				<Model name="GTJY8"></Model>
+				<Model name="GTJY8W"></Model>
+				<Model name="GTJZ0608A"></Model>
+				<Model name="GTJZ0808A"></Model>
+				<Model name="GTJZ10A"></Model>
+				<Model name="GTJZ6A"></Model>
+				<Model name="GTJZ8A"></Model>
+				<Model name="GTQZ16"></Model>
+			</Make>
+			<Make name="JHC">
+				<Model name="GTJN13"></Model>
+				<Model name="GTJN16"></Model>
+				<Model name="GTJZ0607DC"></Model>
+				<Model name="GTJZ0608DC"></Model>
+				<Model name="GTJZ0807DC"></Model>
+				<Model name="GTJZ0807HD"></Model>
+				<Model name="GTJZ1008DC"></Model>
+				<Model name="GTJZ1008HD"></Model>
+				<Model name="GTJZ1212DC"></Model>
+				<Model name="GTJZ1212HD"></Model>
+				<Model name="GTJZ1412DC"></Model>
+				<Model name="GTJZ1412HD"></Model>
+				<Model name="GTJZ1614DC"></Model>
+				<Model name="GTJZ1614HD"></Model>
+				<Model name="RTS1218"></Model>
+				<Model name="S0607DCS"></Model>
+				<Model name="S0608TR"></Model>
+				<Model name="S0707DCS"></Model>
+				<Model name="S0808DC"></Model>
+				<Model name="S0808DCS"></Model>
+				<Model name="S0808HD"></Model>
+				<Model name="S1012DC"></Model>
+				<Model name="S1012HD"></Model>
+				<Model name="S1412TR"></Model>
+			</Make>
+			<Make name="JLG">
+				<Model name="153-12 Liftlux"></Model>
+				<Model name="153-22 Liftlux"></Model>
+				<Model name="1930ES"></Model>
+				<Model name="203-24 Liftlux"></Model>
+				<Model name="2030ES"></Model>
+				<Model name="2033E"></Model>
+				<Model name="210-25 Liftlux"></Model>
+				<Model name="245-25 Liftlux"></Model>
+				<Model name="260MRT"></Model>
+				<Model name="2630ES"></Model>
+				<Model name="2632ES"></Model>
+				<Model name="2632R"></Model>
+				<Model name="2646E3"></Model>
+				<Model name="2646ES"></Model>
+				<Model name="3246ES"></Model>
+				<Model name="3246R"></Model>
+				<Model name="330LRT"></Model>
+				<Model name="3369LE"></Model>
+				<Model name="3394RT Scissor Lift"></Model>
+				<Model name="3969E"></Model>
+				<Model name="4045R"></Model>
+				<Model name="4069LE"></Model>
+				<Model name="40RTS"></Model>
+				<Model name="430LRT"></Model>
+				<Model name="4394RT Scissor Lift"></Model>
+				<Model name="500RTS"></Model>
+				<Model name="530LRT"></Model>
+				<Model name="6RS"></Model>
+				<Model name="M3369LE"></Model>
+				<Model name="M4069"></Model>
+				<Model name="M4069LE"></Model>
+			</Make>
+			<Make name="LGMG">
+				<Model name="AS0607"></Model>
+				<Model name="AS0808"></Model>
+				<Model name="AS1012"></Model>
+				<Model name="AS1212"></Model>
+				<Model name="AS1412"></Model>
+				<Model name="AS1413"></Model>
+				<Model name="AS1623RT"></Model>
+				<Model name="SR1218D"></Model>
+				<Model name="SR1218E"></Model>
+				<Model name="SR1323D"></Model>
+				<Model name="SR1623D"></Model>
+			</Make>
+			<Make name="Lema">
+				<Model name="LM WPSM-015-050"></Model>
+				<Model name="LM WPSM-020-040"></Model>
+				<Model name="LM WPSM-030-030"></Model>
+				<Model name="LM WPSM-030-060"></Model>
+				<Model name="LM WPSM-030-090"></Model>
+				<Model name="LM WPSM-030-110"></Model>
+				<Model name="LM WPSM-030-140"></Model>
+				<Model name="LM WPSM-030-160"></Model>
+				<Model name="LM WPSM-050-045"></Model>
+				<Model name="LM WPSM-050-060"></Model>
+				<Model name="LM WPSM-050-090"></Model>
+				<Model name="LM WPSM-050-110"></Model>
+				<Model name="LM WPSM-050-140"></Model>
+				<Model name="LM WPSM-060-072"></Model>
+				<Model name="LM WPSM-100-060"></Model>
+				<Model name="LM WPSM-100-090"></Model>
+				<Model name="LM WPSM-100-120"></Model>
+				<Model name="LM WPSM-150-090"></Model>
+				<Model name="LM WPSM-200-060"></Model>
+				<Model name="LM WPSM-200-080"></Model>
+				<Model name="LM WPSP-023-058 DC"></Model>
+				<Model name="LM WPSP-023-080 DC"></Model>
+				<Model name="LM WPSP-032-100 DC"></Model>
+				<Model name="LM WPSP-038-060 DC"></Model>
+				<Model name="LM WPSP-045-080 DC"></Model>
+				<Model name="LM WPSPD-045-100"></Model>
+				<Model name="LM WPSPD-056-080"></Model>
+				<Model name="LM WPSPD-068-130"></Model>
+				<Model name="LM WPSPD-068-160"></Model>
+			</Make>
+			<Make name="Liftlux">
+				<Model name="SL 125-22D4WDS"></Model>
+				<Model name="SL 153-22"></Model>
+				<Model name="SL 153-22L"></Model>
+				<Model name="SL 205-25"></Model>
+			</Make>
+			<Make name="LiuGong">
+				<Model name="LSC0507DEM"></Model>
+				<Model name="LSC0607DH"></Model>
+				<Model name="LSC0608DEM"></Model>
+				<Model name="LSC0808DE"></Model>
+				<Model name="LSC0808DH"></Model>
+				<Model name="LSC1012DE"></Model>
+				<Model name="LSC1012DH"></Model>
+				<Model name="LSC1212DE"></Model>
+				<Model name="LSC1212DH"></Model>
+				<Model name="LSC1414DE"></Model>
+				<Model name="LSC1414DH"></Model>
+			</Make>
+			<Make name="MEC">
+				<Model name="1532ES"></Model>
+				<Model name="1932ES"></Model>
+				<Model name="2033ES"></Model>
+				<Model name="2047ES"></Model>
+				<Model name="2591ES"></Model>
+				<Model name="2591RT"></Model>
+				<Model name="2633ES"></Model>
+				<Model name="2647ES"></Model>
+				<Model name="2684ES"></Model>
+				<Model name="2684RT"></Model>
+				<Model name="3072ES"></Model>
+				<Model name="3072RT"></Model>
+				<Model name="3084ES"></Model>
+				<Model name="3084RT"></Model>
+				<Model name="3247ES"></Model>
+				<Model name="3391ES"></Model>
+				<Model name="3391RT"></Model>
+				<Model name="3772ES"></Model>
+				<Model name="3772ES HD"></Model>
+				<Model name="3772RT"></Model>
+				<Model name="3772RT HD"></Model>
+				<Model name="4191ES"></Model>
+				<Model name="4191RT"></Model>
+				<Model name="5492RT"></Model>
+			</Make>
+			<Make name="Magni">
+				<Model name="ES0807E"></Model>
+				<Model name="ES1212E"></Model>
+				<Model name="ES1412H"></Model>
+				<Model name="ES1612H"></Model>
+			</Make>
+			<Make name="Maniaccess">
+				<Model name="100 XEL"></Model>
+				<Model name="120 XEL"></Model>
+				<Model name="78 XE"></Model>
+				<Model name="80 XEL"></Model>
+				<Model name="81 XE"></Model>
+			</Make>
+			<Make name="Manitou">
+				<Model name="100 SC"></Model>
+				<Model name="100 SEC"></Model>
+				<Model name="120 SC"></Model>
+				<Model name="120 SE"></Model>
+				<Model name="140 SC"></Model>
+				<Model name="78 SEC"></Model>
+			</Make>
+			<Make name="Mantall">
+				<Model name="XD-120RT"></Model>
+				<Model name="XD-140RT"></Model>
+				<Model name="XDW-180RT"></Model>
+				<Model name="XE-100C"></Model>
+				<Model name="XE-100W"></Model>
+				<Model name="XE-120W"></Model>
+				<Model name="XE-140RT"></Model>
+				<Model name="XE-140W"></Model>
+				<Model name="XE-160W"></Model>
+				<Model name="XE-160WCT"></Model>
+				<Model name="XE-80N"></Model>
+				<Model name="XE-A110H"></Model>
+				<Model name="XE-A110S"></Model>
+				<Model name="XE-A130S"></Model>
+				<Model name="XE-A140H"></Model>
+				<Model name="XE-A140S"></Model>
+				<Model name="XE-A160S"></Model>
+				<Model name="XE-A180S"></Model>
+				<Model name="XE-A50S"></Model>
+				<Model name="XE-A80H"></Model>
+				<Model name="XE-A80S"></Model>
+				<Model name="XE-A95S"></Model>
+				<Model name="XE-M110H"></Model>
+				<Model name="XE-M110S"></Model>
+				<Model name="XE-M130S"></Model>
+				<Model name="XE-M140H"></Model>
+				<Model name="XE-M140S"></Model>
+				<Model name="XE-M160S"></Model>
+				<Model name="XE-M180S"></Model>
+				<Model name="XE-M50S"></Model>
+				<Model name="XE-M80H"></Model>
+				<Model name="XE-M80S"></Model>
+				<Model name="XE-M95S"></Model>
+			</Make>
+			<Make name="Noblelift">
+				<Model name="AWPS 23.56"></Model>
+				<Model name="SC06E"></Model>
+				<Model name="SC08EC"></Model>
+				<Model name="SC08EN"></Model>
+				<Model name="SC08HC"></Model>
+				<Model name="SC08HN"></Model>
+				<Model name="SC10E"></Model>
+				<Model name="SC10EN"></Model>
+				<Model name="SC10H"></Model>
+				<Model name="SC10HN"></Model>
+				<Model name="SC12E"></Model>
+				<Model name="SC12H"></Model>
+				<Model name="SC14E"></Model>
+				<Model name="SC14H"></Model>
+				<Model name="SC16E"></Model>
+				<Model name="SC16H"></Model>
+			</Make>
+			<Make name="Oxlift">
+				<Model name="QX-030-160"></Model>
+			</Make>
+			<Make name="PB Lifttechnik">
+				<Model name="PB S225-12ES"></Model>
+			</Make>
+			<Make name="Pettibone">
+				<Model name="AS1932"></Model>
+				<Model name="AS1932E"></Model>
+				<Model name="AS2632"></Model>
+				<Model name="AS2632E"></Model>
+				<Model name="AS2646"></Model>
+				<Model name="AS2646E"></Model>
+				<Model name="AS3246"></Model>
+				<Model name="AS3246E"></Model>
+				<Model name="AS4046"></Model>
+				<Model name="AS4046E"></Model>
+				<Model name="SS1230E"></Model>
+				<Model name="SS1432E"></Model>
+				<Model name="SS1932E"></Model>
+			</Make>
+			<Make name="Runshare">
+				<Model name="GTJZ-10RT"></Model>
+			</Make>
+			<Make name="SMAC">
+				<Model name="NXH80"></Model>
+			</Make>
+			<Make name="SOBR">
+				<Model name="SL0.3-10"></Model>
+				<Model name="SL0.3-12"></Model>
+				<Model name="SL0.5-10"></Model>
+				<Model name="SL0.5-12"></Model>
+				<Model name="SL1-10"></Model>
+				<Model name="SL1-12"></Model>
+			</Make>
+			<Make name="Sino">
+				<Model name="SP06"></Model>
+				<Model name="SP08"></Model>
+				<Model name="SP10"></Model>
+				<Model name="SP12"></Model>
+				<Model name="SP14"></Model>
+			</Make>
+			<Make name="Sinoboom">
+				<Model name="GTJZ06"></Model>
+				<Model name="GTJZ08"></Model>
+				<Model name="GTJZ0808"></Model>
+				<Model name="GTJZ10"></Model>
+				<Model name="GTJZ12"></Model>
+				<Model name="GTJZ1212"></Model>
+				<Model name="GTJZ1412"></Model>
+				<Model name="GTJZ16"></Model>
+			</Make>
+			<Make name="Skarabo">
+				<Model name="GT10"></Model>
+				<Model name="GT12"></Model>
+				<Model name="GT8"></Model>
+			</Make>
+			<Make name="Skyboom">
+				<Model name="SSL"></Model>
+			</Make>
+			<Make name="Skyjack">
+				<Model name="SJ 6826 RT"></Model>
+				<Model name="SJ 6832 RT"></Model>
+				<Model name="SJ 7135"></Model>
+				<Model name="SJ 8831"></Model>
+				<Model name="SJ 8841"></Model>
+				<Model name="SJ 9250"></Model>
+				<Model name="SJIII 3215"></Model>
+				<Model name="SJIII 3219"></Model>
+				<Model name="SJIII 3220"></Model>
+				<Model name="SJIII 3226"></Model>
+				<Model name="SJIII 4626"></Model>
+				<Model name="SJIII 4632"></Model>
+			</Make>
+			<Make name="Skyman">
+				<Model name="R100"></Model>
+			</Make>
+			<Make name="Snorkel / UpRight">
+				<Model name="M1230E"></Model>
+				<Model name="S1930"></Model>
+				<Model name="S2770RT (UpRight X 27 RT)"></Model>
+				<Model name="S3246E (UpRight X 32)"></Model>
+				<Model name="S3290 (UpRight X32 RT)"></Model>
+				<Model name="S3370BE (UpRight X 33 BE)"></Model>
+				<Model name="S3370RT (UpRight X 33 RT)"></Model>
+				<Model name="S3970RT"></Model>
+				<Model name="S4390 (UpRight X43 RT)"></Model>
+				<Model name="S5290RT (UpRight X52 RT)"></Model>
+				<Model name="UpRight MX19"></Model>
+				<Model name="UpRight MX32"></Model>
+				<Model name="UpRight X26N"></Model>
+				<Model name="UpRight X32N"></Model>
+			</Make>
+			<Make name="Sunward">
+				<Model name="SWSL0607DC"></Model>
+				<Model name="SWSL0807DC"></Model>
+				<Model name="SWSL0807HD"></Model>
+				<Model name="SWSL1008DC"></Model>
+				<Model name="SWSL1008HD"></Model>
+				<Model name="SWSL1212DC"></Model>
+				<Model name="SWSL1212HD"></Model>
+				<Model name="SWSL1223RT"></Model>
+				<Model name="SWSL1412DC"></Model>
+				<Model name="SWSL1412HD"></Model>
+				<Model name="SWSL1614HD"></Model>
+				<Model name="SWSL1623RT"></Model>
+				<Model name="SWSL1823RT"></Model>
+				<Model name="SWSL2023RT"></Model>
+			</Make>
+			<Make name="Tadano">
+				<Model name="AC-65SG"></Model>
+			</Make>
+			<Make name="XCMG">
+				<Model name="XG0807HD"></Model>
+				<Model name="XG1614HD"></Model>
+				<Model name="XG1823RT"></Model>
+			</Make>
+			<Make name="Zoomlion">
+				<Model name="ZS0407DC"></Model>
+				<Model name="ZS0407DC-Li"></Model>
+				<Model name="ZS0407E"></Model>
+				<Model name="ZS0607DC"></Model>
+				<Model name="ZS0607DC-Li"></Model>
+				<Model name="ZS0607HD"></Model>
+				<Model name="ZS0607HD-Li"></Model>
+				<Model name="ZS0608DC"></Model>
+				<Model name="ZS0608DC-Li"></Model>
+				<Model name="ZS0608HD"></Model>
+				<Model name="ZS0608HD-Li"></Model>
+				<Model name="ZS0610C"></Model>
+				<Model name="ZS0808DC"></Model>
+				<Model name="ZS0808DC-Li"></Model>
+				<Model name="ZS0808HD"></Model>
+				<Model name="ZS0808HD-Li"></Model>
+				<Model name="ZS1012DC"></Model>
+				<Model name="ZS1012DC-Li"></Model>
+				<Model name="ZS1012HD"></Model>
+				<Model name="ZS1012HD-Li"></Model>
+				<Model name="ZS1212DC"></Model>
+				<Model name="ZS1212DC-Li"></Model>
+				<Model name="ZS1212HD"></Model>
+				<Model name="ZS1212HD-Li"></Model>
+				<Model name="ZS1414DC"></Model>
+				<Model name="ZS1414DC-Li"></Model>
+				<Model name="ZS1414HD"></Model>
+				<Model name="ZS1414HD-Li"></Model>
+				<Model name="ZS1623RT"></Model>
+				<Model name="ZS1632RT"></Model>
+			</Make>
+			<Make name="Завод подъемников">
+				<Model name="Эко-10"></Model>
+				<Model name="Эко-10КН"></Model>
+				<Model name="Эко-10Н"></Model>
+				<Model name="Эко-10У"></Model>
+				<Model name="Эко-12"></Model>
+				<Model name="Эко-12KН"></Model>
+				<Model name="Эко-12Н"></Model>
+				<Model name="Эко-14"></Model>
+				<Model name="Эко-14Н"></Model>
+				<Model name="Эко-16"></Model>
+				<Model name="Эко-16Н"></Model>
+				<Model name="Эко-18Н"></Model>
+				<Model name="Эко-8"></Model>
+				<Model name="Эко-8К"></Model>
+				<Model name="Эко-8КН"></Model>
+				<Model name="Эко-8Н"></Model>
+				<Model name="Эко-8У"></Model>
+				<Model name="ЯРД-11"></Model>
+				<Model name="ЯРД-15"></Model>
+				<Model name="ЯРД-17"></Model>
+			</Make>
+		</SubTypeOfVehicle>
+		<SubTypeOfVehicle name="Телескопический">
+			<Make name="Aichi">
+				<Model name="Crawler fly boom Series1"></Model>
+				<Model name="Crawler fly boom Series2"></Model>
+				<Model name="Crawler fly boom Series3"></Model>
+				<Model name="Crawler straight boom Series1"></Model>
+				<Model name="Crawler straight boom Series2"></Model>
+				<Model name="Crawler straight boom Series3"></Model>
+				<Model name="SP300"></Model>
+				<Model name="SR12B"></Model>
+				<Model name="SR181"></Model>
+				<Model name="Tyre 4WD fly boom Series1"></Model>
+				<Model name="Tyre 4WD fly boom Series2"></Model>
+				<Model name="Tyre 4WD straight boom Series1"></Model>
+				<Model name="Tyre 4WD straight boom Series2"></Model>
+			</Make>
+			<Make name="Aurora">
+				<Model name="T20J"></Model>
+			</Make>
+			<Make name="Bluelift">
+				<Model name="C13"></Model>
+			</Make>
+			<Make name="Bocker">
+				<Model name="HD 37"></Model>
+			</Make>
+			<Make name="Denka Lift">
+				<Model name="DL19N"></Model>
+				<Model name="DL28"></Model>
+				<Model name="DL30"></Model>
+			</Make>
+			<Make name="Dingli">
+				<Model name="AMWP11.5-8100AC"></Model>
+				<Model name="AMWP11.5-8200AC"></Model>
+				<Model name="AMWP12-9100"></Model>
+				<Model name="AMWP7‐8100"></Model>
+				<Model name="AMWP8‐1200"></Model>
+				<Model name="AMWP9.5‐1200"></Model>
+				<Model name="BA24ERT"></Model>
+				<Model name="BA24RT"></Model>
+				<Model name="BT16CERT"></Model>
+				<Model name="BT16CERT2"></Model>
+				<Model name="BT16CHRT"></Model>
+				<Model name="BT16CRT"></Model>
+				<Model name="BT16CRT2"></Model>
+				<Model name="BT18CERT"></Model>
+				<Model name="BT18CERT2"></Model>
+				<Model name="BT18CHRT"></Model>
+				<Model name="BT18CHRT2"></Model>
+				<Model name="BT18CRT"></Model>
+				<Model name="BT18CRT2"></Model>
+				<Model name="BT20CERT"></Model>
+				<Model name="BT20CERT2"></Model>
+				<Model name="BT20CHRT"></Model>
+				<Model name="BT20CHRT2"></Model>
+				<Model name="BT20CRT"></Model>
+				<Model name="BT20CRT2"></Model>
+				<Model name="BT22CERT2"></Model>
+				<Model name="BT22CHRT2"></Model>
+				<Model name="BT22CRT2"></Model>
+				<Model name="BT22ERT"></Model>
+				<Model name="BT22ERT Li"></Model>
+				<Model name="BT22HRT"></Model>
+				<Model name="BT22RT"></Model>
+				<Model name="BT24ERT"></Model>
+				<Model name="BT24RT"></Model>
+				<Model name="BT26ERT"></Model>
+				<Model name="BT26RT"></Model>
+				<Model name="BT28ERT"></Model>
+				<Model name="BT28RT"></Model>
+				<Model name="BT28SERT"></Model>
+				<Model name="BT28SRT"></Model>
+				<Model name="BT30ERT"></Model>
+				<Model name="BT30RT"></Model>
+				<Model name="BT34ERT"></Model>
+				<Model name="BT34RT"></Model>
+				<Model name="BT36ERT"></Model>
+				<Model name="BT36RT"></Model>
+				<Model name="BT41ERT"></Model>
+				<Model name="BT41RT"></Model>
+				<Model name="BT44ERT"></Model>
+				<Model name="BT44RT"></Model>
+				<Model name="GTBZ14S"></Model>
+				<Model name="GTBZ16S"></Model>
+				<Model name="GTBZ16SU"></Model>
+				<Model name="GTBZ18S"></Model>
+				<Model name="GTBZ20S"></Model>
+				<Model name="GTBZ22S"></Model>
+				<Model name="GTBZ24S"></Model>
+				<Model name="GTBZ26S"></Model>
+				<Model name="GTBZ28S"></Model>
+				<Model name="GTBZ32S"></Model>
+				<Model name="GTBZ34S"></Model>
+				<Model name="GTBZ36S"></Model>
+				<Model name="GTBZ38S"></Model>
+				<Model name="GTBZ40S"></Model>
+				<Model name="GTBZ42S"></Model>
+				<Model name="GTBZ43S"></Model>
+				<Model name="GTWY11‐1300"></Model>
+				<Model name="GTWY11‐2100"></Model>
+				<Model name="GTWY12,5‐1300"></Model>
+				<Model name="GTWY12,5‐2100"></Model>
+				<Model name="GTWY14‐1300"></Model>
+				<Model name="GTWY14‐2100"></Model>
+				<Model name="GTWY9.5‐1300"></Model>
+				<Model name="GTWY9.5‐2100"></Model>
+				<Model name="OPT0507"></Model>
+				<Model name="ZDYT3‐3.7S"></Model>
+				<Model name="ZDYT3‐4.5S"></Model>
+			</Make>
+			<Make name="Dino">
+				<Model name="120TN"></Model>
+				<Model name="135T"></Model>
+				<Model name="135TB"></Model>
+				<Model name="150T"></Model>
+				<Model name="150TB"></Model>
+				<Model name="180T"></Model>
+				<Model name="180TB"></Model>
+				<Model name="205 RXT"></Model>
+				<Model name="230T"></Model>
+				<Model name="95T"></Model>
+			</Make>
+			<Make name="Easy-Lift">
+				<Model name="R260"></Model>
+			</Make>
+			<Make name="Faraone">
+				<Model name="ZP 200"></Model>
+			</Make>
+			<Make name="Genie">
+				<Model name="S-100"></Model>
+				<Model name="S-105"></Model>
+				<Model name="S-120"></Model>
+				<Model name="S-125"></Model>
+				<Model name="S-40"></Model>
+				<Model name="S-45"></Model>
+				<Model name="S-60TRAX"></Model>
+				<Model name="S-60X"></Model>
+				<Model name="S-60XC"></Model>
+				<Model name="S-65"></Model>
+				<Model name="S-80X"></Model>
+				<Model name="S-85"></Model>
+				<Model name="SX-125XC"></Model>
+				<Model name="ZX-135-70"></Model>
+			</Make>
+			<Make name="Grost">
+				<Model name="FSD 10.1000"></Model>
+			</Make>
+			<Make name="Grove">
+				<Model name="AM251PE"></Model>
+				<Model name="AMZ131XT"></Model>
+				<Model name="AMZ66XT"></Model>
+				<Model name="MZ116B"></Model>
+				<Model name="MZ116D"></Model>
+				<Model name="MZ76R"></Model>
+				<Model name="MZ82CXT"></Model>
+				<Model name="MZ82X"></Model>
+				<Model name="Toucan Unior 8"></Model>
+			</Make>
+			<Make name="HPlift">
+				<Model name="150T"></Model>
+			</Make>
+			<Make name="Haulotte">
+				<Model name="H 14 TX"></Model>
+				<Model name="H 16 TPX"></Model>
+				<Model name="H 21 TX"></Model>
+				<Model name="H 23 ТPX"></Model>
+				<Model name="H 25 TPX"></Model>
+				<Model name="H 28 TJ"></Model>
+				<Model name="H 28 TJ+"></Model>
+				<Model name="H 43 TPX"></Model>
+				<Model name="HT 23 RTJ O"></Model>
+				<Model name="HT 43 RTJ PRO"></Model>
+				<Model name="HT 67 RTJ"></Model>
+				<Model name="HT28 RTJ PRO"></Model>
+				<Model name="Star 10"></Model>
+				<Model name="Star 12"></Model>
+				<Model name="TH 68"></Model>
+			</Make>
+			<Make name="Hematec">
+				<Model name="IMK 35500"></Model>
+			</Make>
+			<Make name="JCHI">
+				<Model name="GTBZ22A"></Model>
+				<Model name="GTBZ24A"></Model>
+				<Model name="GTBZ26"></Model>
+				<Model name="GTBZ28"></Model>
+				<Model name="GTBZ30"></Model>
+				<Model name="GTBZ32"></Model>
+				<Model name="GTBZ36A"></Model>
+				<Model name="GTBZ38A"></Model>
+				<Model name="GTBZ40A"></Model>
+			</Make>
+			<Make name="JHC">
+				<Model name="S-100"></Model>
+				<Model name="S-105J"></Model>
+				<Model name="S-125J"></Model>
+				<Model name="S-60"></Model>
+				<Model name="S-66"></Model>
+				<Model name="S-72J"></Model>
+				<Model name="TB20"></Model>
+				<Model name="TB22J"></Model>
+				<Model name="TB24J"></Model>
+				<Model name="TB28"></Model>
+				<Model name="TB32"></Model>
+			</Make>
+			<Make name="JLG">
+				<Model name="10MSP"></Model>
+				<Model name="110SXJ"></Model>
+				<Model name="1200SJP Telescopic Boom Lift"></Model>
+				<Model name="120HX"></Model>
+				<Model name="1350SJP Telescopic Boom Lift"></Model>
+				<Model name="1500SJ Telescopic Boom Lift"></Model>
+				<Model name="150HAX"></Model>
+				<Model name="400S Telescopic Boom Lift"></Model>
+				<Model name="40H+6"></Model>
+				<Model name="460SJ Telescopic Boom Lift"></Model>
+				<Model name="600S Telescopic Boom Lift"></Model>
+				<Model name="600SC Telescopic Crawler Boom Lift"></Model>
+				<Model name="60H+6"></Model>
+				<Model name="660SJ Telescopic Boom Lift"></Model>
+				<Model name="660SJC Telescopic Crawler Boom Lift"></Model>
+				<Model name="70H"></Model>
+				<Model name="800S Telescopic Boom Lift"></Model>
+				<Model name="860SJ Telescopic Boom Lift"></Model>
+			</Make>
+			<Make name="Junjin">
+				<Model name="T-200"></Model>
+			</Make>
+			<Make name="Kioritz">
+				<Model name="KCG280SH"></Model>
+			</Make>
+			<Make name="LGMG">
+				<Model name="T20J"></Model>
+				<Model name="T26J"></Model>
+			</Make>
+			<Make name="MEC">
+				<Model name="40-S Track"></Model>
+				<Model name="46-SJ Track"></Model>
+				<Model name="Titan Boom 40-S"></Model>
+			</Make>
+			<Make name="Maniaccess">
+				<Model name="MRT 1440 EASY"></Model>
+				<Model name="MRT 1640 EASY"></Model>
+				<Model name="MRT 1840 EASY"></Model>
+				<Model name="MRT 1850 PRIVILEGE"></Model>
+				<Model name="MRT 2150 PRIVILEGE"></Model>
+				<Model name="MRT 2540 PRIVILEGE"></Model>
+				<Model name="MRT 3050 PRIVILEGE"></Model>
+			</Make>
+			<Make name="Manitou">
+				<Model name="220 TJ"></Model>
+				<Model name="260 TJ"></Model>
+				<Model name="280 TJ"></Model>
+				<Model name="MHT 790"></Model>
+			</Make>
+			<Make name="Mantall">
+				<Model name="HT-285J"></Model>
+			</Make>
+			<Make name="Marklift">
+				<Model name="H25"></Model>
+			</Make>
+			<Make name="Omme">
+				<Model name="1250 E"></Model>
+				<Model name="1250 EB"></Model>
+				<Model name="1250 EBZ"></Model>
+				<Model name="1550 EBZX"></Model>
+				<Model name="1550 EX"></Model>
+				<Model name="1550 EXB"></Model>
+				<Model name="1650 E"></Model>
+				<Model name="1650 EB"></Model>
+				<Model name="1650 EBD"></Model>
+				<Model name="1650 EBZ"></Model>
+				<Model name="1750 RB"></Model>
+				<Model name="1750 RBD"></Model>
+				<Model name="1830 EBZX"></Model>
+				<Model name="1830 EX"></Model>
+				<Model name="1830 EXB"></Model>
+				<Model name="1850 E"></Model>
+				<Model name="1850 EB"></Model>
+				<Model name="1850 EBD"></Model>
+				<Model name="1850 EBZ"></Model>
+				<Model name="1900 RJ - flyjib"></Model>
+				<Model name="1950 RB"></Model>
+				<Model name="1950 RBD"></Model>
+				<Model name="2100 E"></Model>
+				<Model name="2100 EB"></Model>
+				<Model name="2100 EBD"></Model>
+				<Model name="2100 EBZ"></Model>
+				<Model name="2100 RJ - flyjib"></Model>
+				<Model name="2200 RB"></Model>
+				<Model name="2350 RJ - flyjib"></Model>
+				<Model name="2500 E"></Model>
+				<Model name="2500 EB"></Model>
+				<Model name="2500 EBBZ"></Model>
+				<Model name="2500 EBD"></Model>
+				<Model name="2500 RXBDJ"></Model>
+				<Model name="2600 RB"></Model>
+				<Model name="2600 RBD"></Model>
+				<Model name="2750 RJ - flyjib"></Model>
+				<Model name="2900 E"></Model>
+				<Model name="2900 EB"></Model>
+				<Model name="2900 EBBz"></Model>
+				<Model name="2900 EBD"></Model>
+				<Model name="3000 RB"></Model>
+				<Model name="3000 RBD"></Model>
+				<Model name="3000 RBDJ"></Model>
+				<Model name="3150 RJ - flyjib"></Model>
+				<Model name="3700 RBDJ"></Model>
+				<Model name="3700 RBJ"></Model>
+				<Model name="Denka DK7 JR12"></Model>
+				<Model name="LEM 1500 Vorfuhrgerat"></Model>
+				<Model name="LEM 2200 Vorfuhrgerat"></Model>
+				<Model name="Mini 10,5 E"></Model>
+				<Model name="Mini 12 EBJ"></Model>
+				<Model name="Mini 12 EJ"></Model>
+				<Model name="Mini 15 EBXJ"></Model>
+				<Model name="Mini 15 EXJ"></Model>
+			</Make>
+			<Make name="Palazzani">
+				<Model name="TSJ 25"></Model>
+				<Model name="TSJ 30"></Model>
+				<Model name="TZX 225"></Model>
+				<Model name="XTJ 52+"></Model>
+			</Make>
+			<Make name="Paus">
+				<Model name="WH-25"></Model>
+			</Make>
+			<Make name="SOBR">
+				<Model name="TBL-18"></Model>
+				<Model name="TBL-22"></Model>
+				<Model name="TBL-26"></Model>
+				<Model name="TBL-30"></Model>
+				<Model name="TBL-36"></Model>
+				<Model name="TBL-38"></Model>
+			</Make>
+			<Make name="Sinoboom">
+				<Model name="GTBZ20"></Model>
+				<Model name="GTBZ22"></Model>
+				<Model name="GTBZ25"></Model>
+				<Model name="GTBZ26"></Model>
+				<Model name="GTBZ27"></Model>
+				<Model name="GTBZ28"></Model>
+				<Model name="GTBZ30"></Model>
+				<Model name="GTBZ32"></Model>
+				<Model name="GTBZ36"></Model>
+				<Model name="GTBZ38"></Model>
+				<Model name="GTBZ42"></Model>
+			</Make>
+			<Make name="Skyboom">
+				<Model name="GTBZ"></Model>
+				<Model name="GTBZ-26J"></Model>
+			</Make>
+			<Make name="Skyjack">
+				<Model name="SJ 45T"></Model>
+				<Model name="SJ 66T"></Model>
+			</Make>
+			<Make name="Snorkel / UpRight">
+				<Model name="PRO 126CU"></Model>
+				<Model name="S1030E"></Model>
+				<Model name="SB60"></Model>
+				<Model name="TB126J"></Model>
+			</Make>
+			<Make name="Sunward">
+				<Model name="SWT20"></Model>
+				<Model name="SWT22J"></Model>
+				<Model name="SWT26"></Model>
+				<Model name="SWT28J"></Model>
+			</Make>
+			<Make name="Tadano">
+				<Model name="AC-120TG"></Model>
+			</Make>
+			<Make name="Tecchio">
+				<Model name="K422A"></Model>
+			</Make>
+			<Make name="Teupen">
+				<Model name="26VH/M300"></Model>
+				<Model name="LEO 12 T"></Model>
+				<Model name="LEO 13 GT"></Model>
+				<Model name="LEO 15 GT"></Model>
+				<Model name="LEO 18 GT"></Model>
+				<Model name="LEO 23 GT"></Model>
+				<Model name="LEO 25 T"></Model>
+				<Model name="LEO 25 T plus"></Model>
+				<Model name="LEO 30 T"></Model>
+				<Model name="LEO 36 T"></Model>
+				<Model name="LEO 40 GTX"></Model>
+				<Model name="LEO 50 GT"></Model>
+				<Model name="LEO 50 GTX"></Model>
+			</Make>
+			<Make name="Wienold">
+				<Model name="GML800+25K/AC"></Model>
+			</Make>
+			<Make name="XCMG">
+				<Model name="GKH30"></Model>
+				<Model name="GKH40"></Model>
+				<Model name="GKS22"></Model>
+				<Model name="GKS28"></Model>
+				<Model name="GKS38"></Model>
+			</Make>
+			<Make name="Zoomlion">
+				<Model name="ZT20J"></Model>
+				<Model name="ZT26J"></Model>
+				<Model name="ZT26JE"></Model>
+				<Model name="ZT28J-V"></Model>
+				<Model name="ZT30J"></Model>
+				<Model name="ZT34J"></Model>
+				<Model name="ZT38J"></Model>
+				<Model name="ZT42J"></Model>
+			</Make>
+			<Make name="ООО &#34;Торговый Дом &#34;Гидроремсервис&#34;">
+				<Model name="ППГ-12"></Model>
+			</Make>
+		</SubTypeOfVehicle>
+	</TypeOfVehicle>
+	<TypeOfVehicle name="Полевая кухня"></TypeOfVehicle>
+	<TypeOfVehicle name="Путепрокладчик"></TypeOfVehicle>
+	<TypeOfVehicle name="Сварочный агрегат"></TypeOfVehicle>
+	<TypeOfVehicle name="Световая мачта"></TypeOfVehicle>
+	<TypeOfVehicle name="Сейсмический вибратор">
+		<Make name="Baoding Beiao">
+			<Model name="BV620"></Model>
+		</Make>
+	</TypeOfVehicle>
+	<TypeOfVehicle name="Складская самоходная тележка"></TypeOfVehicle>
+	<TypeOfVehicle name="Смесительно-зарядная машина"></TypeOfVehicle>
+	<TypeOfVehicle name="Станция пенобетона"></TypeOfVehicle>
+	<TypeOfVehicle name="Термос-бункер">
+		<Make name="Дорпром">
+			<Model name="РД927"></Model>
+		</Make>
+	</TypeOfVehicle>
+	<TypeOfVehicle name="Тоннелепроходческий комплекс"></TypeOfVehicle>
+	<TypeOfVehicle name="Трубогибочная установка">
+		<Make name="Superior">
+			<Model name="SPB 36-48"></Model>
+		</Make>
+	</TypeOfVehicle>
+	<TypeOfVehicle name="Установка насосная для кислотной обработки скважин"></TypeOfVehicle>
+	<TypeOfVehicle name="Установка противообледенительной обработки"></TypeOfVehicle>
+	<TypeOfVehicle name="Установка статического зондирования"></TypeOfVehicle>
+	<TypeOfVehicle name="Цементировочный агрегат"></TypeOfVehicle>
+</TypeOfVehicles>

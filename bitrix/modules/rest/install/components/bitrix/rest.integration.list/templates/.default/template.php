@@ -7,9 +7,14 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Rest\Notification\MarketExpired\Curtain\CurtainPageType;
+use Bitrix\Rest\Notification\MarketExpired\MarketExpiredNotification;
+
 Loc::loadMessages(__FILE__);
 
 \Bitrix\Main\UI\Extension::load('ui.design-tokens');
+
+\Bitrix\UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
 
 if (
 	isset ($arParams['SHOW_MENU'])
@@ -43,6 +48,25 @@ foreach ($arResult['ERRORS'] as $error)
 {
 	ShowError($error);
 }
+
+$marketExpiredCurtain = MarketExpiredNotification::createByDefault()->getCurtain();
+
+if ($marketExpiredCurtain->isReadyToShow(CurtainPageType::INTEGRATION))
+{
+	?>
+	<script>
+		BX.ready(function () {
+			BX.loadExt('rest.market-expired')
+				.then((exports) => {
+					const { MarketExpired, CurtainPage } = exports;
+					const curtain = MarketExpired.getCurtain(CurtainPage.INTEGRATION);
+					curtain.show();
+				});
+		});
+	</script>
+	<?php
+}
+
 $sectionsTileManagerId = 'rest-integrators-sections-'.$arParams['CODE'];
 ?>
 <div class="rest-integration-list-wrapper">

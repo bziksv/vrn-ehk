@@ -9,7 +9,7 @@ import { commentFieldsConfig } from './format/field-config';
 import type { JsonObject } from 'main.core';
 import type { ActionTree, MutationTree, GetterTree } from 'ui.vue3.vuex';
 import type { ImModelCommentInfo, ImModelMessage } from 'im.v2.model';
-import type { RawCommentInfo } from 'im.v2.provider.service';
+import type { RawCommentInfo } from 'im.v2.provider.service.types';
 
 const LAST_USERS_TO_SHOW = 3;
 
@@ -20,6 +20,7 @@ type CommentsState = {
 	layout: {
 		opened: boolean,
 		channelDialogId: string,
+		postId: number,
 	}
 };
 
@@ -32,6 +33,7 @@ export class CommentsModel extends BuilderModel
 			layout: {
 				opened: false,
 				channelDialogId: '',
+				postId: 0,
 			},
 		};
 	}
@@ -75,15 +77,19 @@ export class CommentsModel extends BuilderModel
 			},
 			/** @function messages/comments/areOpened */
 			areOpened: (state: CommentsState): boolean => {
-				return state.layout?.opened ?? false;
+				return state.layout.opened;
 			},
 			/** @function messages/comments/areOpenedForChannel */
 			areOpenedForChannel: (state: CommentsState) => (channelDialogId: string): boolean => {
-				return state.layout?.channelDialogId === channelDialogId;
+				return state.layout.channelDialogId === channelDialogId;
+			},
+			/** @function messages/comments/areOpenedForChannelPost */
+			areOpenedForChannelPost: (state: CommentsState) => (postId: number): boolean => {
+				return state.layout.postId === postId;
 			},
 			/** @function messages/comments/getOpenedChannelId */
 			getOpenedChannelId: (state: CommentsState): string => {
-				return state.layout?.channelDialogId ?? '';
+				return state.layout.channelDialogId ?? '';
 			},
 		};
 	}
@@ -183,18 +189,20 @@ export class CommentsModel extends BuilderModel
 				currentUsers.pop();
 				currentUsers.unshift(newUserId);
 			},
-			setOpened: (state: CommentsState, payload: { channelDialogId: string }) => {
-				const { channelDialogId } = payload;
+			setOpened: (state: CommentsState, payload: { channelDialogId: string, commentsPostId: number }) => {
+				const { channelDialogId, commentsPostId } = payload;
 
 				state.layout = {
 					opened: true,
 					channelDialogId,
+					postId: commentsPostId,
 				};
 			},
 			setClosed: (state: CommentsState) => {
 				state.layout = {
 					opened: false,
 					channelDialogId: '',
+					commentsPostId: 0,
 				};
 			},
 		};

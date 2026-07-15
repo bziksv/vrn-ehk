@@ -1,0 +1,37 @@
+<root>
+	<Vendor name="Apple" wait="true">
+		<Akb variable="int"/>
+	</Vendor>
+	<DeviceFlaws name="Не включается"/>
+	<DeviceFlaws name="Не звонит"/>
+	<DeviceFlaws name="Не работает сенсор"/>
+	<CameraFlaws name="Не работает вспышка"/>
+	<CameraFlaws name="Пятна под стеклом"/>
+	<CameraFlaws name="Трещины, сколы"/>
+	<BatteryFlaws name="Не заряжается"/>
+	<BatteryFlaws name="Вздут"/>
+	<SensorsFlaws name="GPS"/>
+	<SensorsFlaws name="Wi-Fi"/>
+	<SensorsFlaws name="Bluetooth"/>
+	<SensorsFlaws name="Приближения к уху"/>
+	<SensorsFlaws name="Сканер отпечатка"/>
+	<SensorsFlaws name="Сканер лица"/>
+	<FunctionsFlaws name="Микрофон"/>
+	<FunctionsFlaws name="Динамики"/>
+	<FunctionsFlaws name="Вибрация"/>
+	<ScreenCondition name="Без дефектов"/>
+	<ScreenCondition name="1–2 мелкие царапины"/>
+	<ScreenCondition name="Много мелких царапин"/>
+	<ScreenCondition name="Глубокие царапины"/>
+	<ScreenCondition name="Сколы, трещины"/>
+	<ScreenCondition name="Полосы и битые пиксели"/>
+	<ScreenCondition name="Пятна, блики или выгорание"/>
+	<CaseCondition name="Без дефектов"/>
+	<CaseCondition name="Мелкие царапины"/>
+	<CaseCondition name="Глубокие царапины"/>
+	<CaseCondition name="Сколы, трещины"/>
+	<CaseCondition name="Щели, зазоры"/>
+	<CaseCondition name="Изгиб"/>
+	<CaseCondition name="Вмятины"/>
+	<CaseCondition name="Отслоение краски"/>
+</root>

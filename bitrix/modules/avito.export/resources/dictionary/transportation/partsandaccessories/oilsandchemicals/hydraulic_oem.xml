@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OEMOilValues>
+	<OEMOil>AFNOR NF 600 HM</OEMOil>
+	<OEMOil>AFNOR NF E 48-600</OEMOil>
+	<OEMOil>AFNOR NF E 48-602 HV</OEMOil>
+	<OEMOil>AFNOR NF E 48-603</OEMOil>
+	<OEMOil>AFNOR NF E 48-603 HM</OEMOil>
+	<OEMOil>AFNOR NF E 48-603 HV</OEMOil>
+	<OEMOil>AFNOR NF E 48-690</OEMOil>
+	<OEMOil>AFNOR NF E 48-691</OEMOil>
+	<OEMOil>AGMA 9005-D94</OEMOil>
+	<OEMOil>AGMA 9005-E02</OEMOil>
+	<OEMOil>AGMA 9005-F16</OEMOil>
+	<OEMOil>AISI 224</OEMOil>
+	<OEMOil>AIST 126</OEMOil>
+	<OEMOil>AIST 127</OEMOil>
+	<OEMOil>AIST 224</OEMOil>
+	<OEMOil>Allison C3</OEMOil>
+	<OEMOil>Allison C4</OEMOil>
+	<OEMOil>ALUP</OEMOil>
+	<OEMOil>Aprilia</OEMOil>
+	<OEMOil>Arburg</OEMOil>
+	<OEMOil>ASLE 70-1</OEMOil>
+	<OEMOil>ASLE 70-2</OEMOil>
+	<OEMOil>ASLE 70-3</OEMOil>
+	<OEMOil>ASTM D6158 HM</OEMOil>
+	<OEMOil>Atlas Copco</OEMOil>
+	<OEMOil>Audi</OEMOil>
+	<OEMOil>Battenfeld</OEMOil>
+	<OEMOil>Bekum</OEMOil>
+	<OEMOil>Bentley</OEMOil>
+	<OEMOil>Bentley RH 5000</OEMOil>
+	<OEMOil>BlackDecker</OEMOil>
+	<OEMOil>BMW</OEMOil>
+	<OEMOil>BMW 8122 9 407 758</OEMOil>
+	<OEMOil>BMW 8329 0 429 576</OEMOil>
+	<OEMOil>Bosch</OEMOil>
+	<OEMOil>Bosch Rexroth</OEMOil>
+	<OEMOil>Bosch Rexroth 90220</OEMOil>
+	<OEMOil>Bosch Rexroth 90220-01</OEMOil>
+	<OEMOil>Bosch Rexroth 90245</OEMOil>
+	<OEMOil>Busch VM</OEMOil>
+	<OEMOil>Busch VMH</OEMOil>
+	<OEMOil>Caterpillar TO-2</OEMOil>
+	<OEMOil>Caterpillar TO-4</OEMOil>
+	<OEMOil>CETOP RP 91H-HM</OEMOil>
+	<OEMOil>CETOP RP 91H-HV</OEMOil>
+	<OEMOil>CHF 11S</OEMOil>
+	<OEMOil>CHF 202</OEMOil>
+	<OEMOil>Chrysler</OEMOil>
+	<OEMOil>Chrysler MS-5931</OEMOil>
+	<OEMOil>Cincinnati Mashine P59</OEMOil>
+	<OEMOil>Cincinnati Mashine P68</OEMOil>
+	<OEMOil>Cincinnati Mashine P69</OEMOil>
+	<OEMOil>Cincinnati Mashine P70</OEMOil>
+	<OEMOil>Citroen 9979 A1</OEMOil>
+	<OEMOil>CompAir</OEMOil>
+	<OEMOil>David Brown</OEMOil>
+	<OEMOil>David Brown ET19</OEMOil>
+	<OEMOil>David Brown ET33</OEMOil>
+	<OEMOil>David Brown S1.53.101</OEMOil>
+	<OEMOil>David Brown S1.53.101(E)</OEMOil>
+	<OEMOil>Demag</OEMOil>
+	<OEMOil>Denison</OEMOil>
+	<OEMOil>Denison HF-0</OEMOil>
+	<OEMOil>Denison HF-1</OEMOil>
+	<OEMOil>Denison HF-2</OEMOil>
+	<OEMOil>DeWalt</OEMOil>
+	<OEMOil>Dexron II</OEMOil>
+	<OEMOil>Dexron III</OEMOil>
+	<OEMOil>DIN 51502</OEMOil>
+	<OEMOil>DIN 51502 HLP</OEMOil>
+	<OEMOil>DIN 51506</OEMOil>
+	<OEMOil>DIN 51506 VBL</OEMOil>
+	<OEMOil>DIN 51506 VCL</OEMOil>
+	<OEMOil>DIN 51506 VDL</OEMOil>
+	<OEMOil>DIN 51517</OEMOil>
+	<OEMOil>DIN 51517-3</OEMOil>
+	<OEMOil>DIN 51517-3 CLP</OEMOil>
+	<OEMOil>DIN 51524 T3</OEMOil>
+	<OEMOil>DIN 51524-2</OEMOil>
+	<OEMOil>DIN 51524-2 HLP</OEMOil>
+	<OEMOil>DIN 51524-2 HLPD</OEMOil>
+	<OEMOil>DIN 51524-3</OEMOil>
+	<OEMOil>DIN 51524-3 HVLP</OEMOil>
+	<OEMOil>DIN 51621</OEMOil>
+	<OEMOil>Dodge</OEMOil>
+	<OEMOil>Ducati</OEMOil>
+	<OEMOil>Dynex</OEMOil>
+	<OEMOil>EATON E-FDGN-TB002-E</OEMOil>
+	<OEMOil>Eaton Vickers 35VQ25A</OEMOil>
+	<OEMOil>ENGEL</OEMOil>
+	<OEMOil>ESN-M2C134-D</OEMOil>
+	<OEMOil>ESP-M2C138-CJ</OEMOil>
+	<OEMOil>ESW-M2C128-C</OEMOil>
+	<OEMOil>ESW-M2C128-D</OEMOil>
+	<OEMOil>Fendt</OEMOil>
+	<OEMOil>Fendt X 902.011.622</OEMOil>
+	<OEMOil>Festo</OEMOil>
+	<OEMOil>FIAC</OEMOil>
+	<OEMOil>Fiat 9.55550</OEMOil>
+	<OEMOil>FIAT 9.55550-AG3</OEMOil>
+	<OEMOil>FIAT 9.55550-SA1</OEMOil>
+	<OEMOil>Fiat 9.55597</OEMOil>
+	<OEMOil>FINI</OEMOil>
+	<OEMOil>Flender</OEMOil>
+	<OEMOil>Fluid LDA</OEMOil>
+	<OEMOil>Fluid LDS</OEMOil>
+	<OEMOil>Ford ESW-M2C 33-F</OEMOil>
+	<OEMOil>Ford M2C204-A</OEMOil>
+	<OEMOil>Ford WSA-M2C 195-A</OEMOil>
+	<OEMOil>Ford WSS-M2C 195-A2</OEMOil>
+	<OEMOil>Ford WSS-M2C 204-A</OEMOil>
+	<OEMOil>Ford WSS-M2C 204-A2</OEMOil>
+	<OEMOil>FZG 12</OEMOil>
+	<OEMOil>FZG A8,3/90:10</OEMOil>
+	<OEMOil>FZG A8,3/90:12</OEMOil>
+	<OEMOil>FZG A8,3/90:13</OEMOil>
+	<OEMOil>GM</OEMOil>
+	<OEMOil>GM 1940715</OEMOil>
+	<OEMOil>GM 1940766</OEMOil>
+	<OEMOil>GM B 040 0070</OEMOil>
+	<OEMOil>GM B 040 2012</OEMOil>
+	<OEMOil>GM Dexron II</OEMOil>
+	<OEMOil>GM Dexron II D</OEMOil>
+	<OEMOil>GM Dexron III</OEMOil>
+	<OEMOil>GM LH-04-1</OEMOil>
+	<OEMOil>GM LH-06-1</OEMOil>
+	<OEMOil>GM LH-15-1</OEMOil>
+	<OEMOil>GM LS-2</OEMOil>
+	<OEMOil>Hilti</OEMOil>
+	<OEMOil>Hitachi</OEMOil>
+	<OEMOil>HOCNF Norway-NEMS</OEMOil>
+	<OEMOil>Honda</OEMOil>
+	<OEMOil>Honda PSF Type V</OEMOil>
+	<OEMOil>Honda PSF-2</OEMOil>
+	<OEMOil>Honda PSF-S</OEMOil>
+	<OEMOil>Hydreco</OEMOil>
+	<OEMOil>Hyundai PSF-3</OEMOil>
+	<OEMOil>ISO 11158</OEMOil>
+	<OEMOil>ISO 11158 HM</OEMOil>
+	<OEMOil>ISO 11158 HV</OEMOil>
+	<OEMOil>ISO 12925-1</OEMOil>
+	<OEMOil>ISO 12925-1 CKC</OEMOil>
+	<OEMOil>ISO 12925-1 CKD</OEMOil>
+	<OEMOil>ISO 6743</OEMOil>
+	<OEMOil>ISO 6743-3 DRD</OEMOil>
+	<OEMOil>ISO 6743-3 DVA</OEMOil>
+	<OEMOil>ISO 6743-3 DVC</OEMOil>
+	<OEMOil>ISO 6743-4</OEMOil>
+	<OEMOil>ISO 6743-4 HM</OEMOil>
+	<OEMOil>ISO 6743-4 HV</OEMOil>
+	<OEMOil>ISO 7308</OEMOil>
+	<OEMOil>ISO L-FD</OEMOil>
+	<OEMOil>ISO L-HM</OEMOil>
+	<OEMOil>ISO L-HV</OEMOil>
+	<OEMOil>ISO VG 220</OEMOil>
+	<OEMOil>ISO VG 48</OEMOil>
+	<OEMOil>IVECO 18-1823</OEMOil>
+	<OEMOil>JCMAS P041 HK</OEMOil>
+	<OEMOil>Jeep</OEMOil>
+	<OEMOil>John Deere J20C</OEMOil>
+	<OEMOil>KAESER</OEMOil>
+	<OEMOil>Kawasaki</OEMOil>
+	<OEMOil>KAYABA</OEMOil>
+	<OEMOil>Kia PSF-3</OEMOil>
+	<OEMOil>Kia PSF-4</OEMOil>
+	<OEMOil>Komatsu</OEMOil>
+	<OEMOil>Land Rover Cold Climate PAS Fluid</OEMOil>
+	<OEMOil>LHM</OEMOil>
+	<OEMOil>MAG P-68</OEMOil>
+	<OEMOil>MAG P-69</OEMOil>
+	<OEMOil>MAG P-70</OEMOil>
+	<OEMOil>Makita</OEMOil>
+	<OEMOil>MAN 3289</OEMOil>
+	<OEMOil>MAN 3623</OEMOil>
+	<OEMOil>MAN M 3289</OEMOil>
+	<OEMOil>MAN TUC 3623/93</OEMOil>
+	<OEMOil>Mazda PSF</OEMOil>
+	<OEMOil>MB 236.3</OEMOil>
+	<OEMOil>MB 343.0</OEMOil>
+	<OEMOil>MB 344.0</OEMOil>
+	<OEMOil>MB 345.0</OEMOil>
+	<OEMOil>Mercon</OEMOil>
+	<OEMOil>Mercon V</OEMOil>
+	<OEMOil>MIL-H 24459</OEMOil>
+	<OEMOil>Mitsubishi PSF-2M</OEMOil>
+	<OEMOil>Mitsubishi SP-II M</OEMOil>
+	<OEMOil>Moto-Guzzi</OEMOil>
+	<OEMOil>MS-11655</OEMOil>
+	<OEMOil>MS-11665</OEMOil>
+	<OEMOil>MS-5931</OEMOil>
+	<OEMOil>MS-9602</OEMOil>
+	<OEMOil>MS-9933</OEMOil>
+	<OEMOil>NATO</OEMOil>
+	<OEMOil>Nissan PSF-II</OEMOil>
+	<OEMOil>OHLINS</OEMOil>
+	<OEMOil>Oilgear</OEMOil>
+	<OEMOil>OPEL 19 40 715</OEMOil>
+	<OEMOil>OPEL 19 40 766</OEMOil>
+	<OEMOil>Pentosin CHF 11S</OEMOil>
+	<OEMOil>Pentosin CHF 202</OEMOil>
+	<OEMOil>Peugeot B712710</OEMOil>
+	<OEMOil>Porsche</OEMOil>
+	<OEMOil>PSA 9730A5</OEMOil>
+	<OEMOil>PSA 9735EJ</OEMOil>
+	<OEMOil>PSA 9979.A4</OEMOil>
+	<OEMOil>PSA B71 2710</OEMOil>
+	<OEMOil>PSA S71 2710</OEMOil>
+	<OEMOil>PSF-3</OEMOil>
+	<OEMOil>PSF-4</OEMOil>
+	<OEMOil>Renault PSF Class 1</OEMOil>
+	<OEMOil>Ryobi</OEMOil>
+	<OEMOil>Saab</OEMOil>
+	<OEMOil>Saab 3032 380</OEMOil>
+	<OEMOil>Saab 93160548</OEMOil>
+	<OEMOil>Sauer-Danfoss</OEMOil>
+	<OEMOil>SEB 181.222</OEMOil>
+	<OEMOil>SEB 181.226</OEMOil>
+	<OEMOil>SIS SS 155434</OEMOil>
+	<OEMOil>Subaru PSF</OEMOil>
+	<OEMOil>Sumake</OEMOil>
+	<OEMOil>Suzuki</OEMOil>
+	<OEMOil>Texaco TL 4634</OEMOil>
+	<OEMOil>Thyssen TH-N-256-132</OEMOil>
+	<OEMOil>TMS 6810</OEMOil>
+	<OEMOil>Toyota AHC</OEMOil>
+	<OEMOil>Toyota PSF EH</OEMOil>
+	<OEMOil>Toyota PSF NEW-W</OEMOil>
+	<OEMOil>Toyota PSF Type EH</OEMOil>
+	<OEMOil>Triumph</OEMOil>
+	<OEMOil>US Steel 126</OEMOil>
+	<OEMOil>US Steel 127</OEMOil>
+	<OEMOil>US Steel 136</OEMOil>
+	<OEMOil>US Steel 224</OEMOil>
+	<OEMOil>VDMA 24318</OEMOil>
+	<OEMOil>VDMA 4318</OEMOil>
+	<OEMOil>Vickers</OEMOil>
+	<OEMOil>Vickers 35VQ25</OEMOil>
+	<OEMOil>Vickers I-286</OEMOil>
+	<OEMOil>Vickers I-286-S</OEMOil>
+	<OEMOil>Vickers I-286-S3</OEMOil>
+	<OEMOil>Vickers M-2950</OEMOil>
+	<OEMOil>Vickers M-2950-S</OEMOil>
+	<OEMOil>Vickers M-2950-SD</OEMOil>
+	<OEMOil>Vickers M-2952-S</OEMOil>
+	<OEMOil>Vickers Vane Pump</OEMOil>
+	<OEMOil>Voith 55.6335</OEMOil>
+	<OEMOil>Volvo</OEMOil>
+	<OEMOil>Volvo 1161529</OEMOil>
+	<OEMOil>Volvo 30741424</OEMOil>
+	<OEMOil>Volvo STD 1273.36</OEMOil>
+	<OEMOil>Volvo WB 101</OEMOil>
+	<OEMOil>VW G 002 000</OEMOil>
+	<OEMOil>VW G 002 000 A2</OEMOil>
+	<OEMOil>VW G 004 000</OEMOil>
+	<OEMOil>VW G 004 000 M2</OEMOil>
+	<OEMOil>VW G 009 300</OEMOil>
+	<OEMOil>VW TL 52 146</OEMOil>
+	<OEMOil>VW TL 52146</OEMOil>
+	<OEMOil>VW TL 52146.01</OEMOil>
+	<OEMOil>Yamaha</OEMOil>
+	<OEMOil>ZF TE-ML 02K</OEMOil>
+	<OEMOil>ZF TE-ML 03D</OEMOil>
+	<OEMOil>ZF TE-ML 04D</OEMOil>
+	<OEMOil>ZF TE-ML 09</OEMOil>
+	<OEMOil>ZF TE-ML 09B</OEMOil>
+	<OEMOil>ZF TE-ML 11</OEMOil>
+	<OEMOil>ZF TE-ML 12</OEMOil>
+	<OEMOil>ZF TE-ML 14A</OEMOil>
+	<OEMOil>ZF TE-ML 17C</OEMOil>
+	<OEMOil>И-Г-А-32</OEMOil>
+	<OEMOil>И-Г-А-68</OEMOil>
+	<OEMOil>И-ГТ-А-100</OEMOil>
+</OEMOilValues>

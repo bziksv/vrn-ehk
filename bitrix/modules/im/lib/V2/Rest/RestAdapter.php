@@ -2,7 +2,11 @@
 
 namespace Bitrix\Im\V2\Rest;
 
-class RestAdapter
+use Bitrix\Im\V2\TariffLimit\DateFilterable;
+use Bitrix\Im\V2\TariffLimit\Limit;
+use Bitrix\Im\V2\TariffLimit\TariffLimitPopupItem;
+
+class RestAdapter implements RestConvertible
 {
 	/**
 	 * @var array<RestConvertible>
@@ -15,15 +19,17 @@ class RestAdapter
 		$this->entities = $entities ?? [];
 	}
 
-	public function toRestFormat(array $options = []): array
+	public function toRestFormat(array $option = []): array
 	{
-		$popupData = new PopupData([]);
+		$this->processTariffLimit();
+		$excludedList = $option['POPUP_DATA_EXCLUDE'] ?? [];
+		$popupData = new PopupData([], $excludedList);
 
 		foreach ($this->entities as $entity)
 		{
 			if ($entity instanceof PopupDataAggregatable)
 			{
-				$popupData->merge($entity->getPopupData($options['POPUP_DATA_EXCLUDE'] ?? []));
+				$popupData->merge($entity->getPopupData($excludedList));
 			}
 		}
 
@@ -32,19 +38,19 @@ class RestAdapter
 			$popupData->merge($this->additionalPopupData);
 		}
 
-		$rest = $popupData->toRestFormat($options);
+		$rest = $popupData->toRestFormat($option);
 
 		if (empty($rest))
 		{
 			if (count($this->entities) === 1)
 			{
-				return $this->entities[0]->toRestFormat($options);
+				return $this->entities[0]->toRestFormat($option);
 			}
 		}
 
 		foreach ($this->entities as $entity)
 		{
-			$rest[$entity::getRestEntityName()] = $entity->toRestFormat($options);
+			$rest[$entity::getRestEntityName()] = $entity->toRestFormat($option);
 		}
 
 		return $rest;
@@ -57,6 +63,20 @@ class RestAdapter
 		return $this;
 	}
 
+	public function addAdditionalPopupData(PopupData $popupData): self
+	{
+		if (!isset($this->additionalPopupData))
+		{
+			$this->additionalPopupData = $popupData;
+		}
+		else
+		{
+			$this->additionalPopupData->merge($popupData);
+		}
+
+		return $this;
+	}
+
 	public function addEntities(RestConvertible ...$entities): self
 	{
 		foreach ($entities as $entity)
@@ -65,5 +85,51 @@ class RestAdapter
 		}
 
 		return $this;
+	}
+
+	protected function processTariffLimit(): void
+	{
+		$limit = Limit::getInstance();
+		$hasTariffLimit = false;
+		$isLimitExceeded = false;
+
+		foreach ($this->entities as $key => $entity)
+		{
+			if (!$entity instanceof DateFilterable)
+			{
+				continue;
+			}
+
+			$hasTariffLimit = true;
+
+			if (!$limit->hasRestrictions())
+			{
+				break;
+			}
+
+			if (!$limit->shouldFilterByDate($entity))
+			{
+				continue;
+			}
+
+			$result = $entity->filterByDate($limit->getLimitDate());
+
+			if ($result->wasFiltered())
+			{
+				$isLimitExceeded = true;
+				$this->entities[$key] = $result->getResult();
+			}
+		}
+
+		if ($hasTariffLimit)
+		{
+			$popupData = new PopupData([new TariffLimitPopupItem($isLimitExceeded)]);
+			$this->addAdditionalPopupData($popupData);
+		}
+	}
+
+	public static function getRestEntityName(): string
+	{
+		return 'result';
 	}
 }

@@ -1,10 +1,13 @@
-import { PermissionManager } from 'im.v2.lib.permission';
 import { EventEmitter } from 'main.core.events';
 
-import { Core } from 'im.v2.application.core';
-import { ChatActionType, ChatType, EventType, GetParameter, SidebarDetailBlock } from 'im.v2.const';
-import { AddToChat } from 'im.v2.component.entity-selector';
-import { Button as ChatButton, ButtonColor, ButtonSize, Loader } from 'im.v2.component.elements';
+import { Analytics } from 'im.v2.lib.analytics';
+import { ActionByRole, ChatType, EventType, SidebarDetailBlock } from 'im.v2.const';
+import { AddToChat, AddToCollab } from 'im.v2.component.entity-selector';
+import { Loader } from 'im.v2.component.elements.loader';
+import { ChatButton, ButtonColor, ButtonSize } from 'im.v2.component.elements.button';
+import { PermissionManager } from 'im.v2.lib.permission';
+import { Notifier } from 'im.v2.lib.notifier';
+import { ChatManager } from 'im.v2.lib.chat';
 
 import { DetailUser } from './detail-user';
 import { DetailHeader } from '../../elements/detail-header/detail-header';
@@ -15,6 +18,7 @@ import './css/members-panel.css';
 
 import type { JsonObject } from 'main.core';
 import type { ImModelChat } from 'im.v2.model';
+import type { BitrixVueComponentProps } from 'ui.vue3';
 
 const MemberTitleByChatType = {
 	[ChatType.channel]: 'IM_SIDEBAR_MEMBERS_CHANNEL_DETAIL_TITLE',
@@ -60,13 +64,6 @@ export const MembersPanel = {
 
 			return users.map((userId) => userId.toString());
 		},
-		chatLink(): string
-		{
-			const isCopilot = this.dialog.type === ChatType.copilot;
-			const chatGetParameter = isCopilot ? GetParameter.openCopilotChat : GetParameter.openChat;
-
-			return `${Core.getHost()}/online/?${chatGetParameter}=${this.dialogId}`;
-		},
 		hasNextPage(): boolean
 		{
 			return this.$store.getters['sidebar/members/hasNextPage'](this.chatId);
@@ -95,7 +92,20 @@ export const MembersPanel = {
 		},
 		needAddButton(): boolean
 		{
-			return PermissionManager.getInstance().canPerformAction(ChatActionType.extend, this.dialogId);
+			return PermissionManager.getInstance().canPerformActionByRole(ActionByRole.extend, this.dialogId);
+		},
+		needCopyLinkButton(): boolean
+		{
+			if (!BX.clipboard.isCopySupported())
+			{
+				return false;
+			}
+
+			return this.dialog.type !== ChatType.collab;
+		},
+		addMembersPopupComponent(): BitrixVueComponentProps
+		{
+			return this.dialog.type === ChatType.collab ? AddToCollab : AddToChat;
 		},
 	},
 	watch:
@@ -143,21 +153,23 @@ export const MembersPanel = {
 		},
 		onContextMenuClick(event)
 		{
+			const user = this.$store.getters['users/get'](event.userDialogId, true);
 			const item = {
-				dialogId: event.userDialogId,
-				contextDialogId: this.dialogId,
+				user,
+				dialog: this.dialog,
 			};
 
 			this.contextMenu.openMenu(item, event.target);
 		},
 		onCopyInviteClick()
 		{
-			if (BX.clipboard.copy(this.chatLink))
+			const chatLink = ChatManager.buildChatLink(this.dialogId);
+			if (BX.clipboard.copy(chatLink))
 			{
-				BX.UI.Notification.Center.notify({
-					content: this.loc('IM_SIDEBAR_COPIED_SUCCESS'),
-				});
+				Notifier.onCopyLinkComplete();
 			}
+
+			Analytics.getInstance().chatInviteLink.onCopyMembersPanel(this.dialogId);
 		},
 		onBackClick()
 		{
@@ -185,6 +197,7 @@ export const MembersPanel = {
 		},
 		onAddClick(event)
 		{
+			Analytics.getInstance().userAdd.onChatSidebarClick(this.dialogId);
 			this.showAddToChatPopup = true;
 			this.showAddToChatTarget = event.target;
 		},
@@ -195,7 +208,7 @@ export const MembersPanel = {
 	},
 	template: `
 		<div class="bx-im-sidebar-main-detail__scope">
-			<DetailHeader 
+			<DetailHeader
 				:dialogId="dialogId"
 				:title="title"
 				:secondLevel="secondLevel"
@@ -203,8 +216,8 @@ export const MembersPanel = {
 				@addClick="onAddClick"
 				@back="onBackClick" 
 			/>
-			<div class="bx-im-sidebar-detail__container" @scroll="onScroll">
-				<div class="bx-im-sidebar-main-detail__invitation-button-container">
+			<div class="bx-im-sidebar-detail__container bx-im-sidebar-main-detail__container" @scroll="onScroll">
+				<div v-if="needCopyLinkButton" class="bx-im-sidebar-main-detail__invitation-button-container">
 					<ChatButton
 						:text="loc('IM_SIDEBAR_COPY_INVITE_LINK')"
 						:size="ButtonSize.M"
@@ -225,10 +238,11 @@ export const MembersPanel = {
 				/>
 				<Loader v-if="isLoading" class="bx-im-sidebar-detail__loader-container" />
 			</div>
-			<AddToChat
+			<component
+				v-if="showAddToChatPopup"
+				:is="addMembersPopupComponent"
 				:bindElement="showAddToChatTarget || {}"
 				:dialogId="dialogId"
-				:showPopup="showAddToChatPopup"
 				:popupConfig="{offsetTop: 0, offsetLeft: 0}"
 				@close="showAddToChatPopup = false"
 			/>

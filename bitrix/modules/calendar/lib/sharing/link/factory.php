@@ -11,6 +11,11 @@ use Bitrix\Main\UserTable;
 class Factory
 {
 	protected static ?Factory $instance = null;
+	protected static ?UserLinkMapper $userLinkMapper = null;
+	protected static ?EventLinkMapper $eventLinkMapper = null;
+	protected static ?CrmDealLinkMapper $crmDealLinkMapper = null;
+	protected static ?GroupLinkMapper $groupLinkMapper = null;
+
 	protected const SELECT = ['*', 'MEMBERS', 'MEMBERS.USER', 'MEMBERS.IMAGE'];
 
 	/**
@@ -42,17 +47,22 @@ class Factory
 
 		if ($sharingLink instanceof CrmDealLink)
 		{
-			return (new CrmDealLinkMapper())->convertToArray($sharingLink);
+			return $this->getCrmDealLinkMapper()->convertToArray($sharingLink);
 		}
 
 		if ($sharingLink instanceof UserLink)
 		{
-			return (new UserLinkMapper())->convertToArray($sharingLink);
+			return $this->getUserLinkMapper()->convertToArray($sharingLink);
 		}
 
 		if ($sharingLink instanceof EventLink)
 		{
-			return (new EventLinkMapper())->convertToArray($sharingLink);
+			return $this->getEventLinkMapper()->convertToArray($sharingLink);
+		}
+
+		if ($sharingLink instanceof GroupLink)
+		{
+			return $this->getGroupLinkMapper()->convertToArray($sharingLink);
 		}
 
 		return null;
@@ -80,22 +90,16 @@ class Factory
 			return null;
 		}
 
-		if ($sharingLinkEO->getObjectType() === Helper::USER_SHARING_TYPE)
+		$mapper = match ($sharingLinkEO->getObjectType())
 		{
-			return (new UserLinkMapper())->getByEntityObject($sharingLinkEO);
-		}
+			Helper::USER_SHARING_TYPE => $this->getUserLinkMapper(),
+			Helper::EVENT_SHARING_TYPE => $this->getEventLinkMapper(),
+			Helper::CRM_DEAL_SHARING_TYPE => $this->getCrmDealLinkMapper(),
+			Helper::GROUP_SHARING_TYPE => $this->getGroupLinkMapper(),
+			default => null,
+		};
 
-		if ($sharingLinkEO->getObjectType() === Helper::EVENT_SHARING_TYPE)
-		{
-			return (new EventLinkMapper())->getByEntityObject($sharingLinkEO);
-		}
-
-		if ($sharingLinkEO->getObjectType() === Helper::CRM_DEAL_SHARING_TYPE)
-		{
-			return (new CrmDealLinkMapper())->getByEntityObject($sharingLinkEO);
-		}
-
-		return null;
+		return $mapper?->getByEntityObject($sharingLinkEO);
 	}
 
 	/**
@@ -106,7 +110,7 @@ class Factory
 	 */
 	public function getAllUserLinks(int $userId): array
 	{
-		return (new UserLinkMapper())->getMap([
+		return $this->getUserLinkMapper()->getMap([
 			'=OBJECT_ID' => $userId,
 			'=OBJECT_TYPE' => Helper::USER_SHARING_TYPE,
 			'=ACTIVE' => 'Y',
@@ -123,7 +127,7 @@ class Factory
 	 */
 	public function getUserLinks($userId): array
 	{
-		return (new UserLinkMapper())->getMap([
+		return $this->getUserLinkMapper()->getMap([
 			'=OBJECT_ID' => $userId,
 			'=OBJECT_TYPE' => Helper::USER_SHARING_TYPE,
 			'=ACTIVE' => 'Y',
@@ -141,11 +145,22 @@ class Factory
 	 */
 	public function getUserJointLinks($userId): array
 	{
-		return (new UserLinkMapper())->getMap([
+		return $this->getUserLinkMapper()->getMap([
 			'=OBJECT_ID' => $userId,
 			'=OBJECT_TYPE' => Helper::USER_SHARING_TYPE,
 			'=ACTIVE' => 'Y',
 			'!=MEMBERS_HASH' => null,
+		])->getCollection();
+	}
+
+	public function getGroupLinks(int $groupId, int $userId): array
+	{
+		return $this->getGroupLinkMapper()->getMap([
+			'=OBJECT_ID' => $groupId,
+			'=HOST_ID' => $userId,
+			'=OBJECT_TYPE' => Helper::GROUP_SHARING_TYPE,
+			'=ACTIVE' => 'Y',
+			'=MEMBERS_HASH' => null,
 		])->getCollection();
 	}
 
@@ -167,7 +182,7 @@ class Factory
 		$rule = (new Rule\Factory())->getRuleBySharingLink($userLink);
 		$userLink->setSharingRule($rule);
 
-		(new UserLinkMapper())->create($userLink);
+		$this->getUserLinkMapper()->create($userLink);
 
 		return $this;
 	}
@@ -195,7 +210,7 @@ class Factory
 			->setExternalUserName($params['externalUserName'] ?? null)
 		;
 
-		(new EventLinkMapper())->create($eventLink);
+		$this->getEventLinkMapper()->create($eventLink);
 
 		return $eventLink;
 	}
@@ -215,12 +230,15 @@ class Factory
 	public function createCrmDealLink(
 		int $ownerId,
 		int $entityId,
+		?array $memberIds = [],
 		?int $contactId = null,
 		?int $contactType = null,
 		?string $channelId = null,
-		?string $senderId = null
+		?string $senderId = null,
 	): CrmDealLink
 	{
+		$memberHash = $this->generateMembersHash($ownerId, $memberIds);
+
 		$crmDealLink = (new CrmDealLink())
 			->setOwnerId($ownerId)
 			->setEntityId($entityId)
@@ -238,10 +256,18 @@ class Factory
 			->setFrequentUse(1)
 		;
 
+		if ($memberHash !== null)
+		{
+			$crmDealLink
+				->setMembers($this->getMembersFromIds($memberIds))
+				->setMembersHash($memberHash)
+			;
+		}
+
 		$rule = (new Rule\Factory())->getRuleBySharingLink($crmDealLink);
 		$crmDealLink->setSharingRule($rule);
 
-		(new CrmDealLinkMapper())->create($crmDealLink);
+		$this->getCrmDealLinkMapper()->create($crmDealLink);
 
 		return $crmDealLink;
 	}
@@ -262,12 +288,18 @@ class Factory
 		$userJointLink = (new UserLink())
 			->setUserId($userId)
 			->setActive(true)
-			->setMembers($this->getMembersFromIds($memberIds))
-			->setMembersHash($memberHash)
 			->setFrequentUse(1)
 		;
 
-		(new UserLinkMapper())->create($userJointLink);
+		if ($memberHash !== null)
+		{
+			$userJointLink
+				->setMembers($this->getMembersFromIds($memberIds))
+				->setMembersHash($memberHash)
+			;
+		}
+
+		$this->getUserLinkMapper()->create($userJointLink);
 
 		return $userJointLink;
 	}
@@ -280,9 +312,67 @@ class Factory
 			->setFrequentUse(1)
 		;
 
-		(new CrmDealLinkMapper())->create($crmDealLink);
+		$this->getCrmDealLinkMapper()->create($crmDealLink);
 
 		return $crmDealLink;
+	}
+
+	public function createGroupLink(int $groupId, int $userId): self
+	{
+		$groupLink = (new GroupLink())
+			->setObjectId($groupId)
+			->setHostId($userId)
+			->setActive(true)
+			->setFrequentUse(1)
+		;
+
+		$rule = (new Rule\Factory())->getRuleBySharingLink($groupLink);
+		$groupLink->setSharingRule($rule);
+
+		$this->getGroupLinkMapper()->create($groupLink);
+
+		return $this;
+	}
+
+	public function createGroupJointLink(int $groupId, array $memberIds): \Bitrix\Calendar\Core\Base\EntityInterface
+	{
+		$memberHash = $this->generateMembersHash($groupId, $memberIds, 'group');
+
+		if ($existJointLink = $this->getGroupJointLinkByMembersHash($groupId, $memberHash))
+		{
+			SharingLinkTable::update($existJointLink->getId(), [
+				'DATE_EXPIRE' => Sharing\Helper::createSharingLinkExpireDate(
+					new DateTime(),
+					Sharing\Link\Helper::GROUP_SHARING_TYPE
+				),
+			]);
+
+			return $existJointLink;
+		}
+
+		$groupJointLink = (new GroupLink())
+			->setObjectId($groupId)
+			->setActive(true)
+			->setFrequentUse(1)
+			->setDateExpire(
+				Sharing\Helper::createSharingLinkExpireDate(
+					new DateTime(),
+					Sharing\Link\Helper::GROUP_SHARING_TYPE
+				)
+			)
+		;
+
+		if ($memberHash !== null)
+		{
+			$groupJointLink
+				->setMembers($this->getMembersFromIds($memberIds))
+				->setMembersHash($memberHash)
+			;
+		}
+
+		$this->getGroupLinkMapper()->create($groupJointLink);
+
+		return $groupJointLink;
 	}
 
 	private function getMembersFromIds(array $memberIds): array
@@ -295,18 +385,30 @@ class Factory
 		$users = UserTable::query()
 			->whereIn('ID', $memberIds)
 			->where('IS_REAL_USER', 'Y')
-			->setSelect(['NAME', 'LAST_NAME', 'ID'])
+			->setSelect(['NAME', 'LAST_NAME', 'ID', 'PERSONAL_PHOTO'])
 			->exec()
 			->fetchCollection()
 		;
 
 		foreach ($users as $user)
 		{
+			$avatar = '';
+			if (!empty($user->getPersonalPhoto()))
+			{
+				$file = \CFile::ResizeImageGet(
+					$user->getPersonalPhoto(),
+					['width' => 100, 'height' => 100],
+					BX_RESIZE_IMAGE_EXACT,
+				);
+				$avatar = !empty($file['src']) ? $file['src'] : '';
+			}
+
 			$member = new Member();
 			$member
 				->setId($user->getId())
 				->setName($user->getName())
 				->setLastName($user->getLastName())
+				->setAvatar($avatar)
 			;
 			$result[] = $member;
 		}
@@ -314,14 +416,19 @@ class Factory
 		return $result;
 	}
 
-	public function generateMembersHash(int $userId, array $memberIds): string
+	public function generateMembersHash(int $userId, array $memberIds, string $prefix = ''): ?string
 	{
+		if (empty($memberIds))
+		{
+			return null;
+		}
+
 		$memberIds = array_map(static function ($memberId) {
 			return (int)$memberId;
 		}, $memberIds);
 
 		sort($memberIds);
-		$implodedUsers = implode('|', $memberIds) . '|' .  $userId;
+		$implodedUsers = $prefix . implode('|', $memberIds) . '|' .  $userId;
 
 		return md5($implodedUsers);
 	}
@@ -335,22 +442,27 @@ class Factory
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public function getEventLinkByEventId(int $eventId): ?\Bitrix\Calendar\Core\Base\EntityInterface
+	public function getEventLinkByEventId(int $eventId, bool $searchActiveOnly = true): ?\Bitrix\Calendar\Core\Base\EntityInterface
 	{
-		$sharingLinkEO = SharingLinkTable::query()
+		$query = SharingLinkTable::query()
 			->setSelect(['*'])
 			->where('OBJECT_ID', $eventId)
 			->where('OBJECT_TYPE', Helper::EVENT_SHARING_TYPE)
-			->where('ACTIVE', 'Y')
-			->exec()->fetchObject()
 		;
+
+		if ($searchActiveOnly)
+		{
+			$query->where('ACTIVE', 'Y');
+		}
+
+		$sharingLinkEO = $query->exec()->fetchObject();
 
 		if ($sharingLinkEO === null)
 		{
 			return null;
 		}
 
-		return (new EventLinkMapper())->getByEntityObject($sharingLinkEO);
+		return $this->getEventLinkMapper()->getByEntityObject($sharingLinkEO);
 	}
 
 	/**
@@ -375,7 +487,7 @@ class Factory
 			return null;
 		}
 
-		return (new EventLinkMapper())->getByEntityObject($sharingLinkEO);
+		return $this->getEventLinkMapper()->getByEntityObject($sharingLinkEO);
 	}
 
 	/**
@@ -393,10 +505,13 @@ class Factory
 	public function getCrmDealLink(
 		int $entityId,
 		int $ownerId,
+		?array $memberIds = [],
 		?int $contactId = null,
-		?int $contactType = null
+		?int $contactType = null,
 	): ?\Bitrix\Calendar\Core\Base\EntityInterface
 	{
+		$memberHash = $this->generateMembersHash($ownerId, $memberIds);
+
 		$sharingLinkEO = SharingLinkTable::query()
 			->setSelect(self::SELECT)
 			->where('OBJECT_ID', $entityId)
@@ -406,7 +521,7 @@ class Factory
 			->where('CONTACT_ID', $contactId)
 			->where('CONTACT_TYPE', $contactType)
 			->where('DATE_CREATE', '>=', (new DateTime())->setTime(0, 0))
-			->whereNull('MEMBERS.MEMBER_ID')
+			->where('MEMBERS_HASH', $memberHash)
 			->exec()->fetchObject();
 
 		if ($sharingLinkEO === null)
@@ -414,7 +529,27 @@ class Factory
 			return null;
 		}
 
-		return (new CrmDealLinkMapper())->getByEntityObject($sharingLinkEO);
+		return $this->getCrmDealLinkMapper()->getByEntityObject($sharingLinkEO);
+	}
+
+	public function getLastSentCrmDealLink(int $ownerId): ?\Bitrix\Calendar\Core\Base\EntityInterface
+	{
+		$sharingLinkEO = SharingLinkTable::query()
+			->setSelect(['*'])
+			->where('OBJECT_TYPE', Helper::CRM_DEAL_SHARING_TYPE)
+			->where('OWNER_ID', $ownerId)
+			->whereNotNull('CONTACT_ID')
+			->whereNotNull('CONTACT_TYPE')
+			->setOrder(['ID' => 'desc'])
+			->setLimit(1)
+			->exec()->fetchObject();
+
+		if ($sharingLinkEO === null)
+		{
+			return null;
+		}
+
+		return $this->getCrmDealLinkMapper()->getByEntityObject($sharingLinkEO);
 	}
 
 	public function getJointLinkByMembersHash(string $membersHash): ?\Bitrix\Calendar\Core\Base\EntityInterface
@@ -423,6 +558,7 @@ class Factory
 			->setSelect(self::SELECT)
 			->where('MEMBERS_HASH', $membersHash)
 			->where('ACTIVE', 'Y')
+			->where('OBJECT_TYPE', Helper::USER_SHARING_TYPE)
 			->exec()->fetchObject()
 		;
 
@@ -431,7 +567,26 @@ class Factory
 			return null;
 		}
 
-		return (new UserLinkMapper())->getByEntityObject($sharingLinkEO);
+		return $this->getUserLinkMapper()->getByEntityObject($sharingLinkEO);
+	}
+
+	public function getGroupJointLinkByMembersHash(int $groupId, string $membersHash): ?\Bitrix\Calendar\Core\Base\EntityInterface
+	{
+		$sharingLinkEO = SharingLinkTable::query()
+			->setSelect(self::SELECT)
+			->where('OBJECT_ID', $groupId)
+			->where('MEMBERS_HASH', $membersHash)
+			->where('ACTIVE', 'Y')
+			->where('OBJECT_TYPE', Helper::GROUP_SHARING_TYPE)
+			->exec()->fetchObject()
+		;
+
+		if ($sharingLinkEO === null)
+		{
+			return null;
+		}
+
+		return $this->getGroupLinkMapper()->getByEntityObject($sharingLinkEO);
 	}
 
 	public function getParentLinkByConferenceId(string $conferenceId): ?Joint\JointLink
@@ -475,6 +630,46 @@ class Factory
 			return null;
 		}
 
-		return (new CrmDealLinkMapper())->getByEntityObject($sharingLinkEO);
+		return $this->getCrmDealLinkMapper()->getByEntityObject($sharingLinkEO);
+	}
+
+	private function getUserLinkMapper(): UserLinkMapper
+	{
+		if (self::$userLinkMapper === null)
+		{
+			self::$userLinkMapper = new UserLinkMapper();
+		}
+
+		return self::$userLinkMapper;
+	}
+
+	private function getEventLinkMapper(): EventLinkMapper
+	{
+		if (self::$eventLinkMapper === null)
+		{
+			self::$eventLinkMapper = new EventLinkMapper();
+		}
+
+		return self::$eventLinkMapper;
+	}
+
+	private function getCrmDealLinkMapper(): CrmDealLinkMapper
+	{
+		if (self::$crmDealLinkMapper === null)
+		{
+			self::$crmDealLinkMapper = new CrmDealLinkMapper();
+		}
+
+		return self::$crmDealLinkMapper;
+	}
+
+	private function getGroupLinkMapper(): GroupLinkMapper
+	{
+		if (self::$groupLinkMapper === null)
+		{
+			self::$groupLinkMapper = new GroupLinkMapper();
+		}
+
+		return self::$groupLinkMapper;
 	}
 }

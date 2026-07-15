@@ -720,7 +720,7 @@ export default class PostFormTabs extends EventEmitter
 				analytics: {
 					tool: 'tasks',
 					category: 'task_operations',
-					event: 'task_create',
+					event: 'click_create',
 					type: 'task',
 					c_section: 'feed',
 					c_element: 'create_button',
@@ -964,6 +964,40 @@ export default class PostFormTabs extends EventEmitter
 		}
 	};
 
+	clickStartWorkflowButton(): void
+	{
+		Runtime
+			.loadExtension('bizproc.router')
+			.then(({ Router }) => {
+				if (Type.isFunction(Router.openUserProcessesStart))
+				{
+					const options = {
+						requestMethod: 'get',
+						requestParams: { apply_filter: 'Y', LIVEFEED_PRESET: 'show_livefeed' },
+						events: {
+							onCloseStart: () => {
+								if (BX.Livefeed && BX.Livefeed.PageInstance)
+								{
+									BX.Livefeed.PageInstance.refresh();
+								}
+								else
+								{
+									window.location.reload();
+								}
+							},
+						},
+					};
+
+					Router.openUserProcessesStart(options);
+				}
+				else
+				{
+					this.getLists(); // TODO delete in future version
+				}
+			})
+			.catch((e) => console.error(e));
+	}
+
 	getMenuItems(tabs, createOnclickLists)
 	{
 		const menuItemsLists = [];
@@ -1056,6 +1090,22 @@ export default class PostFormTabs extends EventEmitter
 			spanIcon[i].innerHTML = spanDataPicture[i].getAttribute('data-picture-small');
 		}
 
+		if (!this.listsMenu.popupWindow.isShown())
+		{
+			Runtime.loadExtension('ui.analytics')
+				.then(({ sendData }) => {
+					sendData({
+						tool: 'automation',
+						category: 'bizproc_operations',
+						event: 'drawer_open',
+						c_section: 'feed',
+						c_element: 'button',
+					});
+				})
+				.catch(() => {})
+			;
+		}
+
 		this.listsMenu.popupWindow.show();
 	};
 
@@ -1081,6 +1131,18 @@ export default class PostFormTabs extends EventEmitter
 						CreationGuide.open({
 							iBlockTypeId: iblock[5],
 							iBlockId: Text.toInteger(iblock[0]),
+							analyticsSection: 'feed',
+							analyticsP1: iblock[1],
+							onClose: () => {
+								if (BX.Livefeed && BX.Livefeed.PageInstance)
+								{
+									BX.Livefeed.PageInstance.refresh();
+								}
+								else
+								{
+									window.location.reload();
+								}
+							},
 						});
 
 						return;

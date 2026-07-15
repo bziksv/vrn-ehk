@@ -1,0 +1,28 @@
+<root>
+	<GoodsSubType name="Окна">
+		<BusinessSubType name="Поворотное"/>
+		<BusinessSubType name="Поворотно-откидное"/>
+		<BusinessSubType name="Раздвижное"/>
+		<BusinessSubType name="Откидное"/>
+		<BusinessSubType name="Глухое"/>
+		<MaterialType name="Пластик"/>
+		<MaterialType name="Комбинированный" oldNames="Металлопластик"/>
+		<MaterialType name="Алюминий"/>
+		<MaterialType name="Дерево"/>
+		<ProfileBrand file="windowsandbalconies/brend_okon.xml" rename="true"/>
+	</GoodsSubType>
+	<GoodsSubType name="Фурнитура и аксессуары для окон"/>
+	<GoodsSubType name="Подоконники, откосы, решётки"/>
+	<GoodsSubType name="Мягкие окна"/>
+	<GoodsSubType name="Стеклопакеты без обрамления"/>
+	<GoodsSubType name="Балконы"/>
+	<GoodsSubType name="Балконные двери">
+		<DoorOpenType name="Поворотная"/>
+		<DoorOpenType name="Поворотно-откидная"/>
+		<DoorOpenType name="Раздвижная"/>
+		<MaterialType name="Пластик"/>
+		<MaterialType name="Металлопластик"/>
+		<MaterialType name="Алюминий"/>
+		<MaterialType name="Дерево"/>
+	</GoodsSubType>
+</root>

@@ -7,17 +7,19 @@ use Bitrix\Calendar\Core\Builders\EventBuilderFromArray;
 use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Calendar\Core\Mappers;
+use Bitrix\Calendar\Integration\Crm\DealHandler;
 use Bitrix\Calendar\Internals\EventTable;
 use Bitrix\Calendar\Sharing;
 use Bitrix\Calendar\Util;
 use Bitrix\Crm;
-use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
+use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\PhoneNumber;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\SystemException;
 use Bitrix\Main\Type\DateTime;
 use CUser;
 
@@ -25,13 +27,14 @@ class SharingEventManager
 {
 	public const SHARED_EVENT_TYPE = Dictionary::EVENT_TYPE['shared'];
 	public const SHARED_EVENT_CRM_TYPE = Dictionary::EVENT_TYPE['shared_crm'];
+	public const SHARED_EVENT_COLLAB_TYPE = Dictionary::EVENT_TYPE['shared_collab'];
 	/** @var Event  */
 	private Event $event;
 	/** @var int|null  */
 	private ?int $hostId;
 	/** @var int|null  */
 	private ?int $ownerId;
-	/** @var Sharing\Link\CrmDealLink|Sharing\Link\UserLink|null $link */
+	/** @var Sharing\Link\CrmDealLink|Sharing\Link\UserLink|Sharing\Link\GroupLink|null $link */
 	private ?Sharing\Link\Link $link;
 
 	/**
@@ -71,22 +74,28 @@ class SharingEventManager
 
 		if (!$this->doesEventHasCorrectTime())
 		{
-			$result->addError(new Error(Loc::getMessage('EC_SHARINGAJAX_USER_BUSY')));
+			$result->addError(new Error('Incorrect time has given'));
 
 			return $result;
 		}
 
 		if (!$this->doesEventSatisfyRule())
 		{
-			$result->addError(new Error(Loc::getMessage('EC_SHARINGAJAX_USER_BUSY')));
+			$result->addError(new Error('Event time does not satisfy owner rule'));
 
 			return $result;
 		}
 
 		$members = $this->link->getMembers();
-		$users = array_merge([$this->link->getOwnerId()], array_map(static function ($member){
-			return $member->getId();
-		}, $members));
+		$users = array_map(static fn ($member) => $member->getId(), $members);
+		if ($this->link->getObjectType() === Sharing\Link\Helper::GROUP_SHARING_TYPE)
+		{
+			$users[] = $this->link->getHostId();
+		}
+		else
+		{
+			$users[] = $this->link->getOwnerId();
+		}
 
 		if (!$this->checkUserAccessibility($users))
 		{
@@ -96,8 +105,8 @@ class SharingEventManager
 		}
 
 		$eventId = (new Mappers\Event())->create($this->event, [
-			'sendInvitations' => $sendInvitations
-		])->getId();
+			'sendInvitations' => $sendInvitations,
+		])?->getId();
 
 		$this->event->setId($eventId);
 
@@ -204,16 +213,6 @@ class SharingEventManager
 	 */
 	public static function prepareEventForSave($data, $userId, Sharing\Link\Joint\JointLink $link): Event
 	{
-		$ownerId = (int)($data['ownerId'] ?? null);
-		$sectionId = self::getSectionId($userId);
-
-		$attendeesCodes = ['U' . $userId, 'U' . $ownerId];
-		$members = $link->getMembers();
-		foreach ($members as $member)
-		{
-			$attendeesCodes[] = 'U' . $member->getId();
-		}
-
 		$meeting = [
 			'HOST_NAME' => \CCalendar::GetUserName($userId),
 			'NOTIFY' => true,
@@ -224,23 +223,21 @@ class SharingEventManager
 		];
 
 		$eventData = [
-			'OWNER_ID' => $userId,
 			'NAME' => (string)($data['eventName'] ?? ''),
 			'DATE_FROM' => (string)($data['dateFrom'] ?? ''),
 			'DATE_TO' => (string)($data['dateTo'] ?? ''),
 			'TZ_FROM' => (string)($data['timezone'] ?? ''),
 			'TZ_TO' => (string)($data['timezone'] ?? ''),
 			'SKIP_TIME' => 'N',
-			'SECTIONS' => [$sectionId],
-			'EVENT_TYPE' => $data['eventType'],
 			'ACCESSIBILITY' => 'busy',
 			'IMPORTANCE' => 'normal',
-			'ATTENDEES_CODES' => $attendeesCodes,
 			'MEETING_HOST' => $userId,
 			'IS_MEETING' => true,
 			'MEETING' => $meeting,
 			'DESCRIPTION' => (string)($data['description'] ?? ''),
 		];
+
+		$eventData = array_merge($eventData, self::prepareTypeDependedEventFields($link, (int)$userId));
 
 		return (new EventBuilderFromArray($eventData))->build();
 	}
@@ -253,7 +250,6 @@ class SharingEventManager
 			'dateTo' => (string)($request['dateTo'] ?? ''),
 			'timezone' => (string)($request['timezone'] ?? ''),
 			'description' => (string)($request['description'] ?? ''),
-			'eventType' => Dictionary::EVENT_TYPE['shared'],
 		];
 	}
 
@@ -281,6 +277,19 @@ class SharingEventManager
 		return $result;
 	}
 
+	public static function getSharingEventNameByDealId(int $dealId): string
+	{
+		$deal = DealHandler::getDeal($dealId);
+		if (!$deal)
+		{
+			return '';
+		}
+
+		return Loc::getMessage('CALENDAR_SHARING_EVENT_MANAGER_EVENT_NAME_DEAL', [
+			'#DEAL_NAME#' => trim($deal->getTitle()),
+		]);
+	}
+
 	/**
 	 * @param $request
 	 * @return array
@@ -305,6 +314,7 @@ class SharingEventManager
 		return [
 			self::SHARED_EVENT_CRM_TYPE,
 			self::SHARED_EVENT_TYPE,
+			self::SHARED_EVENT_COLLAB_TYPE,
 		];
 	}
 
@@ -312,8 +322,8 @@ class SharingEventManager
 	 * @param array $fields
 	 * @return void
 	 * @throws ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
 	 */
 	public static function onSharingEventEdit(array $fields): void
 	{
@@ -329,8 +339,8 @@ class SharingEventManager
 	 * @param int $eventId
 	 * @return void
 	 * @throws ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
 	 */
 	public static function setCanceledTimeOnSharedLink(int $eventId): void
 	{
@@ -346,11 +356,14 @@ class SharingEventManager
 	 * @param int $userId
 	 * @param string $currentMeetingStatus
 	 * @param array $userEventBeforeChange
-	 * @param bool|null $isAutoAccept
+	 * @param bool $isAutoAccept
+	 *
 	 * @return void
+	 *
 	 * @throws ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
+	 * @throws LoaderException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
 	 */
 	public static function onSharingEventMeetingStatusChange(
 		int $userId,
@@ -375,7 +388,7 @@ class SharingEventManager
 		}
 		else if ($userEventBeforeChange['EVENT_TYPE'] === Dictionary::EVENT_TYPE['shared'])
 		{
-			self::onSharingCommonEventMeetingStatusChange($eventLink);
+			self::onSharingCommonEventMeetingStatusChange($eventLink, $userId);
 		}
 		else if ($userEventBeforeChange['EVENT_TYPE'] === Dictionary::EVENT_TYPE['shared_crm'])
 		{
@@ -399,11 +412,19 @@ class SharingEventManager
 			'guestId' => $userId,
 			'eventId' => $event['PARENT_ID'],
 			'userId' => $eventLink->getOwnerId(),
-			'fields' => $event
+			'fields' => $event,
 		]);
 	}
 
-	private static function onSharingCommonEventMeetingStatusChange(Sharing\Link\EventLink $eventLink): void
+	/**
+	 * @throws ArgumentException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 */
+	private static function onSharingCommonEventMeetingStatusChange(
+		Sharing\Link\EventLink $eventLink,
+		?int $initiatorId = null,
+	): void
 	{
 		/** @var Event $event */
 		$event = (new Mappers\Event())->getById($eventLink->getEventId());
@@ -416,15 +437,23 @@ class SharingEventManager
 		$notificationService = null;
 		if ($userContact && self::isEmailCorrect($userContact))
 		{
-			$notificationService = (new Sharing\Notification\Mail())
-				->setEventLink($eventLink)
-				->setEvent($event)
+			$notificationService =
+				(new Sharing\Notification\Mail())
+					->setEventLink($eventLink)
+					->setEvent($event)
+					->setInitiatorId($initiatorId)
 			;
 		}
 
 		$notificationService?->notifyAboutMeetingStatus($userContact);
 	}
 
+	/**
+	 * @throws ArgumentException
+	 * @throws LoaderException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 */
 	private static function onSharingCrmEventStatusChange(
 		string $currentMeetingStatus,
 		array $userEventBeforeChange,
@@ -460,7 +489,7 @@ class SharingEventManager
 			)
 		)
 		{
-			self::onSharingCrmEventDeclined((int)$userEventBeforeChange['PARENT_ID']);
+			self::onSharingCrmEventDeclined((int)$userEventBeforeChange['PARENT_ID'], $userId);
 		}
 	}
 
@@ -489,7 +518,12 @@ class SharingEventManager
 		}
 	}
 
-	private static function onSharingCrmEventDeclined(int $eventId): void
+	/**
+	 * @throws ArgumentException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 */
+	private static function onSharingCrmEventDeclined(int $eventId, ?int $initiatorId = null): void
 	{
 		$sharingFactory = new Sharing\Link\Factory();
 
@@ -516,12 +550,19 @@ class SharingEventManager
 		self::setCanceledTimeOnSharedLink($eventId);
 		if ($crmDealLink->getContactId() > 0)
 		{
-			Crm\Integration\Calendar\Notification\Manager::getSenderInstance($crmDealLink)
-				->setCrmDealLink($crmDealLink)
-				->setEventLink($eventLink)
-				->setEvent($event)
-				->sendCrmSharingCancelled()
+			$notificationService =
+				Crm\Integration\Calendar\Notification\Manager::getSenderInstance($crmDealLink)
+					->setCrmDealLink($crmDealLink)
+					->setEventLink($eventLink)
+					->setEvent($event)
 			;
+
+			if (method_exists($notificationService, 'setInitiatorId'))
+			{
+				$notificationService->setInitiatorId($initiatorId);
+			}
+
+			$notificationService->sendCrmSharingCancelled();
 		}
 		else
 		{
@@ -532,9 +573,11 @@ class SharingEventManager
 			}
 
 			$eventLink->setCanceledTimestamp(time());
+
 			(new Sharing\Notification\Mail())
 				->setEventLink($eventLink)
 				->setEvent($event)
+				->setInitiatorId($initiatorId)
 				->notifyAboutMeetingCancelled($email)
 			;
 		}
@@ -542,131 +585,50 @@ class SharingEventManager
 		self::reSaveEventWithoutAttendeesExceptHostAndSharingLinkOwner($eventLink);
 	}
 
-	public static function onSharingEventEdited(int $eventId, array $previousFields): void
+	/**
+	 * @param int $eventId
+	 * @param string $eventType
+	 * @param int|null $initiatorId
+	 * @return void
+	 * @throws ArgumentException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 */
+	public static function onSharingEventDeleted(int $eventId, string $eventType, ?int $initiatorId = null): void
 	{
-		/** @var Event $event */
-		$event = (new Mappers\Event())->getById($eventId);
-		if ($event instanceof Event)
-		{
-			$oldEvent = Event::fromBuilder(new EventBuilderFromArray($previousFields));
-			if ($event->getSpecialLabel() === Dictionary::EVENT_TYPE['shared'])
-			{
-				self::onSharingCommonEventEdited($event, $oldEvent);
-			}
-			else if ($event->getSpecialLabel() === Dictionary::EVENT_TYPE['shared_crm'])
-			{
-				self::onSharingCrmEventEdited($event, $oldEvent);
-			}
-		}
-	}
+		$linkFactory = (new Sharing\Link\Factory());
 
-	private static function onSharingCommonEventEdited(Event $event, Event $oldEvent): void
-	{
-		$sharingFactory = new Sharing\Link\Factory();
-
-		/** @var Sharing\Link\EventLink $eventLink */
-		$eventLink = $sharingFactory->getEventLinkByEventId($event->getId());
-
-		//TODO remove if not needed
-//		/** @var Sharing\Link\UserLink $crmDealLink */
-//		$userLink = $sharingFactory->getLinkByHash($eventLink->getParentLinkHash());
-
-		$host = CUser::GetByID($eventLink->getHostId())->Fetch();
-		$email = $host['PERSONAL_MAILBOX'] ?? null;
-		$phone = $host['PERSONAL_PHONE'] ?? null;
-		$userContact = !empty($email) ? $email : $phone;
-
-		$notificationService = null;
-		if ($userContact && self::isEmailCorrect($userContact))
-		{
-			$notificationService = (new Sharing\Notification\Mail())
-				->setEventLink($eventLink)
-				->setEvent($event)
-				->setOldEvent($oldEvent)
-			;
-		}
-
-		if ($notificationService !== null)
-		{
-			$notificationService->notifyAboutSharingEventEdit($userContact);
-		}
-	}
-
-	private static function onSharingCrmEventEdited(Event $event, Event $oldEvent): void
-	{
-		if (!Loader::includeModule('crm'))
-		{
-			return;
-		}
-
-		(new Sharing\Crm\ActivityManager($event->getId()))
-			->editActivityDeadline(DateTime::createFromUserTime($event->getStart()->toString()))
-		;
-
-		$sharingFactory = new Sharing\Link\Factory();
-
-		/** @var Sharing\Link\EventLink $eventLink */
-		$eventLink = $sharingFactory->getEventLinkByEventId($event->getId());
-		if (!$eventLink instanceof Sharing\Link\EventLink)
-		{
-			return;
-		}
-
-		/** @var Sharing\Link\CrmDealLink $crmDealLink */
-		$crmDealLink = $sharingFactory->getLinkByHash($eventLink->getParentLinkHash());
-		if (!$crmDealLink instanceof Sharing\Link\CrmDealLink)
-		{
-			return;
-		}
-
-		if ($crmDealLink->getContactId() > 0)
-		{
-			Crm\Integration\Calendar\Notification\Manager::getSenderInstance($crmDealLink)
-				->setCrmDealLink($crmDealLink)
-				->setEventLink($eventLink)
-				->setEvent($event)
-				->setOldEvent($oldEvent)
-				->sendCrmSharingEdited()
-			;
-		}
-		else
-		{
-			$email = CUser::GetByID($eventLink->getHostId())->Fetch()['PERSONAL_MAILBOX'] ?? null;
-			if (!is_string($email))
-			{
-				return;
-			}
-
-			(new Sharing\Notification\Mail())
-				->setEventLink($eventLink)
-				->setEvent($event)
-				->setOldEvent($oldEvent)
-				->notifyAboutSharingEventEdit($email)
-			;
-		}
-	}
-
-	public static function onSharingEventDeleted(int $eventId, string $eventType): void
-	{
 		/**@var Sharing\Link\EventLink $eventLink */
-		$eventLink = (new Sharing\Link\Factory())->getEventLinkByEventId($eventId);
+		$eventLink = $linkFactory->getEventLinkByEventId($eventId);
+
 		if ($eventLink)
 		{
 			self::setDeclinedStatusOnLinkOwnerEvent($eventLink);
 
 			if ($eventType === Dictionary::EVENT_TYPE['shared'])
 			{
-				self::onSharingCommonEventDeclined($eventLink);
+				self::onSharingCommonEventDeclined($eventLink, $initiatorId);
 			}
 			else if ($eventType === Dictionary::EVENT_TYPE['shared_crm'])
 			{
-				self::onSharingCrmEventDeclined($eventId);
+				self::onSharingCrmEventDeclined($eventId, $initiatorId);
 			}
 
 		}
 	}
 
-	public static function onSharingCommonEventDeclined(Sharing\Link\EventLink $eventLink)
+	/**
+	 * @param Link\EventLink $eventLink
+	 * @param int|null $initiatorId
+	 * @return void
+	 * @throws ArgumentException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 */
+	public static function onSharingCommonEventDeclined(
+		Sharing\Link\EventLink $eventLink,
+		?int $initiatorId = null,
+	): void
 	{
 		self::setCanceledTimeOnSharedLink($eventLink->getEventId());
 		/** @var Event $event */
@@ -680,16 +642,15 @@ class SharingEventManager
 		$notificationService = null;
 		if ($userContact && self::isEmailCorrect($userContact))
 		{
-			$notificationService = (new Sharing\Notification\Mail())
-				->setEventLink($eventLink)
-				->setEvent($event)
+			$notificationService =
+				(new Sharing\Notification\Mail())
+					->setEventLink($eventLink)
+					->setEvent($event)
+					->setInitiatorId($initiatorId)
 			;
 		}
 
-		if ($notificationService !== null)
-		{
-			$notificationService->notifyAboutMeetingCancelled($userContact);
-		}
+		$notificationService?->notifyAboutMeetingCancelled($userContact);
 	}
 
 	public static function setDeclinedStatusOnLinkOwnerEvent(Sharing\Link\EventLink $eventLink)
@@ -759,7 +720,7 @@ class SharingEventManager
 		$start = new DateTime($this->event->getStart()->toString());
 		$end = new DateTime($this->event->getEnd()->toString());
 
-		$offset = Util::getTimezoneOffsetUTC(\CCalendar::GetUserTimezoneName($this->ownerId));
+		$offset = $this->getOffset();
 		$fromTs = Util::getDateTimestampUtc($start, $this->event->getStartTimeZone());
 		$toTs = Util::getDateTimestampUtc($end, $this->event->getEndTimeZone());
 
@@ -791,13 +752,11 @@ class SharingEventManager
 
 	private function doesEventSatisfyRule(): bool
 	{
-		$start = new DateTime($this->event->getStart()->toString());
-		$end = new DateTime($this->event->getEnd()->toString());
-		$fromTs = Util::getDateTimestampUtc($start, $this->event->getStartTimeZone());
-		$toTs = Util::getDateTimestampUtc($end, $this->event->getEndTimeZone());
+		$start = new DateTime($this->event->getStart()->toString(), null, new \DateTimeZone('UTC'));
+		$end = new DateTime($this->event->getEnd()->toString(), null, new \DateTimeZone('UTC'));
 
 		$rule = $this->link->getSharingRule();
-		$eventDurationMinutes = ($toTs - $fromTs) / 60;
+		$eventDurationMinutes = ($end->getTimestamp() - $start->getTimestamp()) / 60;
 		if ($eventDurationMinutes !== $rule->getSlotSize())
 		{
 			return false;
@@ -834,13 +793,22 @@ class SharingEventManager
 			}
 		}
 
-		$offset = Util::getTimezoneOffsetUTC(\CCalendar::GetUserTimezoneName($this->ownerId)) / 60;
+
+		$eventOffset = Util::getTimezoneOffsetUTC($this->event->getStartTimeZone()?->getTimeZone()->getName());
+		$userOffset = $this->getOffset();
+
+		// Calculated as time of event in owner timezone
+		$fromTs = $start->getTimestamp() - ($eventOffset - $userOffset);
+		$toTs = $end->getTimestamp() - ($eventOffset - $userOffset);
+
+		//Minutes and range are in owner time so we can check them
 		$minutesFrom = ($fromTs % 86400) / 60;
 		$minutesTo = ($toTs % 86400) / 60;
 		$weekday = (int)gmdate('N', $fromTs) % 7;
+
 		foreach ($availableTime[$weekday] as $range)
 		{
-			if ($minutesFrom >= $range['from'] - $offset && $minutesTo <= $range['to'] - $offset)
+			if ($minutesFrom >= $range['from'] && $minutesTo <= $range['to'])
 			{
 				return true;
 			}
@@ -881,8 +849,8 @@ class SharingEventManager
 			'arFilter' => [
 				'OWNER_ID' => $userId,
 				'CAL_TYPE' => 'user',
-				'ACTIVE' => 'Y'
-			]
+				'ACTIVE' => 'Y',
+			],
 		]);
 
 		if (!$result)
@@ -934,13 +902,91 @@ class SharingEventManager
 			if ($event)
 			{
 				$event['ATTENDEES'] = [$eventLink->getOwnerId(), $eventLink->getHostId()];
+				$event['ATTENDEES_CODES'] = ['U' . $eventLink->getOwnerId(), 'U' . $eventLink->getHostId()];
 				\CCalendar::SaveEvent([
 					'arFields' => $event,
 					'userId' => $eventLink->getOwnerId(),
 					'checkPermission' => false,
-					'sendInvitations' => true
+					'sendInvitations' => true,
 				]);
 			}
 		}
+	}
+
+	private static function prepareTypeDependedEventFields(
+		Sharing\Link\Link $link,
+		int $userId
+	): array
+	{
+		return match ($link->getObjectType())
+		{
+			Sharing\Link\Helper::GROUP_SHARING_TYPE => self::prepareGroupSharingEventFields($link, $userId),
+			default => self::prepareUserSharingEventFields($link, $userId),
+		};
+	}
+
+	private static function prepareGroupSharingEventFields(Sharing\Link\Link $link, int $userId): array
+	{
+		$groupId = $link->getOwnerId();
+		$section = \CCalendarSect::GetList([
+			'arFilter' => [
+				'OWNER_ID' => $groupId,
+				'CAL_TYPE' => Dictionary::CALENDAR_TYPE['group'],
+				'ACTIVE' => 'Y',
+			],
+			'checkPermissions' => false,
+			'getPermissions' => false,
+		]);
+
+		$attendeesCodes = ['U' . $userId];
+		$members = $link->getMembers();
+
+		if (!$members)
+		{
+			$attendeesCodes[] = 'U' . $link->getHostId();
+		}
+		else
+		{
+			foreach ($members as $member)
+			{
+				$attendeesCodes[] = 'U' . $member->getId();
+			}
+		}
+
+		return [
+			'OWNER_ID' => $link->getHostId(),
+			'SECTIONS' => [$section[0]['ID']],
+			'ATTENDEES_CODES' => $attendeesCodes,
+			'EVENT_TYPE' => Dictionary::EVENT_TYPE['shared_collab'],
+		];
+	}
+
+	private static function prepareUserSharingEventFields(Sharing\Link\Link $link, int $userId): array
+	{
+		$sectionId = self::getSectionId($userId);
+
+		$ownerId = $link->getOwnerId();
+		$attendeesCodes = ['U' . $userId, 'U' . $ownerId];
+		$members = $link->getMembers();
+
+		foreach ($members as $member)
+		{
+			$attendeesCodes[] = 'U' . $member->getId();
+		}
+
+		return [
+			'OWNER_ID' => $userId,
+			'SECTIONS' => [$sectionId],
+			'ATTENDEES_CODES' => $attendeesCodes,
+			'EVENT_TYPE' => $link instanceof Sharing\Link\CrmDealLink
+				? Dictionary::EVENT_TYPE['shared_crm']
+				: Dictionary::EVENT_TYPE['shared']
+			,
+		];
+	}
+
+	private function getOffset(): int
+	{
+		return Util::getTimezoneOffsetUTC(\CCalendar::GetUserTimezoneName($this->ownerId));
 	}
 }

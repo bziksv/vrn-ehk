@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["ADDITIONAL_PROPS"] = "Schaltflächen der zusätzlichen Produkteigenschaften";
 $MESS["ADDITIONAL_PROPS_DEFAULT"] = "Zusätzliche Eigenschaften";
 $MESS["ALLOW_NEW_PROFILE"] = "Mehrfache Kundenprofile erlauben";
@@ -81,6 +81,8 @@ $MESS["REGION_BLOCK_NAME"] = "Name des Blocks der Lieferregion";
 $MESS["REGION_BLOCK_NAME_DEFAULT"] = "Lieferregion";
 $MESS["REGION_REFERENCE"] = "Hinweis für Block \"Region\"";
 $MESS["REGION_REFERENCE_DEFAULT"] = "Wählen Sie Ihre Stadt in der Liste aus. Können Sie die Stadt nicht finden, wählen Sie \"anderer Standort\" aus und geben Sie dort Ihre Stadt im Feld \"Stadt\" ein.";
+$MESS["REGION_REFERENCE_NAME"] = "Hinweis zum Standort";
+$MESS["REGION_REFERENCE_PLACEHOLDER"] = "Wählen Sie Ihren Standort in der Liste aus. Ist er dort  nicht aufgeführt, wählen Sie \"Anderer Standort\" aus und geben Sie Ihre Stadt oder Ihren Ort manuell ein.";
 $MESS["REGISTRATION_REFERENCE"] = "Text zum öffnen der Registrierungsseite";
 $MESS["REGISTRATION_REFERENCE_DEFAULT"] = "Registrieren Sie sich bitte, um bessere Erfahrungen zu sammeln und Ihre Bestell-History zu verfolgen.";
 $MESS["REG_BLOCK_NAME"] = "Name des Registrierungsblocks";
@@ -145,4 +147,3 @@ $MESS["YM_GOALS_NEXT_PICKUP"] = "Ziel-ID für Übergang von Abholungsstandorten 
 $MESS["YM_GOALS_NEXT_PROPERTIES"] = "Ziel-ID für Übergang von Produkteigenschaften zur Schaltfläche 'Weiter'";
 $MESS["YM_GOALS_NEXT_REGION"] = "Ziel-ID für Übergang von der Lieferregion zur Schaltfläche 'Weiter'";
 $MESS["YM_GOALS_SAVE_ORDER"] = "Ziel-ID für Bestellbearbeitung";
-?>

@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Landing;
 
+use Bitrix\Main\Application;
 use Bitrix\Rest\AppTable;
 use Bitrix\Landing\Site\Type;
 use Bitrix\Main\Localization\Loc;
@@ -168,13 +169,6 @@ class PublicAction
 		if (isset($data['scope']))
 		{
 			Type::setScope($data['scope']);
-		}
-
-		if (!$isRest && (!defined('BX_UTF') || BX_UTF !== true))
-		{
-			$data = Manager::getApplication()->convertCharsetArray(
-				$data, 'UTF-8', SITE_CHARSET
-			);
 		}
 
 		$error = new Error;
@@ -353,7 +347,7 @@ class PublicAction
 	 */
 	public static function ajaxProcessing()
 	{
-		$context = \Bitrix\Main\Application::getInstance()->getContext();
+		$context = Application::getInstance()->getContext();
 		$request = $context->getRequest();
 		$files = $request->getFileList();
 		$postlist = $context->getRequest()->getPostList();
@@ -362,8 +356,8 @@ class PublicAction
 
 		// multiple commands
 		if (
-			$request->offsetExists('batch') &&
-			is_array($request->get('batch'))
+			$request->offsetExists('batch')
+			&& is_array($request->get('batch'))
 		)
 		{
 			$result = array();
@@ -405,11 +399,12 @@ class PublicAction
 
 			return $result;
 		}
+
 		// or single command
 		else if (
-			$request->offsetExists('action') &&
-			$request->offsetExists('data') &&
-			is_array($request->get('data'))
+			$request->offsetExists('action')
+			&& $request->offsetExists('data')
+			&& is_array($request->get('data'))
 		)
 		{
 			$data = $request->get('data');
@@ -456,7 +451,7 @@ class PublicAction
 			$classes = array(
 				self::REST_SCOPE_DEFAULT => array(
 					'block', 'site', 'landing', 'repo', 'template',
-					'demos', 'role', 'syspage', 'chat'
+					'demos', 'role', 'syspage', 'chat', 'repowidget'
 				),
 				self::REST_SCOPE_CLOUD => array(
 					'cloud'
@@ -617,7 +612,7 @@ class PublicAction
 		];
 		$activeValues = $onlyActive ? 'Y' : ['Y', 'N'];
 		$filter = [
-			'CODE' => 'repo_%',
+			'=%CODE' => 'repo_%',
 			'=DELETED' => 'N',
 			'=PUBLIC' => $activeValues,
 			'=LANDING.ACTIVE' => $activeValues,

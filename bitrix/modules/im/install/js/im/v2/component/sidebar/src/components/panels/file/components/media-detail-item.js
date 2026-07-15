@@ -1,16 +1,19 @@
 import 'ui.viewer';
-import { SocialVideo } from 'ui.vue3.components.socialvideo';
+import { Type } from 'main.core';
 
-import { ImModelSidebarFileItem, ImModelFile } from 'im.v2.model';
-import { MessageAvatar, AvatarSize } from 'im.v2.component.elements';
 import { Utils } from 'im.v2.lib.utils';
+import { FileViewerContext } from 'im.v2.const';
+import { MessageAvatar, AvatarSize } from 'im.v2.component.elements.avatar';
 
 import '../css/media-detail-item.css';
+
+import type { JsonObject } from 'main.core';
+import type { ImModelSidebarFileItem, ImModelFile } from 'im.v2.model';
 
 // @vue/component
 export const MediaDetailItem = {
 	name: 'MediaDetailItem',
-	components: { SocialVideo, MessageAvatar },
+	components: { MessageAvatar },
 	props: {
 		fileItem: {
 			type: Object,
@@ -22,7 +25,8 @@ export const MediaDetailItem = {
 		},
 	},
 	emits: ['contextMenuClick'],
-	data() {
+	data(): JsonObject
+	{
 		return {
 			showContextButton: false,
 			videoDuration: 0,
@@ -47,12 +51,12 @@ export const MediaDetailItem = {
 			}
 
 			return {
-				backgroundImage: `url('${this.file.urlPreview}')`,
+				backgroundImage: `url('${this.imageSrc}')`,
 			};
 		},
 		hasPreview(): boolean
 		{
-			return this.file.urlPreview !== '';
+			return Type.isStringFilled(this.file.urlPreview);
 		},
 		isImage(): boolean
 		{
@@ -64,7 +68,11 @@ export const MediaDetailItem = {
 		},
 		viewerAttributes(): Object
 		{
-			return Utils.file.getViewerDataAttributes(this.file.viewerAttrs);
+			return Utils.file.getViewerDataAttributes({
+				viewerAttributes: this.file.viewerAttrs,
+				previewImageSrc: this.imageSrc,
+				context: FileViewerContext.sidebarTabMedia,
+			});
 		},
 		videoDurationText(): string
 		{
@@ -74,6 +82,16 @@ export const MediaDetailItem = {
 			}
 
 			return this.formatTime(this.videoDuration);
+		},
+		canBeOpenedWithViewer(): boolean
+		{
+			return this.file.viewerAttrs && BX.UI?.Viewer;
+		},
+		imageSrc(): string
+		{
+			const isAnimation = ['gif', 'webp'].includes(this.file.extension);
+
+			return isAnimation ? this.file.urlShow : this.file.urlPreview;
 		},
 	},
 	methods:
@@ -116,6 +134,15 @@ export const MediaDetailItem = {
 				messageId: this.sidebarFileItem.messageId,
 			}, event.currentTarget);
 		},
+		download()
+		{
+			if (this.file.progress !== 100 || this.canBeOpenedWithViewer)
+			{
+				return;
+			}
+
+			window.open(this.file.urlDownload, '_blank');
+		},
 	},
 	template: `
 		<div 
@@ -137,12 +164,13 @@ export const MediaDetailItem = {
 					@click="onContextMenuClick"
 				></button>
 			</div>
-			<div 
+			<div
 				v-if="isImage"
 				class="bx-im-sidebar-file-media-detail-item__content --image" 
 				:style="previewPicture"
 				v-bind="viewerAttributes"
 				:title="file.name"
+				@click="download"
 			>
 			</div>
 			<div
@@ -151,12 +179,14 @@ export const MediaDetailItem = {
 				:style="previewPicture"
 				v-bind="viewerAttributes"
 				:title="file.name"
+				@click="download"
 			>
-				<video 
+				<video
 					v-show="!hasPreview"
+					:src="file.urlDownload"
 					ref="video"
 					class="bx-im-sidebar-file-media-detail-item__video" 
-					preload="metadata" :src="file.urlDownload"
+					preload="metadata" 
 					@durationchange="handleVideoEvent"
 					@loadeddata="handleVideoEvent"
 					@loadedmetadata="handleVideoEvent"

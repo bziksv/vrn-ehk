@@ -69,6 +69,7 @@ export class TeamManager
 			id: selectorOptions.selectorId || 'group_create_owner',
 			dialogOptions: {
 				id: selectorOptions.selectorId || 'group_create_owner',
+				offsetLeft: 78,
 				context: TeamManager.contextList.owner,
 				preselectedItems: selectorOptions.value,
 				events: {
@@ -85,6 +86,8 @@ export class TeamManager
 							inviteExtranetLink: true,
 							groupId: this.groupId,
 							checkWorkgroupWhenInvite: true,
+							footerInviteIntranetOnly: !this.allowExtranet,
+							collabers: false,
 						},
 					},
 					{
@@ -118,6 +121,7 @@ export class TeamManager
 			id: selectorOptions.selectorId || 'group_create_scrum_master',
 			dialogOptions: {
 				id: selectorOptions.selectorId || 'group_create_scrum_master',
+				offsetLeft: 78,
 				context: TeamManager.contextList.scrumMaster,
 				preselectedItems: selectorOptions.value,
 				events: {
@@ -131,6 +135,8 @@ export class TeamManager
 						options: {
 							intranetUsersOnly: !this.allowExtranet,
 							inviteEmployeeLink: true,
+							footerInviteIntranetOnly: !this.allowExtranet,
+							collabers: false,
 						},
 					},
 					{
@@ -164,6 +170,7 @@ export class TeamManager
 			id: selectorOptions.selectorId || 'group_create_moderators',
 			dialogOptions: {
 				id: selectorOptions.selectorId || 'group_create_moderators',
+				offsetLeft: 78,
 				context: TeamManager.contextList.moderators,
 				preselectedItems: selectorOptions.value,
 				events: {
@@ -179,6 +186,8 @@ export class TeamManager
 							inviteEmployeeLink: true,
 							groupId: this.groupId,
 							checkWorkgroupWhenInvite: true,
+							footerInviteIntranetOnly: !this.allowExtranet,
+							collabers: false,
 						},
 					},
 					{
@@ -212,6 +221,7 @@ export class TeamManager
 			id: selectorOptions.selectorId || 'group_create_users',
 			dialogOptions: {
 				id: selectorOptions.selectorId || 'group_create_users',
+				offsetLeft: 78,
 				context: TeamManager.contextList.users,
 				preselectedItems: selectorOptions.value,
 				events: {
@@ -228,7 +238,9 @@ export class TeamManager
 							intranetUsersOnly: !this.allowExtranet,
 							groupId: this.groupId,
 							checkWorkgroupWhenInvite: true,
-						}
+							footerInviteIntranetOnly: !this.allowExtranet,
+							collabers: false,
+						},
 					},
 					{
 						id: 'department',

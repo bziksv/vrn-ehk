@@ -1,7 +1,68 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
-(function (exports,main_core_events,ui_uploader_vue,main_popup,ui_icons_generator,ui_progressround,ui_uploader_tileWidget,main_core,ui_uploader_core) {
+(function (exports,ui_uploader_vue,ui_uploader_core,ui_uploader_tileWidget,ui_icons_generator,main_popup,ui_iconSet_outline,ui_progressround,main_core,ui_iconSet_api_vue,ui_iconSet_api_core) {
 	'use strict';
+
+	/**
+	 * @memberof BX.UI.Uploader
+	 */
+	const DragOverMixin = {
+	  directives: {
+	    drop: {
+	      beforeMount(el, binding, vnode) {
+	        if (binding.value === false) {
+	          return;
+	        }
+	        function addClass() {
+	          binding.instance.dragOver = true;
+	          el.classList.add('--drag-over');
+	        }
+	        function removeClass() {
+	          binding.instance.dragOver = false;
+	          el.classList.remove('--drag-over');
+	        }
+	        let lastEnterTarget = null;
+	        main_core.Event.bind(el, 'dragenter', event => {
+	          ui_uploader_core.hasDataTransferOnlyFiles(event.dataTransfer, false).then(success => {
+	            if (success) {
+	              event.preventDefault();
+	              event.stopPropagation();
+	              lastEnterTarget = event.target;
+	              addClass();
+	            }
+	          }).catch(() => {
+	            // no-op
+	          });
+	        });
+	        main_core.Event.bind(el, 'dragleave', event => {
+	          event.preventDefault();
+	          event.stopPropagation();
+	          if (lastEnterTarget === event.target) {
+	            removeClass();
+	          }
+	        });
+	        main_core.Event.bind(el, 'drop', event => {
+	          removeClass();
+	        });
+	      },
+	      unmounted(el, binding, vnode) {
+	        if (binding.value === false) {
+	          return;
+	        }
+	        binding.instance.dragOver = false;
+	        main_core.Event.unbindAll(el, 'dragenter');
+	        main_core.Event.unbindAll(el, 'dragleave');
+	        main_core.Event.unbindAll(el, 'drop');
+	      }
+	    }
+	  },
+	  data() {
+	    return {
+	      dragOver: false
+	    };
+	  }
+	};
 
 	const SettingsButton = {
 	  inject: ['widgetOptions', 'emitter'],
@@ -188,18 +249,120 @@ this.BX.UI = this.BX.UI || {};
 	    size: {
 	      type: Number,
 	      default: 36
+	    },
+	    align: {
+	      type: String,
+	      default: 'center'
 	    }
 	  },
 	  mounted() {
-	    const icon = new ui_icons_generator.FileIcon({
-	      name: this.name,
-	      fileType: this.type,
-	      color: this.color,
-	      size: this.size
-	    });
-	    icon.renderTo(this.$el);
+	    this.render();
+	  },
+	  updated() {
+	    this.render();
+	  },
+	  methods: {
+	    render() {
+	      this.$el.innerHTML = '';
+	      const icon = new ui_icons_generator.FileIcon({
+	        name: this.name,
+	        fileType: this.type,
+	        color: this.color,
+	        size: this.size,
+	        align: this.align
+	      });
+	      icon.renderTo(this.$el);
+	    }
 	  },
 	  template: '<span></span>'
+	};
+
+	// @vue/component
+	const InsertIntoTextButton = {
+	  name: 'InsertIntoTextButton',
+	  components: {
+	    BIcon: ui_iconSet_api_vue.BIcon
+	  },
+	  inject: ['emitter'],
+	  props: {
+	    item: {
+	      type: Object,
+	      default: () => {}
+	    }
+	  },
+	  setup() {
+	    return {
+	      Outline: ui_iconSet_api_core.Outline
+	    };
+	  },
+	  computed: {
+	    isInserted() {
+	      var _this$item$customData;
+	      return ((_this$item$customData = this.item.customData) == null ? void 0 : _this$item$customData.tileSelected) === true;
+	    }
+	  },
+	  methods: {
+	    handleClick() {
+	      this.emitter.emit('onInsertIntoText', {
+	        item: this.item
+	      });
+	    },
+	    handleMouseEnter(event) {
+	      if (this.hintPopup) {
+	        return;
+	      }
+	      const targetNode = event.currentTarget;
+	      const targetNodeWidth = targetNode.offsetWidth;
+	      this.hintPopup = new main_popup.Popup({
+	        content: main_core.Loc.getMessage('TILE_UPLOADER_INSERT_INTO_THE_TEXT'),
+	        cacheable: false,
+	        animation: 'fading-slide',
+	        bindElement: targetNode,
+	        targetContainer: document.body,
+	        offsetTop: 0,
+	        bindOptions: {
+	          position: 'top',
+	          forceBindPosition: true
+	        },
+	        darkMode: true,
+	        events: {
+	          onClose: () => {
+	            this.hintPopup.destroy();
+	            this.hintPopup = null;
+	          },
+	          onShow: baseEvent => {
+	            const popup = baseEvent.getTarget();
+	            const popupWidth = popup.getPopupContainer().offsetWidth;
+	            const offsetLeft = targetNodeWidth / 2 - popupWidth / 2;
+	            const angleShift = main_popup.Popup.getOption('angleLeftOffset') - main_popup.Popup.getOption('angleMinTop');
+	            popup.setAngle({
+	              offset: popupWidth / 2 - angleShift
+	            });
+	            popup.setOffset({
+	              offsetLeft: offsetLeft + main_popup.Popup.getOption('angleLeftOffset')
+	            });
+	          }
+	        }
+	      });
+	      this.hintPopup.show();
+	    },
+	    handleMouseLeave() {
+	      if (this.hintPopup) {
+	        this.hintPopup.close();
+	        this.hintPopup = null;
+	      }
+	    }
+	  },
+	  template: `
+		<BIcon
+			class="ui-tile-uploader-insert-into-text-button"
+			:class="{ '--inserted': isInserted }"
+			:name="Outline.PROMPT_VAR"
+			@click="handleClick"
+			@mouseenter="handleMouseEnter"
+			@mouseleave="handleMouseLeave"
+		/>
+	`
 	};
 
 	/**
@@ -260,38 +423,63 @@ this.BX.UI = this.BX.UI || {};
 	      this.loader.update(this.progress);
 	    }
 	  },
-	  template: `<span ref="container"></span>`
+	  template: '<span ref="container"></span>'
 	};
 
+	// @vue/component
 	const TileItem = {
 	  components: {
+	    BIcon: ui_iconSet_api_vue.BIcon,
 	    UploadLoader,
 	    ErrorPopup,
 	    FileIconComponent
 	  },
-	  inject: ['uploader', 'widgetOptions', 'emitter'],
+	  inject: ['uploader', 'adapter', 'widgetOptions', 'emitter'],
 	  props: {
 	    item: {
 	      type: Object,
-	      default: {}
+	      default: () => {}
+	    },
+	    readonly: {
+	      type: Boolean,
+	      default: false
+	    },
+	    viewerGroupBy: {
+	      type: [String, null],
+	      default: null
+	    },
+	    removeFromServer: {
+	      type: Boolean,
+	      default: true
+	    },
+	    forceDisableSelection: {
+	      type: Boolean,
+	      default: false
 	    }
+	  },
+	  setup() {
+	    return {
+	      Actions: ui_iconSet_api_core.Actions,
+	      Outline: ui_iconSet_api_core.Outline,
+	      FileStatus: ui_uploader_core.FileStatus,
+	      menuId: `ui-tile-uploader-item-menu-${main_core.Text.getRandom().toLowerCase()}`
+	    };
 	  },
 	  data() {
 	    return {
-	      tileId: 'tile-uploader-' + main_core.Text.getRandom().toLowerCase(),
-	      showError: false
+	      showError: false,
+	      isMenuShown: false
 	    };
 	  },
 	  computed: {
-	    FileStatus: () => ui_uploader_core.FileStatus,
 	    status() {
 	      if (this.item.status === ui_uploader_core.FileStatus.UPLOADING) {
-	        return this.item.progress + '%';
-	      } else if (this.item.status === ui_uploader_core.FileStatus.LOAD_FAILED || this.item.status === ui_uploader_core.FileStatus.UPLOAD_FAILED) {
-	        return main_core.Loc.getMessage('TILE_UPLOADER_ERROR_STATUS');
-	      } else {
-	        return main_core.Loc.getMessage('TILE_UPLOADER_WAITING_STATUS');
+	        return `${this.item.progress}%`;
 	      }
+	      if (this.item.status === ui_uploader_core.FileStatus.LOAD_FAILED || this.item.status === ui_uploader_core.FileStatus.UPLOAD_FAILED) {
+	        return main_core.Loc.getMessage('TILE_UPLOADER_ERROR_STATUS');
+	      }
+	      return main_core.Loc.getMessage('TILE_UPLOADER_WAITING_STATUS');
 	    },
 	    fileSize() {
 	      if ([ui_uploader_core.FileStatus.LOADING, ui_uploader_core.FileStatus.LOAD_FAILED].includes(this.item.status) && this.item.origin === ui_uploader_core.FileOrigin.SERVER) {
@@ -316,43 +504,96 @@ this.BX.UI = this.BX.UI || {};
 	        nameParts.pop();
 	      }
 	      const nameWithoutExtension = nameParts.join('.');
-	      if (nameWithoutExtension.length > 27) {
-	        return nameWithoutExtension.substr(0, 17) + '...' + nameWithoutExtension.substr(-5);
+	      const maxLength = this.widgetOptions.compact ? 22 : 27;
+	      if (nameWithoutExtension.length > maxLength) {
+	        return `${nameWithoutExtension.slice(0, maxLength - 10)}...${nameWithoutExtension.slice(-5)}`;
 	      }
 	      return nameWithoutExtension;
 	    },
 	    showItemMenuButton() {
 	      if (main_core.Type.isBoolean(this.widgetOptions.showItemMenuButton)) {
 	        return this.widgetOptions.showItemMenuButton;
-	      } else {
-	        return this.menuItems.length > 0;
 	      }
+	      return this.menuItems.length > 0;
 	    },
 	    menuItems() {
 	      const items = [];
+	      items.push({
+	        id: 'filesize',
+	        text: main_core.Loc.getMessage('TILE_UPLOADER_FILE_SIZE', {
+	          '#filesize#': this.item.sizeFormatted
+	        }),
+	        disabled: true
+	      }, {
+	        delimiter: true
+	      });
+	      if (this.widgetOptions.insertIntoText === true) {
+	        items.push({
+	          id: 'insert-into-text',
+	          text: main_core.Loc.getMessage('TILE_UPLOADER_INSERT_INTO_THE_TEXT'),
+	          onclick: () => {
+	            if (this.menu) {
+	              this.menu.close();
+	            }
+	            this.emitter.emit('onInsertIntoText', {
+	              item: this.item
+	            });
+	          }
+	        });
+	      }
 	      if (main_core.Type.isStringFilled(this.item.downloadUrl)) {
 	        items.push({
 	          id: 'download',
 	          text: main_core.Loc.getMessage('TILE_UPLOADER_MENU_DOWNLOAD'),
 	          href: this.item.downloadUrl,
 	          onclick: () => {
-	            if (this.menu) {
-	              this.menu.close();
-	            }
+	            var _this$menu;
+	            return (_this$menu = this.menu) == null ? void 0 : _this$menu.close();
 	          }
 	        });
-	        items.push({
+	      }
+	      if (!this.readonly) {
+	        const removeItem = {
 	          id: 'remove',
 	          text: main_core.Loc.getMessage('TILE_UPLOADER_MENU_REMOVE'),
-	          onclick: () => {
-	            this.remove();
-	          }
-	        });
+	          onclick: this.remove
+	        };
+	        items.push(removeItem);
 	      }
 	      return items;
 	    },
 	    extraAction() {
-	      return this.widgetOptions.slots && this.widgetOptions.slots[ui_uploader_tileWidget.TileWidgetSlot.ITEM_EXTRA_ACTION] ? this.widgetOptions.slots[ui_uploader_tileWidget.TileWidgetSlot.ITEM_EXTRA_ACTION] : null;
+	      return this.widgetOptions.slots && this.widgetOptions.slots[ui_uploader_tileWidget.TileWidgetSlot.ITEM_EXTRA_ACTION] ? this.widgetOptions.slots[ui_uploader_tileWidget.TileWidgetSlot.ITEM_EXTRA_ACTION] : this.widgetOptions.insertIntoText === true ? InsertIntoTextButton : null;
+	    },
+	    isSelected() {
+	      if (this.forceDisableSelection) {
+	        return false;
+	      }
+	      return this.item.customData.tileSelected === true;
+	    },
+	    fileIconSize() {
+	      return this.widgetOptions.compact ? 24 : 36;
+	    },
+	    viewerAttrs() {
+	      const {
+	        viewerAttrs,
+	        previewUrl
+	      } = this.item;
+	      if (!viewerAttrs) {
+	        return {};
+	      }
+	      const params = {};
+	      for (const [key, value] of Object.entries(viewerAttrs)) {
+	        params[`data-${main_core.Text.toKebabCase(key)}`] = value;
+	      }
+	      params['data-viewer'] = true;
+	      if (previewUrl) {
+	        params['data-viewer-preview'] = previewUrl;
+	      }
+	      if (this.viewerGroupBy && main_core.Type.isUndefined(viewerAttrs.viewerSeparateItem)) {
+	        params['data-viewer-group-by'] = this.viewerGroupBy;
+	      }
+	      return params;
 	    }
 	  },
 	  created() {
@@ -366,7 +607,12 @@ this.BX.UI = this.BX.UI || {};
 	  },
 	  methods: {
 	    remove() {
-	      this.uploader.removeFile(this.item.id);
+	      if (this.readonly) {
+	        return;
+	      }
+	      this.uploader.removeFile(this.item.id, {
+	        removeFromServer: this.removeFromServer
+	      });
 	    },
 	    handleMouseEnter(item) {
 	      if (item.error) {
@@ -386,19 +632,35 @@ this.BX.UI = this.BX.UI || {};
 	          this.menu.destroy();
 	        }
 	        this.menu = main_popup.MenuManager.create({
-	          id: this.tileId,
-	          bindElement: this.$refs.menu,
+	          id: this.menuId,
+	          bindElement: this.$refs.menu.$el,
+	          targetContainer: document.body,
 	          angle: true,
 	          offsetLeft: 13,
 	          minWidth: 100,
 	          cacheable: false,
 	          items: this.menuItems,
+	          bindOptions: {
+	            forceBindPosition: true
+	          },
 	          events: {
+	            onShow: () => {
+	              this.isMenuShown = true;
+	              this.adapter.getItem(this.item.id).isMenuShown = true;
+	            },
+	            onClose: () => {
+	              this.isMenuShown = false;
+	              this.adapter.getItem(this.item.id).isMenuShown = false;
+	            },
 	            onDestroy: () => {
 	              this.menu = null;
 	            }
 	          }
 	        });
+	        const downloadItem = this.menu.getMenuItem('download');
+	        if (downloadItem) {
+	          main_core.Dom.attr(downloadItem.getContainer(), 'download', true);
+	        }
 	        this.emitter.emit('TileItem:onMenuCreate', {
 	          menu: this.menu,
 	          item: this.item
@@ -407,77 +669,84 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    }
 	  },
-	  // language=Vue
 	  template: `
-	<div
-		class="ui-tile-uploader-item"
-		:class="['ui-tile-uploader-item--' + item.status, { '--image': item.isImage, '--selected': item.tileWidgetData?.selected } ]"
-		ref="container"
-	>
-		<ErrorPopup v-if="item.error && showError" :error="item.error" :popup-options="errorPopupOptions"/>
-		<div 
-			class="ui-tile-uploader-item-content"
-			@mouseenter="handleMouseEnter(item)" 
-			@mouseleave="handleMouseLeave(item)"
+		<div
+			class="ui-tile-uploader-item"
+			:class="[
+				'ui-tile-uploader-item--' + item.status,
+				{
+					'--image': item.isImage,
+					'--selected': (isMenuShown && widgetOptions.compact) || isSelected,
+				},
+			]"
+			ref="container"
 		>
-			<div v-if="item.status !== FileStatus.COMPLETE" class="ui-tile-uploader-item-state">
-				<div class="ui-tile-uploader-item-loader" v-if="item.status === FileStatus.UPLOADING">
-					<UploadLoader :progress="item.progress" :width="20" colorTrack="#73d8f8" colorBar="#fff" />
-				</div>
-				<div v-else class="ui-tile-uploader-item-state-icon"></div>
-				<div class="ui-tile-uploader-item-status">
-					<div class="ui-tile-uploader-item-status-name">{{status}}</div>
-					<div v-if="fileSize" class="ui-tile-uploader-item-state-desc">{{fileSize}}</div>
-				</div>
-				<div class="ui-tile-uploader-item-state-remove" @click="remove" key="aaa"></div>
-			</div>
-			<template v-else>
-				<div class="ui-tile-uploader-item-remove" @click="remove" key="remove"></div>
-				<div class="ui-tile-uploader-item-actions" key="actions">
-					<div class="ui-tile-uploader-item-actions-pad">
-						<div v-if="extraAction" class="ui-tile-uploader-item-extra-actions">
-							<component :is="extraAction" :item="this.item"></component>
-						</div>
-						<div v-if="showItemMenuButton" class="ui-tile-uploader-item-menu" @click="toggleMenu" ref="menu"></div>
+			<ErrorPopup v-if="item.error && showError" :error="item.error" :popup-options="errorPopupOptions"/>
+			<div
+				class="ui-tile-uploader-item-content"
+				@mouseenter="handleMouseEnter(item)"
+				@mouseleave="handleMouseLeave"
+			>
+				<div v-if="item.status !== FileStatus.COMPLETE" class="ui-tile-uploader-item-state">
+					<div class="ui-tile-uploader-item-loader" v-if="item.status === FileStatus.UPLOADING">
+						<UploadLoader :progress="item.progress" :width="20" colorTrack="#73d8f8" colorBar="#fff"/>
 					</div>
+					<div v-else class="ui-tile-uploader-item-state-icon"></div>
+					<div class="ui-tile-uploader-item-status">
+						<div class="ui-tile-uploader-item-status-name">{{status}}</div>
+						<div v-if="fileSize" class="ui-tile-uploader-item-state-desc">{{fileSize}}</div>
+					</div>
+					<div v-if="!readonly" class="ui-tile-uploader-item-state-remove" @click="remove" key="aaa"></div>
 				</div>
-			</template>
-			<div class="ui-tile-uploader-item-preview">
-				<div
-					v-if="item.previewUrl"
-					class="ui-tile-uploader-item-image"
-					:class="{ 'ui-tile-uploader-item-image-default': item.previewUrl === null }"
-					:style="{ backgroundImage: item.previewUrl !== null ? 'url(' + item.previewUrl + ')' : '' }">
-				</div>
-				<div 
-					v-else-if="item.name" 
-					class="ui-tile-uploader-item-file-icon"
-				>
-					<FileIconComponent :name="item.extension ? item.extension : '...'" />
-				</div>
-				<div 
-					v-else 
-					class="ui-tile-uploader-item-file-default"
-				>
-					<FileIconComponent :name="item.extension ? item.extension : '...'" :size="36" />
-				</div>
-			</div>
-			<div v-if="item.name" class="ui-tile-uploader-item-name-box" :title="item.name">
-				<div class="ui-tile-uploader-item-name">
-					<span class="ui-tile-uploader-item-name-title">{{clampedFileName}}</span><!--
-					--><span v-if="item.extension" class="ui-tile-uploader-item-name-extension">.{{item.extension}}</span>
+				<template v-else>
+					<div v-if="!readonly" class="ui-tile-uploader-item-remove" key="remove" @click="remove">
+						<BIcon :name="Outline.CROSS_L"/>
+					</div>
+					<div class="ui-tile-uploader-item-actions" key="actions">
+						<div class="ui-tile-uploader-item-actions-pad">
+							<div v-if="extraAction" class="ui-tile-uploader-item-extra-actions">
+								<component :is="extraAction" :item="item"></component>
+							</div>
+							<BIcon
+								v-if="showItemMenuButton"
+								class="ui-tile-uploader-item-menu"
+								:name="Actions.MORE"
+								ref="menu"
+								@click="toggleMenu"
+							/>
+						</div>
+					</div>
+				</template>
+				<div class="ui-tile-uploader-item-preview-content" v-bind="viewerAttrs">
+					<div class="ui-tile-uploader-item-preview">
+						<div
+							v-if="item.previewUrl"
+							class="ui-tile-uploader-item-image"
+							:class="{ 'ui-tile-uploader-item-image-default': item.previewUrl === null }"
+							:style="{ backgroundImage: item.previewUrl !== null ? 'url(' + item.previewUrl + ')' : '' }">
+						</div>
+						<FileIconComponent v-else :name="item.extension || '...'" :size="fileIconSize"/>
+					</div>
+					<div
+						v-if="item.name"
+						class="ui-tile-uploader-item-name-box"
+						:title="item.name"
+					>
+						<div class="ui-tile-uploader-item-name">
+							<span class="ui-tile-uploader-item-name-title">{{clampedFileName}}</span>
+							<span v-if="item.extension" class="ui-tile-uploader-item-name-extension">.{{item.extension}}</span>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
 	`
 	};
 
+	// @vue/component
 	const TileMoreItem = {
 	  components: {
-	    UploadLoader: ui_uploader_tileWidget.UploadLoader,
-	    ErrorPopup: ui_uploader_tileWidget.ErrorPopup,
-	    FileIconComponent
+	    BIcon: ui_iconSet_api_vue.BIcon
 	  },
 	  emit: ['onClick'],
 	  props: {
@@ -486,6 +755,11 @@ this.BX.UI = this.BX.UI || {};
 	      default: 0
 	    }
 	  },
+	  setup() {
+	    return {
+	      Actions: ui_iconSet_api_core.Actions
+	    };
+	  },
 	  computed: {
 	    moreButtonCaption() {
 	      return main_core.Loc.getMessage('TILE_UPLOADER_MORE_BUTTON_CAPTION', {
@@ -493,11 +767,10 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    }
 	  },
-	  // language=Vue
 	  template: `
 		<div class="ui-tile-uploader-item" @click="$emit('onClick')">
 			<div class="ui-tile-uploader-item-more">
-				<div class="ui-tile-uploader-item-more-icon"></div>
+				<BIcon class="ui-tile-uploader-item-more-icon" :name="Actions.MORE"/>
 				<div class="ui-tile-uploader-item-more-label" v-html="moreButtonCaption"></div>
 			</div>
 		</div>
@@ -521,6 +794,18 @@ this.BX.UI = this.BX.UI || {};
 	    items: {
 	      type: Array,
 	      default: []
+	    },
+	    readonly: {
+	      type: Boolean,
+	      default: false
+	    },
+	    removeFromServer: {
+	      type: Boolean,
+	      default: true
+	    },
+	    forceDisableSelection: {
+	      type: Boolean,
+	      default: false
 	    }
 	  },
 	  data: () => ({
@@ -575,6 +860,9 @@ this.BX.UI = this.BX.UI || {};
 	        return 0;
 	      }
 	      return lastIndex - firstIndex + 1;
+	    },
+	    groupBy() {
+	      return main_core.Text.getRandom(16);
 	    }
 	  },
 	  methods: {
@@ -612,13 +900,32 @@ this.BX.UI = this.BX.UI || {};
 	  template: `
 		<div class="ui-tile-uploader-items">
 			<transition-group name="ui-tile-uploader-item" type="animation">
-				<TileItem v-for="item in visibleItems" :key="item.id" :item="item" />
+				<TileItem
+					v-for="item in visibleItems"
+					:key="item.id" :item="item"
+					:readonly="readonly"
+					:viewerGroupBy="groupBy"
+					:removeFromServer="removeFromServer"
+					:forceDisableSelection="forceDisableSelection"
+				/>
 			</transition-group>
 			<transition name="ui-tile-uploader-item" type="animation">
-				<TileMoreItem v-if="hiddenFilesCount > 0" :hidden-files-count="hiddenFilesCount" @onClick="getMore"/>
+				<TileMoreItem
+					v-if="hiddenFilesCount > 0"
+					:hiddenFilesCount="hiddenFilesCount"
+					@onClick="getMore"
+				/>
 			</transition>
 			<transition-group name="ui-tile-uploader-item" type="animation">
-				<TileItem v-for="item in realtimeItems" :key="item.id" :item="item" />
+				<TileItem
+					v-for="item in realtimeItems"
+					:key="item.id"
+					:item="item"
+					:readonly="readonly"
+					:viewerGroupBy="groupBy"
+					:removeFromServer="removeFromServer"
+					:forceDisableSelection="forceDisableSelection"
+				/>
 			</transition-group>
 		</div>
 	`
@@ -626,67 +933,17 @@ this.BX.UI = this.BX.UI || {};
 
 	/**
 	 * @memberof BX.UI.Uploader
+	 * @vue/component
 	 */
-	const DragOverMixin = {
-	  directives: {
-	    drop: {
-	      beforeMount(el, binding, vnode) {
-	        function addClass() {
-	          binding.instance.dragOver = true;
-	          el.classList.add('--drag-over');
-	        }
-	        function removeClass() {
-	          binding.instance.dragOver = false;
-	          el.classList.remove('--drag-over');
-	        }
-	        let lastEnterTarget = null;
-	        main_core.Event.bind(el, 'dragenter', event => {
-	          ui_uploader_core.hasDataTransferOnlyFiles(event.dataTransfer, false).then(success => {
-	            if (success) {
-	              event.preventDefault();
-	              event.stopPropagation();
-	              lastEnterTarget = event.target;
-	              addClass();
-	            }
-	          });
-	        });
-	        main_core.Event.bind(el, 'dragleave', event => {
-	          event.preventDefault();
-	          event.stopPropagation();
-	          if (lastEnterTarget === event.target) {
-	            removeClass();
-	          }
-	        });
-	        main_core.Event.bind(el, 'drop', event => {
-	          removeClass();
-	        });
-	      },
-	      unmounted(el, binding, vnode) {
-	        binding.instance.dragOver = false;
-	        main_core.Event.unbindAll(el, 'dragenter');
-	        main_core.Event.unbindAll(el, 'dragleave');
-	        main_core.Event.unbindAll(el, 'drop');
-	      }
-	    }
-	  },
-	  data() {
-	    return {
-	      dragOver: false
-	    };
-	  }
-	};
-
-	/**
-	 * @memberof BX.UI.Uploader
-	 */
+	// @vue/component
 	const TileWidgetComponent = {
 	  name: 'TileWidget',
-	  extends: ui_uploader_vue.VueUploaderComponent,
 	  components: {
 	    DropArea,
 	    TileList,
 	    ErrorPopup
 	  },
+	  extends: ui_uploader_vue.VueUploaderComponent,
 	  mixins: [DragOverMixin],
 	  data() {
 	    return {
@@ -718,31 +975,25 @@ this.BX.UI = this.BX.UI || {};
 	        [ui_uploader_tileWidget.TileWidgetSlot.BEFORE_DROP_AREA]: slots[ui_uploader_tileWidget.TileWidgetSlot.BEFORE_DROP_AREA],
 	        [ui_uploader_tileWidget.TileWidgetSlot.AFTER_DROP_AREA]: slots[ui_uploader_tileWidget.TileWidgetSlot.AFTER_DROP_AREA]
 	      };
+	    },
+	    enableDropzone() {
+	      return this.widgetOptions.enableDropzone !== false;
 	    }
 	  },
 	  created() {
 	    this.autoCollapse = main_core.Type.isBoolean(this.widgetOptions.autoCollapse) ? this.widgetOptions.autoCollapse : this.items.length > 0;
-
-	    // Current Items
-	    this.items.forEach(item => {
-	      item['tileWidgetData'] = {};
-	    });
-
-	    // New Items
-	    this.adapter.subscribe('Item:onBeforeAdd', event => {
-	      const item = event.getData().item;
-	      item['tileWidgetData'] = {};
-	    });
-	    this.adapter.subscribe('Item:onAdd', event => {
-	      this.uploaderError = null;
-	    });
-	    this.adapter.subscribe('Item:onRemove', event => {
-	      this.uploaderError = null;
-	    });
+	    this.adapter.subscribe('Item:onAdd', this.clearError);
+	    this.adapter.subscribe('Item:onRemove', this.clearError);
 	  },
 	  mounted() {
-	    this.uploader.assignDropzone(this.$refs.container);
+	    if (this.enableDropzone) {
+	      this.uploader.assignDropzone(this.$refs.container);
+	    }
 	    this.isMounted = true;
+	  },
+	  beforeUnmount() {
+	    this.adapter.unsubscribe('Item:onAdd', this.clearError);
+	    this.adapter.unsubscribe('Item:onRemove', this.clearError);
 	  },
 	  methods: {
 	    enableAutoCollapse() {
@@ -755,28 +1006,43 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.uploaderError === error) {
 	        this.uploaderError = null;
 	      }
+	    },
+	    clearError() {
+	      this.uploaderError = null;
 	    }
 	  },
-	  // language=Vue
 	  template: `
-		<div class="ui-tile-uploader" ref="container" v-drop>
+		<div
+			class="ui-tile-uploader"
+			:class="[
+				widgetOptions.contextClass ?? '--ui-context-content-light',
+				{
+					'--compact': widgetOptions.compact,
+				},
+			]"
+			ref="container"
+			v-drop="enableDropzone"
+		>
 			<component :is="slots[TileWidgetSlot.BEFORE_TILE_LIST]"></component>
 			<TileList 
-				v-if="items.length !== 0" 
-				:items="items" 
-				:auto-collapse="autoCollapse" 
-				@onUnmount="this.autoCollapse = false"
+				v-if="items.length !== 0"
+				:items="items"
+				:autoCollapse="autoCollapse"
+				:readonly="widgetOptions.readonly"
+				:removeFromServer="widgetOptions.removeFromServer"
+				:forceDisableSelection="widgetOptions.forceDisableSelection"
+				@onUnmount="autoCollapse = false"
 			/>
 			<component :is="slots[TileWidgetSlot.AFTER_TILE_LIST]"></component>
 			<component :is="slots[TileWidgetSlot.BEFORE_DROP_AREA]"></component>
-			<DropArea />
+			<DropArea v-if="!widgetOptions.hideDropArea"/>
 			<component :is="slots[TileWidgetSlot.AFTER_DROP_AREA]"></component>
 		</div>
 		<ErrorPopup
 			v-if="uploaderError && isMounted"
 			:alignArrow="false"
 			:error="uploaderError"
-			:popup-options="errorPopupOptions"
+			:popupOptions="errorPopupOptions"
 			@onDestroy="handlePopupDestroy"
 		/>
 	`
@@ -807,10 +1073,11 @@ this.BX.UI = this.BX.UI || {};
 	exports.TileWidgetComponent = TileWidgetComponent;
 	exports.TileWidgetSlot = TileWidgetSlot;
 	exports.TileList = TileList;
+	exports.TileItem = TileItem;
 	exports.FileIcon = FileIconComponent;
 	exports.ErrorPopup = ErrorPopup;
 	exports.UploadLoader = UploadLoader;
 	exports.DragOverMixin = DragOverMixin;
 
-}((this.BX.UI.Uploader = this.BX.UI.Uploader || {}),BX.Event,BX.UI.Uploader,BX.Main,BX.UI.Icons.Generator,BX.UI,BX.UI.Uploader,BX,BX.UI.Uploader));
+}((this.BX.UI.Uploader = this.BX.UI.Uploader || {}),BX.UI.Uploader,BX.UI.Uploader,BX.UI.Uploader,BX.UI.Icons.Generator,BX.Main,BX,BX.UI,BX,BX.UI.IconSet,BX.UI.IconSet));
 //# sourceMappingURL=ui.uploader.tile-widget.bundle.js.map

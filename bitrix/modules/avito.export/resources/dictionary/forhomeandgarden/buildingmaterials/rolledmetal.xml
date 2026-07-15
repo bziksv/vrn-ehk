@@ -1,0 +1,75 @@
+<RolledMetal>
+	<MaterialType name="Сортовой прокат">
+		<MaterialSubType name="Арматура">
+			<Material name="Сталь">
+				<RebarStrengthGrade name="А1 (А240)"/>
+				<RebarStrengthGrade name="А2 (А300)"/>
+				<RebarStrengthGrade name="АС2 (АС300)"/>
+				<RebarStrengthGrade name="А3 (А400, А500С)"/>
+				<RebarStrengthGrade name="А4 (А600)"/>
+				<RebarStrengthGrade name="А5 (А800)"/>
+				<RebarStrengthGrade name="А6 (А1000)"/>
+			</Material>
+			<Material name="Стеклопластик"/>
+			<Texture name="Гладкая"/>
+			<Texture name="Рифленая"/>
+		</MaterialSubType>
+		<MaterialSubType name="Квадрат"></MaterialSubType>
+		<MaterialSubType name="Круг"></MaterialSubType>
+		<MaterialSubType name="Шестигранник"></MaterialSubType>
+		<MaterialSubType name="Проволока"></MaterialSubType>
+	</MaterialType>
+	<MaterialType name="Фасонный прокат">
+		<MaterialSubType name="Двутавровая балка"></MaterialSubType>
+		<MaterialSubType name="Уголки"></MaterialSubType>
+		<MaterialSubType name="Швеллер"></MaterialSubType>
+		<MaterialSubType name="Шпунт"></MaterialSubType>
+	</MaterialType>
+	<MaterialType name="Листовой прокат">
+		<MaterialSubType name="Лист">
+			<Length variable="int"/>
+			<Width variable="int"/>
+			<Material name="Сталь"/>
+			<Material name="Сталь с полимерным покрытием"/>
+			<Material name="Сталь оцинкованная"/>
+			<Material name="Алюминий"/>
+			<Material name="Латунь"/>
+			<Material name="Медь"/>
+			<Material name="Свинец"/>
+			<Material name="Титан"/>
+			<Material name="Железо"/>
+			<Material name="Бронза"/>
+			<Material name="Другой"/>
+			<Texture name="Гладкий"/>
+			<Texture name="Рифлёный"/>
+			<Texture name="Перфорированный"/>
+			<Texture name="Просечно-вытяжной"/>
+		</MaterialSubType>
+		<MaterialSubType name="Полоса"></MaterialSubType>
+		<MaterialSubType name="Лента"></MaterialSubType>
+	</MaterialType>
+	<MaterialType name="Трубный прокат">
+		<PipeRollingType name="Круглая труба">
+			<Material name="Сталь"/>
+			<Material name="Алюминий"/>
+			<Material name="Медь"/>
+			<Material name="Латунь"/>
+			<Material name="Титан"/>
+			<Material name="Магний"/>
+			<Material name="Другой"/>
+		</PipeRollingType>
+		<PipeRollingType name="Прямоугольная труба">
+			<Material name="Сталь"/>
+			<Material name="Алюминий"/>
+			<Material name="Медь"/>
+			<Material name="Латунь"/>
+			<Material name="Титан"/>
+			<Material name="Магний"/>
+			<Material name="Другой"/>
+		</PipeRollingType>
+		<PipeRollingType name="Комплектующие"/>
+	</MaterialType>
+	<MaterialType name="Сетка"></MaterialType>
+	<MaterialType name="Слитки, лом, поковки"></MaterialType>
+	<MaterialType name="Другое"></MaterialType>
+</RolledMetal>

@@ -1,158 +1,394 @@
-import { Type } from 'main.core';
-import { EventEmitter, BaseEvent } from 'main.core.events';
-import { BitrixVue, VueCreateAppResult } from 'ui.vue3';
-
-import { Application } from './components/application';
+import { Summary } from 'bizproc.workflow.faces.summary';
+import { ajax, Dom, Tag, Text, Type } from 'main.core';
+import type { FooterType, StackType, StepType } from 'ui.image-stack-steps';
+import { footerTypeEnum, headerTypeEnum, ImageStackSteps, imageTypeEnum, stackStatusEnum } from 'ui.image-stack-steps';
+import { validateFacesData, workflowFacesDataValidator } from './helpers/validators';
 
 import 'ui.design-tokens';
 import 'ui.icons';
 import 'ui.icon-set.main';
 
-export type Avatar = {
-	id: number,
-	avatarUrl: ?string,
-};
+import type { Avatar, FacesData, StepData, WorkflowFacesData } from './types/workflow-faces';
 
-export type FacesData = {
-	avatars: {
-		author: Array<Avatar>,
-		running: Array<Avatar>,
-		completed: Array<Avatar>,
-		done: Array<Avatar>,
-	},
-	statuses: {
-		completedSuccess: boolean,
-		doneSuccess: boolean,
-	},
-	time: {
-		author: ?number,
-		running: ?number,
-		completed: ?number,
-		done: ?number,
-		total: ?number,
-	},
-	completedTaskCount: number,
-	workflowIsCompleted: boolean,
-	runningTaskId: number,
-	summaryProps: {
-		showArrow: boolean,
-		showContent: boolean,
-	},
-};
+import './css/style.css';
+
+export type { FacesData, WorkflowFacesData, Avatar };
 
 export class WorkflowFaces
 {
 	#target: HTMLElement;
 	#data: FacesData = {};
+	#showArrow: boolean = false;
+	#showTimeStep: boolean = false;
 	#workflowId: string;
 	#targetUserId: number;
-	#application: VueCreateAppResult;
 
-	/**
-	 * @param props
-	 * @param {HTMLElement} props.target
-	 * @param {?FacesData} props.data
-	 * @param {string} props.workflowId
-	 * @param {number} props.targetUserId
-	 */
-	constructor(props = {})
+	#stack: ImageStackSteps;
+	#unsubscribePushCallback = null;
+	#node: null;
+	#timelineNode: null;
+	#errorNode: null;
+
+	constructor(data: WorkflowFacesData)
 	{
-		if (!Type.isStringFilled(props.workflowId))
+		if (!workflowFacesDataValidator(data))
 		{
-			throw new TypeError('workflowId must be filled string');
-		}
-		this.#workflowId = props.workflowId;
-
-		if (!Type.isDomNode(props.target))
-		{
-			throw new TypeError('target must be dom node');
-		}
-		this.#target = props.target;
-
-		if (!Type.isInteger(props.targetUserId) || props.targetUserId <= 0)
-		{
-			throw new TypeError('targetUserId must be positive integer');
-		}
-		this.#targetUserId = props.targetUserId;
-
-		if (Type.isPlainObject(props.data))
-		{
-			this.#data = props.data;
+			throw new TypeError('Bizproc.Workflow.Faces: data must be correct plain object');
 		}
 
-		this.#initApplication();
+		this.#workflowId = data.workflowId;
+		this.#target = data.target;
+		this.#targetUserId = data.targetUserId || 0;
+		this.#data = data.data;
+
+		if (Type.isBoolean(data.showArrow))
+		{
+			this.#showArrow = data.showArrow;
+		}
+
+		if (Type.isBoolean(data.showTimeStep))
+		{
+			this.#showTimeStep = data.showTimeStep;
+		}
+
+		this.#initStack();
+		if (data.subscribeToPushes && !data.isWorkflowFinished)
+		{
+			this.#subscribeToPushes();
+		}
 	}
 
-	#initApplication()
+	#initStack()
 	{
-		// eslint-disable-next-line unicorn/no-this-assignment
-		const context = this;
+		this.#stack = new ImageStackSteps({ steps: this.#getStackSteps() });
+	}
 
-		this.#application = BitrixVue.createApp(
+	#getStackSteps(): []
+	{
+		const steps = [];
+		this.#data.steps.forEach((stepData) => {
+			steps.push(this.#createStep(stepData));
+		});
+
+		if (steps.length < 3)
+		{
+			for (let i = steps.length; i < 3; i++)
 			{
-				name: 'bp-workflow-faces',
-				components: {
-					Application,
-				},
-				props: {
-					workflowId: String,
-					userId: Number,
-					avatars: Object,
-					statuses: Object,
-					time: Object,
-					completedTaskCount: Number,
-					workflowIsCompleted: Boolean,
-					runningTaskId: Number,
-					summaryProps: Object,
-				},
-				created()
+				steps.push(this.#getStubStep());
+			}
+		}
+
+		if (this.#data.progressBox && this.#data.progressBox.progressTasksCount > 0)
+		{
+			steps[0].progressBox = { title: this.#data.progressBox.text };
+		}
+
+		return steps.map((step, index) => ({ ...step, id: `step-${index}` }));
+	}
+
+	#createStep(data: StepData): StepType
+	{
+		return {
+			id: data.id,
+			header: { type: headerTypeEnum.TEXT, data: { text: data.name } },
+			stack: this.#getStack(data),
+			footer: this.#getFooter(data),
+			styles: { minWidth: 75 },
+		};
+	}
+
+	#getStack(data: StepData): StackType
+	{
+		const userStack = this.#getUserStack(data);
+		if (userStack)
+		{
+			return userStack;
+		}
+
+		return this.#getIconStack(data);
+	}
+
+	#getUserStack(data: StepData): ?StackType
+	{
+		const images = this.#getStackUserImages(data.avatarsData);
+		if (Type.isArrayFilled(images))
+		{
+			const stack = { images };
+
+			let status = null;
+			switch (data.status)
+			{
+				case 'wait':
+					status = stackStatusEnum.WAIT;
+					break;
+				case 'success':
+					status = stackStatusEnum.OK;
+					break;
+				case 'not-success':
+					status = stackStatusEnum.CANCEL;
+					break;
+				default:
+					status = null;
+			}
+
+			if (status)
+			{
+				stack.status = { type: status };
+			}
+
+			return stack;
+		}
+
+		return null;
+	}
+
+	#getStackUserImages(avatars): []
+	{
+		const images = [];
+		if (Type.isArrayFilled(avatars))
+		{
+			avatars.forEach((avatar) => {
+				const userId = Text.toInteger(avatar.id);
+				if (userId > 0)
 				{
-					this.$app = context;
-				},
-				template: `
-					<Application
-						:workflowId="workflowId"
-						:userId="userId"
-						:avatars="avatars"
-						:statuses="statuses"
-						:time="time"
-						:workflow-is-completed="workflowIsCompleted"
-						:initial-completed-task-count="completedTaskCount"
-						:task-id="runningTaskId"
-						:summary-props="summaryProps"
-					></Application>
-				`,
-			},
+					images.push({
+						type: imageTypeEnum.USER,
+						data: { userId, src: String(avatar.avatarUrl || '') },
+					});
+				}
+			});
+		}
+
+		return images;
+	}
+
+	#getIconStack(data: StepData): StackType
+	{
+		let icon = null;
+		let color = null;
+		switch (data.id)
+		{
+			case 'completed':
+				icon = data.success ? 'circle-check' : 'cross-circle-60';
+				color = data.success ? 'var(--ui-color-primary-alt)' : 'var(--ui-color-base-35)';
+				break;
+			case 'running':
+				icon = 'black-clock';
+				color = 'var(--ui-color-palette-blue-60)';
+				break;
+			case 'done':
+				icon = 'circle-check';
+				color = 'var(--ui-color-primary-alt)';
+				break;
+			default:
+				icon = 'bp';
+				color = 'var(--ui-color-palette-gray-20)';
+		}
+
+		return { images: [{ type: imageTypeEnum.ICON, data: { icon, color } }] };
+	}
+
+	#getFooter(data: StepData): FooterType
+	{
+		if (
+			(Type.isNumber(data.duration) && data.duration > 0)
+			|| (data.id === 'running')
+		)
+		{
+			return {
+				type: footerTypeEnum.DURATION,
+				data: { duration: Text.toInteger(data.duration), realtime: data.id === 'running' },
+			};
+		}
+
+		return {
+			type: footerTypeEnum.TEXT,
+			data: { text: String(data.duration) },
+		};
+	}
+
+	#getStubStep(): StepType
+	{
+		return {
+			id: 'stub',
+			header: { type: headerTypeEnum.STUB },
+			stack: { images: [{ type: imageTypeEnum.USER_STUB }] },
+			footer: { type: footerTypeEnum.STUB },
+			styles: { minWidth: 75 },
+		};
+	}
+
+	#subscribeToPushes()
+	{
+		if (BX.PULL)
+		{
+			this.#unsubscribePushCallback = BX.PULL.subscribe({
+				moduleId: 'bizproc',
+				command: 'workflow',
+				callback: this.#onWorkflowPush.bind(this),
+			});
+		}
+	}
+
+	#onWorkflowPush(params)
+	{
+		if (params && params.eventName === 'UPDATED' && Type.isArrayFilled(params.items))
+		{
+			for (const item of params.items)
 			{
-				workflowId: this.#workflowId,
-				userId: this.#targetUserId,
-				avatars: this.#data.avatars,
-				statuses: this.#data.statuses,
-				time: this.#data.time,
-				completedTaskCount: this.#data.completedTaskCount,
-				workflowIsCompleted: this.#data.workflowIsCompleted,
-				runningTaskId: this.#data.runningTaskId,
-				summaryProps: this.#data.summaryProps,
-			},
-		);
+				if (String(item.id) === this.#workflowId)
+				{
+					this.#loadWorkflowFaces();
+
+					return;
+				}
+			}
+		}
+	}
+
+	#loadWorkflowFaces()
+	{
+		if (this.#target && Type.isDomNode(this.#target) && this.#target.clientHeight > 0)
+		{
+			ajax.runAction('bizproc.workflow.faces.load', {
+				data: {
+					workflowId: this.#workflowId,
+					runningTaskId: this.#getRunningTaskId(),
+					userId: this.#targetUserId,
+				},
+			}).then(({ data }) => {
+				if (Type.isDomNode(this.#errorNode))
+				{
+					Dom.replace(this.#errorNode, this.#node);
+					this.#errorNode = null;
+				}
+
+				this.updateData(data);
+			}).catch(({ errors }) => {
+				if (Type.isArrayFilled(errors))
+				{
+					const firstError = errors.pop();
+					if (firstError.code === 'ACCESS_DENIED')
+					{
+						Dom.replace(
+							this.#node,
+							this.#renderError(firstError.message),
+						);
+
+						this.errorMessage = firstError.message;
+					}
+				}
+			});
+		}
+	}
+
+	#getRunningTaskId(): number
+	{
+		const runningStep = this.#data.steps.find((step) => step.id === 'running');
+		if (runningStep)
+		{
+			return runningStep.taskId;
+		}
+
+		return 0;
+	}
+
+	#unsubscribeToPushes()
+	{
+		if (Type.isFunction(this.#unsubscribePushCallback))
+		{
+			this.#unsubscribePushCallback();
+			this.#unsubscribePushCallback = null;
+		}
 	}
 
 	render()
 	{
-		this.#application.mount(this.#target);
+		if (this.#node)
+		{
+			return;
+		}
+
+		this.#node = Tag.render`<div class="bp-workflow-faces"></div>`;
+		Dom.append(this.#node, this.#target);
+		this.#stack.renderTo(this.#node);
+
+		if (this.#showArrow)
+		{
+			Dom.append(Tag.render`<div class="bp-workflow-faces-arrow"></div>`, this.#node);
+		}
+
+		if (this.#showTimeStep && this.#data.timeStep)
+		{
+			Dom.append(this.#renderTimeline(), this.#node);
+		}
 	}
 
-	updateData(data: FacesData)
+	updateData(data)
 	{
-		EventEmitter.emit(this, 'Bizproc.WorkflowFaces.OnUpdateData', new BaseEvent({ data }));
+		const facesData = {
+			steps: data.steps,
+			progressBox: data.progressBox,
+			timeStep: data.timeStep,
+		};
+
+		if (!validateFacesData(facesData))
+		{
+			return;
+		}
+
+		this.#data = facesData;
+
+		this.#getStackSteps().forEach((step) => {
+			this.#stack.updateStep(step, step.id);
+		});
+
+		if (data.isWorkflowFinished)
+		{
+			this.#unsubscribeToPushes();
+			if (this.#showTimeStep)
+			{
+				Dom.replace(this.#timelineNode, this.#renderTimeline());
+			}
+		}
+	}
+
+	#renderTimeline(): HTMLElement
+	{
+		const timeline = new Summary({
+			workflowId: this.#workflowId,
+			data: this.#data.timeStep,
+		});
+		this.#timelineNode = timeline.render();
+
+		return this.#timelineNode;
+	}
+
+	#renderError(message: string): HTMLElement
+	{
+		this.#errorNode = Tag.render`
+			<div class="bp-workflow-faces">
+				<span class="bp-workflow-faces-error-message">
+					${Text.encode(message)}
+				</span>
+			</div>
+		`;
+
+		return this.#errorNode;
 	}
 
 	destroy()
 	{
-		this.#application.unmount();
-		this.#application = null;
+		this.#unsubscribeToPushes();
+
+		this.#stack.destroy();
+		this.#stack = null;
+
 		this.#target = null;
 		this.#data = null;
 		this.#workflowId = null;
+
+		Dom.clean(this.#timelineNode);
+		this.#timelineNode = null;
 	}
 }

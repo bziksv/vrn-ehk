@@ -1,0 +1,16 @@
+<Services>
+	<BusinessSubType name="Автомобильные магазины"/>
+	<BusinessSubType name="Алкогольные магазины"/>
+	<BusinessSubType name="Вендинговые магазины"/>
+	<BusinessSubType name="Детские магазины"/>
+	<BusinessSubType name="Для дома и офиса"/>
+	<BusinessSubType name="Зоомагазины"/>
+	<BusinessSubType name="Интернет магазины и маркетплейсы"/>
+	<BusinessSubType name="Косметические магазины"/>
+	<BusinessSubType name="Одежда, обувь, аксессуары"/>
+	<BusinessSubType name="Продуктовые магазины"/>
+	<BusinessSubType name="Табачные магазины"/>
+	<BusinessSubType name="Техника и электроника"/>
+	<BusinessSubType name="Универсальные магазины"/>
+	<BusinessSubType name="Цветочные магазины"/>
+</Services>

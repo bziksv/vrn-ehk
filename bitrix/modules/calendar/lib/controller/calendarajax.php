@@ -1,18 +1,28 @@
 <?php
 namespace Bitrix\Calendar\Controller;
 
+use Bitrix\Bitrix24\Feature;
 use Bitrix\Calendar\Access\EventAccessController;
 use Bitrix\Calendar\Access\Model\SectionModel;
 use Bitrix\Calendar\Access\Model\TypeModel;
 use Bitrix\Calendar\Access\SectionAccessController;
 use Bitrix\Calendar\Access\TypeAccessController;
+use Bitrix\Calendar\Controller\Filter\RestrictExternalUser;
+use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Core\Event\Tools\Dictionary;
+use Bitrix\Calendar\Core\Mappers\Factory;
+use Bitrix\Calendar\Integration\Bitrix24\FeatureDictionary;
+use Bitrix\Calendar\Integration\SocialNetwork\Collab\UserCollabs;
+use Bitrix\Calendar\OpenEvents\Service\DefaultCategoryService;
+use Bitrix\Calendar\OpenEvents\Service\OpenEventAttendeeService;
 use Bitrix\Calendar\Internals\SectionTable;
+use Bitrix\Calendar\OpenEvents\Controller\Request\OpenEvent\SetEventAttendeeStatusDto;
 use Bitrix\Calendar\Rooms;
 use Bitrix\Calendar\Sharing;
 use Bitrix\Calendar\Ui\CalendarFilter;
 use Bitrix\Calendar\Util;
 use Bitrix\Intranet\Settings\Tools\ToolsManager;
+use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -43,6 +53,21 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 					Authentication::class
 				]
 			],
+			'editCalendarSection' => [
+				'+prefilters' => [
+					new RestrictExternalUser(),
+				],
+			],
+			'deleteCalendarSection' => [
+				'+prefilters' => [
+					new RestrictExternalUser(),
+				],
+			],
+			'hideExternalCalendarSection' => [
+				'+prefilters' => [
+					new RestrictExternalUser(),
+				],
+			],
 		];
 	}
 
@@ -60,11 +85,6 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 
 	public function editCalendarSectionAction()
 	{
-		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
-		{
-			return [];
-		}
-
 		$request = $this->getRequest();
 		$response = [];
 
@@ -76,7 +96,6 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		$color = $request->getPost('color');
 		$customization = $request->getPost('customization') === 'Y';
 		$userId = \CCalendar::GetUserId();
-		$isPersonal = $type === 'user' && $ownerId === $userId;
 
 		if ($id === 'tasks')
 		{
@@ -99,34 +118,49 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		}
 		else
 		{
-			if (Loader::includeModule('extranet') && !\CExtranet::IsIntranetUser(SITE_ID, $userId))
+			if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
 			{
 				if (
 					$type === 'group'
 					&& Loader::includeModule('socialnetwork')
 				)
 				{
-					$r = \Bitrix\Socialnetwork\UserToGroupTable::getList([
+					$rights = \Bitrix\Socialnetwork\UserToGroupTable::getList([
 						'filter' => [
 							'@ROLE' => \Bitrix\Socialnetwork\UserToGroupTable::getRolesMember(),
 							'=GROUP_ID' => $ownerId,
 							'=USER_ID' => $userId,
 						],
+						'limit' => 1,
 					]);
 
-					if (!$group = $r->fetch())
+					if (!$rights->fetch())
 					{
 						$this->addError(
-							new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'access_denied_extranet_01')
+							new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'access_denied_extranet_group')
+						);
+					}
+				}
+				else if ($type === 'user')
+				{
+					if ($userId !== $ownerId)
+					{
+						$this->addError(
+							new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'access_denied_extranet_user')
 						);
 					}
 				}
 				else
 				{
 					$this->addError(
-						new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'access_denied_extranet_02')
+						new Error(Loc::getMessage('EC_ACCESS_DENIED'), 'access_denied_extranet')
 					);
 				}
+			}
+
+			if ($this->getErrors())
+			{
+				return $response;
 			}
 
 			$accessController = new SectionAccessController($userId);
@@ -283,13 +317,18 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 
 			$sections = \CCalendarSect::getSuperposedList(['USERS' => $userIds]);
 		}
-		elseif ($mode === 'groups')
+		elseif ($mode === 'groups' || $mode === 'collabs')
 		{
+			$sections = [];
 			$groupIds = $request->get('groupIdList') ?? [];
-			$sections = \CCalendarSect::getSuperposedList(['GROUPS' => $groupIds]);
 
 			if (Loader::includeModule('socialnetwork'))
 			{
+				if (!empty($groupIds))
+				{
+					$sections = \CCalendarSect::getSuperposedList(['GROUPS' => $groupIds]);
+				}
+
 				foreach ($groupIds as $groupId)
 				{
 					$groupId = (int)$groupId;
@@ -364,6 +403,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		}
 
 		\CCalendar::setDisplayedSuperposed($userId, $sections);
+
 		return [];
 	}
 
@@ -393,8 +433,12 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 
 		if ($entryId > 0)
 		{
-			$fromTs = !empty($_REQUEST['date_from_offset']) ? \CCalendar::Timestamp($_REQUEST['date_from'])
-				- $_REQUEST['date_from_offset'] : \CCalendar::Timestamp($_REQUEST['date_from']);
+			$fromTs = \CCalendar::Timestamp($_REQUEST['date_from']);
+			if (!empty($_REQUEST['date_from_offset']))
+			{
+				$fromTs -= $_REQUEST['date_from_offset'];
+			}
+
 			$entry = \CCalendarEvent::getEventForEditInterface($entryId, ['eventDate' => \CCalendar::Date($fromTs)]);
 			$entryId = is_array($entry) && isset($entry['ID']) ? (int)$entry['ID'] : $entryId;
 		}
@@ -411,11 +455,45 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			$responseParams['entry'] = $entry;
 			$responseParams['timezoneHint'] = !empty($entry) ? Util::getTimezoneHint($userId, $entry) : '';
 			$responseParams['timezoneList'] = \CCalendar::GetTimezoneList();
+			$responseParams['absenceAvailable'] = (!\CCalendar::IsBitrix24()
+				|| \COption::GetOptionString("bitrix24",  "absence_limits_enabled", "") !== "Y"
+				|| Feature::isFeatureEnabled("absence"))
+			;
 			$responseParams['formSettings'] = UserSettings::getFormSettings($formType);
+			$isOpenEvent = $type === Dictionary::CALENDAR_TYPE['open_event'];
+			$isCollabUser = Util::isCollabUser($userId);
 
 			if ($type)
 			{
-				if (($type === 'user' && $ownerId !== $userId) || $type !== 'user')
+				$sectionList = [];
+				if ($isOpenEvent)
+				{
+					$sectionList = \CCalendar::getSectionList([
+						'CAL_TYPE' => Dictionary::CALENDAR_TYPE['open_event'],
+					]);
+				}
+				else if ($isCollabUser)
+				{
+					$userCollabIds = UserCollabs::getInstance()->getIds($userId);
+					if (
+						$type === Dictionary::CALENDAR_TYPE['group']
+						&& !in_array($ownerId, $userCollabIds, true)
+					)
+					{
+						$this->addError(new Error('access denied'));
+
+						return [];
+					}
+
+					$sectionList = \CCalendar::getSectionList([
+						'CAL_TYPE' => Dictionary::CALENDAR_TYPE['group'],
+						'OWNER_ID' => $userCollabIds,
+						'ACTIVE' => 'Y',
+						'checkPermissions' => true,
+						'getPermissions' => true
+					]);
+				}
+				else if (($type === 'user' && $ownerId !== $userId) || $type !== 'user')
 				{
 					$sectionList = \CCalendar::getSectionList([
 						'CAL_TYPE' => $type,
@@ -424,17 +502,34 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 						'checkPermissions' => true,
 						'getPermissions' => true
 					]);
+				}
 
-					foreach ($sectionList as $section)
+				$hasCurrentCalendarInSections = false;
+				foreach ($sectionList as $section)
+				{
+					if ($section['CAL_TYPE'] === Dictionary::CALENDAR_TYPE['open_event'])
 					{
-						if ($section['PERM']['edit'] || $section['PERM']['add'])
+						$section['PERM']['edit'] = true;
+					}
+
+					if ($section['PERM']['edit'] || $section['PERM']['add'])
+					{
+						$sections[] = $section;
+
+						if (
+							$section['CAL_TYPE'] === Dictionary::CALENDAR_TYPE['group']
+							&& (int)$section['OWNER_ID'] === $ownerId
+						)
 						{
-							$sections[] = $section;
+							$hasCurrentCalendarInSections = true;
 						}
 					}
 				}
 
-				if (empty($sections) && $type === 'group')
+				if (
+					$type === Dictionary::CALENDAR_TYPE['group']
+					&& (empty($sections) || !$hasCurrentCalendarInSections)
+				)
 				{
 					$sections[] = \CCalendarSect::createDefault([
 						'type' => $type,
@@ -444,10 +539,14 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 					\CCalendarSect::setClearOperationCache();
 				}
 			}
-			$sections = array_merge(
-				$sections,
-				\CCalendar::getSectionListAvailableForUser($userId, (array)($entry['SECTION_ID'] ?? null))
-			);
+
+			if (!$isOpenEvent && !$isCollabUser)
+			{
+				$sections = array_merge(
+					$sections,
+					\CCalendar::getSectionListAvailableForUser($userId, (array)($entry['SECTION_ID'] ?? null))
+				);
+			}
 
 			$responseParams['sections'] = [];
 			foreach ($sections as $section)
@@ -464,6 +563,20 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 				}
 			}
 
+			if (
+				empty($responseParams['sections'])
+				&& $type === Dictionary::CALENDAR_TYPE['user']
+				&& !empty($ownerId)
+			)
+			{
+				$responseParams['sections'][] = \CCalendarSect::createDefault([
+					'type' => $type,
+					'ownerId' => $ownerId
+				]);
+
+				\CCalendarSect::setClearOperationCache();
+			}
+
 			$responseParams['dayOfWeekMonthFormat'] = (
 				\Bitrix\Main\Context::getCurrent()
 					->getCulture()
@@ -471,12 +584,13 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			);
 			$responseParams['trackingUsersList'] = UserSettings::getTrackingUsers($userId);
 			$responseParams['userSettings'] = UserSettings::get($userId);
-			$responseParams['eventWithEmailGuestLimit'] = Bitrix24Manager::getEventWithEmailGuestLimit();
-			$responseParams['countEventWithEmailGuestAmount'] = Bitrix24Manager::getCountEventWithEmailGuestAmount();
 			$responseParams['iblockMeetingRoomList'] = Rooms\IBlockMeetingRoom::getMeetingRoomList();
 			$responseParams['userIndex'] = \CCalendarEvent::getUserIndex();
-			$responseParams['locationFeatureEnabled'] = Bitrix24Manager::isFeatureEnabled("calendar_location");
-			if ($responseParams['locationFeatureEnabled'])
+			$locationFeatureEnabled = Bitrix24Manager::isFeatureEnabled(FeatureDictionary::CALENDAR_LOCATION);
+
+			// collab user not have access to rooms management, but if it already set for event, it should display
+			$responseParams['locationFeatureEnabled'] = !$isCollabUser && $locationFeatureEnabled;
+			if ($locationFeatureEnabled || $isCollabUser)
 			{
 				$responseParams['locationList'] = Rooms\Manager::getRoomsList();
 				$responseParams['locationAccess'] = Rooms\Util::getLocationAccess($userId);
@@ -490,6 +604,23 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			{
 				$responseParams['meetSection'] = UserSettings::get($ownerId)['meetSection'] ?? null;
 			}
+			$responseParams['eventWithEmailGuestEnabled'] = Bitrix24Manager::isFeatureEnabled(FeatureDictionary::CALENDAR_EVENTS_WITH_EMAIL_GUESTS);
+
+			if ($isOpenEvent)
+			{
+				$responseParams['defaultCategoryId'] = DefaultCategoryService::getInstance()->getCategoryId();
+			}
+
+			if (Loader::includeModule('socialnetwork'))
+			{
+				$projectLimitFeatureId = \Bitrix\Socialnetwork\Helper\Feature::PROJECTS_GROUPS;
+
+				$responseParams['projectFeatureEnabled'] = \Bitrix\Socialnetwork\Helper\Feature::isFeatureEnabled($projectLimitFeatureId)
+					|| \Bitrix\Socialnetwork\Helper\Feature::canTurnOnTrial($projectLimitFeatureId)
+				;
+			}
+
+			$responseParams['isCollabUser'] = $isCollabUser;
 
 			return new \Bitrix\Main\Engine\Response\Component(
 				'bitrix:calendar.edit.slider',
@@ -498,12 +629,13 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 					'id' => $uniqueId,
 					'event' => $entry,
 					'formType' => $formType,
-					'type' => \CCalendar::GetType(),
+					'type' => $isOpenEvent ? Dictionary::CALENDAR_TYPE['open_event'] : \CCalendar::GetType(),
 					'bIntranet' => \CCalendar::IsIntranetEnabled(),
 					'bSocNet' => \CCalendar::IsSocNet(),
 					'AVATAR_SIZE' => 21,
 					'ATTENDEES_CODES' => $userCodes,
 					'hiddenFields' => $this->getEventEditFormHiddenFields($entry),
+					'sections' => $responseParams['sections'],
 				],
 				$responseParams
 			);
@@ -572,12 +704,12 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			$responseParams['userIndex'] = \CCalendarEvent::getUserIndex();
 			$responseParams['userSettings'] = UserSettings::get($userId);
 			$responseParams['plannerFeatureEnabled'] = Bitrix24Manager::isPlannerFeatureEnabled();
-			$responseParams['entryUrl'] = \CHTTP::urlAddParams(
-				\CCalendar::GetPath($entry['CAL_TYPE'], $entry['OWNER_ID'], true),
-				[
-					'EVENT_ID' => (int)$entry['ID'],
-					'EVENT_DATE' => urlencode($entry['DATE_FROM'])
-				]);
+			$responseParams['entryUrl'] = \CCalendar::getEntryUrl(
+				$entry['CAL_TYPE'],
+				$entry['OWNER_ID'],
+				$entry['ID'],
+				$entry['DATE_FROM']
+			);
 			$responseParams['dayOfWeekMonthFormat'] = (
 				\Bitrix\Main\Context::getCurrent()
 					->getCulture()
@@ -643,26 +775,17 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 	{
 		$request = $this->getRequest();
 		$entryId = (int)$request['entryId'];
-		$parentId = (int)($request['entry']['parentId'] ?? 0);
+		$parentId = (int)($request['entry']['parentId'] ?? $request['parentId'] ?? 0);
 		$userId = \CCalendar::getCurUserId();
 		$ownerId = (int)$request['ownerId'];
 		$type = $request['type'];
 		$entries = $request['entries'];
-		$isExtranetUser = Util::isExtranetUser($userId);
+		$isExtranetUser = Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser($userId);
 
 		$hostId = (int)$request['hostId'];
 		if (!$hostId && $type === 'user' && !$entryId)
 		{
 			$hostId = $ownerId;
-		}
-
-		if (Loader::includeModule('intranet'))
-		{
-			if (!\Bitrix\Intranet\Util::isIntranetUser($userId) && !$isExtranetUser)
-			{
-				$this->addError(new Error('[up01]' . Loc::getMessage('EC_ACCESS_DENIED'), 'access_denied'));
-				return [];
-			}
 		}
 
 		if ($isExtranetUser)
@@ -676,25 +799,36 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		}
 
 		$codes = [];
-		if (isset($request['entityList']) && is_array($request['entityList']))
+		// open event need only location planner, so ignore entityList
+		if ($type !== Dictionary::CALENDAR_TYPE['open_event'])
 		{
-			$codes = Util::convertEntitiesToCodes($request['entityList']);
-		}
-		elseif (isset($request['codes']) && is_array($request['codes']))
-		{
-			$codes = $request['codes'];
+			if (isset($request['entityList']) && is_array($request['entityList']))
+			{
+				$codes = Util::convertEntitiesToCodes($request['entityList']);
+			}
+			elseif (isset($request['codes']) && is_array($request['codes']))
+			{
+				$codes = $request['codes'];
+			}
+
+			if ($entryId > 0 && empty($codes))
+			{
+				$codes[] = 'U' . $hostId;
+			}
+			if ($request['add_cur_user_to_list'] === 'Y' || empty($codes))
+			{
+				$codes[] = 'U' . $userId;
+			}
 		}
 
-		if ($entryId > 0 && empty($codes))
+		$entryType = $request['entry']['data']['CAL_TYPE'] ?? null;
+		if ($entryType === Dictionary::CALENDAR_TYPE['open_event'])
 		{
-			$codes[] = 'U' . $hostId;
-		}
-		if ($request['add_cur_user_to_list'] === 'Y' || empty($codes))
-		{
-			$codes[] = 'U' . $userId;
+			$codes = ['U' . $userId];
 		}
 
 		$prevUserList = is_array($request['prevUserList']) ? $request['prevUserList'] : [];
+		$skipFeatureCheck = ($request['skipFeatureCheck'] ?? null) === 'Y';
 
 		$dateFrom = isset($request['dateFrom']) ? $request['dateFrom'] : $request['date_from'];
 		$dateTo = isset($request['dateTo']) ? $request['dateTo'] : $request['date_to'];
@@ -713,7 +847,8 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			'location' => trim($request['location'] ?? ""),
 			'roomEventId' => (int)$request['roomEventId'],
 			'initPullWatches' => true,
-			'prevUserList' => $prevUserList
+			'prevUserList' => $prevUserList,
+			'skipFeatureCheck' => $skipFeatureCheck,
 		]);
 	}
 
@@ -840,24 +975,21 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 
 	public function excludeRecursionDateAction($entryId, $excludeDate)
 	{
-		$response = [];
 		\CCalendarEvent::ExcludeInstance((int)$entryId, $excludeDate);
-		return $response;
+
+		return [];
 	}
 
 	public function deleteCalendarSectionAction($id)
 	{
 		$response = [];
-		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
-		{
-			return $response;
-		}
 
 		$sectionList = SectionTable::getList([
 				'filter' => [
 					'=ACTIVE' => 'Y',
 					'=ID' => (int)$id
 				],
+				'limit' => 1,
 			]
 		);
 
@@ -889,16 +1021,34 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		$request = $this->getRequest();
 		$response = [];
 
-		\CCalendarEvent::SetMeetingStatusEx([
-			'attendeeId' => $userId,
-			'eventId' => (int)$request->getPost('entryId'),
-			'parentId' => (int)$request->getPost('entryParentId'),
-			'status' => $request->getPost('status'),
-			'reccurentMode' => $request->getPost('recursionMode'),
-			'currentDateFrom' => $request->getPost('currentDateFrom')
-		]);
+		$entryId = (int)$request->getPost('entryId');
+		/** @var Factory $mapperFactory */
+		$mapperFactory = ServiceLocator::getInstance()->get('calendar.service.mappers.factory');
+		/** @var Event $event */
+		$event = $mapperFactory->getEvent()->getById($entryId);
+		if ($event->isOpenEvent())
+		{
+			OpenEventAttendeeService::getInstance()->setEventAttendeeStatus(
+				$userId,
+				new SetEventAttendeeStatusDto(
+					$event->getId(),
+					$request->getPost('status') === 'Y'
+				)
+			);
+		}
+		else
+		{
+			\CCalendarEvent::SetMeetingStatusEx([
+				'attendeeId' => $userId,
+				'eventId' => (int)$request->getPost('entryId'),
+				'parentId' => (int)$request->getPost('entryParentId'),
+				'status' => $request->getPost('status'),
+				'reccurentMode' => $request->getPost('recursionMode'),
+				'currentDateFrom' => $request->getPost('currentDateFrom')
+			]);
+		}
 
-		\CCalendar::UpdateCounter([$userId]);
+		\CCalendar::UpdateCounter([$userId], [$event->getId()]);
 		$response['counters'] = CountersManager::getValues($userId);
 
 		return $response;
@@ -1026,6 +1176,22 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 			'mailboxList' => \Bitrix\Calendar\Integration\Sender\AllowedSender::getList($userId)
 		];
 
+		$listLockedFeatures = [];
+
+		if (\Bitrix\Main\Loader::includeModule('tasks'))
+		{
+			$featureName = \Bitrix\Tasks\Integration\Bitrix24\FeatureDictionary::TASK_CALENDAR_INTEGRATION;
+			$tasksCalendarIntegration = \Bitrix\Tasks\Integration\Bitrix24::checkFeatureEnabled($featureName);
+
+			if ($tasksCalendarIntegration === false)
+			{
+				$listLockedFeatures['sync_tasks'] = [
+					'locked' => true,
+					'code' => $featureName,
+				];
+			}
+		}
+
 		return new \Bitrix\Main\Engine\Response\Component(
 			'bitrix:calendar.settings.slider',
 			'',
@@ -1033,7 +1199,8 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 				'id' => $uid,
 				'is_personal' => $showPersonalSettings === 'Y',
 				'show_general_settings' => $showGeneralSettings === 'Y',
-				'show_access_control' => $showAccessControl === 'Y'
+				'show_access_control' => $showAccessControl === 'Y',
+				'list_locked_features' => $listLockedFeatures,
 			],
 			$additionalResponseParams
 		);
@@ -1069,6 +1236,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		{
 			$result['section'] = \CCalendarSect::GetById($loadSectionId);
 		}
+
 		return $result;
 	}
 
@@ -1079,13 +1247,15 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		];
 	}
 
-	public function updateCountersAction(): array
+	public function updateCountersAction(?string $type, ?string $ownerId): array
 	{
 		$userId = \CCalendar::GetCurUserId();
 		\CCalendar::UpdateCounter([$userId]);
 
+		$groupIds = $type === Dictionary::CALENDAR_TYPE['group'] ? [$ownerId] : [];
+
 		return [
-			'counters' => CountersManager::getValues($userId)
+			'counters' => CountersManager::getValues($userId, $groupIds),
 		];
 	}
 
@@ -1146,16 +1316,24 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 
 	public function getFilterDataAction()
 	{
-		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
+		$request = $this->getRequest();
+		$type = $request->getPost('type');
+
+		$isCollaber = Util::isCollabUser(\CCalendar::getUserId());
+
+		if ((Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser()) && !$isCollaber)
 		{
 			$this->addError(new Error('Intranet user only'));
 
 			return [];
 		}
 
-		$request = $this->getRequest();
+		if ($isCollaber && !in_array($type, ['user', 'group'], true))
+		{
+			$this->addError(new Error('Collaber only can access user or group'));
 
-		$type = $request->getPost('type');
+			return [];
+		}
 
 		if ($type === 'user')
 		{

@@ -61,6 +61,7 @@ $MESS['ATL_UNITELLER_VAT_-1'] = 'не облагается НДС';
 $MESS['ATL_UNITELLER_VAT_0'] = 'облагается НДС по ставке 0%';
 $MESS['ATL_UNITELLER_VAT_10'] = 'облагается НДС по ставке 10%';
 $MESS['ATL_UNITELLER_VAT_20'] = 'облагается НДС по ставке 20%';
+$MESS['ATL_UNITELLER_VAT_22'] = 'облагается НДС по ставке 22%';
 $MESS['ATL_UNITELLER_VAT_110'] = 'облагается НДС по ставке 10/110';
 $MESS['ATL_UNITELLER_VAT_120'] = 'облагается НДС по ставке 20/120';
 

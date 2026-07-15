@@ -21,7 +21,7 @@ IncludeModuleLangFile(__FILE__);
 abstract class CAllMain
 {
 	var $ma;
-	var $sDocPath2, $sDirPath, $sUriParam;
+	var $sDocPath2, $sDirPath;
 	var $sDocTitle;
 	var $sDocTitleChanger = null;
 	var $arPageProperties = [];
@@ -74,19 +74,7 @@ abstract class CAllMain
 
 	public function __construct()
 	{
-		global $QUERY_STRING;
-		$this->sDocPath2 = GetPagePath(false, true);
-		$this->sDirPath = GetDirPath($this->sDocPath2);
-		$this->sUriParam = !empty($_SERVER["QUERY_STRING"]) ? $_SERVER["QUERY_STRING"] : $QUERY_STRING;
-
 		$this->oAsset = Asset::getInstance();
-	}
-
-	/**
-	 * @deprecated Does nothing.
-	 */
-	public function reinitPath()
-	{
 	}
 
 	public function GetCurPage($get_index_page = null)
@@ -103,6 +91,11 @@ abstract class CAllMain
 			}
 		}
 
+		if ($this->sDocPath2 === null)
+		{
+			$this->sDocPath2 = GetPagePath(false, true);
+		}
+
 		$str = $this->sDocPath2;
 
 		if (!$get_index_page)
@@ -116,14 +109,10 @@ abstract class CAllMain
 		return $str;
 	}
 
-	public function SetCurPage($page, $param = false)
+	public function SetCurPage($page)
 	{
-		$this->sDocPath2 = GetPagePath($page);
+		$this->sDocPath2 = GetPagePath($page, true);
 		$this->sDirPath = GetDirPath($this->sDocPath2);
-		if ($param !== false)
-		{
-			$this->sUriParam = $param;
-		}
 	}
 
 	public function GetCurUri($addParam = "", $get_index_page = null)
@@ -162,11 +151,15 @@ abstract class CAllMain
 
 	public function GetCurParam()
 	{
-		return $this->sUriParam;
+		return $_SERVER["QUERY_STRING"] ?? '';
 	}
 
 	public function GetCurDir()
 	{
+		if ($this->sDirPath === null)
+		{
+			$this->sDirPath = GetDirPath($this->GetCurPage(true));
+		}
 		return $this->sDirPath;
 	}
 
@@ -1793,9 +1786,7 @@ abstract class CAllMain
 		$io = CBXVirtualIo::GetInstance();
 		if ($io->FileExists($DOC_ROOT . $path_dir . "/.access.php"))
 		{
-			$fTmp = $io->GetFile($DOC_ROOT . $path_dir . "/.access.php");
-			//include replaced with eval in order to honor of ZendServer
-			eval("?>" . $fTmp->GetContents());
+			include $io->GetPhysicalName($DOC_ROOT . $path_dir . "/.access.php");
 		}
 
 		$FILE_PERM = $PERM[$path_file];
@@ -1854,7 +1845,7 @@ abstract class CAllMain
 				$new_perm = $arPermissions[$group];
 				if (!isset($new_perm) && preg_match('/^G[0-9]+$/', $group))
 				{
-					$new_perm = $arPermissions[mb_substr($group, 1)];
+					$new_perm = $arPermissions[substr($group, 1)];
 				}
 
 				if ($new_perm != $perm)
@@ -1881,7 +1872,7 @@ abstract class CAllMain
 
 			if (COption::GetOptionString("main", "event_log_file_access", "N") === "Y")
 			{
-				CEventLog::Log("SECURITY", "FILE_PERMISSION_CHANGED", "main", "[" . $site . "] " . $path, print_r($FILE_PERM, true) . " => " . print_r($arPermissions, true));
+				CEventLog::Log(CEventLog::SEVERITY_SECURITY, "FILE_PERMISSION_CHANGED", "main", "[" . $site . "] " . $path, ['before' => $FILE_PERM, 'after' => array_filter($arPermissions)]);
 			}
 		}
 		return true;
@@ -2064,12 +2055,7 @@ abstract class CAllMain
 			return (!$task_mode ? 'X' : [CTask::GetIdByLetter('X', 'main', 'file')]);
 		}
 
-		if (str_ends_with($path, "/.access.php"))
-		{
-			return (!$task_mode ? 'D' : [CTask::GetIdByLetter('D', 'main', 'file')]);
-		}
-
-		if (str_ends_with($path, "/.htaccess"))
+		if (IsFileUnsafe($path) || IsConfigFile($path))
 		{
 			return (!$task_mode ? 'D' : [CTask::GetIdByLetter('D', 'main', 'file')]);
 		}
@@ -2423,8 +2409,7 @@ abstract class CAllMain
 
 			if ($bAdmin)
 			{
-				global $QUERY_STRING;
-				$p = rtrim(str_replace("&#", "#", preg_replace("/lang=[^&#]*&*/", "", $QUERY_STRING)), "&");
+				$p = rtrim(str_replace("&#", "#", preg_replace("/lang=[^&#]*&*/", "", $_SERVER["QUERY_STRING"])), "&");
 				$ar["PATH"] = $this->GetCurPage() . "?lang=" . $ar["LID"] . ($p <> '' ? '&' . $p : '');
 			}
 			else
@@ -2709,7 +2694,8 @@ abstract class CAllMain
 			}
 			if ($sOldRight <> $right)
 			{
-				CEventLog::Log("SECURITY", "MODULE_RIGHTS_CHANGED", "main", $group_id, $module_id . ($site_id ? "/" . $site_id : "") . ": (" . $sOldRight . ") => (" . $right . ")");
+				$key = $module_id . ($site_id ? "/" . $site_id : "");
+				CEventLog::Log(CEventLog::SEVERITY_SECURITY, "MODULE_RIGHTS_CHANGED", "main", $group_id, ['before' => [$key => $sOldRight], 'after' => [$key => $right]]);
 			}
 		}
 
@@ -2763,7 +2749,7 @@ abstract class CAllMain
 					$rsRight = $DB->Query("SELECT GROUP_ID, G_ACCESS FROM b_module_group WHERE MODULE_ID='" . $DB->ForSql($module_id, 50) . "' AND GROUP_ID IN (" . $sGroups . ") AND SITE_ID " . ($site_id ? "= '" . $DB->ForSql($site_id) . "'" : "IS NULL"));
 					while ($arRight = $rsRight->Fetch())
 					{
-						CEventLog::Log("SECURITY", "MODULE_RIGHTS_CHANGED", "main", $arRight["GROUP_ID"], $module_id . ($site_id ? "/" . $site_id : "") . ": (" . $arRight["G_ACCESS"] . ") => ()");
+						CEventLog::Log(CEventLog::SEVERITY_SECURITY, "MODULE_RIGHTS_CHANGED", "main", $arRight["GROUP_ID"], ['before' => [$module_id . ($site_id ? "/" . $site_id : "") => $arRight["G_ACCESS"]], 'after' => []]);
 					}
 				}
 				$strSql = "DELETE FROM b_module_group WHERE MODULE_ID='" . $DB->ForSql($module_id, 50) . "' and GROUP_ID in (" . $sGroups . ") AND SITE_ID " . ($site_id ? "= '" . $DB->ForSql($site_id) . "'" : "IS NULL");
@@ -3491,7 +3477,7 @@ abstract class CAllMain
 				"'%u([0-9A-F]{2})([0-9A-F]{2})'i",
 				function ($ch) {
 					$res = chr(hexdec($ch[2])) . chr(hexdec($ch[1]));
-					return $GLOBALS["APPLICATION"]->ConvertCharset($res, "UTF-16", LANG_CHARSET);
+					return \Bitrix\Main\Text\Encoding::convertEncoding($res, "UTF-16", LANG_CHARSET);
 				},
 				$str
 			);

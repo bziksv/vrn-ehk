@@ -4,11 +4,13 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main;
 
+use Bitrix\HumanResources\Compatibility\Utils\DepartmentBackwardAccessCode;
+use Bitrix\HumanResources\Service\Container;
 use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Data\DataManager;
@@ -173,6 +175,15 @@ class UserTable extends DataManager
 				['values' => ['N', 'Y']]
 			))->configureValueType(BooleanField::class),
 
+			(new ExpressionField(
+				'REAL_USER',
+				"(
+        	    	%s NOT IN ('" . join("', '", static::getExternalUserTypes()) . "')
+            		OR %s IS NULL
+		        )",
+				['EXTERNAL_AUTH_ID', 'EXTERNAL_AUTH_ID'],
+			))->configureValueType(BooleanField::class),
+
 			(new Reference(
 				'INDEX',
 				UserIndexTable::class,
@@ -197,14 +208,13 @@ class UserTable extends DataManager
 				\Bitrix\Main\Localization\LanguageTable::class,
 				Join::on('this.LANGUAGE_ID', 'ref.LID')->where('ref.ACTIVE', 'Y')
 			)),
+
 			(new ExpressionField(
 				'NOTIFICATION_LANGUAGE_ID',
 				'CASE WHEN (%s IS NOT NULL AND %s = %s) THEN %s ELSE %s END',
 				[
-					'LANGUAGE_ID', 'LANGUAGE_ID', 'ACTIVE_LANGUAGE.LID', 'LANGUAGE_ID',
-					function () {
-						return new SqlExpression("'" . (($site = \CSite::GetList('', '', ['DEF' => 'Y', 'ACTIVE' => 'Y'])->fetch())
-							? $site['LANGUAGE_ID'] : LANGUAGE_ID) . "'");
+					'LANGUAGE_ID', 'LANGUAGE_ID', 'ACTIVE_LANGUAGE.LID', 'LANGUAGE_ID',	function () {
+						return new SqlExpression("'" . (SiteTable::getDefaultLanguageId() ?? LANGUAGE_ID) . "'");
 					},
 				],
 			))->configureValueType(StringField::class),
@@ -237,7 +247,7 @@ class UserTable extends DataManager
 		return Application::getInstance()->getLicense()->getActiveUsersCount($lastLoginDate);
 	}
 
-	public static function getUserGroupIds($userId)
+	public static function getUserGroupIds($userId): array
 	{
 		$groups = [];
 
@@ -253,17 +263,13 @@ class UserTable extends DataManager
 
 		while ($row = $result->fetch())
 		{
-			$groups[] = $row['ID'];
+			$groups[] = (int)$row['ID'];
 		}
 
-		if (!in_array(2, $groups))
-		{
-			$groups[] = 2;
-		}
+		$groups[] = 2;
 
 		if ($userId > 0)
 		{
-			// private groups
 			$nowTimeExpression = new SqlExpression(
 				static::getEntity()->getConnection()->getSqlHelper()->getCurrentDateTimeFunction()
 			);
@@ -283,20 +289,16 @@ class UserTable extends DataManager
 						'=UserGroup:GROUP.DATE_ACTIVE_TO' => null,
 						'>=UserGroup:GROUP.DATE_ACTIVE_TO' => $nowTimeExpression,
 					],
-					[
-						'LOGIC' => 'OR',
-						'!=ANONYMOUS' => 'Y',
-						'=ANONYMOUS' => null,
-					],
 				],
 			]);
 
 			while ($row = $result->fetch())
 			{
-				$groups[] = $row['ID'];
+				$groups[] = (int)$row['ID'];
 			}
 		}
 
+		$groups = array_unique($groups, SORT_NUMERIC);
 		sort($groups);
 
 		return $groups;
@@ -400,12 +402,22 @@ class UserTable extends DataManager
 		}
 
 		$record['UF_DEPARTMENT_NAMES'] = [];
-		if (ModuleManager::isModuleInstalled('intranet'))
+		if (
+			Loader::includeModule('humanresources')
+			&& isset($record['UF_DEPARTMENT'])
+			&& is_array($record['UF_DEPARTMENT'])
+		)
 		{
-			$departmentNames = UserUtils::getDepartmentNames($record['UF_DEPARTMENT']);
-			foreach ($departmentNames as $departmentName)
+			$departments = Container::getNodeRepository()->findAllByAccessCodes(
+				array_map(
+					static fn($departmentId) => DepartmentBackwardAccessCode::makeById((int)$departmentId),
+					$record['UF_DEPARTMENT'],
+				),
+			);
+
+			foreach ($departments as $department)
 			{
-				$record['UF_DEPARTMENT_NAMES'][] = $departmentName['NAME'];
+				$record['UF_DEPARTMENT_NAMES'][] = $department->name;
 			}
 		}
 

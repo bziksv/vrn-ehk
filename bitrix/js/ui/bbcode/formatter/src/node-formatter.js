@@ -5,7 +5,7 @@ import {
 	typeof BBCodeRootNode,
 	typeof BBCodeTextNode,
 } from 'ui.bbcode.model';
-import { type FormatterData, typeof Formatter } from './formatter';
+import { type FormatterData, typeof Formatter, type FormatterElement } from './formatter';
 
 export type ConvertCallbackOptions = {
 	node: BBCodeElementNode | BBCodeRootNode | BBCodeTextNode,
@@ -16,10 +16,10 @@ export type ConvertCallbackOptions = {
 export type ValidateCallbackOptions = ConvertCallbackOptions & {};
 export type BeforeConvertCallbackOptions = ConvertCallbackOptions & {};
 export type ForChildCallbackOptions = ConvertCallbackOptions & {
-	element: HTMLElement,
+	element: FormatterElement,
 };
 export type AfterCallbackOptions = ForChildCallbackOptions & {};
-export type FormatterCallbackResult = HTMLElement | Text | null;
+export type FormatterCallbackResult = Object | null;
 
 export type NodeFormatterOptions = {
 	name: string | Array<string>,
@@ -28,6 +28,7 @@ export type NodeFormatterOptions = {
 	before?: (BeforeConvertCallbackOptions) => BBCodeNode | null,
 	after?: (AfterCallbackOptions) => FormatterCallbackResult,
 	forChild?: (ForChildCallbackOptions) => FormatterCallbackResult,
+	formatter?: Formatter,
 };
 
 type DefaultNodeConverterOptions = ConvertCallbackOptions | BeforeConvertCallbackOptions;
@@ -40,6 +41,7 @@ const beforeSymbol: Symbol = Symbol('before');
 const convertSymbol: Symbol = Symbol('convert');
 const forChildSymbol: Symbol = Symbol('forChild');
 const afterSymbol: Symbol = Symbol('after');
+const formatterSymbol: Symbol = Symbol('formatter');
 
 const defaultValidator = () => true;
 const defaultNodeConverter = ({ node }: DefaultNodeConverterOptions) => node;
@@ -64,6 +66,11 @@ export class NodeFormatter
 		else
 		{
 			this.setName(options.name);
+		}
+
+		if (!Type.isNil(options.formatter))
+		{
+			this.setFormatter(options.formatter);
 		}
 
 		this.setValidate(options.validate);
@@ -125,13 +132,7 @@ export class NodeFormatter
 
 	runBefore(options: BeforeConvertCallbackOptions): FormatterCallbackResult
 	{
-		const result: ?BBCodeNode = this[beforeSymbol](options);
-		if (result instanceof BBCodeNode || Type.isNull(result))
-		{
-			return result;
-		}
-
-		throw new TypeError(`Before callback for "${this.getName()}" returned not null or BBCodeNode`);
+		return this[beforeSymbol](options);
 	}
 
 	setConvert(callback: (ConvertCallbackOptions) => FormatterCallbackResult)
@@ -146,13 +147,7 @@ export class NodeFormatter
 
 	runConvert(options: ConvertCallbackOptions): FormatterCallbackResult
 	{
-		const result: ?HTMLElement | Text = this[convertSymbol](options);
-		if (Type.isDomNode(result) || Type.isNull(result))
-		{
-			return result;
-		}
-
-		throw new TypeError(`Convert callback for "${this.getName()}" returned not HTMLElement, Text or null`);
+		return this[convertSymbol](options);
 	}
 
 	setForChild(callback: (ForChildCallbackOptions) => FormatterCallbackResult)
@@ -169,13 +164,7 @@ export class NodeFormatter
 
 	runForChild(options: ForChildCallbackOptions): FormatterCallbackResult
 	{
-		const result: ?HTMLElement | Text = this[forChildSymbol](options);
-		if (Type.isDomNode(result) || Type.isNull(result))
-		{
-			return result;
-		}
-
-		throw new TypeError(`ForChild callback for "${this.getName()}" returned not HTMLElement, Text or null`);
+		return this[forChildSymbol](options);
 	}
 
 	setAfter(callback: (AfterCallbackOptions) => FormatterCallbackResult)
@@ -192,12 +181,16 @@ export class NodeFormatter
 
 	runAfter(options: AfterCallbackOptions): FormatterCallbackResult
 	{
-		const result: ?HTMLElement | Text = this[afterSymbol](options);
-		if (Type.isDomNode(result) || Type.isNull(result))
-		{
-			return result;
-		}
+		return this[afterSymbol](options);
+	}
 
-		throw new TypeError(`After callback for "${this.getName()}" returned not HTMLElement, Text or null`);
+	setFormatter(formatter: Formatter)
+	{
+		this[formatterSymbol] = formatter;
+	}
+
+	getFormatter(): Formatter
+	{
+		return this[formatterSymbol];
 	}
 }

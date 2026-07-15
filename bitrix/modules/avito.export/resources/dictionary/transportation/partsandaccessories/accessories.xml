@@ -1,0 +1,212 @@
+<Root>
+	<ProductType name="Щётки стеклоочистителя">
+		<InstallationLocation name="Лобовое стекло">
+			<Set name="Да">
+				<SecondBrushLength file="accessories/secondbrushlength.xml"/>
+			</Set>
+			<Set name="Нет"/>
+		</InstallationLocation>
+		<InstallationLocation name="Заднее стекло"/>
+		<MountingType file="accessories/mountingtype.xml"/>
+		<BrushType name="Бескаркасная"/>
+		<BrushType name="Каркасная"/>
+		<BrushType name="Гибридная"/>
+		<BrushLength file="accessories/brushlength.xml"/>
+		<Brand file="accessories/brushbrand.xml"/>
+		<VendorCode variable="text"/>
+	</ProductType>
+	<ProductType name="Защита и декор">
+		<AccessoryType name="Для фар, порогов и бамперов">
+			<Material name="АБС-пластик"/>
+			<Material name="Акрил"/>
+			<Material name="Алюминий"/>
+			<Material name="Нержавеющая сталь"/>
+			<Material name="Пластик"/>
+			<Material name="Поликарбонат"/>
+			<Material name="Резина"/>
+			<Material name="Сталь"/>
+			<Material name="Стеклопластик"/>
+			<InstallationType name="Для фар"/>
+			<InstallationType name="Для порогов"/>
+			<InstallationType name="Для бамперов"/>
+		</AccessoryType>
+		<AccessoryType name="Наклейки, шильдики и значки" />
+		<AccessoryType name="Дефлекторы">
+			<InstallationLocation name="Окна"/>
+			<InstallationLocation name="Капот"/>
+			<InstallationLocation name="Передние стекла"/>
+			<InstallationLocation name="Задние стекла"/>
+			<InstallationLocation name="Боковые зеркала"/>
+			<InstallationLocation name="Радиатор"/>
+		</AccessoryType>
+		<AccessoryType name="Для картера и КПП">
+			<Brand name="AlfEco"/>
+			<Brand name="Autofamily"/>
+			<Brand name="Automax"/>
+			<Brand name="BMS"/>
+			<Brand name="ECO"/>
+			<Brand name="Lada"/>
+			<Brand name="Lecar"/>
+			<Brand name="Motodor"/>
+			<Brand name="NLZ"/>
+			<Brand name="Novline"/>
+			<Brand name="Rival"/>
+			<Brand name="Russtal"/>
+			<Brand name="Sheriff"/>
+			<Brand name="АВС-дизайн"/>
+			<Brand name="Автоброня"/>
+			<Brand name="Автощит"/>
+			<Brand name="Металлопродукция"/>
+			<Brand name="Начало"/>
+			<Brand name="ТСС"/>
+			<ProtectionType name="Адсорбера"/>
+			<ProtectionType name="Дифференциала"/>
+			<ProtectionType name="Картера двигателя"/>
+			<ProtectionType name="Кислородного датчика"/>
+			<ProtectionType name="Коробки передач"/>
+			<ProtectionType name="Радиатора"/>
+			<ProtectionType name="Раздаточной коробки"/>
+			<ProtectionType name="Редуктора рулевых тяг"/>
+			<ProtectionType name="Топливного бака"/>
+			<ProtectionType name="Топливных трубок"/>
+			<ProtectionType name="Трубок кондиционера"/>
+		</AccessoryType>
+		<AccessoryType name="Брызговики и подкрылки">
+			<InstallationLocation name="Спереди"/>
+			<InstallationLocation name="Сзади"/>
+		</AccessoryType>
+		<AccessoryType name="Рамки номерного знака" />
+		<AccessoryType name="Силовые бамперы и пороги">
+			<ProtectionType name="Задний бампер"/>
+			<ProtectionType name="Калитка запасного колеса"/>
+			<ProtectionType name="Передний бампер"/>
+			<ProtectionType name="Площадка под лебедку"/>
+			<ProtectionType name="Пороги силовые"/>
+		</AccessoryType>
+		<AccessoryType name="Утеплители" />
+		<AccessoryType name="Дополнительный свет" />
+		<AccessoryType name="Шноркели" />
+	</ProductType>
+	<ProductType name="Для салона">
+		<AccessoryType name="Коврики">
+			<Brand file="accessories/cover_brand.xml"/>
+			<Material name="EVA"/>
+			<Material name="Алькантара"/>
+			<Material name="Брезент"/>
+			<Material name="Бумага"/>
+			<Material name="Велюр"/>
+			<Material name="Замша"/>
+			<Material name="Искусственная кожа"/>
+			<Material name="Картон"/>
+			<Material name="Металл"/>
+			<Material name="Мех"/>
+			<Material name="Натуральная кожа"/>
+			<Material name="Оксфорд"/>
+			<Material name="Пластик"/>
+			<Material name="Полимер"/>
+			<Material name="Полиуретан"/>
+			<Material name="Резина"/>
+			<Material name="Силикон"/>
+			<Material name="Ткань"/>
+			<CoverType name="Ворсовые коврики в салон"/>
+			<CoverType name="Ворсовые коврики в багажник"/>
+			<CoverType name="Коврики в салон"/>
+			<CoverType name="Коврики в багажник"/>
+			<CoverType name="3D коврики"/>
+			<CoverType name="5D коврики"/>
+		</AccessoryType>
+		<AccessoryType name="Чехлы и накидки">
+			<Brand file="accessories/mat_brand.xml"/>
+			<Material name="Алькантара"/>
+			<Material name="Брезентовая ткань"/>
+			<Material name="Велюр"/>
+			<Material name="Жаккард"/>
+			<Material name="Кожа"/>
+			<Material name="Лён"/>
+			<Material name="Мех"/>
+			<Material name="Объёмная сетчатая ткань"/>
+			<Material name="Полиэстер"/>
+			<Material name="Хлопок"/>
+			<Material name="Эко-хлопок"/>
+			<Material name="Экокожа"/>
+			<MatType name="Чехол на сиденье"/>
+			<MatType name="Накидка на сиденье"/>
+			<MatType name="Чехол на подлокотник"/>
+			<MatType name="Защита на спинку сиденья"/>
+			<MatType name="Накидка на сиденье с подогревом"/>
+			<MatType name="Чехол на подголовник"/>
+			<MatType name="Накидка на детское автокресло"/>
+			<MatType name="Накидка на двери автомобиля"/>
+		</AccessoryType>
+		<AccessoryType name="Ключи и брелоки" />
+		<AccessoryType name="Шторки" />
+		<AccessoryType name="Сумки и органайзеры" />
+		<AccessoryType name="Оплётка на руль" />
+		<AccessoryType name="Подлокотники" />
+		<AccessoryType name="Держатели для телефона" />
+		<AccessoryType name="Ручки КПП" />
+		<AccessoryType name="Автохолодильники" />
+		<AccessoryType name="Тахографы"/>
+		<AccessoryType name="Ароматизаторы"/>
+		<AccessoryType name="Шумо- и виброизоляция"/>
+		<AccessoryType name="Тонировка"/>
+		<AccessoryType name="Другое" />
+	</ProductType>
+	<ProductType name="Для колёс">
+		<AccessoryType name="Болты и крепления" />
+		<AccessoryType name="Датчики давления" />
+		<AccessoryType name="Центровочные кольца и проставки для дисков" />
+		<AccessoryType name="Цепи противоскольжения" />
+	</ProductType>
+	<ProductType name="Для мото- и водного транспорта"/>
+	<ProductType name="Отопительное оборудование">
+		<AccessoryType name="Автономные отопители">
+			<Brand file="accessories/otopitel_brand.xml"/>
+			<FuelType name="Бензин"/>
+			<FuelType name="Дизель"/>
+			<Voltage name="12"/>
+			<Voltage name="24"/>
+			<Voltage name="220"/>
+		</AccessoryType>
+		<AccessoryType name="Автономные подогреватели">
+			<Brand file="accessories/heater_brand.xml"/>
+			<FuelType name="Бензин"/>
+			<FuelType name="Дизель"/>
+			<Voltage name="12"/>
+			<Voltage name="24"/>
+			<Voltage name="220"/>
+			<SuitableFor name="Легковой автомобиль"/>
+			<SuitableFor name="Внедорожник"/>
+			<SuitableFor name="Грузовой автомобиль"/>
+			<SuitableFor name="Дизельгенератор"/>
+			<SuitableFor name="Автобус"/>
+			<SuitableFor name="Экскаватор"/>
+			<SuitableFor name="Погрузчик"/>
+			<SuitableFor name="Кран"/>
+			<SuitableFor name="Катер/Яхта"/>
+			<SuitableFor name="Кемпер/Автодом"/>
+		</AccessoryType>
+		<AccessoryType name="Кондиционеры и рефрижераторы"/>
+		<AccessoryType name="Запчасти и комплектующие"/>
+		<AccessoryType name="Другое"/>
+	</ProductType>
+	<ProductType name="Набор автомобилиста">
+		<AccessoryType name="Троссы и лебёдки" />
+		<AccessoryType name="Зарядные устройства" />
+		<AccessoryType name="Компрессоры, насосы и манометры" />
+		<AccessoryType name="Канистры и воронки" />
+		<AccessoryType name="Готовый комплект автомобилиста" />
+		<AccessoryType name="Знак аварийной остановки" />
+		<AccessoryType name="Домкраты" />
+		<AccessoryType name="Аптечки" />
+		<AccessoryType name="Огнетушители" />
+		<AccessoryType name="Алкотестеры" />
+		<AccessoryType name="Светоотражающие жилеты" />
+	</ProductType>
+	<ProductType name="Уход">
+		<AccessoryType name="Чехлы-тенты" />
+		<AccessoryType name="Мойки высокого давления" />
+		<AccessoryType name="Автопылесосы" />
+		<AccessoryType name="Щётки и скребки" />
+	</ProductType>
+</Root>

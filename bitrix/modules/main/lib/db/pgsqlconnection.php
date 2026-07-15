@@ -7,6 +7,10 @@ use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ORM\Fields\ScalarField;
 use Bitrix\Main\ORM\Fields\IntegerField;
 
+/**
+ * @method \PgSql\Connection getResource()
+ * @property \PgSql\Connection $resource
+ */
 class PgsqlConnection extends Connection
 {
 	protected int $transactionLevel = 0;
@@ -46,20 +50,26 @@ class PgsqlConnection extends Connection
 		}
 
 		set_error_handler([$this, 'connectionErrorHandler']);
-		if ($this->options & self::PERSISTENT)
+		try
 		{
-			$connection = @pg_pconnect($connectionString);
+			if ($this->isPersistent())
+			{
+				$connection = @pg_pconnect($connectionString);
+			}
+			else
+			{
+				$connection = @pg_connect($connectionString);
+			}
 		}
-		else
+		finally
 		{
-			$connection = @pg_connect($connectionString);
+			restore_error_handler();
 		}
-		restore_error_handler();
 
 		if (!$connection)
 		{
 			throw new ConnectionException(
-				'Pgsql connect error ['.$this->host.']',
+				'Pgsql connect error [' . $this->host . ']',
 				error_get_last()['message']
 			);
 		}
@@ -67,6 +77,7 @@ class PgsqlConnection extends Connection
 		$this->resource = $connection;
 		$this->isConnected = true;
 
+		$this->configureErrorVerbosity();
 		$this->afterConnected();
 	}
 
@@ -102,7 +113,14 @@ class PgsqlConnection extends Connection
 
 		$trackerQuery?->startQuery($sql, $binds);
 
+		// Handle E_WARNING
+		set_error_handler(function () {
+			// noop
+		});
+
 		$result = pg_query($this->resource, $sql);
+
+		restore_error_handler();
 
 		$trackerQuery?->finishQuery();
 
@@ -110,7 +128,7 @@ class PgsqlConnection extends Connection
 
 		if (!$result)
 		{
-			throw new SqlQueryException('Pgsql query error', $this->getErrorMessage(), $sql);
+			throw $this->createQueryException($this->getErrorCode(), $this->getErrorMessage(), $sql);
 		}
 
 		return $result;
@@ -130,7 +148,7 @@ class PgsqlConnection extends Connection
 	public function add($tableName, array $data, $identity = "ID")
 	{
 		$insert = $this->getSqlHelper()->prepareInsert($tableName, $data);
-		if(
+		if (
 			$identity !== null
 			&& (
 				!isset($data[$identity])
@@ -138,13 +156,13 @@ class PgsqlConnection extends Connection
 			)
 		)
 		{
-			$sql = "INSERT INTO ".$tableName."(".$insert[0].") VALUES (".$insert[1].") RETURNING ".$identity;
+			$sql = "INSERT INTO " . $tableName . "(" . $insert[0] . ") VALUES (" . $insert[1] . ") RETURNING " . $identity;
 			$row = $this->query($sql)->fetch();
 			return intval(array_shift($row));
 		}
 		else
 		{
-			$sql = "INSERT INTO ".$tableName."(".$insert[0].") VALUES (".$insert[1].")";
+			$sql = "INSERT INTO " . $tableName . "(" . $insert[0] . ") VALUES (" . $insert[1] . ")";
 			$this->query($sql);
 			return $data[$identity] ?? null;
 		}
@@ -182,11 +200,12 @@ class PgsqlConnection extends Connection
 			SELECT tablename
 			FROM  pg_tables
 			WHERE schemaname = 'public'
-			AND tablename  = '".$this->getSqlHelper()->forSql($tableName)."'
+			AND tablename  = '" . $this->getSqlHelper()->forSql($tableName) . "'
 		");
 		$row = $result->fetch();
 		return is_array($row);
 	}
+
 	/**
 	 * @inheritDoc
 	 */
@@ -194,6 +213,7 @@ class PgsqlConnection extends Connection
 	{
 		return $this->getIndexName($tableName, $columns) !== null;
 	}
+
 	/**
 	 * @inheritDoc
 	 */
@@ -209,11 +229,11 @@ class PgsqlConnection extends Connection
 			SELECT a.attnum, a.attname
 			FROM pg_class t
 			LEFT JOIN pg_attribute a ON a.attrelid = t.oid
-			WHERE t.relname = '".$this->getSqlHelper()->forSql($tableName)."'
+			WHERE t.relname = '" . $this->getSqlHelper()->forSql($tableName) . "'
 		");
 		while ($a = $r->fetch())
 		{
-			if ($a['ATTNUM']> 0)
+			if ($a['ATTNUM'] > 0)
 			{
 				$tableColumns[$a['ATTNUM']] = $a['ATTNAME'];
 			}
@@ -226,7 +246,7 @@ class PgsqlConnection extends Connection
 			AND pg_class.oid IN (
 				SELECT indexrelid
 				FROM pg_index, pg_class
-				WHERE pg_class.relname = '".$this->getSqlHelper()->forSql($tableName)."'
+				WHERE pg_class.relname = '" . $this->getSqlHelper()->forSql($tableName) . "'
 				AND pg_class.oid = pg_index.indrelid
 			)
 		");
@@ -237,7 +257,7 @@ class PgsqlConnection extends Connection
 			if ($a['FULL_TEXT'])
 			{
 				$match = [];
-				if (preg_match_all('/,\s*([a-z0-9_]+)/i', $a['FULL_TEXT'], $match))
+				if (preg_match_all('/,\s*\(?([a-z0-9_]+)(?:\)::text)?/i', $a['FULL_TEXT'], $match))
 				{
 					foreach ($match[1] as $i => $colName)
 					{
@@ -284,6 +304,41 @@ class PgsqlConnection extends Connection
 		return null;
 	}
 
+	public function getTableFullTextFields($tableName)
+	{
+		$sqlHelper = $this->getSqlHelper();
+		$fullTextColumns = [];
+
+		$sql = "
+			SELECT relname, indkey, pg_get_expr(pg_index.indexprs, pg_index.indrelid) full_text
+			FROM pg_class, pg_index
+			WHERE pg_class.oid = pg_index.indexrelid
+			AND pg_class.oid IN (
+				SELECT indexrelid
+				FROM pg_index, pg_class
+				WHERE pg_class.relname = '" . $sqlHelper->forSql(mb_strtolower($tableName)) . "'
+				AND pg_class.oid = pg_index.indrelid
+			)
+		";
+		$res = $this->query($sql);
+		while ($row = $res->fetch())
+		{
+			if ($row['FULL_TEXT'])
+			{
+				$match = [];
+				if (preg_match_all('/,\s*\(?([a-z0-9_]+)(?:\)::text)?/i', $row['FULL_TEXT'], $match))
+				{
+					foreach ($match[1] as $i => $colName)
+					{
+						$fullTextColumns[mb_strtoupper($colName)] = true;
+					}
+				}
+			}
+		}
+
+		return $fullTextColumns;
+	}
+
 	/**
 	 * @inheritDoc
 	 */
@@ -294,6 +349,9 @@ class PgsqlConnection extends Connection
 			$this->connectInternal();
 
 			$sqlHelper = $this->getSqlHelper();
+
+			$fullTextColumns = $this->getTableFullTextFields($tableName);
+
 			$query = $this->query("
 				SELECT
 					column_name,
@@ -315,12 +373,17 @@ class PgsqlConnection extends Connection
 				$fieldName = mb_strtoupper($fieldInfo['COLUMN_NAME']);
 				$fieldType = $fieldInfo['DATA_TYPE'];
 				$field = $sqlHelper->getFieldByColumnType($fieldName, $fieldType);
-				if (
-					$fieldInfo['CHARACTER_MAXIMUM_LENGTH']
-					&& is_a($field, '\Bitrix\Main\ORM\Fields\StringField')
-				)
+				if (is_a($field, '\Bitrix\Main\ORM\Fields\StringField'))
 				{
-					$field->configureSize($fieldInfo['CHARACTER_MAXIMUM_LENGTH']);
+					if ($fieldInfo['CHARACTER_MAXIMUM_LENGTH'])
+					{
+						$field->configureSize($fieldInfo['CHARACTER_MAXIMUM_LENGTH']);
+					}
+
+					if (array_key_exists($fieldName, $fullTextColumns))
+					{
+						$field->configureFulltext(true);
+					}
 				}
 
 				$this->tableColumnsCache[$tableName][$fieldName] = $field;
@@ -333,10 +396,10 @@ class PgsqlConnection extends Connection
 	/**
 	 * @inheritDoc
 	 */
-	public function createTable($tableName, $fields, $primary = array(), $autoincrement = array())
+	public function createTable($tableName, $fields, $primary = [], $autoincrement = [])
 	{
-		$sql = 'CREATE TABLE IF NOT EXISTS '.$this->getSqlHelper()->quote($tableName).' (';
-		$sqlFields = array();
+		$sql = 'CREATE TABLE IF NOT EXISTS ' . $this->getSqlHelper()->quote($tableName) . ' (';
+		$sqlFields = [];
 
 		foreach ($fields as $columnName => $field)
 		{
@@ -372,8 +435,7 @@ class PgsqlConnection extends Connection
 			}
 			$sqlFields[] = $this->getSqlHelper()->quote($realColumnName)
 				. ' ' . $type
-				. ($field->isNullable() ? '' : ' NOT NULL')
-			;
+				. ($field->isNullable() ? '' : ' NOT NULL');
 		}
 
 		$sql .= join(', ', $sqlFields);
@@ -386,13 +448,12 @@ class PgsqlConnection extends Connection
 				$primaryColumn = $this->getSqlHelper()->quote($realColumnName);
 			}
 
-			$sql .= ', PRIMARY KEY('.join(', ', $primary).')';
+			$sql .= ', PRIMARY KEY(' . join(', ', $primary) . ')';
 		}
 
 		$sql .= ')';
 
 		$this->query($sql);
-
 	}
 
 	/**
@@ -402,7 +463,7 @@ class PgsqlConnection extends Connection
 	{
 		if (!is_array($columnNames))
 		{
-			$columnNames = array($columnNames);
+			$columnNames = [$columnNames];
 		}
 
 		$sqlHelper = $this->getSqlHelper();
@@ -432,7 +493,7 @@ class PgsqlConnection extends Connection
 	 */
 	public function renameTable($currentName, $newName)
 	{
-		$this->query('ALTER TABLE '.$this->getSqlHelper()->quote($currentName).' RENAME TO '.$this->getSqlHelper()->quote($newName));
+		$this->query('ALTER TABLE ' . $this->getSqlHelper()->quote($currentName) . ' RENAME TO ' . $this->getSqlHelper()->quote($newName));
 	}
 
 	/**
@@ -440,7 +501,7 @@ class PgsqlConnection extends Connection
 	 */
 	public function dropTable($tableName)
 	{
-		$this->query('DROP TABLE '.$this->getSqlHelper()->quote($tableName));
+		$this->query('DROP TABLE ' . $this->getSqlHelper()->quote($tableName));
 	}
 
 	/**
@@ -561,7 +622,7 @@ class PgsqlConnection extends Connection
 			$this->version = $ar[1];
 		}
 
-		return array($this->version, null);
+		return [$this->version, null];
 	}
 
 	/**
@@ -570,5 +631,34 @@ class PgsqlConnection extends Connection
 	public function getErrorMessage()
 	{
 		return pg_last_error($this->resource);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getErrorCode()
+	{
+		if (preg_match("/ERROR:\\s*([^:]+):/i", $this->getErrorMessage(), $matches))
+		{
+			return $matches[1];
+		}
+		return '';
+	}
+
+	protected function configureErrorVerbosity()
+	{
+		pg_set_error_verbosity($this->resource, PGSQL_ERRORS_VERBOSE);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function createQueryException($code = '', $databaseMessage = '', $query = '')
+	{
+		if ($code == '23505')
+		{
+			return new DuplicateEntryException('Pgsql query error', $databaseMessage, $query);
+		}
+		return new SqlQueryException('Pgsql query error', $databaseMessage, $query);
 	}
 }

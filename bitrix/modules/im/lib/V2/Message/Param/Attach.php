@@ -30,10 +30,6 @@ class Attach extends Param
 		elseif (!empty($value))
 		{
 			$this->attach = \CIMMessageParamAttach::GetAttachByJson($value);
-			if ($this->attach === null)
-			{
-				$this->isValid = false;
-			}
 		}
 
 		if (isset($this->attach))
@@ -57,30 +53,12 @@ class Attach extends Param
 	 * @param mixed $value
 	 * @return mixed
 	 */
-	public function loadValueFilter($value)
-	{
-		if (!empty($value))
-		{
-			$value = \Bitrix\Im\Text::decodeEmoji($value);
-		}
-		else
-		{
-			$value = null;
-		}
-
-		return $value;
-	}
-
-	/**
-	 * @param mixed $value
-	 * @return mixed
-	 */
 	public function saveValueFilter($value)
 	{
 		$value = '';
 		if (!empty($this->value['DESCRIPTION']))
 		{
-			$value = \Bitrix\Im\Text::encodeEmoji($this->value['DESCRIPTION']);
+			$value = parent::saveValueFilter($this->value['DESCRIPTION']);
 		}
 
 		return $value;

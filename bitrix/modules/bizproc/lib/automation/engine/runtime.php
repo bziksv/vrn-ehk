@@ -2,6 +2,7 @@
 
 namespace Bitrix\Bizproc\Automation\Engine;
 
+use Bitrix\Main;
 use Bitrix\Bizproc;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowInstanceTable;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowStateTable;
@@ -19,6 +20,7 @@ class Runtime
 
 	protected $target;
 	protected static $startedTemplates = [];
+	private static array $clearMap = [];
 
 	public function setTarget(BaseTarget $target)
 	{
@@ -54,8 +56,25 @@ class Runtime
 				'=TEMPLATE.DOCUMENT_TYPE' => $documentType[2],
 			],
 		])->fetchAll();
+		$workflowInstanceIds = array_column($ids, 'ID');
 
-		return array_column($ids, 'ID');
+		$runtime = \CBPRuntime::getRuntime();
+		$workflows = $runtime->getWorkflows();
+		$workflowsRuntimeIds = [];
+		foreach ($workflows as $id => $workflow)
+		{
+			$eventType = $workflow->getRootActivity()->getDocumentEventType();
+			if (
+				($eventType === \CBPDocumentEventType::Automation || $eventType === \CBPDocumentEventType::Debug)
+				&& \CBPHelper::isEqualDocument($workflow->getDocumentType(), $documentType)
+				&& \CBPHelper::isEqualDocument($workflow->getDocumentId(), $this->getTarget()->getComplexDocumentId())
+			)
+			{
+				$workflowsRuntimeIds[] = $id;
+			}
+		}
+
+		return array_merge($workflowInstanceIds, $workflowsRuntimeIds);
 	}
 
 	public function getCurrentWorkflowId(): ?string
@@ -163,7 +182,11 @@ class Runtime
 				if ($trigger)
 				{
 					$this->writeTriggerTracking($workflowId, $trigger);
-					$this->writeTriggerAnalytics($documentComplexId, $trigger);
+				}
+
+				if ($useForcedTracking && !$isDebug)
+				{
+					$this->clearOldTrack($documentComplexId, $template->getId(), $workflowId);
 				}
 			}
 		}
@@ -186,15 +209,6 @@ class Runtime
 		);
 	}
 
-	protected function writeTriggerAnalytics(array $documentId, array $trigger)
-	{
-		$analyticsService = \CBPRuntime::getRuntime(true)->getAnalyticsService();
-		if ($analyticsService->isEnabled())
-		{
-			$analyticsService->write($documentId, 'trigger_run', $trigger['CODE']);
-		}
-	}
-
 	protected function stopTemplates()
 	{
 		$errors = [];
@@ -215,7 +229,6 @@ class Runtime
 	/**
 	 * Document creation handler.
 	 *
-	 * @return void
 	 * @throws InvalidOperationException
 	 */
 	public function onDocumentAdd(?Context $context = null)
@@ -242,13 +255,12 @@ class Runtime
 			$this->writeCategoryTracking($preGeneratedWorkflowId);
 		}
 
-		$this->runDocumentStatus($preGeneratedWorkflowId);
+		return $this->runDocumentStatus($preGeneratedWorkflowId);
 	}
 
 	/**
 	 * Document status changed handler.
 	 *
-	 * @return void
 	 * @throws InvalidOperationException
 	 */
 	public function onDocumentStatusChanged()
@@ -274,7 +286,7 @@ class Runtime
 			}
 		}
 
-		$this->runDocumentStatus($preGeneratedWorkflowId);
+		return $this->runDocumentStatus($preGeneratedWorkflowId);
 	}
 
 	public function runDocumentStatus(string $preGeneratedWorkflowId = null): ?string
@@ -416,5 +428,52 @@ class Runtime
 		}
 
 		return $use;
+	}
+
+	private function clearOldTrack(array $documentId, int $templateId, $currentWorkflowId): void
+	{
+		$rowList = WorkflowStateTable::getList([
+			'select' => ['ID'],
+			'filter' => [
+				'!=ID' => $currentWorkflowId,
+				'=MODULE_ID' => $documentId[0],
+				'=ENTITY' => $documentId[1],
+				'=DOCUMENT_ID' => $documentId[2],
+				'=WORKFLOW_TEMPLATE_ID' => $templateId,
+			],
+			'limit' => 10,
+		])->fetchAll();
+
+		if ($rowList)
+		{
+			foreach ($rowList as $row)
+			{
+				static::$clearMap[$row['ID']] = true;
+			}
+			$this->setClearJob();
+		}
+	}
+
+	private function setClearJob()
+	{
+		static $inserted = false;
+
+		if (!$inserted)
+		{
+			Main\Application::getInstance()->addBackgroundJob(
+				\Closure::fromCallable([$this, 'doBackgroundJob']),
+				[],
+				Main\Application::JOB_PRIORITY_LOW - 10
+			);
+			$inserted = true;
+		}
+	}
+
+	private function doBackgroundJob()
+	{
+		foreach (array_keys(static::$clearMap) as $id)
+		{
+			\CBPTrackingService::deleteByWorkflow($id);
+		}
 	}
 }

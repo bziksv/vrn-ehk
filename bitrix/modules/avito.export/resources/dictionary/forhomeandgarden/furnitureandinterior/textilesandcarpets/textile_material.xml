@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TextileMaterialValues>
+	<TextileMaterial>Атлас</TextileMaterial>
+	<TextileMaterial>Бамбук</TextileMaterial>
+	<TextileMaterial>Батист</TextileMaterial>
+	<TextileMaterial>Бязь</TextileMaterial>
+	<TextileMaterial>Вискоза</TextileMaterial>
+	<TextileMaterial>Габардин</TextileMaterial>
+	<TextileMaterial>Жаккард</TextileMaterial>
+	<TextileMaterial>Креп</TextileMaterial>
+	<TextileMaterial>Кулирка</TextileMaterial>
+	<TextileMaterial>Лён</TextileMaterial>
+	<TextileMaterial>Махровая ткань</TextileMaterial>
+	<TextileMaterial>Микрофибра</TextileMaterial>
+	<TextileMaterial>Муслин</TextileMaterial>
+	<TextileMaterial>Перкаль</TextileMaterial>
+	<TextileMaterial>Полисатин</TextileMaterial>
+	<TextileMaterial>Поплин</TextileMaterial>
+	<TextileMaterial>Ранфорс</TextileMaterial>
+	<TextileMaterial>Сатин</TextileMaterial>
+	<TextileMaterial>Сатин-жаккард</TextileMaterial>
+	<TextileMaterial>Страйп-сатин</TextileMaterial>
+	<TextileMaterial>Ситец</TextileMaterial>
+	<TextileMaterial>Твил</TextileMaterial>
+	<TextileMaterial>Тенсель</TextileMaterial>
+	<TextileMaterial>Трикотаж</TextileMaterial>
+	<TextileMaterial>Фланель</TextileMaterial>
+	<TextileMaterial>Хлопок</TextileMaterial>
+	<TextileMaterial>Шелк</TextileMaterial>
+</TextileMaterialValues>

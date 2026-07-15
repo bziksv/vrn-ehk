@@ -1,0 +1,6 @@
+<root>
+	<BusinessSubType name="Интернет-ресурсы"/>
+	<BusinessSubType name="Майнинг"/>
+	<BusinessSubType name="Разработка"/>
+	<BusinessSubType name="Сайты и приложения"/>
+</root>

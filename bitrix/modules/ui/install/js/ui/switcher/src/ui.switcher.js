@@ -1,18 +1,30 @@
-import {Type, Tag, Loc, Dom, bind, onCustomEvent} from 'main.core';
+import { bind, Dom, Loc, onCustomEvent, Tag, Type } from 'main.core';
+import { BaseEvent } from 'main.core.events';
 import 'ui.design-tokens';
+import 'ui.design-tokens.air';
 
+import { AirSwitcherStyle } from './air-switcher-style';
 import './css/style.css';
+import './css/air.css';
 
+/*
+* extraLarge, large, extraExtraSmall options supported only by the air button
+* */
 export const SwitcherSize = Object.freeze({
+	extraLarge: 'extra-large',
+	large: 'large',
 	medium: 'medium',
 	small: 'small',
 	extraSmall: 'extra-small',
+	extraExtraSmall: 'extra-extra-small',
 });
 
 export const SwitcherColor = Object.freeze({
 	primary: 'primary',
 	green: 'green',
 });
+
+export { AirSwitcherStyle } from './air-switcher-style';
 
 export type SwitcherOptions = {
 	attributeName: string;
@@ -24,18 +36,33 @@ export type SwitcherOptions = {
 	size: string;
 	color: string;
 	disabled: boolean;
+	useAirDesign: boolean;
+	style: AirSwitcherStyle;
+	showStateTitle?: boolean;
 }
 
-export class Switcher {
+export class Switcher
+{
 	#classNameSize = {
+		[SwitcherSize.extraExtraSmall]: 'ui-switcher-size-xss',
 		[SwitcherSize.extraSmall]: 'ui-switcher-size-xs',
 		[SwitcherSize.small]: 'ui-switcher-size-sm',
-		[SwitcherSize.medium]: '',
-	}
+		[SwitcherSize.medium]: 'ui-switcher-size-md',
+		[SwitcherSize.large]: 'ui-switcher-size-lg',
+		[SwitcherSize.extraLarge]: 'ui-switcher-size-xl',
+	};
+
 	#classNameColor = {
 		[SwitcherColor.primary]: '',
 		[SwitcherColor.green]: 'ui-switcher-color-green',
-	}
+	};
+
+	#classNameStyle = {
+		[AirSwitcherStyle.SOLID]: '--style-solid',
+		[AirSwitcherStyle.TINTED]: '--style-tinted',
+	};
+
+	#useAirDesign: boolean = false;
 
 	node: HTMLElement | null = null;
 	checked: boolean = false;
@@ -47,10 +74,12 @@ export class Switcher {
 	#classNameOff: string = 'ui-switcher-off';
 	#classNameLock: string = 'ui-switcher-lock';
 	#attributeName: string = 'data-switcher';
+	#showStateTitle: boolean = true;
 
 	static #attributeInitName: string = 'data-switcher-init';
 	static list = [];
 	static className = 'ui-switcher';
+	static classNameOff = 'ui-switcher-off';
 
 	/**
 	 * Switcher.
@@ -77,12 +106,12 @@ export class Switcher {
 	static initByClassName(): void
 	{
 		const nodes = document.getElementsByClassName(Switcher.className);
-		Array.from(nodes).forEach(function (node) {
+		Array.from(nodes).forEach(function(node) {
 			if (node.getAttribute(Switcher.#attributeInitName))
 			{
 				return;
 			}
-			new Switcher({node: node});
+			new Switcher({ node: node });
 		});
 	}
 
@@ -97,6 +126,7 @@ export class Switcher {
 		this.handlers = Type.isPlainObject(options.handlers) ? options.handlers : {};
 		this.#inputName = Type.isString(options.inputName) ? options.inputName : '';
 		this.#loading = false;
+		this.#showStateTitle = Type.isBoolean(options.showStateTitle) ? options.showStateTitle : true;
 		this.events = {
 			toggled: 'toggled',
 			checked: 'checked',
@@ -129,14 +159,20 @@ export class Switcher {
 			}
 
 			this.checked = Boolean(data.checked);
+
 			this.#inputName = data.inputName;
-			if(Type.isString(data.color) && Object.values(SwitcherColor).includes(data.color))
+			if (Type.isString(data.color) && Object.values(SwitcherColor).includes(data.color))
 			{
 				options.color = data.color;
 			}
-			if(Type.isString(data.size) && Object.values(SwitcherSize).includes(data.size))
+			if (Type.isString(data.size) && Object.values(SwitcherSize).includes(data.size))
 			{
 				options.size = data.size;
+			}
+
+			if (Dom.hasClass(this.node, '--air'))
+			{
+				options.useAirDesign = true;
 			}
 		}
 		else
@@ -144,11 +180,20 @@ export class Switcher {
 			this.node = document.createElement('span');
 		}
 
+		this.#useAirDesign = options.useAirDesign === true;
+
+		if (this.#useAirDesign)
+		{
+			this.setAirDesign();
+			Dom.addClass(this.node, this.#classNameStyle[options.style] ?? '');
+		}
+
 		if (this.#classNameSize[options.size])
 		{
 			Dom.addClass(this.node, this.#classNameSize[options.size]);
 		}
-		if (this.#classNameColor[options.color])
+
+		if (this.#classNameColor[options.color] && this.#useAirDesign === false)
 		{
 			Dom.addClass(this.node, this.#classNameColor[options.color]);
 		}
@@ -183,10 +228,25 @@ export class Switcher {
 		this.node.setAttribute(Switcher.#attributeInitName, 'y');
 
 		Dom.addClass(this.node, Switcher.className);
-		this.node.innerHTML =
-			'<span class="ui-switcher-cursor"></span>\n' +
-			'<span class="ui-switcher-enabled">' + Loc.getMessage('UI_SWITCHER_ON') + '</span>\n' +
-			'<span class="ui-switcher-disabled">' + Loc.getMessage('UI_SWITCHER_OFF') + '</span>\n';
+
+		if (this.#useAirDesign)
+		{
+			this.setAirDesign();
+		}
+
+		const element = Tag.render`
+			<div>
+				<span class="ui-switcher-cursor"></span>
+				<span class="ui-switcher-enabled">
+					${this.#showStateTitle ? Loc.getMessage('UI_SWITCHER_ON') : ''}
+				</span>
+				<span class="ui-switcher-disabled">
+					${this.#showStateTitle ? Loc.getMessage('UI_SWITCHER_OFF') : ''}
+				</span>
+			</div>
+		`;
+
+		this.node.innerHTML = element.innerHTML;
 
 		if (this.#inputName)
 		{
@@ -200,7 +260,7 @@ export class Switcher {
 		bind(this.node, 'click', this.toggle.bind(this));
 	}
 
-	disable(disabled: boolean, fireEvents: boolean): void
+	disable(disabled: boolean, fireEvents: boolean = true, event: BaseEvent = {}): void
 	{
 		if (this.isLoading())
 		{
@@ -214,16 +274,16 @@ export class Switcher {
 		if (disabled)
 		{
 			Dom.addClass(this.node, this.#classNameLock);
-			fireEvents ? this.#fireEvent(this.events.lock) : null;
+			fireEvents ? this.#fireEvent(this.events.lock, event) : null;
 		}
 		else
 		{
 			Dom.removeClass(this.node, this.#classNameLock);
-			fireEvents ? this.#fireEvent(this.events.unlock) : null;
+			fireEvents ? this.#fireEvent(this.events.unlock, event) : null;
 		}
 	}
 
-	check(checked: boolean, fireEvents: boolean): void
+	check(checked: boolean, fireEvents: boolean = true, event: BaseEvent = {}): void
 	{
 		if (this.isLoading())
 		{
@@ -241,17 +301,17 @@ export class Switcher {
 		if (this.checked)
 		{
 			Dom.removeClass(this.node, this.#classNameOff);
-			fireEvents ? this.#fireEvent(this.events.unchecked) : null;
+			fireEvents ? this.#fireEvent(this.events.unchecked, event) : null;
 		}
 		else
 		{
 			Dom.addClass(this.node, this.#classNameOff);
-			fireEvents ? this.#fireEvent(this.events.checked) : null;
+			fireEvents ? this.#fireEvent(this.events.checked, event) : null;
 		}
 
 		if (fireEvents)
 		{
-			this.#fireEvent(this.events.toggled)
+			this.#fireEvent(this.events.toggled, event);
 		}
 	}
 
@@ -265,14 +325,14 @@ export class Switcher {
 		return this.checked;
 	}
 
-	toggle(): void
+	toggle(event: BaseEvent): void
 	{
 		if (this.isDisabled())
 		{
 			return;
 		}
 
-		this.check(!this.isChecked());
+		this.check(!this.isChecked(), true, event);
 	}
 
 	setLoading(mode: boolean): void
@@ -296,7 +356,7 @@ export class Switcher {
 					>
 					</circle>
 				</svg>
-			`
+			`;
 			Dom.append(svg, cursor);
 		}
 		else
@@ -310,12 +370,24 @@ export class Switcher {
 		return this.#loading;
 	}
 
-	#fireEvent(eventName: string): void
+	setAirDesign(flag: boolean = true): void
+	{
+		if (flag)
+		{
+			Dom.addClass(this.node, '--air');
+		}
+		else
+		{
+			Dom.removeClass(this.node, '--air');
+		}
+	}
+
+	#fireEvent(eventName: string, event: BaseEvent): void
 	{
 		onCustomEvent(this, eventName);
 		if (this.handlers[eventName])
 		{
-			this.handlers[eventName].call(this);
+			this.handlers[eventName].call(this, event);
 		}
 	}
 

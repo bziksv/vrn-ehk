@@ -13,7 +13,6 @@ class CDatabaseMysql extends CAllDatabase
 {
 	/** @var mysqli */
 	var $db_Conn;
-	public $version;
 	public $type = "MYSQL";
 	public
 		$escL = '`',
@@ -25,10 +24,7 @@ class CDatabaseMysql extends CAllDatabase
 	 */
 	public function Disconnect()
 	{
-		if ($this->connection)
-		{
-			$this->connection->disconnect();
-		}
+		$this->connection?->disconnect();
 	}
 
 	public static function CurrentTimeFunction()
@@ -419,7 +415,7 @@ class CDatabaseMysql extends CAllDatabase
 		}
 		else
 		{
-			$arInsert = $this->PrepareInsert($tablename, $arFields, $strFileDir);
+			$arInsert = $this->PrepareInsert($tablename, $arFields);
 			$strSql =
 				"INSERT INTO " . $tablename . "(" . $arInsert[0] . ") " .
 				"VALUES(" . $arInsert[1] . ")";
@@ -472,55 +468,19 @@ class CDatabaseMysql extends CAllDatabase
 		return $this->Query('CREATE ' . $indexType . ' INDEX ' . $this->quote($indexName) . ' ON ' . $this->quote($tableName) . '(' . implode(',', $columns) . ')', true);
 	}
 
-	protected function ConnectInternal()
-	{
-		$dbHost = $this->DBHost;
-		$dbPort = null;
-		if (($pos = mb_strpos($dbHost, ":")) !== false)
-		{
-			$dbPort = intval(mb_substr($dbHost, $pos + 1));
-			$dbHost = mb_substr($dbHost, 0, $pos);
-		}
-
-		$persistentPrefix = (DBPersistent && !$this->bNodeConnection ? "p:" : "");
-
-		$this->db_Conn = mysqli_connect($persistentPrefix . $dbHost, $this->DBLogin, $this->DBPassword, $this->DBName, $dbPort);
-
-		if (!$this->db_Conn)
-		{
-			$error = "[" . mysqli_connect_errno() . "] " . mysqli_connect_error();
-			if ($this->debug)
-			{
-				echo "<br><font color=#ff0000>Error! mysqli_connect()</font><br>" . $error . "<br>";
-			}
-
-			SendError("Error! mysqli_connect()\n" . $error . "\n");
-
-			return false;
-		}
-
-		return true;
-	}
-
 	protected function QueryInternal($strSql)
 	{
-		// back to default before PHP 8.1
-		mysqli_report(MYSQLI_REPORT_OFF);
-
-		return mysqli_query($this->db_Conn, $strSql, MYSQLI_STORE_RESULT);
+		return mysqli_query($this->db_Conn, $strSql);
 	}
 
 	protected function GetError()
 	{
-		return "[" . mysqli_errno($this->db_Conn) . "] " . mysqli_error($this->db_Conn);
+		return "(" . $this->GetErrorCode() . ") " . mysqli_error($this->db_Conn);
 	}
 
-	/**
-	 * @deprecated Not used.
-	 */
-	protected function DisconnectInternal($resource)
+	protected function GetErrorCode()
 	{
-		mysqli_close($resource);
+		return mysqli_errno($this->db_Conn);
 	}
 
 	public function ForSqlLike($strValue, $iMaxLength = 0)

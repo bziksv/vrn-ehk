@@ -114,6 +114,29 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 					$langs[$code] = $lang['NAME'];
 				}
 			}
+
+			if (!isset($langs['by'], $langs['uz']))
+			{
+				Loc::loadMessages(Manager::getDocRoot() . '/bitrix/modules/landing/install/components/bitrix/landing.site_edit/class_notranslate.php');
+				$langsWithFake = [];
+				foreach ($langs as $lang => $langName)
+				{
+					$langsWithFake[$lang] = $langName;
+					if ($lang === 'ru')
+					{
+						if (!isset($langs['by']))
+						{
+							$langsWithFake['by'] = Loc::getMessage('LANDING_SITE_EDIT_BY_LANG');
+						}
+						if (!isset($langs['uz']))
+						{
+							$langsWithFake['uz'] = Loc::getMessage('LANDING_SITE_EDIT_UZ_LANG');
+						}
+					}
+				}
+				$langs = $langsWithFake;
+			}
+
 			return $langs;
 		}
 
@@ -170,7 +193,7 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 			$this->arResult['REGISTER'] = Register::getInstance();
 			$this->arResult['SITE_INCLUDES_SCRIPT'] = Cookies::isSiteIncludesScript($this->id);
 			$this->arResult['COOKIES_AGREEMENT'] = Cookies::getMainAgreement();
-			$this->arResult['SPECIAL_TYPE'] = Site\Type::getSiteTypeForms($this->arResult['SITE']['CODE']['CURRENT']);
+			$this->arResult['SPECIAL_TYPE'] = Site\Type::getSiteSpecialType($this->arResult['SITE']['CODE']['CURRENT']);
 			// ai
 			$this->arResult['AI_TEXT_AVAILABLE'] = Connector\Ai::isTextAvailable();
 			$this->arResult['AI_TEXT_ACTIVE'] = Connector\Ai::isTextActive();

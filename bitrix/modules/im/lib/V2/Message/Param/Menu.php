@@ -29,10 +29,6 @@ class Menu extends Param
 		elseif (!empty($value))
 		{
 			$this->menu = Im\Bot\ContextMenu::getByJson($value);
-			if ($this->menu === null)
-			{
-				$this->isValid = false;
-			}
 		}
 
 		if (isset($this->menu))
@@ -64,24 +60,6 @@ class Menu extends Param
 	public function saveValueFilter($value)
 	{
 		return '';
-	}
-
-	/**
-	 * @param mixed $value
-	 * @return mixed
-	 */
-	public function loadValueFilter($value)
-	{
-		if (!empty($value))
-		{
-			$value = Im\Text::decodeEmoji($value);
-		}
-		else
-		{
-			$value = null;
-		}
-
-		return $value;
 	}
 
 	/**

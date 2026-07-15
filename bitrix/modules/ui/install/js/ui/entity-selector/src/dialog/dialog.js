@@ -1,11 +1,14 @@
-import { Type, Text, Tag, Dom, ajax as Ajax, Cache, Loc, Runtime, Reflection } from 'main.core';
+// eslint-disable-next-line max-classes-per-file
+import { Type, Text, Tag, Dom, ajax as Ajax, Cache, Loc, Runtime, Reflection, type JsonObject } from 'main.core';
 import { EventEmitter, BaseEvent } from 'main.core.events';
 import { Popup } from 'main.popup';
 import { Loader } from 'main.loader';
+import type { EntityErrorOptions } from '../entity/entity-error-options';
 
 import Item from '../item/item';
 import Tab from './tabs/tab';
 import Entity from '../entity/entity';
+import EntityErrorCollection from '../entity/entity-error-collection';
 import TagSelector from '../tag-selector/tag-selector';
 import Navigation from './navigation';
 import SliderIntegration from './integration/slider-integration';
@@ -82,7 +85,8 @@ export default class Dialog extends EventEmitter
 	height: number = 420;
 
 	maxLabelWidth: number = 160;
-	minLabelWidth: number = 45;
+	minLabelWidth: number = 38;
+	alwaysShowLabels: boolean = false;
 
 	showAvatars: boolean = true;
 	compactView: boolean = false;
@@ -115,6 +119,7 @@ export default class Dialog extends EventEmitter
 	clearUnavailableItems: boolean = false;
 	overlappingObserver: MutationObserver = null;
 	offsetAnimation: boolean = true;
+	customData: JsonObject = Object.create(null);
 
 	static getById(id: string): ?Dialog
 	{
@@ -138,6 +143,7 @@ export default class Dialog extends EventEmitter
 		this.clearUnavailableItems = options.clearUnavailableItems === true;
 		this.compactView = options.compactView === true;
 		this.dropdownMode = Type.isBoolean(options.dropdownMode) ? options.dropdownMode : false;
+		this.alwaysShowLabels = Type.isBoolean(options.alwaysShowLabels) ? options.alwaysShowLabels : false;
 
 		if (Type.isArray(options.entities))
 		{
@@ -257,12 +263,13 @@ export default class Dialog extends EventEmitter
 
 	destroy(): void
 	{
-		if (this.destroying)
+		if (this.destroyed)
 		{
 			return;
 		}
 
-		this.destroying = true;
+		this.destroyed = true;
+
 		this.emit('onDestroy');
 
 		this.disconnectTabOverlapping();
@@ -281,6 +288,8 @@ export default class Dialog extends EventEmitter
 		}
 
 		Object.setPrototypeOf(this, null);
+
+		this.destroyed = true;
 	}
 
 	isOpen(): boolean
@@ -1471,12 +1480,55 @@ export default class Dialog extends EventEmitter
 		return this.undeselectedItems;
 	}
 
+	setCustomData(property: ?string | { [key: string]: any }, value?: any): void
+	{
+		if (Type.isNull(property))
+		{
+			this.customData = Object.create(null);
+		}
+		else if (Type.isPlainObject(property))
+		{
+			Object.entries(property).forEach((item) => {
+				const [currentKey, currentValue] = item;
+				this.setCustomData(currentKey, currentValue);
+			});
+		}
+		else if (Type.isString(property))
+		{
+			if (Type.isNull(value))
+			{
+				delete this.customData[property];
+			}
+			else if (!Type.isUndefined(value))
+			{
+				this.customData[property] = value;
+			}
+		}
+	}
+
+	getCustomData(property?: string): any
+	{
+		if (Type.isUndefined(property))
+		{
+			return this.customData;
+		}
+
+		if (Type.isStringFilled(property))
+		{
+			return this.customData[property];
+		}
+
+		return undefined;
+	}
+
 	/**
 	 * @private
 	 */
 	setOptions(dialogOptions: DialogOptions): void
 	{
 		const options = Type.isPlainObject(dialogOptions) ? dialogOptions : {};
+
+		this.setCustomData(options.customData);
 
 		if (Type.isArray(options.tabs))
 		{
@@ -1513,6 +1565,51 @@ export default class Dialog extends EventEmitter
 	getMinLabelWidth(): number
 	{
 		return this.minLabelWidth;
+	}
+
+	expandLabels(animate: boolean = true): void
+	{
+		const freeSpace = parseInt(this.getPopup().getPopupContainer().style.left, 10);
+		if (freeSpace > this.getMinLabelWidth())
+		{
+			Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
+			if (animate)
+			{
+				Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
+				Dom.style(this.getLabelsContainer(), 'max-width', `${Math.min(freeSpace, this.getMaxLabelWidth())}px`);
+				Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(() => {
+					Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
+					Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
+				}).catch(() => {
+					// fail silently
+				});
+			}
+			else
+			{
+				Dom.style(this.getLabelsContainer(), 'max-width', `${Math.min(freeSpace, this.getMaxLabelWidth())}px`);
+			}
+		}
+		else
+		{
+			Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
+		}
+	}
+
+	collapseLabels(animate: boolean = true): void
+	{
+		Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
+		Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
+		if (animate)
+		{
+			Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
+			Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(() => {
+				Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
+			}).catch(() => {
+				// fail silently
+			});
+		}
+
+		Dom.style(this.getLabelsContainer(), 'max-width', null);
 	}
 
 	getTagSelector(): ?TagSelector
@@ -1730,8 +1827,8 @@ export default class Dialog extends EventEmitter
 			return Tag.render`
 				<div
 					class="ui-selector-tab-labels"
-					onmouseenter="${this.handleLabelsMouseEnter.bind(this)}"
-					onmouseleave="${this.handleLabelsMouseLeave.bind(this)}"
+					onmouseenter="${this.alwaysShowLabels ? null : this.handleLabelsMouseEnter.bind(this)}"
+					onmouseleave="${this.alwaysShowLabels ? null : this.handleLabelsMouseLeave.bind(this)}"
 				></div>
 			`;
 		});
@@ -1838,6 +1935,11 @@ export default class Dialog extends EventEmitter
 		}
 
 		setTimeout(() => {
+			if (this.destroyed)
+			{
+				return;
+			}
+
 			if (this.isLoading())
 			{
 				this.showLoader();
@@ -1855,6 +1957,11 @@ export default class Dialog extends EventEmitter
 				}
 			})
 			.then((response) => {
+				if (this.destroyed)
+				{
+					return;
+				}
+
 				if (response && response.data && Type.isPlainObject(response.data.dialog))
 				{
 					this.loadState = LoadState.DONE;
@@ -1940,6 +2047,11 @@ export default class Dialog extends EventEmitter
 					if (this.shouldFocusOnFirst())
 					{
 						this.focusOnFirstNode();
+					}
+
+					if (Type.isArrayFilled(response.data.dialog.errors))
+					{
+						this.emitEntityErrors(response.data.dialog.errors);
 					}
 
 					this.emit('onLoad');
@@ -2049,6 +2161,8 @@ export default class Dialog extends EventEmitter
 
 		const query = this.getTagSelector().getTextBoxValue();
 		this.search(query);
+
+		this.adjustByTagSelector();
 	}
 
 	/**
@@ -2160,9 +2274,9 @@ export default class Dialog extends EventEmitter
 	/**
 	 * @internal
 	 */
-	handleItemDeselect(item: Item): void
+	handleItemDeselect(item: Item, animate: boolean = true): void
 	{
-		const shouldAnimate: boolean = this.isMultiple();
+		const shouldAnimate: boolean = animate && this.isMultiple();
 
 		this.selectedItems.delete(item);
 
@@ -2208,6 +2322,14 @@ export default class Dialog extends EventEmitter
 					Dom.addClass(this.getPopup().getPopupContainer(), 'ui-selector-popup-offset-animation');
 				});
 			});
+		}
+
+		if (this.alwaysShowLabels)
+		{
+			setTimeout(() => {
+				// We have to call the method after adjustPosition()
+				this.expandLabels(false);
+			}, 0);
 		}
 	}
 
@@ -2258,13 +2380,18 @@ export default class Dialog extends EventEmitter
 				if (left < this.getMinLabelWidth())
 				{
 					Dom.style(this.getPopup().getPopupContainer(), 'left', `${this.getMinLabelWidth()}px`);
+					this.collapseLabels(false);
+				}
+				else if (this.alwaysShowLabels)
+				{
+					this.expandLabels(false);
 				}
 			}
 		});
 
 		this.overlappingObserver.observe(this.getPopup().getPopupContainer(), {
 			attributes: true,
-			attributeFilter: ['style']
+			attributeFilter: ['style'],
 		});
 	}
 
@@ -2317,24 +2444,7 @@ export default class Dialog extends EventEmitter
 	 */
 	handleLabelsMouseEnter(): void
 	{
-		const rect = Dom.getRelativePosition(this.getLabelsContainer(), this.getPopup().getTargetContainer());
-		const freeSpace = rect.right;
-
-		if (freeSpace > this.getMinLabelWidth())
-		{
-			Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
-			Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
-
-			Dom.style(this.getLabelsContainer(), 'max-width', `${Math.min(freeSpace, this.getMaxLabelWidth())}px`);
-			Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(() => {
-				Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
-				Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
-			});
-		}
-		else
-		{
-			Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
-		}
+		this.expandLabels();
 	}
 
 	/**
@@ -2342,15 +2452,7 @@ export default class Dialog extends EventEmitter
 	 */
 	handleLabelsMouseLeave(): void
 	{
-		Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
-		Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
-		Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
-
-		Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(() => {
-			Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
-		});
-
-		Dom.style(this.getLabelsContainer(), 'max-width', null);
+		this.collapseLabels();
 	}
 
 	/**
@@ -2387,5 +2489,18 @@ export default class Dialog extends EventEmitter
 			recentItemsLimit: this.getRecentItemsLimit(),
 			clearUnavailableItems: this.shouldClearUnavailableItems(),
 		};
+	}
+
+	/** @internal */
+	emitEntityErrors(errorOptions: EntityErrorOptions[]): void
+	{
+		const errorCollection = EntityErrorCollection.create(errorOptions);
+
+		this.emit('Entity:onError', { errors: [...errorCollection] });
+
+		this.getEntities().forEach((entity: Entity) => {
+			const entityId = entity.getId();
+			this.emit(`Entity:${entityId}:onError`, { errors: errorCollection.getByEntityId(entityId) });
+		});
 	}
 }

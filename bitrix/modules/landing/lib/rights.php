@@ -4,6 +4,7 @@ namespace Bitrix\Landing;
 use \Bitrix\Landing\Internals\RightsTable;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\UserAccessTable;
+use Bitrix\Crm\Service\Container;
 
 Loc::loadMessages(__FILE__);
 
@@ -43,6 +44,7 @@ class Rights
 		'group_admin' => 'group_admin',//admin rights
 		'group_menu24' => 'group_menu24',// show group in main menu of Bitrix24
 		'group_unexportable' => 'group_unexportable',
+		'mainpage_create' => 'mainpage_create',
 	];
 
 	const SET_PREFIX = [
@@ -990,8 +992,8 @@ class Rights
 		// has context user access to crm forms
 		if (\Bitrix\Main\Loader::includeModule('crm'))
 		{
-			$access = new \CCrmPerms(self::getContextUserId());
-			if (!$access->havePerm('WEBFORM', BX_CRM_PERM_NONE, 'WRITE'))
+			$crmUserPermissions = Container::getInstance()->getUserPermissions(self::getContextUserId());
+			if ($crmUserPermissions->webForm()->canEdit())
 			{
 				// grant access to crm forms sites
 				$res = Site::getList([
@@ -999,7 +1001,7 @@ class Rights
 						'ID'
 					],
 					'filter' => [
-						'CODE' => '/' . Site\Type::PSEUDO_SCOPE_CODE_FORMS . '%',
+						'%=CODE' => '/' . Site\Type::PSEUDO_SCOPE_CODE_FORMS . '%',
 						'=SPECIAL' => 'Y',
 						'CHECK_PERMISSIONS' => 'N'
 					]
@@ -1043,8 +1045,8 @@ class Rights
 		if ($type !== null)
 		{
 			$type = mb_strtolower($type);
-			//@todo: hotfix for group right
-			if ($type == Site\Type::SCOPE_CODE_GROUP)
+			//todo: need fix it: remove if() and add 'mainpage_admin', 'mainpage_menu24' in ADDITIONAL_RIGHTS and check preview.bitrix24.site
+			if ($type == mb_strtolower(Site\Type::SCOPE_CODE_MAINPAGE))
 			{
 				return true;
 			}

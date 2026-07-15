@@ -1,0 +1,26 @@
+<root>
+	<BusinessRevenue variable="text"/>
+	<BusinessCosts variable="text"/>
+	<BusinessProfitLesion name="Прибыль">
+		<BusinessProfit variable="text"/>
+	</BusinessProfitLesion>
+	<BusinessProfitLesion name="Убыток">
+		<BusinessLesion variable="text"/>
+	</BusinessProfitLesion>
+	<BusinessPayback variable="text"/>
+	<BusinessAge variable="text"/>
+	<BusinessLegalEntity name="ИП"/>
+	<BusinessLegalEntity name="ООО"/>
+	<BusinessLegalEntity name="АО"/>
+	<BusinessLegalEntity name="Другое"/>
+	<BusinessEmployees variable="text"/>
+	<BusinessEmployeesCosts variable="text"/>
+	<BusinessPremises name="Собственность">
+		<BusinessPremisesSquare variable="text"/>
+	</BusinessPremises>
+	<BusinessPremises name="Аренда">
+		<BusinessPremisesSquare variable="text"/>
+		<BusinessPremisesRentalCost variable="text"/>
+	</BusinessPremises>
+	<BusinessPremises name="Отсутствует"/>
+</root>

@@ -6,11 +6,15 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use Bitrix\Disk;
+
 use Bitrix\Mail;
+
 use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\Encoding;
+
+use Bitrix\Crm\Integration\Analytics\Dictionary;
 
 class CBPMailActivity extends CBPActivity
 {
@@ -151,6 +155,19 @@ class CBPMailActivity extends CBPActivity
 			$eventName = ($mailMessageType === 'html') ? 'BIZPROC_HTML_MAIL_TEMPLATE' : 'BIZPROC_MAIL_TEMPLATE';
 			$event = new CEvent;
 			$event->Send($eventName, $siteId, $arFields, 'N', '', $files);
+		}
+
+		if (
+			Loader::includeModule('crm')
+			&& method_exists(CCrmBizProcHelper::class, 'sendOperationsAnalytics')
+		)
+		{
+			$documentType = $this->getDocumentType();
+			\CCrmBizProcHelper::sendOperationsAnalytics(
+				Dictionary::EVENT_ENTITY_SOCIAL,
+				$this,
+				$documentType[2] ?? '',
+			);
 		}
 
 		return CBPActivityExecutionStatus::Closed;
@@ -353,18 +370,18 @@ class CBPMailActivity extends CBPActivity
 				'Default' => static::DEFAULT_SEPARATOR,
 			],
 			'File' => [
-				'Name' => Loc::getMessage('BPMA_ATTACHMENT'),
+				'Name' => Loc::getMessage('BPMA_ATTACHMENT_1'),
 				'FieldName' => 'file',
 				'Type' => 'file',
 				'Multiple' => true,
 			],
 			'FileType' => [
-				'Name' => Loc::getMessage('BPMA_ATTACHMENT_TYPE'),
+				'Name' => Loc::getMessage('BPMA_ATTACHMENT_TYPE_1'),
 				'FieldName' => 'file_type',
 				'Type' => 'select',
 				'Options' => [
-					static::FILE_TYPE_FILE => GetMessage('BPMA_ATTACHMENT_FILE'),
-					static::FILE_TYPE_DISK => GetMessage('BPMA_ATTACHMENT_DISK'),
+					static::FILE_TYPE_FILE => GetMessage('BPMA_ATTACHMENT_FILE_1'),
+					static::FILE_TYPE_DISK => GetMessage('BPMA_ATTACHMENT_DISK_1'),
 				],
 			],
 		];
@@ -891,14 +908,14 @@ class CBPMailActivity extends CBPActivity
 			'text',
 			function($objectName, $fieldName, $property, $result) use ($mailMessageType)
 			{
-				if (is_array($result))
-				{
-					$result = implode(', ', CBPHelper::makeArrayFlat($result));
-				}
+				$result = CBPHelper::stringify($result);
 
-				if ($mailMessageType === 'html' && isset($property['ValueContentType']))
+				if ($mailMessageType === 'html')
 				{
-					if ($property['ValueContentType'] === 'bb')
+					$contentType =
+						$property['ValueContentType'] ?? (($property['Type'] ?? '') === 'S:HTML' ? 'html' : 'text')
+					;
+					if ($contentType === 'bb')
 					{
 						$sanitizer = new \CBXSanitizer();
 						$sanitizer->SetLevel(\CBXSanitizer::SECURE_LEVEL_LOW);
@@ -908,7 +925,7 @@ class CBPMailActivity extends CBPActivity
 							\CBPHelper::convertBBtoText($result)
 						);
 					}
-					elseif ($property['ValueContentType'] !== 'html' && isset($property['Type']) && $property['Type'] !== 'S:HTML')
+					elseif ($contentType !== 'html')
 					{
 						$result = htmlspecialcharsbx($result);
 					}
@@ -919,6 +936,22 @@ class CBPMailActivity extends CBPActivity
 		);
 
 		return $mailText;
+	}
+
+	public function collectUsages()
+	{
+		$properties = $this->arProperties;
+		$message = $this->getRawProperty('MailText');
+		if ($this->MailMessageEncoded)
+		{
+			$message = self::decodeMailText($message);
+			$properties['MailText'] = $message;
+		}
+
+		$usages = [];
+		$this->collectUsagesRecursive($properties, $usages);
+
+		return $usages;
 	}
 
 	private static function encodeMailText($text)

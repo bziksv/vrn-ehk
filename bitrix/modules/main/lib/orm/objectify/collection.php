@@ -183,7 +183,7 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 	/**
 	 * @param $primary
 	 *
-	 * @return EntityObject
+	 * @return EntityObject|null
 	 * @throws ArgumentException
 	 */
 	final public function getByPrimary($primary)
@@ -250,7 +250,7 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 
 	public function sysRemove($srPrimary)
 	{
-		$object = $this->_objects[$srPrimary];
+		$object = $this->_objects[$srPrimary] ?? null;
 
 		if (empty($object))
 		{
@@ -278,7 +278,7 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 	 *
 	 * @param int|string[] $fields Names of fields to fill
 	 *
-	 * @return array|Collection
+	 * @return array|Collection|null
 	 * @throws ArgumentException
 	 * @throws SystemException
 	 */
@@ -483,6 +483,28 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 		}
 
 		return $collection;
+	}
+
+	/**
+	 * Returns all values of collection objects as an array.
+	 *
+	 * @param int $valuesType
+	 * @param int $fieldsMask
+	 * @param bool $recursive
+	 *
+	 * @return array
+	 * @throws SystemException
+	 */
+	final public function collectValues(int $valuesType = Values::ALL, int $fieldsMask = FieldTypeMask::ALL, bool $recursive = false): array
+	{
+		$data = [];
+
+		foreach ($this as $item)
+		{
+			$data[$this->sysGetPrimaryKey($item)] = $item->collectValues($valuesType, $fieldsMask, $recursive);
+		}
+
+		return $data;
 	}
 
 	/**

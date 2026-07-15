@@ -1,6 +1,8 @@
 <?php
 
+use Bitrix\Calendar\Integration\Bitrix24\FeatureDictionary;
 use Bitrix\Main;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\LanguageTable;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Calendar\Sharing;
@@ -15,7 +17,12 @@ IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/calendar/class
 
 class CalendarPubSharingComponent extends CBitrixComponent
 {
-	protected array $allowedActions = [Sharing\Helper::CANCEL, Sharing\Helper::CONFERENCE, Sharing\Helper::ICS];
+	protected array $allowedActions = [
+		Sharing\Helper::CANCEL,
+		Sharing\Helper::CONFERENCE,
+		Sharing\Helper::ICS,
+		Sharing\Helper::OPENED,
+	];
 
 	protected ?Sharing\Link\Factory $factory = null;
 
@@ -61,15 +68,12 @@ class CalendarPubSharingComponent extends CBitrixComponent
 
 	protected function isLanguageAvailable(string $language): bool
 	{
-		$defaultLanguages = ['ru', 'de', 'en'];
-
 		$installedLanguages = LanguageTable::getList([
 			'select' => ['ID'],
 			'filter' => ['=ACTIVE' => 'Y'],
 		])->fetchAll();
-		$installedLanguages = array_column($installedLanguages, 'ID');
 
-		$availableLanguages = array_unique(array_merge($installedLanguages, $defaultLanguages));
+		$availableLanguages = array_unique(array_column($installedLanguages, 'ID'));
 
 		return in_array($language, $availableLanguages, true);
 	}
@@ -84,17 +88,14 @@ class CalendarPubSharingComponent extends CBitrixComponent
 	public function executeComponent()
 	{
 		$showAlert = false;
-		if (
-			!Main\Loader::includeModule('calendar')
-			|| !\Bitrix\Calendar\Sharing\SharingFeature::isEnabled()
-			|| !Bitrix24Manager::isFeatureEnabled('calendar_sharing')
-		)
+		if (!Loader::includeModule('calendar'))
 		{
 			$showAlert = true;
 		}
 
 		$link = $this->getLinkInfo($this->arParams['HASH']);
 		$this->arResult['LINK'] = $link;
+		$this->arResult['ACTION'] = $this->getAction();
 
 		if (!$link)
 		{
@@ -107,8 +108,11 @@ class CalendarPubSharingComponent extends CBitrixComponent
 			$link['active'] = $link['active'] ?? null;
 			$link['eventId'] = $link['eventId'] ?? null;
 			$link['userId'] = $link['userId'] ?? $link['ownerId'] ?? null;
+			$isCrmLink = $link['type'] === Sharing\Link\Helper::CRM_DEAL_SHARING_TYPE
+				&& Loader::includeModule('crm')
+			;
 
-			$owner = Sharing\Helper::getOwnerInfo($link['userId']);
+			$owner = Sharing\Helper::getLinkOwnerInfo($link);
 			$this->arResult['OWNER'] = [
 				'id' => $owner['id'],
 				'name' => htmlspecialcharsbx($owner['name']),
@@ -120,11 +124,16 @@ class CalendarPubSharingComponent extends CBitrixComponent
 			$this->setBrowserLanguageForLoc();
 			Loc::loadMessages($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/calendar/classes/general/calendar.php");
 
-			if ($link['type'] === Sharing\Link\Helper::USER_SHARING_TYPE)
+			if (
+				in_array(
+					$link['type'],
+					[Sharing\Link\Helper::USER_SHARING_TYPE, Sharing\Link\Helper::GROUP_SHARING_TYPE],
+					true
+				)
+			)
 			{
 				$this->prepareCalendarParams($link);
 			}
-
 			else if ($link['type'] === Sharing\Link\Helper::EVENT_SHARING_TYPE && $link['eventId'])
 			{
 				$this->prepareEventParams($link);
@@ -134,13 +143,18 @@ class CalendarPubSharingComponent extends CBitrixComponent
 					$showAlert = true;
 				}
 			}
-
-			else if (
-				$link['type'] === Sharing\Link\Helper::CRM_DEAL_SHARING_TYPE
-				&& Main\Loader::includeModule('crm')
-			)
+			else if ($isCrmLink)
 			{
 				$this->prepareCrmDealParams($link);
+			}
+
+			if ($isCrmLink && !$showAlert)
+			{
+				$showAlert = !Bitrix24Manager::isFeatureEnabled(FeatureDictionary::CRM_EVENT_SHARING);
+			}
+			else if (!$showAlert)
+			{
+				$showAlert = !Bitrix24Manager::isFeatureEnabled(FeatureDictionary::CALENDAR_SHARING);
 			}
 		}
 
@@ -196,7 +210,7 @@ class CalendarPubSharingComponent extends CBitrixComponent
 
 		if ($link['active'] === true)
 		{
-			$this->prepareAdditionalCalendarParams($link, $userId);
+			$this->prepareAdditionalCalendarParams($link, $userId ?? $link['hostId'] ?? null);
 		}
 
 		$this->arResult['BITRIX24_LINK'] = $this->getBitrix24Link();
@@ -222,20 +236,11 @@ class CalendarPubSharingComponent extends CBitrixComponent
 	 * @return void
 	 * @throws Main\LoaderException
 	 */
-	protected function prepareAdditionalCalendarParams(array $link, int $userId): void
+	protected function prepareAdditionalCalendarParams(array $link, int $userId = null): void
 	{
 		$this->arResult['USER_ACCESSIBILITY'] = $this->getUsersAccessibility($link['userIds']);
 		$this->arResult['TIMEZONE_LIST'] = \CCalendar::GetTimezoneList();
-
-		$this->arResult['CALENDAR_SETTINGS'] = [
-			'serverOffset' => \CCalendar::GetCurrentOffsetUTC($userId) / 60,
-			'weekHolidays' => explode('|', COption::GetOptionString('calendar', 'week_holidays', 'SA|SU')),
-			'yearHolidays' => $this->getYearHolidays(),
-			'weekStart' => CCalendar::GetWeekStart(),
-			'phoneFeatureEnabled' => Sharing\Helper::isPhoneFeatureEnabled(),
-			'mailFeatureEnabled' => Sharing\Helper::isMailFeatureEnabled(),
-		];
-
+		$this->arResult['CALENDAR_SETTINGS'] = $this->getCalendarSettings($link, $userId);
 		$this->arResult['HAS_CONTACT_DATA'] = !empty($link['contactType']) && !empty($link['contactId']);
 	}
 
@@ -251,7 +256,6 @@ class CalendarPubSharingComponent extends CBitrixComponent
 	{
 		$this->arResult['EVENT'] = $this->getEventById($link);
 		$this->arResult['SHARING_USER'] = $this->getSharingUserInfo($link['ownerId']);
-		$this->arResult['ACTION'] = $this->getAction();
 		$this->arResult['PAGE_TITLE'] = $this->getPageTitle(
 			$this->arResult['OWNER'],
 			Loc::getMessage('CALENDAR_SHARING_COMPONENT_CLASS_EVENT_TITLE')
@@ -276,7 +280,7 @@ class CalendarPubSharingComponent extends CBitrixComponent
 
 	protected function getAbuseLink(array $link): ?string
 	{
-		$ownerId = $link['userId'] ?? $link['ownerId'];
+		$ownerId = $link['userId'] ?? $link['ownerId'] ?? 0;
 		$calendarLink = $link['url'];
 
 		return Sharing\Helper::getPageAbuseLink($ownerId, $calendarLink);
@@ -571,5 +575,32 @@ class CalendarPubSharingComponent extends CBitrixComponent
 		);
 
 		return true;
+	}
+
+	private function getCalendarSettings(array $link, int $userId): array
+	{
+		switch ($link['type'])
+		{
+			case Sharing\Link\Helper::GROUP_SHARING_TYPE:
+				$portalCalendarConfig = \CCalendar::GetSettings();
+
+				return [
+					'serverOffset' => \CCalendar::GetCurrentOffsetUTC($userId) / 60,
+					'weekHolidays' => $portalCalendarConfig['week_holidays'],
+					'yearHolidays' => $portalCalendarConfig['year_holidays'],
+					'weekStart' => $portalCalendarConfig['week_start'],
+					'phoneFeatureEnabled' => Sharing\Helper::isPhoneFeatureEnabled(),
+					'mailFeatureEnabled' => Sharing\Helper::isMailFeatureEnabled(),
+				];
+			default:
+				return [
+					'serverOffset' => \CCalendar::GetCurrentOffsetUTC($userId) / 60,
+					'weekHolidays' => explode('|', COption::GetOptionString('calendar', 'week_holidays', 'SA|SU')),
+					'yearHolidays' => $this->getYearHolidays(),
+					'weekStart' => CCalendar::GetWeekStart(),
+					'phoneFeatureEnabled' => Sharing\Helper::isPhoneFeatureEnabled(),
+					'mailFeatureEnabled' => Sharing\Helper::isMailFeatureEnabled(),
+				];
+		}
 	}
 }

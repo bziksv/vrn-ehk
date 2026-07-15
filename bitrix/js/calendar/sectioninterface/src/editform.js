@@ -19,6 +19,7 @@ export class EditForm extends EventEmitter
 		this.sectionManager = options.sectionManager;
 		this.closeCallback = options.closeCallback;
 		this.BX = Util.getBX();
+		this.calendarContext = options.calendarContext;
 		this.keyHandlerBinded = this.keyHandler.bind(this);
 	}
 
@@ -213,7 +214,7 @@ export class EditForm extends EventEmitter
 			props: { className: 'calendar-list-slider-new-calendar-option-color-change' },
 			html: Loc.getMessage('EC_SEC_SLIDER_CHANGE')
 		}));
-		
+
 		Event.bind(this.colorIcon, 'click', this.showSimplePicker.bind(this));
 		Event.bind(this.colorChangeLink, 'click', this.showSimplePicker.bind(this));
 	}
@@ -470,6 +471,32 @@ export class EditForm extends EventEmitter
 	initDialogStandard()
 	{
 		Event.bind(this.DOM.accessButton, 'click', () => {
+			const entities = [
+				{
+					id: 'user',
+					options: {
+						analyticsSource: 'calendar',
+					},
+				},
+				{
+					id: 'department',
+					options: { selectMode: 'usersAndDepartments' },
+				},
+				{
+					id: 'meta-user',
+					options: { 'all-users': true },
+				},
+			];
+
+			const calendarContext = this.calendarContext || Util.getCalendarContext();
+
+			if (calendarContext.util.config.projectFeatureEnabled)
+			{
+				entities.push({
+					id: 'project',
+				});
+			}
+
 			this.entitySelectorDialog = new EntitySelectorDialog({
 				targetNode: this.DOM.accessButton,
 				context: 'CALENDAR',
@@ -482,25 +509,7 @@ export class EditForm extends EventEmitter
 				popupOptions: {
 					targetContainer: document.body,
 				},
-				entities: [
-					{
-						id: 'user',
-						options: {
-							analyticsSource: 'calendar',
-						}
-					},
-					{
-						id: 'project',
-					},
-					{
-						id: 'department',
-						options: { selectMode: 'usersAndDepartments' },
-					},
-					{
-						id: 'meta-user',
-						options: { 'all-users': true },
-					},
-				]
+				entities,
 			});
 			this.entitySelectorDialog.show();
 		});
@@ -721,11 +730,3 @@ export class EditForm extends EventEmitter
 
 	}
 }
-
-
-
-
-
-
-
-

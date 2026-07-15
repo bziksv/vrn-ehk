@@ -1,6 +1,9 @@
 import { Text, Dom, Loc, Tag, Event } from 'main.core';
 import { Dialog } from 'ui.entity-selector';
 import HintInfo from './hint-info';
+import { SettingsModel } from '../../model/index';
+import 'ui.icon-set.actions';
+import { AvatarRoundGuest } from 'ui.avatar';
 
 export default class UserSelector
 {
@@ -12,12 +15,14 @@ export default class UserSelector
 		userSelector: HTMLElement,
 		hint: HTMLElement,
 	};
+
 	#userSelectorDialog: Dialog;
 	#selectedEntityList: any;
 	#selectedEntityNodeList: any;
 	#defaultUserEntity: any;
-	#isOpened: boolean;
 	#onMembersAdded: function;
+
+	#model: SettingsModel;
 
 	constructor(props = {})
 	{
@@ -25,8 +30,8 @@ export default class UserSelector
 		this.#userSelectorDialog = null;
 		this.#selectedEntityList = {};
 		this.#selectedEntityNodeList = {};
-		this.#defaultUserEntity = props.userInfo || {};
-		this.#isOpened = false;
+		this.#model = props.model;
+		this.#defaultUserEntity = this.#model.getUserInfo();
 		this.#onMembersAdded = props.onMembersAdded;
 
 		this.openEntitySelector = this.openEntitySelector.bind(this);
@@ -36,11 +41,11 @@ export default class UserSelector
 	{
 		if (!this.#layout.wrapper)
 		{
+			const contextClass = `--${this.#model.getContext()}`;
+
 			this.#layout.wrapper = Tag.render`
-				<div class="calendar-sharing__user-selector-main">
-					<div class="calendar-sharing__user-selector-title">
-						${this.renderTitle()}
-					</div>
+				<div class="calendar-sharing__user-selector-main ${contextClass}">
+					${this.#renderTitle()}
 					${this.renderUserSelectorWrapper()}
 				</div>
 			`;
@@ -49,13 +54,16 @@ export default class UserSelector
 		return this.#layout.wrapper;
 	}
 
-	renderTitle(): HTMLElement
+	#renderTitle(): HTMLElement
 	{
 		if (!this.#layout.title)
 		{
 			this.#layout.title = Tag.render`
-				<div class="calendar-sharing__user-selector-title-text">
-					${Loc.getMessage('CALENDAR_SHARING_USER_SELECTOR_TITLE_V2')}
+				<div class="calendar-sharing__user-selector-title">
+					<div class="calendar-sharing__user-selector-title-icon"></div>
+					<div class="calendar-sharing__user-selector-title-text">
+						${this.#getTitleText()}
+					</div>
 				</div>
 			`;
 
@@ -93,6 +101,19 @@ export default class UserSelector
 		return this.#layout.title;
 	}
 
+	#getTitleText(): string
+	{
+		switch (this.#model.getContext())
+		{
+			case 'calendar':
+				return Loc.getMessage('CALENDAR_SHARING_USER_SELECTOR_TITLE_V2');
+			case 'crm':
+				return Loc.getMessage('CALENDAR_SHARING_USER_SELECTOR_TITLE_CRM');
+			default:
+				return '';
+		}
+	}
+
 	renderUserSelectorWrapper(): HTMLElement
 	{
 		if (!this.#layout.userSelectorWrapper)
@@ -101,6 +122,8 @@ export default class UserSelector
 				<div class="calendar-sharing__user-selector-wrapper">
 					${this.renderUserSelector()}
 					<div class="calendar-sharing__user-selector-add">
+						<div class="ui-icon-set --plus-20"></div>
+					</div>
 				</div>
 			`;
 
@@ -132,12 +155,22 @@ export default class UserSelector
 		const key = this.getEntityKey(this.#defaultUserEntity.id);
 		this.#selectedEntityList[key] = this.#defaultUserEntity;
 		this.#selectedEntityNodeList[key] = entityNode;
+		this.#model.setMemberIds(this.getSelectedUserIdList());
 
 		return entityNode;
 	}
 
 	renderUserEntity(entity): HTMLElement
 	{
+		if (entity.isCollabUser)
+		{
+			return Tag.render`
+				<div class="calendar-sharing__user-selector-entity-container">
+					${this.#renderCollabAvatar(entity)}
+				</div>
+			`;
+		}
+
 		if (this.hasAvatar(entity.avatar))
 		{
 			return Tag.render`
@@ -193,7 +226,7 @@ export default class UserSelector
 					{
 						id: 'user',
 						options: {
-							intranetUsersOnly: true,
+							intranetUsersOnly: !(this.#model.getCalendarContext()?.sharingObjectType === 'group'),
 							emailUsers: false,
 							inviteEmployeeLink: false,
 							inviteGuestLink: false,
@@ -225,10 +258,16 @@ export default class UserSelector
 	onUserSelectorSelect(event): void
 	{
 		const item = event.data.item;
+		const name = item.customData.get('name')
+			? `${item.customData.get('name')} ${item.customData.get('lastName') ?? ''}`.trim()
+			: String(item.customData.get('login'))
+		;
+
 		const entity = {
 			id: item.id,
 			avatar: item.avatar,
-			name: `${item.customData.get('name')} ${item.customData.get('lastName') ?? ''}`.trim(),
+			name,
+			isCollabUser: item.entityType === 'collaber',
 		};
 		const entityNode = this.renderUserEntity(entity);
 
@@ -241,7 +280,7 @@ export default class UserSelector
 
 		this.#selectedEntityList[key] = entity;
 		this.#selectedEntityNodeList[key] = entityNode;
-
+		this.#model.setMemberIds(this.getSelectedUserIdList());
 	}
 
 	onUserSelectorDeselect(event): void
@@ -257,6 +296,8 @@ export default class UserSelector
 			delete this.#selectedEntityList[key];
 			delete this.#selectedEntityNodeList[key];
 		}
+
+		this.#model.setMemberIds(this.getSelectedUserIdList());
 	}
 
 	clearSelectedUsers(): void
@@ -302,5 +343,15 @@ export default class UserSelector
 	getEntityKey(id)
 	{
 		return `user-${id}`;
+	}
+
+	#renderCollabAvatar(member): HTMLElement
+	{
+		return new AvatarRoundGuest({
+			size: 36,
+			userName: member.name,
+			userpicPath: this.hasAvatar(member.avatar) && member.avatar,
+			baseColor: '#19cc45',
+		}).getContainer();
 	}
 }

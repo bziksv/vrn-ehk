@@ -14,16 +14,19 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 /** @global CMain $APPLICATION */
 
-use Bitrix\Main\Context;
-use Bitrix\Main\Engine\CurrentUser;
-use Bitrix\Tasks\Internals\Routes\RouteDictionary;
+use Bitrix\Socialnetwork\Collab\Registry\CollabRegistry;
 use Bitrix\Tasks\Ui\Filter\Task;
+use Bitrix\Tasks\Integration\Socialnetwork\Context\Context;
 
 $pageId = "group_tasks";
 $groupId = (int)$arResult['VARIABLES']['group_id'];
+$isCollab = CollabRegistry::getInstance()->get($groupId) !== null;
 
+if (!$isCollab) {
 include("util_group_menu.php");
+}
 include("util_group_profile.php");
+include("util_group_limit.php");
 
 if (CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $groupId, "tasks"))
 {
@@ -118,6 +121,7 @@ if (CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $groupId, "tasks"))
 		"HIDE_OWNER_IN_TITLE" => $arParams['HIDE_OWNER_IN_TITLE'],
 		"TASKS_ALWAYS_EXPANDED" => 'Y',
 		'LAZY_LOAD' => 'Y',
+		"CONTEXT" => $isCollab ? Context::getCollab() : '',
 	];
 
 	$APPLICATION->IncludeComponent(

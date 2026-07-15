@@ -1,0 +1,86 @@
+<root>
+	<ProductGardenType name="Садовая техника">
+		<GardenEquipmentSubType name="Мотоблоки, культиваторы">
+			<ProductType name="Мотоблок"/>
+			<ProductType name="Культиватор"/>
+			<Brand file="forgarden/kultivatory_i_motobloki.xml" rename="true"/>
+			<EngineType name="Бензиновый">
+				<Capacity variable="text"/>
+			</EngineType>
+			<EngineType name="Дизельный">
+				<Capacity variable="text"/>
+			</EngineType>
+			<EngineType name="Электрический">
+				<MotorPower variable="text"/>
+			</EngineType>
+			<Trailer name="Да"/>
+			<Trailer name="Нет"/>
+			<MaximumWidth variable="text"/>
+			<MaximumDepth variable="text"/>
+		</GardenEquipmentSubType>
+		<GardenEquipmentSubType name="Газонокосилки"/>
+		<GardenEquipmentSubType name="Триммеры"/>
+		<GardenEquipmentSubType name="Снегоуборщики"/>
+		<GardenEquipmentSubType name="Мини-тракторы">
+			<Brand file="/forhomeandgarden/repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</GardenEquipmentSubType>
+		<GardenEquipmentSubType name="Бензопилы"/>
+		<GardenEquipmentSubType name="Электропилы">
+			<Brand file="/forhomeandgarden/repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</GardenEquipmentSubType>
+		<GardenEquipmentSubType name="Измельчители">
+			<Brand file="/forhomeandgarden/repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</GardenEquipmentSubType>
+		<GardenEquipmentSubType name="Кусторезы, ножницы, сучкорезы">
+			<Brand file="/forhomeandgarden/repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</GardenEquipmentSubType>
+		<GardenEquipmentSubType name="Мойки высокого давления">
+			<Brand file="/forhomeandgarden/repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</GardenEquipmentSubType>
+		<GardenEquipmentSubType name="Воздуходувки и пылесосы">
+			<Brand file="/forhomeandgarden/repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</GardenEquipmentSubType>
+		<GardenEquipmentSubType name="Дровоколы">
+			<Brand file="/forhomeandgarden/repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</GardenEquipmentSubType>
+		<GardenEquipmentSubType name="Аэраторы и скарификаторы">
+			<Brand file="/forhomeandgarden/repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</GardenEquipmentSubType>
+		<GardenEquipmentSubType name="Мотобуры">
+			<Brand file="/forhomeandgarden/repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</GardenEquipmentSubType>
+		<GardenEquipmentSubType name="Подметальные машины">
+			<Brand file="/forhomeandgarden/repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</GardenEquipmentSubType>
+	</ProductGardenType>
+	<ProductGardenType name="Запчасти и комплектующие для техники">
+		<ComponentsSubType name="Навесное оборудование"/>
+		<ComponentsSubType name="Запчасти"/>
+		<ComponentsSubType name="Расходники"/>
+		<Brand file="/forhomeandgarden/repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+	</ProductGardenType>
+	<ProductGardenType name="Полив и орошение">
+		<IrrigationSubType name="Баки и ёмкости для полива"/>
+		<IrrigationSubType name="Насосы"/>
+		<IrrigationSubType name="Шланги"/>
+		<IrrigationSubType name="Системы и комплектующие для полива"/>
+		<IrrigationSubType name="Другое"/>
+		<Brand file="/forhomeandgarden/repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+	</ProductGardenType>
+	<ProductGardenType name="Садовый инструмент">
+		<GardenToolsSubType name="Тачки и телеги"/>
+		<GardenToolsSubType name="Опрыскиватели"/>
+		<GardenToolsSubType name="Секаторы, ножницы, косы"/>
+		<GardenToolsSubType name="Грабли"/>
+		<GardenToolsSubType name="Лопаты"/>
+		<GardenToolsSubType name="Ведра"/>
+		<GardenToolsSubType name="Другое"/>
+		<Brand file="/forhomeandgarden/repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+	</ProductGardenType>
+	<ProductGardenType name="Дачные конструкции">
+		<Brand file="/forhomeandgarden/repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+	</ProductGardenType>
+	<ProductGardenType name="Генераторы">
+		<Brand file="/forhomeandgarden/repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+	</ProductGardenType>
+</root>

@@ -2,7 +2,9 @@
 
 use Bitrix\Bizproc\Api\Request\WorkflowAccessService\CanViewTimelineRequest;
 use Bitrix\Bizproc\Api\Service\WorkflowAccessService;
+use Bitrix\Bizproc\UI\WorkflowUserView;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowStateTable;
+use Bitrix\Bizproc\Workflow\Task\TaskTable;
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 
@@ -28,10 +30,7 @@ class BizprocWorkflowInfo extends \CBitrixComponent
 
 	public function onPrepareComponentParams($params)
 	{
-		if (!isset($params['WORKFLOW_ID']))
-			$params['WORKFLOW_ID'] = '';
-
-		$params['WORKFLOW_ID'] = trim($params['WORKFLOW_ID']);
+		$params['WORKFLOW_ID'] = trim($params['WORKFLOW_ID'] ?? '');
 		if (!$params['WORKFLOW_ID'] && isset($_REQUEST['WORKFLOW_ID']))
 		{
 			$params['WORKFLOW_ID'] = trim($_REQUEST['WORKFLOW_ID']);
@@ -62,8 +61,13 @@ class BizprocWorkflowInfo extends \CBitrixComponent
 	{
 		if ($this->workflowId === null)
 		{
-			$this->workflowId = !empty($this->arParams['WORKFLOW_ID']) ? preg_replace('#[^A-Z0-9\.]#i', '', $this->arParams['WORKFLOW_ID']) : 0;
+			$this->workflowId =
+				!empty($this->arParams['WORKFLOW_ID'])
+				? preg_replace('#[^A-Z0-9\.]#i', '', $this->arParams['WORKFLOW_ID'])
+				: ''
+			;
 		}
+
 		return $this->workflowId;
 	}
 
@@ -101,6 +105,13 @@ class BizprocWorkflowInfo extends \CBitrixComponent
 
 	public function executeComponent()
 	{
+		if ($this->getTemplateName() === 'page-slider')
+		{
+			$this->includeComponentTemplate();
+
+			return;
+		}
+
 		if ($this->getTemplateName() === 'slider')
 		{
 			$this->prepareSliderResult();
@@ -171,6 +182,18 @@ class BizprocWorkflowInfo extends \CBitrixComponent
 		$this->arResult['pageTitle'] = $this->arParams['SET_TITLE'] ? Loc::getMessage('BPWFI_PAGE_TITLE') : '';
 
 		$workflowId = $this->getWorkflowId();
+		if (!$workflowId)
+		{
+			$workflowId = $this->getWorkflowIdFromTask();
+		}
+
+		if (!$workflowId)
+		{
+			$this->arResult['errors'] = [Loc::getMessage('BPWFI_WORKFLOW_NOT_FOUND')];
+
+			return;
+		}
+
 		$currentUserId = $this->getCurrentUserId();
 		$isAdmin = (new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser))->isAdmin();
 
@@ -179,18 +202,21 @@ class BizprocWorkflowInfo extends \CBitrixComponent
 		if (!$isAdmin)
 		{
 			$accessService = new WorkflowAccessService();
-			$accessRequest = new CanViewTimelineRequest(workflowId: $workflowId, userId: $currentUserId);
+			$accessRequest = new CanViewTimelineRequest(workflowId: $workflowId, userId: $userId);
 			$accessResponse = $accessService->canViewTimeline($accessRequest);
 
 			if (!$accessResponse->isSuccess())
 			{
-				$isHead = ($userId !== $currentUserId && CBPHelper::checkUserSubordination($currentUserId, $userId));
-				if (!$isHead)
-				{
-					$this->arResult['errors'] = $accessResponse->getErrorMessages();
+				$this->arResult['errors'] = $accessResponse->getErrorMessages();
 
-					return;
-				}
+				return;
+			}
+
+			if ($currentUserId !== $userId && !CBPHelper::checkUserSubordination($currentUserId, $userId))
+			{
+				$this->arResult['errors'] = [$accessService::getViewAccessDeniedError()->getMessage()];
+
+				return;
 			}
 		}
 
@@ -202,16 +228,42 @@ class BizprocWorkflowInfo extends \CBitrixComponent
 			return;
 		}
 
-		$workflowView = new \Bitrix\Bizproc\UI\WorkflowUserView($workflowState, $userId);
+		$workflowView = new \Bitrix\Bizproc\UI\WorkflowUserDetailView($workflowState, $userId);
+		$workflowView->setTaskId($this->getTaskId());
 
-		$this->arResult['workflow'] = $workflowView;
-		$this->arResult['documentUrl'] = \CBPDocument::getDocumentAdminPage($workflowState->getComplexDocumentId());
-		$this->arResult['documentType'] = $this->getDocumentType($workflowState->getComplexDocumentId());
+		$fastClose = true;
+		$task = $workflowView->getTaskById($this->getTaskId());
+		if ($task)
+		{
+			if (count($workflowView->getTasks()) > 1)
+			{
+				$fastClose = false;
+			}
+			else
+			{
+				$fastClose = CBPTaskService::isLastTaskForUserByActivity(
+					$task['activityName'],
+					$userId,
+					$workflowState->getWorkflowTemplateId(),
+					$task['activity']
+				);
+			}
+		}
 
+		$this->arResult['workflow'] = $workflowView->toArray();
+
+		$documentType = $this->getDocumentType($workflowState->getComplexDocumentId());
+		if (!$documentType && isset($this->arResult['workflow']['task']['controls']['fields']))
+		{
+			$this->arResult['errors'] = [Loc::getMessage('BPWFI_DOCUMENT_NOT_FOUND')];
+
+			return;
+		}
+
+		$this->arResult['documentType'] = $documentType;
 		$this->arResult['isMyTask'] = $currentUserId === $userId;
-		$this->arResult['userName'] = $this->getUserFormatName($userId);
-		$this->arResult['task'] = $this->extractTask($workflowView->getTasks());
 		$this->arResult['isAdmin'] = $isAdmin;
+		$this->arResult['fastClose'] = $fastClose;
 	}
 
 	private function getCurrentUserId()
@@ -219,34 +271,27 @@ class BizprocWorkflowInfo extends \CBitrixComponent
 		return (int)(\Bitrix\Main\Engine\CurrentUser::get()->getId());
 	}
 
-	private function getUserId()
+	private function getUserId(): int
 	{
 		return (int)($this->arParams['USER_ID'] ?? 0);
 	}
 
-	private function getUserFormatName(int $userId)
+	private function getTaskId(): int
 	{
-		$format = \CSite::GetNameFormat(false);
-		$user = \CUser::GetList(
-			'id',
-			'asc',
-			['ID_EQUAL_EXACT' => $userId],
-			[
-				'FIELDS' => [
-					'TITLE',
-					'NAME',
-					'LAST_NAME',
-					'SECOND_NAME',
-					'NAME_SHORT',
-					'LAST_NAME_SHORT',
-					'SECOND_NAME_SHORT',
-					'EMAIL',
-					'ID',
-				],
-			]
-		)->Fetch();
+		return (int)($this->arParams['TASK_ID'] ?? 0);
+	}
 
-		return $user ? \CUser::FormatName($format, $user, false, false) : '';
+	private function getWorkflowIdFromTask(): ?string
+	{
+		$taskId = $this->getTaskId();
+
+		$row = TaskTable::query()
+			->where('ID', $taskId)
+			->setSelect(['WORKFLOW_ID'])
+			->fetch()
+		;
+
+		return $row['WORKFLOW_ID'] ?? null;
 	}
 
 	private function getDocumentType(array $documentId): ?array
@@ -260,23 +305,5 @@ class BizprocWorkflowInfo extends \CBitrixComponent
 		{}
 
 		return null;
-	}
-
-	private function extractTask(array $tasks): ?array
-	{
-		$taskId = (int)($this->arParams['TASK_ID'] ?? 0);
-
-		if ($taskId > 0)
-		{
-			foreach ($tasks as $task)
-			{
-				if ($task['id'] === $taskId)
-				{
-					return $task;
-				}
-			}
-		}
-
-		return $tasks[0] ?? null;
 	}
 }

@@ -1098,6 +1098,10 @@
 
 /*Menu icon BX12*/
 .askaron_pro1c_menu_icon {background:url(icons/askaron.pro1c/menu.png) 5px 0px no-repeat !important;}
+.avito_menu_icon {
+	background: url('icons/avito.export/favicon.png') no-repeat 60% 50%;
+	background-size: 60% auto;
+}
 /*Menu icon*/
 .adm-b24connector .adm-main-menu-item-icon {background-image:url(icons/b24connector/icons.png); background-position: center -269px; height:47px;}
 .adm-b24connector:hover .adm-main-menu-item-icon {background-image:url(icons/b24connector/icons.png); background-position: center -345px; height:47px;}
@@ -7547,18 +7551,6 @@ a.product-unavailable:hover {
 .adm-workarea-sender {
     padding: 6px 20px 0 20px;
 }
-.stat_attention {color:#f00;}
-a.stat_attention {color:#f00;}
-.stat_notauth {color:#136C1C;}
-.stat_newguest {color:#1C7729;}
-.stat_oldguest {color:#939393;}
-.stat_pointed {color:green;}
-
-a.stat_link {text-decoration:none;}
-a.stat_link:hover {text-decoration:underline;}
-a.stat_link:hover {color:red;}
-
-
 .subscribe_border {border:1px solid #BDC6E0; padding:4px;}
 
 /*Menu icon*/

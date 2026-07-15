@@ -1,10 +1,12 @@
-<?
-##############################################
-# Bitrix: SiteManager                        #
-# Copyright (c) 2002-2004 Bitrix             #
-# https://www.bitrixsoft.com                 #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+<?php
+
+/**
+ * Bitrix Framework
+ * @package bitrix
+ * @subpackage mail
+ * @copyright 2001-2025 Bitrix
+ */
+
 global $MESS;
 IncludeModuleLangFile(__FILE__);
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/options.php");
@@ -16,6 +18,7 @@ $MOD_RIGHT = $APPLICATION->GetGroupRight($module_id);
 if($MOD_RIGHT>="R"):
 
 $arAllOptions = array(
+	array('embed_local_id_in_outgoing_message_header', getMessage('MAIL_OPTIONS_EMBED_LOCAL_ID_IN_OUTGOING_MESSAGE_HEADER'), B_MAIL_EMBED_LOCAL_ID_IN_OUTGOING_MESSAGE_HEADER, ['checkbox', 'Y']),
 	array('save_src', getMessage('MAIL_OPTIONS_SAVE_SRC'), B_MAIL_SAVE_SRC, array('checkbox', 'Y')),
 	array('save_attachments', getMessage('MAIL_OPTIONS_SAVE_ATTACHMENTS'), B_MAIL_SAVE_ATTACHMENTS, array('checkbox', 'Y')),
 	array('connect_timeout', getMessage('MAIL_OPTIONS_TIMEOUT'), B_MAIL_TIMEOUT, array('text', 2)),

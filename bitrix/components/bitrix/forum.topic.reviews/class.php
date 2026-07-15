@@ -108,7 +108,7 @@ final class ForumTopicReviewsComponent extends CBitrixComponent implements Main\
 					if (!$this->isAjaxMode)
 					{
 						$url = (new Main\Web\Uri($this->request->get("back_page") ?: $this->request->getRequestUri()))
-							->deleteParams(["ACTION", "sessid", "PAGE_NAME", "FID", "TID", "MID", "SEF_APPLICATION_CUR_PAGE_URL", BX_AJAX_PARAM_ID, "result", "AJAX_CALL", "bxajaxid"])
+							->deleteParams(["ACTION", "sessid", "PAGE_NAME", "FID", "TID", "MID", BX_AJAX_PARAM_ID, "result", "AJAX_CALL", "bxajaxid"])
 							->getLocator();
 						$message = Forum\Message::getById($result->getId());
 						$url = ForumAddPageParams($url, ["MID" => $result->getId(), "result" => ($message["APPROVED"] === "Y" ? "reply" : "not_approved")], true, false);
@@ -136,7 +136,7 @@ final class ForumTopicReviewsComponent extends CBitrixComponent implements Main\
 				else
 				{
 					$url = (new Main\Web\Uri($this->request->getRequestUri()))
-						->deleteParams(["REVIEW_ACTION", "sessid", "PAGE_NAME", "FID", "TID", "MID", "SEF_APPLICATION_CUR_PAGE_URL", BX_AJAX_PARAM_ID, "result", "AJAX_CALL", "bxajaxid"])
+						->deleteParams(["REVIEW_ACTION", "sessid", "PAGE_NAME", "FID", "TID", "MID", BX_AJAX_PARAM_ID, "result", "AJAX_CALL", "bxajaxid"])
 						->getLocator();
 					LocalRedirect($url);
 				}
@@ -446,27 +446,16 @@ final class ForumTopicReviewsComponent extends CBitrixComponent implements Main\
 	{
 		if (mb_strlen($captchaCode) > 0)
 		{
-			include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
-			$captchaPass = Main\Config\Option::get("main", "captcha_password", "");
-
 			$cpt = new CCaptcha();
-			return $cpt->CheckCodeCrypt($captchaWord, $captchaCode, $captchaPass);
+			return $cpt->CheckCodeCrypt($captchaWord, $captchaCode);
 		}
 		return false;
 	}
 
 	private function getCaptchaCode()
 	{
-		include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
-
 		$cpt = new CCaptcha();
-		$captchaPass = Main\Config\Option::get("main", "captcha_password", "");
-		if ($captchaPass == "")
-		{
-			$captchaPass = Main\Security\Random::getString(10);
-			Main\Config\Option::set("main", "captcha_password", $captchaPass);
-		}
-		$cpt->SetCodeCrypt($captchaPass);
+		$cpt->SetCodeCrypt();
 		return $cpt->GetCodeCrypt();
 	}
 

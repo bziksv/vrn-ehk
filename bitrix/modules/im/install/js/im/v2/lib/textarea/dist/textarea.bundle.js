@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core,main_core_events) {
+(function (exports,im_v2_lib_utils,main_core,main_core_events) {
 	'use strict';
 
 	const EVENT_NAMESPACE = 'BX.Messenger.v2.Textarea.ResizeManager';
@@ -101,17 +101,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  addDecorationTag(textarea, decorationKey) {
 	    const LEFT_TAG = `[${decorationKey}]`;
 	    const RIGHT_TAG = `[/${decorationKey}]`;
-	    const decorationTagLength = LEFT_TAG.length + RIGHT_TAG.length;
-	    const newSelectionStart = textarea.selectionStart;
-	    const newSelectionEnd = textarea.selectionEnd + decorationTagLength;
-	    const textBefore = textarea.value.slice(0, textarea.selectionStart);
-	    const selectedText = textarea.value.slice(textarea.selectionStart, textarea.selectionEnd);
-	    const textAfter = textarea.value.slice(textarea.selectionEnd);
-	    const textWithTag = `${textBefore}${LEFT_TAG}${selectedText}${RIGHT_TAG}${textAfter}`;
-	    textarea.value = textWithTag;
-	    textarea.selectionStart = newSelectionStart;
-	    textarea.selectionEnd = newSelectionEnd;
-	    return textWithTag;
+	    return this.applyWrapping(textarea, LEFT_TAG, RIGHT_TAG);
 	  },
 	  removeDecorationTag(textarea, decorationKey) {
 	    const LEFT_TAG = `[${decorationKey}]`;
@@ -174,11 +164,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      textToInsert,
 	      textToReplace = ''
 	    } = config;
+	    const isMentionWithSymbol = textToReplace.length > 0;
 	    let resultText = '';
 	    let newSelectionPosition = textarea.selectionStart + textToInsert.length + 1;
-	    if (textToReplace.length > 0) {
+	    if (isMentionWithSymbol) {
 	      newSelectionPosition -= textToReplace.length;
-	      resultText = textarea.value.replace(textToReplace, `${textToInsert} `);
+	      const textBefore = textarea.value.slice(0, textarea.selectionStart - textToReplace.length);
+	      const textAfter = textarea.value.slice(textarea.selectionStart);
+	      resultText = `${textBefore}${textToInsert} ${textAfter}`;
 	    } else {
 	      const textBefore = textarea.value.slice(0, textarea.selectionStart);
 	      const textAfter = textarea.value.slice(textarea.selectionEnd);
@@ -191,11 +184,37 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    textarea.selectionStart = newSelectionPosition;
 	    textarea.selectionEnd = newSelectionPosition;
 	    return resultText;
+	  },
+	  handlePasteUrl(textarea, event) {
+	    var _event$clipboardData;
+	    const pastedUrl = (_event$clipboardData = event.clipboardData) == null ? void 0 : _event$clipboardData.getData('text/plain');
+	    const selectedText = textarea.value.slice(textarea.selectionStart, textarea.selectionEnd);
+	    const isUrl = im_v2_lib_utils.Utils.text.checkUrl(pastedUrl);
+	    if (!isUrl || !selectedText) {
+	      return textarea.value;
+	    }
+	    event.preventDefault();
+	    const LEFT_TAG = `[URL=${pastedUrl}]`;
+	    const RIGHT_TAG = '[/URL]';
+	    return this.applyWrapping(textarea, LEFT_TAG, RIGHT_TAG);
+	  },
+	  applyWrapping(textarea, leftTag, rightTag) {
+	    const selectedText = textarea.value.slice(textarea.selectionStart, textarea.selectionEnd);
+	    const decorationTagLength = leftTag.length + rightTag.length;
+	    const newSelectionStart = textarea.selectionStart;
+	    const newSelectionEnd = textarea.selectionEnd + decorationTagLength;
+	    const textBefore = textarea.value.slice(0, textarea.selectionStart);
+	    const textAfter = textarea.value.slice(textarea.selectionEnd);
+	    const textWithTag = `${textBefore}${leftTag}${selectedText}${rightTag}${textAfter}`;
+	    textarea.value = textWithTag;
+	    textarea.selectionStart = newSelectionStart;
+	    textarea.selectionEnd = newSelectionEnd;
+	    return textWithTag;
 	  }
 	};
 
 	exports.Textarea = Textarea;
 	exports.ResizeManager = ResizeManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Event));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Lib,BX,BX.Event));
 //# sourceMappingURL=textarea.bundle.js.map

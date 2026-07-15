@@ -4,13 +4,13 @@ namespace Bitrix\Calendar\Core\Mappers;
 
 use Bitrix\Calendar\Core\Builders\SectionBuilderFromDataManager;
 use Bitrix\Calendar\Core;
+use Bitrix\Calendar\Integration\Pull\PushCommand;
 use Bitrix\Calendar\Internals\EO_Section;
 use Bitrix\Calendar\Internals\SectionTable;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\ORM\Query\Result;
-use Bitrix\Main\Security\Random;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Text\Emoji;
 use Bitrix\Main\Type\DateTime;
@@ -70,11 +70,14 @@ class Section extends Mapper implements BaseMapperInterface
 	 */
 	protected function getOneEntityByFilter(array $filter): ?object
 	{
-		if ($sectionData = SectionTable::query()
+		$sectionData = SectionTable::query()
 			->setFilter($filter)
 			->setSelect(['*'])
 			->fetchObject()
-		) {
+		;
+
+		if ($sectionData)
+		{
 			return $this->convertToObject($sectionData);
 		}
 
@@ -213,7 +216,7 @@ class Section extends Mapper implements BaseMapperInterface
 	 */
 	private function saveXmlId(int $id, string $type): string
 	{
-		$xmlId = md5($type. '_'. $id. '_'. Random::getString(8));
+		$xmlId = Core\Section\Section::generateXmlId($id, $type);
 
 		SectionTable::update($id, [
 			'XML_ID' => $xmlId
@@ -230,7 +233,7 @@ class Section extends Mapper implements BaseMapperInterface
 	private function sendPushEdit(int $userId, bool $isNewSection): void
 	{
 		Util::addPullEvent(
-			'edit_section',
+			PushCommand::EditSection,
 			$userId,
 			[
 				'newSection' => $isNewSection,

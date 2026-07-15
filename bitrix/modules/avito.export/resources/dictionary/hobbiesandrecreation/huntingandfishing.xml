@@ -1,0 +1,167 @@
+<root>
+	<EquipmentType name="Рыбалка">
+		<EquipmentSubType name="Удочки, спиннинги и катушки">
+			<EquipmentGroup name="Спиннинг">
+				<RodType name="Фидерное"/>
+				<RodType name="Маховое"/>
+				<RodType name="Карповое"/>
+				<RodType name="Поплавочное"/>
+				<RodType name="Болонское"/>
+				<RodType name="Троллинговое"/>
+				<RodType name="Спиннинговое"/>
+				<RodType name="Донное"/>
+				<RodType name="Штекерное"/>
+				<RodType name="Нахлыстовое"/>
+				<RodType name="Зимнее"/>
+			</EquipmentGroup>
+			<EquipmentGroup name="Катушка"/>
+			<EquipmentGroup name="Удилище">
+				<RodType name="Фидерное"/>
+				<RodType name="Маховое"/>
+				<RodType name="Карповое"/>
+				<RodType name="Поплавочное"/>
+				<RodType name="Болонское"/>
+				<RodType name="Троллинговое"/>
+				<RodType name="Спиннинговое"/>
+				<RodType name="Донное"/>
+				<RodType name="Штекерное"/>
+				<RodType name="Нахлыстовое"/>
+				<RodType name="Зимнее"/>
+			</EquipmentGroup>
+			<EquipmentGroup name="Удочка в сборе">
+				<RodType name="Фидерное"/>
+				<RodType name="Маховое"/>
+				<RodType name="Карповое"/>
+				<RodType name="Поплавочное"/>
+				<RodType name="Болонское"/>
+				<RodType name="Троллинговое"/>
+				<RodType name="Спиннинговое"/>
+				<RodType name="Донное"/>
+				<RodType name="Штекерное"/>
+				<RodType name="Нахлыстовое"/>
+				<RodType name="Зимнее"/>
+			</EquipmentGroup>
+			<EquipmentGroup name="Удочка зимняя">
+				<RodType name="Фидерное"/>
+				<RodType name="Маховое"/>
+				<RodType name="Карповое"/>
+				<RodType name="Поплавочное"/>
+				<RodType name="Болонское"/>
+				<RodType name="Троллинговое"/>
+				<RodType name="Спиннинговое"/>
+				<RodType name="Донное"/>
+				<RodType name="Штекерное"/>
+				<RodType name="Нахлыстовое"/>
+				<RodType name="Зимнее"/>
+			</EquipmentGroup>
+			<EquipmentGroup name="Чехол для удочки">
+				<RodType name="Фидерное"/>
+				<RodType name="Маховое"/>
+				<RodType name="Карповое"/>
+				<RodType name="Поплавочное"/>
+				<RodType name="Болонское"/>
+				<RodType name="Троллинговое"/>
+				<RodType name="Спиннинговое"/>
+				<RodType name="Донное"/>
+				<RodType name="Штекерное"/>
+				<RodType name="Нахлыстовое"/>
+				<RodType name="Зимнее"/>
+			</EquipmentGroup>
+			<EquipmentGroup name="Удлиннитель">
+				<RodType name="Фидерное"/>
+				<RodType name="Маховое"/>
+				<RodType name="Карповое"/>
+				<RodType name="Поплавочное"/>
+				<RodType name="Болонское"/>
+				<RodType name="Троллинговое"/>
+				<RodType name="Спиннинговое"/>
+				<RodType name="Донное"/>
+				<RodType name="Штекерное"/>
+				<RodType name="Нахлыстовое"/>
+				<RodType name="Зимнее"/>
+			</EquipmentGroup>
+			<EquipmentGroup name="Другое"/>
+		</EquipmentSubType>
+		<EquipmentSubType name="Приманки и снасти"/>
+		<EquipmentSubType name="Эхолоты и снаряжение">
+			<EquipmentGroup name="Эхолот"/>
+			<EquipmentGroup name="Подводная камера"/>
+			<EquipmentGroup name="Прикормочный кораблик"/>
+			<EquipmentGroup name="Навигатор"/>
+			<EquipmentGroup name="Рация"/>
+			<EquipmentGroup name="Лодка"/>
+			<EquipmentGroup name="Ледобур"/>
+			<EquipmentGroup name="Хранение"/>
+			<EquipmentGroup name="Сани"/>
+			<EquipmentGroup name="Кресло для рыбалки"/>
+			<EquipmentGroup name="Другое"/>
+			<PurposeEcho name="Рыбалка с берега"/>
+			<PurposeEcho name="Рыбалка с лодки"/>
+			<PurposeEcho name="Для зимней рыбалки"/>
+			<PurposeEcho name="Для летней рыбалки"/>
+			<PurposeEcho name="Универсальное"/>
+		</EquipmentSubType>
+	</EquipmentType>
+	<EquipmentType name="Охота">
+		<EquipmentSubType name="Прицелы">
+			<SightType name="Оптический"/>
+			<SightType name="Коллиматорный"/>
+			<SightType name="Тепловизионный"/>
+			<SightType name="Лазерный"/>
+			<SightType name="Ночного видения"/>
+			<SightType name="Цифровой"/>
+			<SightType name="Голографический"/>
+			<SightType name="Диоптрический"/>
+			<Brand file="huntingandfishing/optika_i_snaryazhenie.xml" rename="true"/>
+		</EquipmentSubType>
+		<EquipmentSubType name="Хранение оружия и аксессуары"/>
+		<EquipmentSubType name="Аксессуары для прицелов"/>
+		<EquipmentSubType name="Монокуляры, бинокли, дальномеры">
+			<ProductType name="Монокуляр"/>
+			<ProductType name="Бинокль"/>
+			<ProductType name="Дальномер"/>
+			<ProductType name="Другой"/>
+			<Brand file="huntingandfishing/optika_i_snaryazhenie.xml" rename="true"/>
+			<DeviceFeature name="Тепловизионный" multiple="true"/>
+			<DeviceFeature name="Ночного видения"/>
+			<DeviceFeature name="Лазерный"/>
+			<DeviceFeature name="Призменный"/>
+			<DeviceFeature name="Зеркальный"/>
+			<DeviceFeature name="Цифровой"/>
+			<DeviceFeature name="Стабилизированный"/>
+			<DeviceFeature name="Переменное увеличение (Zoom)"/>
+			<Use name="Универсальный" multiple="true"/>
+			<Use name="Охотничий"/>
+			<Use name="Полевой"/>
+			<Use name="Тактический"/>
+			<Use name="Стрелковый"/>
+			<Use name="Туристический"/>
+			<Use name="Спортивный"/>
+			<Use name="Рыболовный"/>
+			<Use name="Военный"/>
+			<Zoom file="huntingandfishing/Zoom.xml"/>
+		</EquipmentSubType>
+		<EquipmentSubType name="Снаряжение для охоты" oldNames="Оптика и снаряжение"/>
+		<EquipmentSubType name="Фонари и лампы"/>
+	</EquipmentType>
+	<EquipmentType name="Костюмы для охоты и рыбалки"/>
+	<EquipmentType name="Ножи, мультитулы, топоры">
+		<EquipmentGroup name="Нож">
+			<KnifeType name="Складной"/>
+			<KnifeType name="Швейцарский"/>
+			<KnifeType name="Туристический"/>
+			<KnifeType name="Тренировочный"/>
+			<KnifeType name="Другой"/>
+		</EquipmentGroup>
+		<EquipmentGroup name="Топор"/>
+		<EquipmentGroup name="Мультитул">
+			<KnifeType name="Складной"/>
+			<KnifeType name="Швейцарский"/>
+			<KnifeType name="Туристический"/>
+			<KnifeType name="Тренировочный"/>
+			<KnifeType name="Другой"/>
+		</EquipmentGroup>
+		<EquipmentGroup name="Лопата"/>
+		<EquipmentGroup name="Другое"/>
+	</EquipmentType>
+</root>

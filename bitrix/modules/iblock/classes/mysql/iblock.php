@@ -16,6 +16,10 @@ class CIBlock extends CAllIBlock
 
 		$strSqlSearch = "";
 		$bAddSites = false;
+		if (!is_array($arFilter))
+		{
+			$arFilter = [];
+		}
 		foreach($arFilter as $key => $val)
 		{
 			$res = CIBlock::MkOperationFilter($key);
@@ -260,7 +264,7 @@ class CIBlock extends CAllIBlock
 			$strSqlOrder = "";
 		}
 
-		return $DB->Query($strSql.$strSqlOrder, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		return $DB->Query($strSql.$strSqlOrder);
 	}
 
 	public static function _Upper($str)
@@ -321,6 +325,7 @@ class CIBlock extends CAllIBlock
 				'ID' => (new Fields\IntegerField('ID'))
 					->configurePrimary()
 					->configureAutocomplete()
+					->configureSize(8)
 				,
 				'IBLOCK_ELEMENT_ID' => (new Fields\IntegerField('IBLOCK_ELEMENT_ID')),
 				'IBLOCK_PROPERTY_ID' => (new Fields\IntegerField('IBLOCK_PROPERTY_ID')),
@@ -383,7 +388,7 @@ class CIBlock extends CAllIBlock
 		$rs = $DB->DDL($strSql, false, $err_mess.__LINE__);
 		$strSql = '
 			CREATE TABLE IF NOT EXISTS b_iblock_element_prop_m' . $ID . ' (
-				ID int(11) not null auto_increment,
+				ID bigint not null auto_increment,
 				IBLOCK_ELEMENT_ID int(11) not null,
 				IBLOCK_PROPERTY_ID int(11) not null,
 				VALUE text not null,

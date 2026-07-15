@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Main\DB;
 
 /**
@@ -17,7 +18,7 @@ namespace Bitrix\Main\DB;
  */
 abstract class Result implements \IteratorAggregate
 {
-	/** @var \Bitrix\Main\DB\Connection */
+	/** @var Connection */
 	protected $connection;
 	/** @var resource */
 	protected $resource;
@@ -38,8 +39,8 @@ abstract class Result implements \IteratorAggregate
 
 	/**
 	 * @param resource $result Database-specific query result.
-	 * @param Connection $dbConnection Connection object.
-	 * @param \Bitrix\Main\Diag\SqlTrackerQuery $trackerQuery Helps to collect debug information.
+	 * @param Connection|null $dbConnection Connection object.
+	 * @param \Bitrix\Main\Diag\SqlTrackerQuery|null $trackerQuery Helps to collect debug information.
 	 */
 	public function __construct($result, Connection $dbConnection = null, \Bitrix\Main\Diag\SqlTrackerQuery $trackerQuery = null)
 	{
@@ -47,17 +48,25 @@ abstract class Result implements \IteratorAggregate
 		$this->connection = $dbConnection;
 		$this->trackerQuery = $trackerQuery;
 		$resultFields = $this->getFields();
+
 		if ($resultFields && $this->connection)
 		{
 			$helper = $this->connection->getSqlHelper();
 			foreach ($resultFields as $key => $type)
 			{
-				$converter = $helper->getConverter($resultFields[$key]);
+				$converter = $helper->getConverter($type);
 				if (is_callable($converter))
 				{
 					$this->converters[$key] = $converter;
 				}
 			}
+		}
+
+		if ($this->trackerQuery)
+		{
+			$this->trackerQuery->setSelectedRowsCount((int) $this->getSelectedRowsCount());
+			$this->trackerQuery->setSelectedFieldsCount($this->getFieldsCount());
+			$this->trackerQuery->setHasBigFields($this->hasBigFields());
 		}
 	}
 
@@ -75,7 +84,7 @@ abstract class Result implements \IteratorAggregate
 	 * Sets list of aliased columns.
 	 * This allows to overcome database limits on length of the column names.
 	 *
-	 * @param array[string]string $replacedAliases Aliases map from tech to human.
+	 * @param string[] $replacedAliases Aliases map from tech to human.
 	 *
 	 * @return void
 	 * @see \Bitrix\Main\Db\Result::addReplacedAliases
@@ -88,7 +97,7 @@ abstract class Result implements \IteratorAggregate
 	/**
 	 * Extends list of aliased columns.
 	 *
-	 * @param array[string]string $replacedAliases Aliases map from tech to human.
+	 * @param string[] $replacedAliases Aliases map from tech to human.
 	 *
 	 * @return void
 	 * @see \Bitrix\Main\Db\Result::setReplacedAliases
@@ -137,15 +146,18 @@ abstract class Result implements \IteratorAggregate
 	 */
 	public function fetchRaw()
 	{
-		if ($this->trackerQuery != null)
-		{
-			$this->trackerQuery->restartQuery();
-		}
+		$this->trackerQuery?->restartQuery();
 
 		$data = $this->fetchRowInternal();
 
 		if ($this->trackerQuery != null)
 		{
+			if ($data)
+			{
+				$this->trackerQuery->incrementFetched();
+				$this->trackerQuery->addLength($this->getLength());
+			}
+
 			$this->trackerQuery->refinishQuery();
 		}
 
@@ -160,7 +172,7 @@ abstract class Result implements \IteratorAggregate
 	/**
 	 * Fetches one row of the query result and returns it in the associative array of converted data or false on empty data.
 	 *
-	 * @param \Bitrix\Main\Text\Converter $converter Optional converter to encode data on fetching.
+	 * @param \Bitrix\Main\Text\Converter|null $converter Optional converter to encode data on fetching.
 	 *
 	 * @return array|false
 	 */
@@ -230,7 +242,7 @@ abstract class Result implements \IteratorAggregate
 	 * Fetches all the rows of the query result and returns it in the array of associative arrays.
 	 * Returns an empty array if query has no data.
 	 *
-	 * @param \Bitrix\Main\Text\Converter $converter Optional converter to encode data on fetching.
+	 * @param \Bitrix\Main\Text\Converter|null $converter Optional converter to encode data on fetching.
 	 *
 	 * @return array
 	 */
@@ -324,5 +336,35 @@ abstract class Result implements \IteratorAggregate
 	public function getIterator(): \Traversable
 	{
 		return new ResultIterator($this);
+	}
+
+	/**
+	 * Returns the number of fields in the result.
+	 *
+	 * @return int
+	 */
+	public function getFieldsCount(): int
+	{
+		return 0;
+	}
+
+	/**
+	 * Returns the size in bytes of the last fetched row.
+	 *
+	 * @return int
+	 */
+	public function getLength(): int
+	{
+		return 0;
+	}
+
+	/**
+	 * Checks the existence of the big fields in the result.
+	 *
+	 * @return bool
+	 */
+	public function hasBigFields(): bool
+	{
+		return false;
 	}
 }

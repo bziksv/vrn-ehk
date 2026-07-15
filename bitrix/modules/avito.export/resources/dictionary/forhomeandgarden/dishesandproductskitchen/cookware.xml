@@ -1,0 +1,290 @@
+<root>
+	<DishesType name="Кухонные принадлежности">
+		<KitchenwareType name="Принадлежности для готовки"/>
+		<KitchenwareType name="Разделочные доски"/>
+		<KitchenwareType name="Кухонные ножи, точилки"/>
+		<KitchenwareType name="Принадлежности для выпечки"/>
+		<KitchenwareType name="Принадлежности для консервации и закатки"/>
+	</DishesType>
+	<DishesType name="Хранение на кухне"/>
+	<DishesType name="Хозяйственные товары"/>
+	<DishesType name="Сервировка стола">
+		<ServingDishesType name="Тарелки"/>
+		<ServingDishesType name="Блюда, салатники и миски"/>
+		<ServingDishesType name="Столовые приборы">
+			<ProductType name="Набор"/>
+			<ProductType name="Ложка"/>
+			<ProductType name="Вилка"/>
+			<ProductType name="Нож"/>
+			<ProductType name="Чайная ложка"/>
+			<ProductType name="Палочки"/>
+			<ProductType name="Другие приборы"/>
+			<Brand file="brend_posudy_dlya_servirovki.xml" rename="true"/>
+			<Material name="Сталь"/>
+			<Material name="Алюминий"/>
+			<Material name="Серебро"/>
+			<Material name="Дерево"/>
+			<Material name="Пластик"/>
+			<Material name="Фарфор/Керамика"/>
+		</ServingDishesType>
+		<ServingDishesType name="Текстиль для сервировки"/>
+		<ServingDishesType name="Сервизы">
+			<ProductType name="Столовый"/>
+			<ProductType name="Чайный"/>
+			<ProductType name="Кофейный"/>
+			<ProductType name="Десертный"/>
+			<Brand file="brend_posudy_dlya_servirovki.xml" rename="true"/>
+			<Material name="Фарфор"/>
+			<Material name="Костяной фарфор"/>
+			<Material name="Керамика"/>
+			<Material name="Стекло"/>
+			<Material name="Пластик"/>
+			<Material name="Дерево"/>
+			<Material name="Металл"/>
+		</ServingDishesType>
+		<ServingDishesType name="Посуда для напитков">
+			<DrinkwareType name="Посуда для чая и кофе">
+				<ProductType name="Заварочный чайник"/>
+				<ProductType name="Френч-пресс"/>
+				<ProductType name="Кофейник"/>
+				<ProductType name="Турка (Джезва)"/>
+				<ProductType name="Питчер"/>
+				<ProductType name="Самовар"/>
+				<ProductType name="Ситечко для заваривания"/>
+				<ProductType name="Чайник"/>
+				<ProductType name="Гейзерная кофеварка"/>
+				<ProductType name="Кофемолка"/>
+				<ProductType name="Воронка"/>
+				<ProductType name="Кемекс"/>
+				<ProductType name="Аэропресс"/>
+				<ProductType name="Гайвань"/>
+				<ProductType name="Чахай"/>
+				<Material name="Стекло"/>
+				<Material name="Фарфор"/>
+				<Material name="Керамика"/>
+				<Material name="Хрусталь"/>
+				<Material name="Медь"/>
+				<Material name="Сталь"/>
+				<Material name="Алюминий"/>
+				<Material name="Чугун"/>
+				<Material name="Серебро"/>
+			</DrinkwareType>
+			<DrinkwareType name="Бокалы, рюмки, стопки">
+				<ProductType name="Бокал"/>
+				<ProductType name="Стопка"/>
+				<ProductType name="Рюмка"/>
+				<Brand file="brend_posudy_dlya_servirovki.xml" rename="true"/>
+				<Purpose name="Вино" multiple="true"/>
+				<Purpose name="Виски"/>
+				<Purpose name="Коктейли"/>
+				<Purpose name="Коньяк"/>
+				<Purpose name="Шампанское"/>
+				<Purpose name="Горячие напитки"/>
+				<Purpose name="Водка"/>
+				<Purpose name="Пиво"/>
+				<Purpose name="Ликёр"/>
+				<Purpose name="Ром"/>
+				<Purpose name="Другие напитки"/>
+				<Volume variable="text"/>
+				<Material name="Хрусталь"/>
+				<Material name="Стекло"/>
+				<Material name="Керамика"/>
+				<Material name="Фарфор"/>
+				<Material name="Пластик"/>
+				<Material name="Металл"/>
+			</DrinkwareType>
+			<DrinkwareType name="Графины, кувшины"/>
+			<DrinkwareType name="Стаканы"/>
+			<DrinkwareType name="Барное оборудование"/>
+			<DrinkwareType name="Кружки, чашки и блюдца">
+				<ProductType name="Чашка"/>
+				<ProductType name="Кружка"/>
+				<ProductType name="Блюдце"/>
+				<ProductType name="Пиала для чая"/>
+				<ProductType name="Пара"/>
+				<Volume variable="text"/>
+				<Color name="Бежевый"/>
+				<Color name="Белый"/>
+				<Color name="Бирюзовый"/>
+				<Color name="Бордовый"/>
+				<Color name="Голубой"/>
+				<Color name="Желтый"/>
+				<Color name="Зелёный"/>
+				<Color name="Золотой"/>
+				<Color name="Коричневый"/>
+				<Color name="Красный"/>
+				<Color name="Оранжевый"/>
+				<Color name="Розовый"/>
+				<Color name="Серебристый"/>
+				<Color name="Серый"/>
+				<Color name="Синий"/>
+				<Color name="Фиолетовый"/>
+				<Color name="Чёрный"/>
+				<Color name="Разноцветный"/>
+				<Color name="Другой"/>
+				<AmountPerson name="1"/>
+				<AmountPerson name="2"/>
+				<AmountPerson name="3"/>
+				<AmountPerson name="4"/>
+				<AmountPerson name="5"/>
+				<AmountPerson name="6"/>
+				<AmountPerson name="8"/>
+				<AmountPerson name="12"/>
+			</DrinkwareType>
+		</ServingDishesType>
+		<ServingDishesType name="Посуда для сервировки">
+			<ProductType name="Ваза"/>
+			<ProductType name="Сахарница"/>
+			<ProductType name="Конфетница"/>
+			<ProductType name="Менажница"/>
+			<ProductType name="Креманка"/>
+			<ProductType name="Селёдочница"/>
+			<ProductType name="Фруктовница"/>
+			<ProductType name="Соусник"/>
+			<ProductType name="Маслёнка"/>
+			<ProductType name="Горка (Этажёрка)"/>
+			<ProductType name="Поднос"/>
+			<ProductType name="Икорница"/>
+			<ProductType name="Салфетница"/>
+			<ProductType name="Подставка для торта"/>
+			<Material name="Хрусталь"/>
+			<Material name="Стекло"/>
+			<Material name="Фарфор"/>
+			<Material name="Керамика"/>
+			<Material name="Дерево"/>
+			<Material name="Металл"/>
+			<Material name="Пластик"/>
+			<Material name="Натуральные волокна"/>
+			<Material name="Натуральный камень"/>
+			<Material name="Другое"/>
+		</ServingDishesType>
+	</DishesType>
+	<DishesType name="Посуда для готовки">
+		<CookwareType name="Казаны">
+			<ProductType name="Казан"/>
+			<ProductType name="Афганский казан"/>
+			<ProductType name="Узбекский казан"/>
+			<ProductType name="Утятница (гусятница)"/>
+		</CookwareType>
+		<CookwareType name="Оборудование для приготовления алкоголя">
+			<ForProduction name="Самогона" multiple="true"/>
+			<ForProduction name="Вина"/>
+			<ForProduction name="Пива"/>
+			<ProductType name="Самогонные аппараты (дистилляторы)"/>
+			<ProductType name="Перегонные кубы, баки, котлы"/>
+			<ProductType name="Аппараты без бака"/>
+			<ProductType name="Пивоварни"/>
+			<ProductType name="Прессы для виноделия"/>
+			<ProductType name="Измерительные приборы"/>
+			<ProductType name="Автоклавы"/>
+			<ProductType name="Комплектующие и запчасти для самогонных аппаратов">
+				<ProductSubType name="Колонны"/>
+				<ProductSubType name="Переходники и повороты"/>
+				<ProductSubType name="РПН"/>
+				<ProductSubType name="СПН"/>
+				<ProductSubType name="Царги"/>
+				<ProductSubType name="Дефлегматоры"/>
+				<ProductSubType name="Джин-корзины"/>
+				<ProductSubType name="Диоптры"/>
+				<ProductSubType name="Автоматика"/>
+				<ProductSubType name="Фальш-дно"/>
+				<ProductSubType name="ТЭНы"/>
+				<ProductSubType name="Увеличители куба"/>
+				<ProductSubType name="Попугаи"/>
+				<ProductSubType name="Хомуты и клампы"/>
+				<ProductSubType name="Сухопарники"/>
+				<ProductSubType name="Гидрозатворы"/>
+				<ProductSubType name="Холодильники и змеевики"/>
+				<ProductSubType name="Трубки и прокладки"/>
+				<ProductSubType name="Краны"/>
+				<ProductSubType name="Переходники"/>
+				<ProductSubType name="Другие комплектующие"/>
+			</ProductType>
+			<Brand file="brend_oborudovaniya_dlya_prigotovleniya_alkogolya.xml" rename="true"/>
+		</CookwareType>
+		<CookwareType name="Кастрюли, ковши">
+			<ProductType name="Кухонный ковш"/>
+			<ProductType name="Кастрюля"/>
+			<ProductType name="Мантоварка"/>
+			<ProductType name="Пароварка"/>
+			<ProductType name="Скороварка"/>
+			<Brand file="brend_oborudovaniya_dlya_prigotovleniya_alkogolya.xml" rename="true"/>
+			<Material name="Алюминий"/>
+			<Material name="Медь"/>
+			<Material name="Сталь"/>
+			<Material name="Стекло"/>
+			<StoveType name="Индукционных плит" multiple="true"/>
+			<StoveType name="Стеклокерамических плит"/>
+			<StoveType name="Электрических плит"/>
+			<StoveType name="Газовых плит"/>
+			<StoveType name="Открытого огня"/>
+		</CookwareType>
+		<CookwareType name="Сковороды, сотейники">
+			<PanType name="Сотейник"/>
+			<PanType name="Универсальная"/>
+			<PanType name="Блинная"/>
+			<PanType name="Вок"/>
+			<PanType name="Гриль"/>
+			<PanType name="Жаровня"/>
+			<PanType name="Садж"/>
+			<Brand file="brend_oborudovaniya_dlya_prigotovleniya_alkogolya.xml" rename="true"/>
+			<Material name="Алюминий"/>
+			<Material name="Медь"/>
+			<Material name="Сталь"/>
+			<Material name="Чугун"/>
+			<StoveType name="Индукционных плит" multiple="true"/>
+			<StoveType name="Стеклокерамических плит"/>
+			<StoveType name="Электрических плит"/>
+			<StoveType name="Газовых плит"/>
+			<StoveType name="Открытого огня"/>
+		</CookwareType>
+		<CookwareType name="Наборы посуды для готовки">
+			<CookingSetComposition name="Кастрюля" multiple="true"/>
+			<CookingSetComposition name="Сковорода"/>
+			<CookingSetComposition name="Ковш"/>
+			<CookingSetComposition name="Сотейник"/>
+			<CookingSetComposition name="Крышка"/>
+			<StoveType name="Индукционных плит" multiple="true"/>
+			<StoveType name="Стеклокерамических плит"/>
+			<StoveType name="Электрических плит"/>
+			<StoveType name="Газовых плит"/>
+			<StoveType name="Открытого огня"/>
+			<Brand file="brend_oborudovaniya_dlya_prigotovleniya_alkogolya.xml" rename="true"/>
+		</CookwareType>
+		<CookwareType name="Крышки для кастрюль и сковород"/>
+		<CookwareType name="Посуда для выпечки и запекания"/>
+		<CookwareType name="Тандыры, мангалы, грили">
+			<ProductType name="Мангал">
+				<FuelType name="Дрова" multiple="true"/>
+				<FuelType name="Уголь"/>
+				<FuelType name="Брикеты"/>
+				<FuelType name="Газ"/>
+				<FuelType name="Электричество"/>
+			</ProductType>
+			<ProductType name="Гриль">
+				<FuelType name="Дрова" multiple="true"/>
+				<FuelType name="Уголь"/>
+				<FuelType name="Брикеты"/>
+				<FuelType name="Газ"/>
+				<FuelType name="Электричество"/>
+			</ProductType>
+			<ProductType name="Тандыр">
+				<FuelType name="Дрова" multiple="true"/>
+				<FuelType name="Уголь"/>
+				<FuelType name="Брикеты"/>
+				<FuelType name="Газ"/>
+				<FuelType name="Электричество"/>
+			</ProductType>
+			<ProductType name="Коптильня">
+				<FuelType name="Дрова" multiple="true"/>
+				<FuelType name="Уголь"/>
+				<FuelType name="Брикеты"/>
+				<FuelType name="Газ"/>
+				<FuelType name="Электричество"/>
+			</ProductType>
+			<ProductType name="Аксессуары и комплектующие"/>
+			<Brand file="brend_oborudovaniya_dlya_prigotovleniya_alkogolya.xml" rename="true"/>
+		</CookwareType>
+		<CookwareType name="Другое"/>
+	</DishesType>
+</root>

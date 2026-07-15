@@ -15,6 +15,7 @@ use Bitrix\Calendar\Core\Event\Properties\RecurringEventRules;
 use Bitrix\Calendar\Core\Event\Properties\Relations;
 use Bitrix\Calendar\Core\Event\Properties\RemindCollection;
 use Bitrix\Calendar\Core\Event\Tools\UidGenerator;
+use Bitrix\Calendar\Core\EventOption\EventOption;
 use Bitrix\Calendar\Core\Mappers\Factory;
 use Bitrix\Calendar\Core\Role\Helper;
 use Bitrix\Calendar\Core\Role\Role;
@@ -24,9 +25,11 @@ use Bitrix\Calendar\Util;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\ObjectException;
+use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
 use CCalendarEvent;
+use Psr\Container\NotFoundExceptionInterface;
 
 class EventBuilderFromEntityObject extends EventBuilder
 {
@@ -241,12 +244,12 @@ class EventBuilderFromEntityObject extends EventBuilder
 	}
 
 	/**
-	 * @return Section|null
+	 * @return Section
 	 *
 	 * @throws ArgumentException
-	 * @throws ObjectPropertyException
-	 * @throws SystemException
-	 * @throws ObjectException
+	 * @throws BuilderException
+	 * @throws ObjectNotFoundException
+	 * @throws NotFoundExceptionInterface
 	 */
 	protected function getSection(): Section
 	{
@@ -255,10 +258,14 @@ class EventBuilderFromEntityObject extends EventBuilder
 			/** @var Factory $mapper */
 			$mapper = ServiceLocator::getInstance()->get('calendar.service.mappers.factory');
 
-			return $mapper->getSection()->getById($this->event->getSectionId());
+			$section = $mapper->getSection()->getById($this->event->getSectionId());
+			if ($section)
+			{
+				return $section;
+			}
 		}
 
-		throw new ObjectException('Section ID not found');
+		throw new BuilderException('Section ID not found');
 	}
 
 	protected function getColor(): ?string
@@ -377,16 +384,19 @@ class EventBuilderFromEntityObject extends EventBuilder
 	protected function getUid(): ?string
 	{
 		$uid = $this->event->getDavXmlId();
-		if ($uid == $this->event->getId())
+		if ($uid === (string)$this->event->getId())
 		{
 			$uid = UidGenerator::createInstance()
 				->setPortalName(Util::getServerName())
 				->setDate(new Date(Util::getDateObject(
-					$this->event->getDateFrom()->format(\Bitrix\Main\Type\Date::convertFormatToPhp(FORMAT_DATETIME)),
+					$this->event->getDateFrom()
+						? $this->event->getDateFrom()->format(\Bitrix\Main\Type\Date::convertFormatToPhp(FORMAT_DATETIME))
+						: null
+					,
 					false,
 					$this->getStartTimezone() ? $this->getStartTimezone()->getTimeZone()->getName() : null
 				)))
-				->setUserId((int)$this->event->getOwnerId())
+				->setUserId($this->event->getOwnerId())
 				->getUidWithDate()
 			;
 		}
@@ -458,5 +468,28 @@ class EventBuilderFromEntityObject extends EventBuilder
 	protected function getSpecialLabel(): ?string
 	{
 		return $this->event->getEventType();
+	}
+
+	protected function getEventOption(): ?EventOption
+	{
+		if ($eventId = $this->event->getId())
+		{
+			/** @var Factory $mapperFactory */
+			$mapperFactory = ServiceLocator::getInstance()->get('calendar.service.mappers.factory');
+
+			return $mapperFactory->getEventOption()->getMap(['=EVENT_ID' => $eventId])->fetch();
+		}
+
+		return null;
+	}
+
+	protected function getDtLength(): ?int
+	{
+		return $this->event->getDtLength();
+	}
+
+	protected function getCollabId(): ?int
+	{
+		return null;
 	}
 }

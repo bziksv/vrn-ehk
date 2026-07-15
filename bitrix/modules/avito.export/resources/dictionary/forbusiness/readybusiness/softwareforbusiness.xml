@@ -1,0 +1,11 @@
+<root>
+	<BusinessSubType name="Аналитика"/>
+	<BusinessSubType name="Безопасность"/>
+	<BusinessSubType name="Закупки, склад, логистика"/>
+	<BusinessSubType name="Отраслевое ПО"/>
+	<BusinessSubType name="Офисное ПО"/>
+	<BusinessSubType name="Продажи и маркетинг"/>
+	<BusinessSubType name="Управление персоналом и обучение"/>
+	<BusinessSubType name="Управление предприятием и производством"/>
+	<BusinessSubType name="Управление IT инфраструктурой"/>
+</root>

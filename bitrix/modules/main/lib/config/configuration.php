@@ -1,22 +1,25 @@
 <?php
+
 namespace Bitrix\Main\Config;
 
 use Bitrix\Main;
+use Bitrix\Main\Loader;
 
 final class Configuration implements \ArrayAccess, \Iterator, \Countable
 {
+	const CONFIGURATION_FILE = '.settings.php';
+	const CONFIGURATION_FILE_EXTRA = '.settings_extra.php';
+	/** @deprecated */
+	const CONFIGURATION_FILE_PATH = '/bitrix/' . self::CONFIGURATION_FILE;
+
 	/**
 	 * @var Configuration[]
 	 */
-	private static $instances;
-
-	private $moduleId = null;
-	private $storedData = null;
-	private $data = array();
-	private $isLoaded = false;
-
-	const CONFIGURATION_FILE_PATH = "/bitrix/.settings.php";
-	const CONFIGURATION_FILE_PATH_EXTRA = "/bitrix/.settings_extra.php";
+	private static array $instances = [];
+	private ?string $moduleId = null;
+	private ?array $storedData = null;
+	private array $data = [];
+	private bool $isLoaded = false;
 
 	public static function getValue($name)
 	{
@@ -24,7 +27,7 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 		return $configuration->get($name);
 	}
 
-	public static function setValue($name, $value)
+	public static function setValue($name, $value): void
 	{
 		$configuration = Configuration::getInstance();
 		$configuration->add($name, $value);
@@ -33,19 +36,13 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 
 	private function __construct($moduleId = null)
 	{
-		if($moduleId !== null)
+		if ($moduleId !== null)
 		{
 			$this->moduleId = preg_replace("/[^a-zA-Z0-9_.]+/i", "", trim($moduleId));
 		}
 	}
 
-	/**
-	 * @static
-	 *
-	 * @param string|null $moduleId
-	 * @return Configuration
-	 */
-	public static function getInstance($moduleId = null)
+	public static function getInstance($moduleId = null): self
 	{
 		if (!isset(self::$instances[$moduleId]))
 		{
@@ -55,39 +52,33 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 		return self::$instances[$moduleId];
 	}
 
-	private static function getPath($path)
-	{
-		$path = Main\Loader::getDocumentRoot().$path;
-		return preg_replace("'[\\\\/]+'", "/", $path);
-	}
-
-	private static function getPathConfigForModule($moduleId)
+	private static function getPathConfigForModule($moduleId): ?string
 	{
 		if (!$moduleId || !Main\ModuleManager::isModuleInstalled($moduleId))
 		{
-			return false;
+			return null;
 		}
 
-		$moduleConfigPath = getLocalPath("modules/{$moduleId}/.settings.php");
+		$moduleConfigPath = Loader::getLocal("modules/{$moduleId}/.settings.php");
 		if ($moduleConfigPath === false)
 		{
-			return false;
+			return null;
 		}
 
-		return self::getPath($moduleConfigPath);
+		return $moduleConfigPath;
 	}
 
-	private function loadConfiguration()
+	private function loadConfiguration(): void
 	{
 		$this->isLoaded = false;
 
 		if ($this->moduleId)
 		{
 			$path = self::getPathConfigForModule($this->moduleId);
-			if (file_exists($path))
+			if ($path !== null && file_exists($path))
 			{
-				$dataTmp = include($path);
-				if(is_array($dataTmp))
+				$dataTmp = include $path;
+				if (is_array($dataTmp))
 				{
 					$this->data = $dataTmp;
 				}
@@ -95,20 +86,18 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 		}
 		else
 		{
-			$path = self::getPath(self::CONFIGURATION_FILE_PATH);
-			if (file_exists($path))
+			if (($path = Loader::getLocal(self::CONFIGURATION_FILE)) !== false)
 			{
-				$dataTmp = include($path);
-				if(is_array($dataTmp))
+				$dataTmp = include $path;
+				if (is_array($dataTmp))
 				{
 					$this->data = $dataTmp;
 				}
 			}
 
-			$pathExtra = self::getPath(self::CONFIGURATION_FILE_PATH_EXTRA);
-			if (file_exists($pathExtra))
+			if (($pathExtra = Loader::getLocal(self::CONFIGURATION_FILE_EXTRA)) !== false)
 			{
-				$dataTmp = include($pathExtra);
+				$dataTmp = include $pathExtra;
 				if (is_array($dataTmp) && !empty($dataTmp))
 				{
 					$this->storedData = $this->data;
@@ -123,72 +112,94 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 		$this->isLoaded = true;
 	}
 
-	public function saveConfiguration()
+	public function saveConfiguration(): void
 	{
 		if (!$this->isLoaded)
+		{
 			$this->loadConfiguration();
+		}
 
-		if($this->moduleId)
+		if ($this->moduleId)
 		{
 			throw new Main\InvalidOperationException('There is no support to rewrite .settings.php in module');
 		}
 		else
 		{
-			$path = self::getPath(self::CONFIGURATION_FILE_PATH);
+			$path = Loader::getLocal(self::CONFIGURATION_FILE);
 		}
 
 		$data = ($this->storedData !== null) ? $this->storedData : $this->data;
 		$data = var_export($data, true);
 
 		if (!is_writable($path))
+		{
 			@chmod($path, 0644);
-		file_put_contents($path, "<"."?php\nreturn ".$data.";\n");
+		}
+		file_put_contents($path, "<" . "?php\nreturn " . $data . ";\n");
 	}
 
-	public function add($name, $value)
+	public function add($name, $value): void
 	{
 		if (!$this->isLoaded)
+		{
 			$this->loadConfiguration();
+		}
 
 		if (!isset($this->data[$name]) || !$this->data[$name]["readonly"])
-			$this->data[$name] = array("value" => $value, "readonly" => false);
+		{
+			$this->data[$name] = ["value" => $value, "readonly" => false];
+		}
 		if (($this->storedData !== null) && (!isset($this->storedData[$name]) || !$this->storedData[$name]["readonly"]))
-			$this->storedData[$name] = array("value" => $value, "readonly" => false);
+		{
+			$this->storedData[$name] = ["value" => $value, "readonly" => false];
+		}
 	}
 
 	/**
 	 * Changes readonly params.
-	 * Warning! Developer must use this method very carfully!.
+	 * Warning! Developer must use this method very carefully!
 	 * You must use this method only if you know what you do!
 	 * @param string $name
 	 * @param array $value
 	 * @return void
 	 */
-	public function addReadonly($name, $value)
+	public function addReadonly($name, $value): void
 	{
 		if (!$this->isLoaded)
+		{
 			$this->loadConfiguration();
+		}
 
-		$this->data[$name] = array("value" => $value, "readonly" => true);
+		$this->data[$name] = ["value" => $value, "readonly" => true];
 		if ($this->storedData !== null)
-			$this->storedData[$name] = array("value" => $value, "readonly" => true);
+		{
+			$this->storedData[$name] = ["value" => $value, "readonly" => true];
+		}
 	}
 
-	public function delete($name)
+	public function delete($name): void
 	{
 		if (!$this->isLoaded)
+		{
 			$this->loadConfiguration();
+		}
 
 		if (isset($this->data[$name]) && !$this->data[$name]["readonly"])
+		{
 			unset($this->data[$name]);
+		}
 		if (($this->storedData !== null) && isset($this->storedData[$name]) && !$this->storedData[$name]["readonly"])
+		{
 			unset($this->storedData[$name]);
+		}
 	}
 
 	public function get($name)
 	{
 		if (!$this->isLoaded)
+		{
 			$this->loadConfiguration();
+		}
 
 		if (isset($this->data[$name]['value']))
 		{
@@ -201,13 +212,14 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 	public function offsetExists($offset): bool
 	{
 		if (!$this->isLoaded)
+		{
 			$this->loadConfiguration();
+		}
 
 		return isset($this->data[$offset]);
 	}
 
-	#[\ReturnTypeWillChange]
-	public function offsetGet($offset)
+	public function offsetGet($offset): mixed
 	{
 		return $this->get($offset);
 	}
@@ -222,33 +234,34 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 		$this->delete($offset);
 	}
 
-	#[\ReturnTypeWillChange]
-	public function current()
+	public function current(): mixed
 	{
 		if (!$this->isLoaded)
+		{
 			$this->loadConfiguration();
+		}
 
 		$c = current($this->data);
 
 		return $c === false ? false : $c["value"];
 	}
 
-	#[\ReturnTypeWillChange]
-	public function next()
+	public function next(): void
 	{
 		if (!$this->isLoaded)
+		{
 			$this->loadConfiguration();
+		}
 
-		$c = next($this->data);
-
-		return $c === false ? false : $c["value"];
+		next($this->data);
 	}
 
-	#[\ReturnTypeWillChange]
-	public function key()
+	public function key(): mixed
 	{
 		if (!$this->isLoaded)
+		{
 			$this->loadConfiguration();
+		}
 
 		return key($this->data);
 	}
@@ -256,7 +269,9 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 	public function valid(): bool
 	{
 		if (!$this->isLoaded)
+		{
 			$this->loadConfiguration();
+		}
 
 		$key = $this->key();
 		return isset($this->data[$key]);
@@ -265,7 +280,9 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 	public function rewind(): void
 	{
 		if (!$this->isLoaded)
+		{
 			$this->loadConfiguration();
+		}
 
 		reset($this->data);
 	}
@@ -273,12 +290,14 @@ final class Configuration implements \ArrayAccess, \Iterator, \Countable
 	public function count(): int
 	{
 		if (!$this->isLoaded)
+		{
 			$this->loadConfiguration();
+		}
 
 		return count($this->data);
 	}
 
-	public static function wnc()
+	public static function wnc(): void
 	{
 		Migrator::wnc();
 	}

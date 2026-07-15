@@ -1,18 +1,23 @@
+import { Extension } from 'main.core';
 import { EventEmitter, BaseEvent } from 'main.core.events';
 
 import { Core } from 'im.v2.application.core';
 import { Analytics } from 'im.v2.lib.analytics';
 import { LocalStorageManager } from 'im.v2.lib.local-storage';
-import { ChatType, EventType, Layout, LocalStorageKey } from 'im.v2.const';
+import { ChatType, EventType, Layout, LocalStorageKey, ErrorCode } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
 import { ChannelManager } from 'im.v2.lib.channel';
+import { AccessManager } from 'im.v2.lib.access';
+import { FeatureManager } from 'im.v2.lib.feature';
+import { BulkActionsManager } from 'im.v2.lib.bulk-actions';
 
+import type { SettingsCollection } from 'main.core.collections';
 import type { ImModelLayout, ImModelChat } from 'im.v2.model';
 
 type EntityId = string;
 
 const TypesWithoutContext: Set<string> = new Set([ChatType.comment]);
-const LayoutsWithoutLastOpenedElement: Set<string> = new Set([Layout.channel.name]);
+const LayoutsWithoutLastOpenedElement: Set<string> = new Set([Layout.channel, Layout.market]);
 
 export class LayoutManager
 {
@@ -43,6 +48,15 @@ export class LayoutManager
 
 	async setLayout(config: ImModelLayout): Promise
 	{
+		if (config.contextId)
+		{
+			const hasAccess = await this.#handleContextAccess(config);
+			if (!hasAccess)
+			{
+				return Promise.resolve();
+			}
+		}
+
 		if (config.entityId)
 		{
 			this.setLastOpenedElement(config.name, config.entityId);
@@ -50,7 +64,11 @@ export class LayoutManager
 
 		if (this.#isSameChat(config))
 		{
-			this.#onSameChatReopen(config);
+			this.#handleSameChatReopen(config);
+		}
+		else
+		{
+			this.#handleLayoutChange();
 		}
 
 		this.#sendAnalytics(config);
@@ -73,12 +91,12 @@ export class LayoutManager
 		});
 	}
 
-	restoreLastLayout(): Promise
+	prepareInitialLayout(): Promise
 	{
 		const layoutConfig = LocalStorageManager.getInstance().get(LocalStorageKey.layoutConfig);
 		if (!layoutConfig)
 		{
-			return Promise.resolve();
+			return this.setLayout({ name: Layout.chat });
 		}
 
 		Logger.warn('LayoutManager: last layout was restored', layoutConfig);
@@ -103,6 +121,13 @@ export class LayoutManager
 		this.#lastOpenedElement[layoutName] = entityId;
 	}
 
+	clearCurrentLayoutEntityId(): void
+	{
+		const currentLayoutName = this.getLayout().name;
+		void this.setLayout({ name: currentLayoutName });
+		void this.deleteLastOpenedElement(currentLayoutName);
+	}
+
 	isChatContextAvailable(dialogId: string): boolean
 	{
 		if (!this.getLayout().contextId)
@@ -121,7 +146,59 @@ export class LayoutManager
 		EventEmitter.unsubscribe(EventType.desktop.onReload, this.#onDesktopReload.bind(this));
 	}
 
-	#onGoToMessageContext(event: BaseEvent<{dialogId: string, messageId: number}>): void
+	deleteLastOpenedElement(layoutName: string): void
+	{
+		if (LayoutsWithoutLastOpenedElement.has(layoutName))
+		{
+			return;
+		}
+
+		delete this.#lastOpenedElement[layoutName];
+	}
+
+	deleteLastOpenedElementById(entityId: string): void
+	{
+		Object.entries(this.#lastOpenedElement).forEach(([layoutName, lastOpenedId]) => {
+			if (lastOpenedId === entityId)
+			{
+				delete this.#lastOpenedElement[layoutName];
+			}
+		});
+	}
+
+	isEmbeddedMode(): boolean
+	{
+		return this.isQuickAccessHidden();
+	}
+
+	isQuickAccessHidden(): boolean
+	{
+		const settings: SettingsCollection = Extension.getSettings('im.v2.lib.layout');
+
+		return settings.get('isQuickAccessHidden', false);
+	}
+
+	isValidLayout(layoutName: string): boolean
+	{
+		return Object.values(Layout).includes(layoutName);
+	}
+
+	isChatLayout(layoutName: string): boolean
+	{
+		const chatLayouts = [
+			Layout.chat,
+			Layout.channel,
+			Layout.copilot,
+			Layout.openlines,
+			Layout.openlinesV2,
+			Layout.collab,
+			Layout.taskComments,
+		];
+
+		return chatLayouts.includes(layoutName);
+	}
+
+	async #onGoToMessageContext(event: BaseEvent<{dialogId: string, messageId: number}>): void
 	{
 		const { dialogId, messageId } = event.getData();
 		if (this.getLayout().entityId === dialogId)
@@ -135,10 +212,8 @@ export class LayoutManager
 			return;
 		}
 
-		const isCopilotLayout = type === ChatType.copilot;
-
 		void this.setLayout({
-			name: isCopilotLayout ? Layout.copilot.name : Layout.chat.name,
+			name: Layout.chat,
 			entityId: dialogId,
 			contextId: messageId,
 		});
@@ -157,9 +232,9 @@ export class LayoutManager
 			return;
 		}
 
-		if (config.name === Layout.copilot.name)
+		if (config.name === Layout.copilot)
 		{
-			Analytics.getInstance().onOpenCopilotTab();
+			Analytics.getInstance().copilot.onOpenTab();
 		}
 
 		Analytics.getInstance().onOpenTab(config.name);
@@ -174,15 +249,26 @@ export class LayoutManager
 		return sameLayout && sameEntityId;
 	}
 
-	#onSameChatReopen(config: ImModelLayout): void
+	#handleLayoutChange()
+	{
+		this.#closeChannelComments();
+		this.#handleChatChange();
+	}
+
+	#handleChatChange()
+	{
+		const { name, entityId } = this.getLayout();
+		if (this.isChatLayout(name) && entityId)
+		{
+			this.#clearBulkActionsCollection();
+		}
+	}
+
+	#handleSameChatReopen(config: ImModelLayout): void
 	{
 		const { entityId: dialogId, contextId } = config;
 
-		const isChannel = ChannelManager.isChannel(dialogId);
-		if (isChannel)
-		{
-			EventEmitter.emit(EventType.dialog.closeComments);
-		}
+		this.#closeChannelComments();
 
 		if (contextId)
 		{
@@ -191,6 +277,41 @@ export class LayoutManager
 				dialogId,
 			});
 		}
+	}
+
+	#clearBulkActionsCollection()
+	{
+		BulkActionsManager.getInstance().clearCollection();
+	}
+
+	#closeChannelComments()
+	{
+		const { entityId: dialogId = '' } = this.getLayout();
+		const isChannelOpened = ChannelManager.isChannel(dialogId);
+		if (isChannelOpened)
+		{
+			EventEmitter.emit(EventType.dialog.closeComments);
+		}
+	}
+
+	async #handleContextAccess(config: ImModelLayout): Promise<boolean>
+	{
+		const { contextId: messageId, entityId: dialogId } = config;
+		if (!messageId)
+		{
+			return Promise.resolve(true);
+		}
+
+		const { hasAccess, errorCode } = await AccessManager.checkMessageAccess(messageId);
+		if (!hasAccess && errorCode === ErrorCode.message.accessDeniedByTariff)
+		{
+			Analytics.getInstance().historyLimit.onGoToContextLimitExceeded({ dialogId });
+			FeatureManager.chatHistory.openFeatureSlider();
+
+			return Promise.resolve(false);
+		}
+
+		return Promise.resolve(true);
 	}
 
 	#getChat(dialogId: string): ImModelChat

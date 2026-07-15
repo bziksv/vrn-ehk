@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Mail = this.BX.Mail || {};
 (function (exports,mail_client_filtertoolbar,mail_client_errorbox,mail_client_binding,main_core_events) {

@@ -2,12 +2,15 @@
 
 namespace Bitrix\Mail;
 
+use Bitrix\Mail\Helper\Message\MessageInternalDateHandler;
 use Bitrix\Mail\Helper\MessageEventManager;
 use Bitrix\Mail\Internals\MessageUploadQueueTable;
 use Bitrix\Main\DB\Connection;
 use Bitrix\Main\Entity;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\Localization;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
+use Bitrix\Main\ORM\Query\Join;
 
 Localization\Loc::loadMessages(__FILE__);
 
@@ -29,11 +32,19 @@ Localization\Loc::loadMessages(__FILE__);
  */
 class MailMessageUidTable extends Entity\DataManager
 {
-	const OLD = 'Y';
-	const RECENT = 'N';
-	const DOWNLOADED = 'D';
-	const MOVING = 'M';
-	const REMOTE = 'R';
+	public const OLD = 'Y';
+	public const RECENT = 'N';
+	public const DOWNLOADED = 'D';
+	public const MOVING = 'M';
+	public const REMOTE = 'R';
+	public const LOST = 'L';
+
+	public const EXCLUDED_COUNTER_STATUSES = [
+		self::LOST,
+		self::MOVING,
+		self::REMOTE,
+		self::OLD,
+	];
 
 	public static function getFilePath()
 	{
@@ -57,7 +68,7 @@ class MailMessageUidTable extends Entity\DataManager
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public static function updateList(array $filter, array $fields, array $eventData = [])
+	public static function updateList(array $filter, array $fields, array $eventData = [], bool $sendEvent = true)
 	{
 		$entity = static::getEntity();
 		$connection = $entity->getConnection();
@@ -74,13 +85,17 @@ class MailMessageUidTable extends Entity\DataManager
 			'onMailMessageModified',
 			array(MessageEventManager::class, 'onMailMessageModified')
 		);
-		$event = new \Bitrix\Main\Event('mail', 'onMailMessageModified', array(
-			'MAIL_FIELDS_DATA' => $eventData,
-			'UPDATED_FIELDS_VALUES' => $fields,
-			'UPDATED_BY_FILTER' => $filter,
-		));
-		$event->send();
-		EventManager::getInstance()->removeEventHandler('mail', 'onMailMessageModified', $eventKey);
+
+		if ($sendEvent)
+		{
+			$event = new \Bitrix\Main\Event('mail', 'onMailMessageModified', array(
+				'MAIL_FIELDS_DATA' => $eventData,
+				'UPDATED_FIELDS_VALUES' => $fields,
+				'UPDATED_BY_FILTER' => $filter,
+			));
+			$event->send();
+			EventManager::getInstance()->removeEventHandler('mail', 'onMailMessageModified', $eventKey);
+		}
 
 		return $result;
 	}
@@ -95,16 +110,9 @@ class MailMessageUidTable extends Entity\DataManager
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public static function deleteList(array $filter, array $messages = [], $limit = false): bool
+	public static function deleteList(array $filter, array $messages = [], $limit = false, bool $sendEvent = true): bool
 	{
 		$eventName = MessageEventManager::EVENT_DELETE_MESSAGES;
-
-		$filter = array_merge(
-			$filter,
-			[
-				'!=MESSAGE_ID' => 0,
-			]
-		);
 
 		$messages = static::selectMessagesToBeDeleted(
 			MessageEventManager::getRequiredFieldNamesForEvent($eventName),
@@ -172,29 +180,80 @@ class MailMessageUidTable extends Entity\DataManager
 			}
 		}
 
-		//Checking that the values were actually deleted:
-		$deletedMessages = array_filter(
-			$messages,
-			function ($item) use ($remains)
-			{
-				return !in_array($item['MESSAGE_ID'], $remains);
-			}
-		);
+		if ($sendEvent)
+		{
+			//Checking that the values were actually deleted:
+			$deletedMessages = array_filter(
+				$messages,
+				function ($item) use ($remains) {
+					return !in_array($item['MESSAGE_ID'], $remains);
+				}
+			);
 
-		$eventManager = EventManager::getInstance();
-		$eventKey = $eventManager->addEventHandler(
-			'mail',
-			'onMailMessageDeleted',
-			array(MessageEventManager::class, 'onMailMessageDeleted')
-		);
-		$event = new \Bitrix\Main\Event('mail', 'onMailMessageDeleted', array(
-			'MAIL_FIELDS_DATA' => $deletedMessages,
-			'DELETED_BY_FILTER' => $filter,
-		));
-		$event->send();
-		EventManager::getInstance()->removeEventHandler('mail', 'onMailMessageDeleted', $eventKey);
+			$eventManager = EventManager::getInstance();
+			$eventKey = $eventManager->addEventHandler(
+				'mail',
+				'onMailMessageDeleted',
+				array(MessageEventManager::class, 'onMailMessageDeleted')
+			);
+			$event = new \Bitrix\Main\Event('mail', 'onMailMessageDeleted', array(
+				'MAIL_FIELDS_DATA' => $deletedMessages,
+				'DELETED_BY_FILTER' => $filter,
+			));
+			$event->send();
+			EventManager::getInstance()->removeEventHandler('mail', 'onMailMessageDeleted', $eventKey);
+		}
 
 		return true;
+	}
+
+	public static function getLocalUID(int $mailboxId, string $dirPath, string $dirUIDv, string $order): int
+	{
+		$additionalFilter = [];
+
+		if (\Bitrix\Mail\Helper\LicenseManager::getSyncOldLimit() > 0)
+		{
+			$additionalFilter = [
+				'>INTERNALDATE' => \Bitrix\Main\Type\Date::createFromTimestamp(strtotime(sprintf('-%u days', \Bitrix\Mail\Helper\LicenseManager::getSyncOldLimit()))),
+			];
+		}
+
+		$row = self::getRow(
+			[
+				'select' => [
+					'MSG_UID'
+				],
+				'filter' => array_merge([
+					'=MAILBOX_ID' => $mailboxId,
+					'=DIR_MD5' => md5($dirPath),
+					'=DIR_UIDV' => $dirUIDv,
+					'>MSG_UID' => 0,
+					'=IS_OLD' => 'N',
+					'!=MESSAGE_ID' => 0,
+					'==DELETE_TIME' => 0,
+				], $additionalFilter),
+				'order' => [
+					'MSG_UID' => $order,
+				],
+			]
+		);
+
+		if (!isset($row['MSG_UID']))
+		{
+			return 0;
+		}
+
+		return (int)$row['MSG_UID'];
+	}
+
+	public static function getLastLocalUID(int $mailboxId, string $dirPath, string $dirUIDv): int
+	{
+		return self::getLocalUID($mailboxId, $dirPath, $dirUIDv, 'DESC');
+	}
+
+	public static function getFirstLocalUID(int $mailboxId, string $dirPath, string $dirUIDv): int
+	{
+		return self::getLocalUID($mailboxId, $dirPath, $dirUIDv, 'ASC');
 	}
 
 	public static function getMessage(
@@ -441,7 +500,14 @@ class MailMessageUidTable extends Entity\DataManager
 			),
 			'IS_OLD' => array(
 				'data_type' => 'enum',
-				'values'    => array(self::OLD, self::RECENT, self::DOWNLOADED, self::MOVING, self::REMOTE),
+				'values'    => [
+					self::OLD,
+					self::RECENT,
+					self::DOWNLOADED,
+					self::MOVING,
+					self::REMOTE,
+					self::LOST,
+				],
 			),
 			'SESSION_ID' => array(
 				'data_type' => 'string',
@@ -470,7 +536,54 @@ class MailMessageUidTable extends Entity\DataManager
 				'data_type' => 'integer',
 				'default' => 0,
 			),
+			new Reference(
+				'MESSAGE_TABLE',
+				MailMessageTable::class,
+				Join::on('this.MESSAGE_ID', 'ref.ID')
+					->whereColumn('this.MAILBOX_ID', 'ref.MAILBOX_ID')
+			),
 		);
+	}
+	/**
+	 * @param Entity\Event $event
+	 * @return Entity\EventResult
+	 */
+	public static function onAfterUpdate(Entity\Event $event)
+	{
+		$result = new Entity\EventResult;
+		$parameters = $event->getParameters();
+		if ($parameters['primary'] && is_set($parameters['fields']['IS_OLD']))
+		{
+			$message = self::getByPrimary($parameters['primary'], [
+				'select' => [
+					'MAILBOX_ID',
+					'DIR_MD5',
+					'INTERNALDATE'
+				],
+			])->fetch();
+
+			if (!$message)
+			{
+				return $result;
+			}
+
+			$internalDate = $message['INTERNALDATE'];
+			$mailboxId = (int)$message['MAILBOX_ID'];
+			$dirMd5 = $message['DIR_MD5'];
+
+			$startInternalDate = MessageInternalDateHandler::getStartInternalDateForDir($mailboxId, dirMd5: $dirMd5);
+
+			if (!is_null($startInternalDate) && $internalDate <= $startInternalDate)
+			{
+				$updateResult = MessageInternalDateHandler::clearStartInternalDate($mailboxId, $dirMd5);
+				if (!$updateResult->isSuccess())
+				{
+					$result->setErrors($updateResult->getErrors());
+				}
+			}
+		}
+
+		return $result;
 	}
 
 }

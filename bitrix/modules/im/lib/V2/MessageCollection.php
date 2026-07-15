@@ -9,13 +9,16 @@ use Bitrix\Im\V2\Entity\File\FilePopupItem;
 use Bitrix\Im\V2\Entity\Url\UrlCollection;
 use Bitrix\Im\V2\Entity\User\UserPopupItem;
 use Bitrix\Im\V2\Integration\AI\RoleManager;
-use Bitrix\Im\V2\Link\Reminder\ReminderPopupItem;
+use Bitrix\Im\V2\Link\Pin\PinService;
 use Bitrix\Im\V2\Message\AdditionalMessagePopupItem;
+use Bitrix\Im\V2\Message\Param;
 use Bitrix\Im\V2\Message\Reaction\ReactionMessages;
 use Bitrix\Im\V2\Message\Reaction\ReactionPopupItem;
 use Bitrix\Im\V2\Message\ReadService;
-use Bitrix\Im\V2\Message\ViewedService;
+use Bitrix\Im\V2\TariffLimit\DateFilterable;
+use Bitrix\Im\V2\TariffLimit\FilterResult;
 use Bitrix\Imbot\Bot\CopilotChatBot;
+use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\ORM\Fields\ExpressionField;
@@ -29,15 +32,15 @@ use Bitrix\Im\V2\Rest\PopupData;
 use Bitrix\Im\V2\Rest\PopupDataAggregatable;
 use Bitrix\Im\V2\Rest\RestConvertible;
 use Bitrix\Im\V2\Service\Context;
-use Bitrix\Im\V2\Service\Locator;
 use Bitrix\Im\V2\Message\Params;
+use Bitrix\Main\Type\DateTime;
 
 /**
  * @extends Collection<Message>
  * @method self filter(callable $predicate)
  * @method Message offsetGet($key)
  */
-class MessageCollection extends Collection implements RestConvertible, PopupDataAggregatable
+class MessageCollection extends Collection implements RestConvertible, PopupDataAggregatable, DateFilterable
 {
 	use ContextCustomer;
 
@@ -141,11 +144,22 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 		return $id;
 	}
 
-	public function getCommonChat(): ?Chat
+	public function getCommonChat(): Chat
 	{
-		$chatId = $this->getCommonChatId();
+		return Chat::getInstance($this->getCommonChatId());
+	}
 
-		return $chatId ? Chat::getInstance($chatId) : null;
+	public function getChatIds():array
+	{
+		$chatIds = [];
+
+		foreach ($this as $message)
+		{
+			$chatId = $message->getChatId();
+			$chatIds[$chatId] = $chatId;
+		}
+
+		return $chatIds;
 	}
 
 	//endregion
@@ -169,6 +183,22 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 	public static function getRestEntityName(): string
 	{
 		return 'messages';
+	}
+
+	/**
+	 * @param DateTime $date
+	 * @return FilterResult<static>
+	 */
+	public function filterByDate(DateTime $date): FilterResult
+	{
+		$filtered = $this->filter(static fn (Message $message) => $message->getDateCreate()?->getTimestamp() > $date->getTimestamp());
+
+		return (new FilterResult())->setResult($filtered)->setFiltered($this->count() !== $filtered->count());
+	}
+
+	public function getRelatedChatId(): ?int
+	{
+		return $this->getCommonChatId();
 	}
 
 	//endregion
@@ -220,26 +250,129 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 	 */
 	public function fillParams(): self
 	{
+		if ($this->isParamsFilled)
+		{
+			return $this;
+		}
+
 		$messageIds = $this->getIds();
-		if (!$this->isParamsFilled && !empty($messageIds))
+		if (!empty($messageIds))
 		{
 			foreach ($this as $message)
 			{
 				$message->getParams(true)->load([]);
 			}
 
-			$paramsCollection = MessageParamTable::query()
+			$result = MessageParamTable::query()
 				->setSelect(['*'])
 				->whereIn('MESSAGE_ID', $this->getIds())
-				->fetchCollection()
+				->whereNot('PARAM_NAME', 'LIKE')
+				->exec()
 			;
 
-			foreach ($paramsCollection as $paramRow)
+			while ($row = $result->fetch())
 			{
-				$this[$paramRow->getMessageId()]->getParams(true)->load($paramRow);
+				$this[$row['MESSAGE_ID']]->getParams(true)->load([$row]);
 			}
 
 			$this->isParamsFilled = true;
+		}
+
+		return $this;
+	}
+
+	public function isParamsFilled(): bool
+	{
+		return $this->isParamsFilled;
+	}
+
+	public function deleteParams(): self
+	{
+		if (!empty($this->getIds()))
+		{
+			$filter = [
+				'=MESSAGE_ID' => $this->getIds(),
+			];
+
+			MessageParamTable::deleteBatch($filter);
+		}
+
+		foreach ($this as $message)
+		{
+			$message->getParams(true)->clear();
+		}
+
+		$this->isParamsFilled = true;
+
+		return $this;
+	}
+
+	/**
+	 * @param array $params
+	 * @return self
+	 */
+	public function resetParams($params): self
+	{
+		if (empty($this->getIds()))
+		{
+			return $this;
+		}
+
+		return $this
+			->deleteParams()
+			->multiAddParams($params)
+		;
+	}
+
+	protected function multiAddParams($params): self
+	{
+		$rows = $this->getParamsFieldsForMultiAdd($params);
+
+		if (empty($rows))
+		{
+			return $this;
+		}
+
+		$result = Param::getDataClass()::addMulti($rows, true);
+		if (!$result->isSuccess())
+		{
+			return $this;
+		}
+
+		$this->isParamsFilled = false;
+		$this->fillParams();
+
+		return $this;
+	}
+
+	protected function getParamsFieldsForMultiAdd(array $params): array
+	{
+		$fields = [];
+
+		foreach ($this as $message)
+		{
+			foreach ($params as $paramName => $paramValue)
+			{
+				$fields[] = [
+					'MESSAGE_ID' => $message->getId(),
+					'PARAM_NAME' => $paramName,
+					'PARAM_VALUE' => $paramValue,
+				];
+			}
+		}
+
+		return $fields;
+	}
+
+	/**
+	 * @param array $params
+	 * @return self
+	 */
+	public function setParams($params): self
+	{
+		foreach ($this as $message)
+		{
+			$message->setParams($params);
 		}
 
 		return $this;
@@ -290,6 +423,11 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 		$urlIdByMessageIds = [];
 		foreach ($this as $message)
 		{
+			if (!$message->getParams()->isSet(Params::URL_ID))
+			{
+				continue;
+			}
+
 			$urlId = $message->getParams()->get(Params::URL_ID)->getValue()[0] ?? null;
 			if (isset($urlId))
 			{
@@ -519,7 +657,7 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 		return $reactions;
 	}
 
-	protected function getCopilotRoles(): array
+	public function getCopilotRoles(): array
 	{
 		$this->fillParams();
 		$copilotRoles = [];
@@ -561,12 +699,12 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 
 	public function getPopupData(array $excludedList = []): PopupData
 	{
+		$additionalMessageIds = array_diff($this->getReplayedMessageIds(), $this->getIds());
 		$popup = [
 			new UserPopupItem($this->getUserIds()),
 			new FilePopupItem($this->getFiles()),
-			new ReminderPopupItem($this->getReminders()),
-			new AdditionalMessagePopupItem($this->getReplayedMessageIds()),
-			new CopilotPopupItem($this->getCopilotRoles(), CopilotPopupItem::ENTITIES['messageCollection']),
+			new AdditionalMessagePopupItem($additionalMessageIds),
+			CopilotPopupItem::getInstanceByMessages($this),
 		];
 
 		if (!in_array(ReactionPopupItem::class, $excludedList, true))
@@ -574,9 +712,12 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 			$popup[] = new ReactionPopupItem($this->getReactions());
 		}
 
-		$chat = $this->getAny()?->getChat();
+		$chat = $this->getCommonChat();
 
-		if ($chat instanceof ChannelChat)
+		if (
+			!in_array(CommentPopupItem::class, $excludedList, true)
+			&& $chat instanceof ChannelChat
+		)
 		{
 			$popup[] = new CommentPopupItem($chat->getId(), $this->getIds());
 		}
@@ -600,6 +741,14 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 	}
 
 	//endregion
+
+	public function unpin(bool $clearParams = true): Result
+	{
+		$pinService = new PinService();
+		$pinService->setContext($this->context);
+
+		return $pinService->unpinMessages($this, $clearParams);
+	}
 
 	protected static function processFilters(Query $query, array $filter, array $order): void
 	{
@@ -636,8 +785,23 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 
 		if (isset($filter['LAST_ID']))
 		{
-			$operator = $order['ID'] === 'DESC' ? '<' : '>';
-			$query->where('ID', $operator, $filter['LAST_ID']);
+			$isDesc = ($order['ID'] === 'DESC');
+
+			$idComparisonOp = $isDesc ? '<' : '>';
+			$subQueryIdComparisonOp = $isDesc ? '<=' : '>=';
+			$dateComparisonOp = $isDesc ? '<=' : '>=';
+			$sortOrder = $isDesc ? 'DESC' : 'ASC';
+
+			$query->where('ID', $idComparisonOp, $filter['LAST_ID']);
+
+			$subQuery = MessageTable::query()
+				->setSelect(['DATE_CREATE'])
+				->where('ID', $subQueryIdComparisonOp, $filter['LAST_ID'])
+				->setOrder(['ID' => $sortOrder])
+				->setLimit(1)
+			;
+
+			$query->where('DATE_CREATE', $dateComparisonOp, new SqlExpression("({$subQuery->getQuery()})"));
 		}
 
 		if (isset($filter['DATE_FROM']))
@@ -658,6 +822,11 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 			$to->add('1 DAY');
 
 			$query->where('DATE_CREATE', '<=', $to);
+		}
+
+		if ($filter['WITHOUT_SYSTEM_MESSAGE'] ?? false)
+		{
+			$query->where('AUTHOR_ID', '!=', 0);
 		}
 	}
 }

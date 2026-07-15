@@ -3,17 +3,20 @@ import { EventEmitter, BaseEvent } from 'main.core.events';
 
 import { Logger } from 'im.v2.lib.logger';
 import { Core } from 'im.v2.application.core';
-import { ChatType, EventType, Layout, TextareaPanelType } from 'im.v2.const';
+import { ChatType, EventType, TextareaPanelType } from 'im.v2.const';
 
 import { IndexedDbManager } from './indexed-db-manager';
 
 import type { JsonObject } from 'main.core';
 import type { OnLayoutChangeEvent } from 'im.v2.const';
+import type { PanelContext } from 'im.v2.provider.service.sending';
+import type { ImModelChat } from 'im.v2.model';
+
 type TextareaPanelTypeItem = $Values<typeof TextareaPanelType>;
 type Draft = {
 	text?: string,
 	panelType?: TextareaPanelTypeItem,
-	panelMessageId?: number,
+	panelContext?: PanelContext,
 	mentions?: JsonObject
 };
 
@@ -23,14 +26,13 @@ const SHOW_DRAFT_IN_RECENT_TIMEOUT = 1500;
 const STORAGE_KEY = 'recentDraft';
 
 const NOT_AVAILABLE_CHAT_TYPES = new Set([ChatType.comment]);
+const STANDALONE_SECTION_CHAT_TYPES = new Set([ChatType.taskComments]);
 
 export class DraftManager
 {
 	static instance: DraftManager = null;
 
 	inited: boolean = false;
-	initPromise: Promise;
-	initPromiseResolver: () => void;
 	drafts: { [dialogId: string]: Draft } = {};
 
 	static getInstance(): DraftManager
@@ -45,43 +47,28 @@ export class DraftManager
 
 	constructor()
 	{
-		this.initPromise = new Promise((resolve) => {
-			this.initPromiseResolver = resolve;
-		});
 		EventEmitter.subscribe(EventType.layout.onLayoutChange, this.onLayoutChange.bind(this));
 	}
 
 	async initDraftHistory()
 	{
-		if (this.inited)
-		{
-			return;
-		}
-
-		this.inited = true;
 		let draftHistory = null;
 		try
 		{
-			draftHistory = await IndexedDbManager.getInstance().get(this.getStorageKey(), {});
+			draftHistory = await IndexedDbManager.getInstance().get(STORAGE_KEY, {});
 		}
 		catch (error)
 		{
 			// eslint-disable-next-line no-console
 			console.error('DraftManager: error initing draft history', error);
-			this.initPromiseResolver();
 
 			return;
 		}
 		this.fillDraftsFromStorage(draftHistory);
 
 		Logger.warn('DraftManager: initDrafts:', this.drafts);
-		this.initPromiseResolver();
 		this.setRecentListDraftText();
-	}
-
-	ready(): Promise
-	{
-		return this.initPromise;
+		this.inited = true;
 	}
 
 	fillDraftsFromStorage(draftHistory: { [dialogId: string]: Draft }): void
@@ -103,11 +90,6 @@ export class DraftManager
 
 	setDraftText(dialogId: number, text: string): void
 	{
-		if (!this.canSaveDraft(dialogId))
-		{
-			return;
-		}
-
 		if (!this.drafts[dialogId])
 		{
 			this.drafts[dialogId] = {};
@@ -117,14 +99,14 @@ export class DraftManager
 		this.refreshSaveTimeout();
 	}
 
-	setDraftPanel(dialogId: number, panelType: TextareaPanelTypeItem, messageId: number): void
+	setDraftPanel(dialogId: number, panelType: TextareaPanelTypeItem, panelContext: PanelContext): void
 	{
 		if (!this.drafts[dialogId])
 		{
 			this.drafts[dialogId] = {};
 		}
 		this.drafts[dialogId].panelType = panelType;
-		this.drafts[dialogId].panelMessageId = messageId;
+		this.drafts[dialogId].panelContext = panelContext;
 
 		this.refreshSaveTimeout();
 	}
@@ -142,10 +124,12 @@ export class DraftManager
 
 	async getDraft(dialogId: number): Promise<Draft>
 	{
-		await this.initPromise;
-		const draft = this.drafts[dialogId] ?? {};
+		if (!this.inited)
+		{
+			await this.initDraftHistory();
+		}
 
-		return Promise.resolve(draft);
+		return this.drafts[dialogId] ?? {};
 	}
 
 	clearDraft(dialogId: string)
@@ -163,21 +147,29 @@ export class DraftManager
 
 	setRecentItemDraftText(dialogId: number, text: string)
 	{
-		Core.getStore().dispatch(this.getDraftMethodName(), {
+		if (!this.canSetRecentItemDraftText(dialogId))
+		{
+			return;
+		}
+
+		const { type: chatType }: ImModelChat = this.#getChat(dialogId);
+
+		void Core.getStore().dispatch('recent/setDraft', {
 			id: dialogId,
 			text,
+			addFakeItems: !STANDALONE_SECTION_CHAT_TYPES.has(chatType),
 		});
 	}
 
 	onLayoutChange(event: BaseEvent<OnLayoutChangeEvent>)
 	{
 		const { from } = event.getData();
-		if (from.name !== this.getLayoutName() || from.entityId === '')
+		const dialogId = from.entityId;
+		if (dialogId === '')
 		{
 			return;
 		}
 
-		const dialogId = from.entityId;
 		setTimeout(async () => {
 			const { text = '' } = await this.getDraft(dialogId);
 			this.setRecentItemDraftText(dialogId, text);
@@ -194,7 +186,7 @@ export class DraftManager
 
 	saveToIndexedDb()
 	{
-		IndexedDbManager.getInstance().set(this.getStorageKey(), this.prepareDrafts());
+		IndexedDbManager.getInstance().set(STORAGE_KEY, this.prepareDrafts());
 	}
 
 	prepareDrafts(): { [dialogId: string]: Draft }
@@ -220,29 +212,19 @@ export class DraftManager
 		return result;
 	}
 
-	getLayoutName(): string
+	canSetRecentItemDraftText(dialogId: string): boolean
 	{
-		return Layout.chat.name;
-	}
-
-	getStorageKey(): string
-	{
-		return STORAGE_KEY;
-	}
-
-	getDraftMethodName(): string
-	{
-		return 'recent/setRecentDraft';
-	}
-
-	canSaveDraft(dialogId: string): boolean
-	{
-		const chat = Core.getStore().getters['chats/get'](dialogId);
+		const chat = this.#getChat(dialogId);
 		if (!chat)
 		{
 			return false;
 		}
 
 		return !NOT_AVAILABLE_CHAT_TYPES.has(chat.type);
+	}
+
+	#getChat(dialogId: string): ?ImModelChat
+	{
+		return Core.getStore().getters['chats/get'](dialogId);
 	}
 }

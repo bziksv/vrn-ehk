@@ -1,9 +1,12 @@
 <?php
+
 namespace Bitrix\Main\Data;
+
+use Bitrix\Main\Config\Configuration;
 
 class CacheEngineMemcached extends CacheEngineMemcache
 {
-	public function getConnectionName() : string
+	public function getConnectionName(): string
 	{
 		return 'cache.memcached';
 	}
@@ -11,6 +14,20 @@ class CacheEngineMemcached extends CacheEngineMemcache
 	public static function getConnectionClass()
 	{
 		return MemcachedConnection::class;
+	}
+
+	protected function configure($options = []): array
+	{
+		$config = parent::configure($options);
+
+		$cacheConfig = Configuration::getValue('cache');
+
+		if (isset($cacheConfig['serializer']))
+		{
+			$config['serializer'] = (int)$cacheConfig['serializer'];
+		}
+
+		return $config;
 	}
 
 	public function set($key, $ttl, $value) : bool
@@ -43,38 +60,7 @@ class CacheEngineMemcached extends CacheEngineMemcache
 		if (is_array($list) && !empty($list))
 		{
 			$list = array_keys($list);
-			$exKey = array_map(function ($iKey) use($key) {
-				return $key . '|iex|' . sha1($key . '|' . $iKey);
-			}, $list);
-
-			self::$engine->deleteMulti($exKey);
-			unset($exKey);
-
-			if ($this->useLock)
-			{
-				foreach ($list as $iKey)
-				{
-					$delKey = $prefix . $iKey;
-					if ($cachedData = $this->get($delKey))
-					{
-						$this->set($delKey . '|old', $this->ttlOld, $cachedData);
-					}
-
-					self::$engine->delete($delKey);
-				}
-			}
-			else
-			{
-				if ($prefix != '')
-				{
-					$format = $prefix . '%s';
-					$list = array_map(function ($key) use($format) {
-						return sprintf($format, $key);
-					}, $list);
-				}
-
-				self::$engine->deleteMulti($list);
-			}
+			self::$engine->deleteMulti($list);
 			unset($list);
 		}
 	}

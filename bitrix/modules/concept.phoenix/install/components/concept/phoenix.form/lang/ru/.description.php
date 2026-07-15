@@ -1,6 +1,0 @@
-<?
-$MESS ['PHOENIX_T_IBLOCK_FORM_DESC_LIST'] = "Форма";
-$MESS ['PHOENIX_T_IBLOCK_FORM_DESC_LIST_DESC'] = "Форма для решения \"Феникс\"";
-$MESS ['PHOENIX_T_IBLOCK_DESC_PAGE_GENERATOR'] = "Феникс";
-$MESS ['PHOENIX_T_IBLOCK_DESC_COMPANY_GENERATOR'] = "Концепт";
-?>

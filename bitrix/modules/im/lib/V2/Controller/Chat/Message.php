@@ -2,12 +2,14 @@
 
 namespace Bitrix\Im\V2\Controller\Chat;
 
+use Bitrix\Im\V2\Analytics\MessageAnalytics;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Controller\BaseController;
 use Bitrix\Im\V2\Controller\Filter\CheckActionAccess;
-use Bitrix\Im\V2\Controller\Filter\CheckMessageDisappearingDuration;
-use Bitrix\Im\V2\Controller\Filter\UpdateStatus;
+use Bitrix\Im\V2\Controller\Filter\PlatformContext;
+use Bitrix\Im\V2\Controller\Filter\DiskQuickAccessGrantor;
 use Bitrix\Im\V2\Entity\View\ViewCollection;
+use Bitrix\Im\V2\Message\Delete\DeletionMode;
 use Bitrix\Im\V2\Message\Delete\DisappearService;
 use Bitrix\Im\V2\Message\Forward\ForwardService;
 use Bitrix\Im\V2\Message\MessageError;
@@ -17,15 +19,14 @@ use Bitrix\Im\V2\Message\Update\UpdateService;
 use Bitrix\Im\V2\Message\Delete\DeleteService;
 use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Message\MessageService;
+use Bitrix\Im\V2\Permission\Action;
 use Bitrix\Im\V2\Result;
 use Bitrix\Main\Engine\AutoWire\ExactParameter;
 use Bitrix\Main\Engine\CurrentUser;
-use Bitrix\Main\Engine\Response\Converter;
 
 class Message extends BaseController
 {
 	protected const MAX_MESSAGES_COUNT = 100;
-	protected const MAX_MESSAGES_COUNT_FOR_FORWARD = 20;
 	protected const MESSAGE_ON_PAGE_COUNT = 50;
 	private const ALLOWED_FIELDS_UPDATE = [
 		'MESSAGE',
@@ -45,6 +46,7 @@ class Message extends BaseController
 		'REPLY_ID',
 		'BOT_ID',
 		'COPILOT',
+		'SILENT_CONNECTOR',
 	];
 
 	public function getPrimaryAutoWiredParameter()
@@ -53,7 +55,7 @@ class Message extends BaseController
 			\Bitrix\Im\V2\Message::class,
 			'message',
 			function ($className, int $id) {
-				return $this->getMessageById($id);
+				return new \Bitrix\Im\V2\Message($id);
 			}
 		);
 	}
@@ -116,44 +118,30 @@ class Message extends BaseController
 	public function configureActions()
 	{
 		return [
-			'disappear' => [
-				'+prefilters' => [
-					new CheckMessageDisappearingDuration(),
-				]
-			],
-			'read' => [
-				'+postfilters' => [
-					new UpdateStatus(),
-				],
-			],
-			'list' => [
-				'+postfilters' => [
-					new UpdateStatus(),
-				],
-			],
-			'getContext' => [
-				'+postfilters' => [
-					new UpdateStatus(),
-				],
-			],
-			'tail' => [
-				'+postfilters' => [
-					new UpdateStatus(),
-				],
-			],
 			'send' => [
 				'+prefilters' => [
-					new CheckActionAccess(Chat\Permission::ACTION_SEND),
+					new CheckActionAccess(Action::Send),
+					new PlatformContext(),
+				],
+			],
+			'update' => [
+				'+prefilters' => [
+					new PlatformContext(),
 				],
 			],
 			'pin' => [
 				'+prefilters' => [
-					new CheckActionAccess(Chat\Permission::ACTION_PIN_MESSAGE),
+					new CheckActionAccess(Action::PinMessage),
 				],
 			],
 			'unpin' => [
 				'+prefilters' => [
-					new CheckActionAccess(Chat\Permission::ACTION_PIN_MESSAGE),
+					new CheckActionAccess(Action::PinMessage),
+				],
+			],
+			'list' => [
+				'+prefilters' => [
+					new DiskQuickAccessGrantor(),
 				],
 			],
 		];
@@ -289,10 +277,16 @@ class Message extends BaseController
 	/**
 	 * @restMethod im.v2.Chat.Message.delete
 	 */
-	public function deleteAction(\Bitrix\Im\V2\Message $message): ?bool
+	public function deleteAction(\Bitrix\Im\V2\MessageCollection $messages): ?bool
 	{
-		$service = new DeleteService($message);
-		$service->setMode(DeleteService::MODE_AUTO);
+		if ($messages->count() > MessageService::getMultipleActionMessageLimit())
+		{
+			$this->addError(new MessageError(MessageError::TOO_MANY_MESSAGES));
+
+			return null;
+		}
+
+		$service = new DeleteService($messages);
 		$result = $service->delete();
 
 		if (!$result->isSuccess())
@@ -310,10 +304,11 @@ class Message extends BaseController
 	 */
 	public function disappearAction(\Bitrix\Im\V2\Message $message, int $hours): ?bool
 	{
-		$deleteService = new DeleteService($message);
-		if ($deleteService->canDelete() < DeleteService::DELETE_HARD)
+		$deleteService = DeleteService::getInstanceByMessage($message);
+
+		if ($deleteService->canDelete($message->getId()) !== DeletionMode::Complete)
 		{
-			$this->addError(new MessageError(MessageError::MESSAGE_ACCESS_ERROR));
+			$this->addError(new MessageError(MessageError::ACCESS_DENIED));
 
 			return null;
 		}
@@ -346,7 +341,7 @@ class Message extends BaseController
 		}
 
 		$fields['message'] = $this->getRawValue('fields')['message'] ?? $fields['message'] ?? null;
-		$fields = $this->prepareMessageFields($fields, self::ALLOWED_FIELDS_SEND);
+		$fields = $this->prepareFields($fields, self::ALLOWED_FIELDS_SEND);
 		$result = (new SendingService())->prepareFields($chat, $fields, $forwardMessages, $restServer);
 
 		if (!$result->isSuccess())
@@ -357,8 +352,10 @@ class Message extends BaseController
 		}
 
 		$fields = $result->getResult();
+		$fields['SKIP_USER_CHECK'] = 'Y';
+		$fields['WAIT_FULL_EXECUTION'] = 'N';
 
-		$massageId = \CIMMessenger::Add($fields);
+		$messageId = \CIMMessenger::Add($fields);
 
 		if (isset($forwardMessages) && $forwardMessages->count() > 0)
 		{
@@ -369,10 +366,22 @@ class Message extends BaseController
 
 				return null;
 			}
+
+			foreach ($forwardMessages as $message)
+			{
+				(new MessageAnalytics($message))->addShareMessage($chat);
+			}
+		}
+
+		if ($messageId === false && !isset($forwardResult))
+		{
+			$this->addError(new MessageError(MessageError::SENDING_FAILED));
+
+			return null;
 		}
 
 		return [
-			'id' => $massageId ?: null,
+			'id' => $messageId ?: null,
 			'uuidMap' => isset($forwardResult) ? $forwardResult->getResult() : []
 		];
 	}
@@ -382,13 +391,14 @@ class Message extends BaseController
 	 */
 	public function updateAction(
 		\Bitrix\Im\V2\Message $message,
+		?\CRestServer $restServer = null,
 		array $fields = [],
 		string $urlPreview = 'Y',
 		int $botId = 0
 	): ?bool
 	{
 		$fields['message'] = $this->getRawValue('fields')['message'] ?? $fields['message'] ?? null;
-		$fields = $this->prepareMessageFields($fields, self::ALLOWED_FIELDS_UPDATE);
+		$fields = $this->prepareFields($fields, self::ALLOWED_FIELDS_UPDATE);
 		$message->setBotId($botId);
 		$result = (new UpdateService($message))
 			->setUrlPreview($this->convertCharToBool($urlPreview))
@@ -422,7 +432,7 @@ class Message extends BaseController
 
 		$message->markAsImportant(true);
 
-		$result = (new PushFormat())->validateDataForInform($message, $chat);
+		$result = (new PushFormat($message))->validateDataForInform();
 		if (!$result->isSuccess())
 		{
 			$this->addErrors($result->getErrors());
@@ -431,7 +441,7 @@ class Message extends BaseController
 		}
 
 		$pushService = new \Bitrix\Im\V2\Message\Inform\PushService();
-		$pushService->sendInformPushPrivateChat($chat, $message);
+		$pushService->sendInformPushPrivateChat($message);
 
 		return ['result' => true];
 	}
@@ -497,8 +507,9 @@ class Message extends BaseController
 		);
 
 		$rest = $this->toRestFormat($messages);
+		$wasFilteredByTariffRestrictions = $rest['tariffRestrictions']['isHistoryLimitExceeded'] ?? false;
 		//todo: refactor. Change to popup data.
-		$rest['hasNextPage'] = $messages->count() >= $limit;
+		$rest['hasNextPage'] = !$wasFilteredByTariffRestrictions && $messages->count() >= $limit;
 
 		return $rest;
 	}
@@ -507,7 +518,7 @@ class Message extends BaseController
 	{
 		$result = new Result();
 
-		if ($messages->count() > self::MAX_MESSAGES_COUNT_FOR_FORWARD)
+		if ($messages->count() > MessageService::getMultipleActionMessageLimit())
 		{
 			return $result->addError(new MessageError(MessageError::TOO_MANY_MESSAGES));
 		}
@@ -521,13 +532,5 @@ class Message extends BaseController
 		}
 
 		return $result;
-	}
-
-	private function prepareMessageFields(array $fields, array $whiteList): array
-	{
-		$converter = new Converter(Converter::TO_SNAKE | Converter::TO_UPPER | Converter::KEYS);
-		$fields = $converter->process($fields);
-
-		return  $this->checkWhiteList($fields, $whiteList);
 	}
 }

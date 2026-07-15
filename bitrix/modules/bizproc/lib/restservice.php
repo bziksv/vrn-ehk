@@ -3,6 +3,7 @@
 namespace Bitrix\Bizproc;
 
 use Bitrix\Bizproc\Workflow\Entity\WorkflowInstanceTable;
+use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Loader;
 use Bitrix\Rest\AppLangTable;
 use Bitrix\Rest\AppTable;
@@ -30,12 +31,18 @@ class RestService extends \IRestService
 	const ERROR_WRONG_WORKFLOW_ID = 'ERROR_WRONG_WORKFLOW_ID';
 
 	const ERROR_TEMPLATE_VALIDATION_FAILURE = 'ERROR_TEMPLATE_VALIDATION_FAILURE';
+	const ERROR_TEMPLATE_NOT_FOUND = 'ERROR_TEMPLATE_NOT_FOUND';
+	const ERROR_TEMPLATE_NOT_OWNER = 'ERROR_TEMPLATE_NOT_OWNER';
 
 	const ERROR_TASK_VALIDATION = 'ERROR_TASK_VALIDATION';
 	const ERROR_TASK_NOT_FOUND = 'ERROR_TASK_NOT_FOUND';
 	const ERROR_TASK_TYPE = 'ERROR_TASK_TYPE';
 	const ERROR_TASK_COMPLETED = 'ERROR_TASK_COMPLETED';
 	const ERROR_TASK_EXECUTION = 'ERROR_TASK_EXECUTION';
+	const ERROR_SELECT_VALIDATION_FAILURE = 'ERROR_SELECT_VALIDATION_FAILURE';
+
+	const ERROR_INVALID_USER_ID = 'ERROR_INVALID_USER_ID';
+	const ERROR_DELEGATION_NOT_ALLOWED = 'ERROR_DELEGATION_NOT_ALLOWED';
 
 	private const ALLOWED_TASK_ACTIVITIES = [
 		'ReviewActivity',
@@ -64,6 +71,7 @@ class RestService extends \IRestService
 				//task
 				'bizproc.task.list' => [__CLASS__, 'getTaskList'],
 				'bizproc.task.complete' => [__CLASS__, 'completeTask'],
+				'bizproc.task.delegate' => [__CLASS__, 'delegateTask'],
 
 				//workflow
 				'bizproc.workflow.terminate' => [__CLASS__, 'terminateWorkflow'],
@@ -254,7 +262,14 @@ class RestService extends \IRestService
 			self::upsertAppPlacement($appId, $params['CODE'], $params['PLACEMENT_HANDLER'] ?? null);
 		}
 
-		$result = RestActivityTable::add($params);
+		try
+		{
+			$result = RestActivityTable::add($params);
+		}
+		catch (SqlQueryException $exception)
+		{
+			throw new RestException('Activity or Robot already added!', self::ERROR_ACTIVITY_ADD_FAILURE);
+		}
 
 		if ($result->getErrors())
 		{
@@ -637,7 +652,7 @@ class RestService extends \IRestService
 	 * @param array $params Input params.
 	 * @param int $n Offset.
 	 * @param \CRestServer $server Rest server instance.
-	 * @return array
+	 * @return \Countable
 	 * @throws AccessException
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\SystemException
@@ -647,7 +662,7 @@ class RestService extends \IRestService
 		self::checkAdminPermissions();
 		$params = array_change_key_case($params, CASE_UPPER);
 
-		$fields = array(
+		$fields = [
 			'ID' => 'ID',
 			'MODIFIED' => 'MODIFIED',
 			'OWNED_UNTIL' => 'OWNED_UNTIL',
@@ -657,34 +672,43 @@ class RestService extends \IRestService
 			'STARTED' => 'STARTED',
 			'STARTED_BY' => 'STARTED_BY',
 			'TEMPLATE_ID' => 'WORKFLOW_TEMPLATE_ID',
-		);
+		];
 
-		$select = static::getSelect($params['SELECT'], $fields, array('ID', 'MODIFIED', 'OWNED_UNTIL'));
-		$filter = static::getFilter($params['FILTER'], $fields, array('MODIFIED', 'OWNED_UNTIL'));
-		$order = static::getOrder($params['ORDER'], $fields, array('MODIFIED' => 'DESC'));
+		$select = static::getSelect($params['SELECT'] ?? null, $fields, ['ID', 'MODIFIED', 'OWNED_UNTIL']);
+		$filter = static::getFilter($params['FILTER'] ?? null, $fields, ['MODIFIED', 'OWNED_UNTIL', 'STARTED']);
+		$order = static::getOrder($params['ORDER'] ?? null, $fields, ['MODIFIED' => 'DESC']);
+		$shouldCountTotal = ($n >= 0);
 
-		$iterator = WorkflowInstanceTable::getList(array(
+		$iterator = WorkflowInstanceTable::getList([
 			'select' => $select,
 			'filter' => $filter,
 			'order' => $order,
 			'limit' => static::LIST_LIMIT,
-			'offset' => (int) $n,
-			'count_total' => true,
-		));
+			'offset' => max(0, (int)$n),
+			'count_total' => $shouldCountTotal,
+		]);
 
-		$result = array();
+		$result = [];
 		while ($row = $iterator->fetch())
 		{
 			if (isset($row['MODIFIED']))
+			{
 				$row['MODIFIED'] = \CRestUtil::convertDateTime($row['MODIFIED']);
+			}
 			if (isset($row['STARTED']))
+			{
 				$row['STARTED'] = \CRestUtil::convertDateTime($row['STARTED']);
+			}
 			if (isset($row['OWNED_UNTIL']))
+			{
 				$row['OWNED_UNTIL'] = \CRestUtil::convertDateTime($row['OWNED_UNTIL']);
+			}
 			$result[] = $row;
 		}
 
-		return static::setNavData($result, ['count' => $iterator->getCount(), 'offset' => $n]);
+		$count = $shouldCountTotal ? $iterator->getCount() : 0;
+
+		return static::setNavData($result, ['count' => $count, 'offset' => $n]);
 	}
 
 	/**
@@ -703,6 +727,11 @@ class RestService extends \IRestService
 		if (empty($params['ID']))
 		{
 			throw new RestException('Empty workflow instance ID', self::ERROR_WRONG_WORKFLOW_ID);
+		}
+
+		if (!is_string($params['ID']))
+		{
+			throw new RestException('Invalid workflow instance ID (string expected)', self::ERROR_WRONG_WORKFLOW_ID);
 		}
 
 		$id = $params['ID'];
@@ -800,7 +829,7 @@ class RestService extends \IRestService
 
 		$workflowParameters = isset($params['PARAMETERS']) && is_array($params['PARAMETERS']) ? $params['PARAMETERS'] : [];
 
-		$workflowParameters[\CBPDocument::PARAM_TAGRET_USER] = self::getCurrentUserId();
+		$workflowParameters[\CBPDocument::PARAM_TAGRET_USER] = 'user_' . self::getCurrentUserId();
 
 		$errors = [];
 		$workflowId = \CBPDocument::startWorkflow($templateId, $documentId, $workflowParameters, $errors);
@@ -839,7 +868,7 @@ class RestService extends \IRestService
 	 * @param array $params Input params.
 	 * @param int $n Offset.
 	 * @param \CRestServer $server Rest server instance.
-	 * @return mixed Templates collection.
+	 * @return \Countable Templates collection.
 	 * @throws AccessException
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\ObjectPropertyException
@@ -868,22 +897,23 @@ class RestService extends \IRestService
 			'SYSTEM_CODE' => 'SYSTEM_CODE',
 		);
 
-		$select = static::getSelect($params['SELECT'], $fields, array('ID'));
-		$filter = static::getFilter($params['FILTER'], $fields, array('MODIFIED'));
+		$select = static::getSelect($params['SELECT'] ?? null, $fields, ['ID']);
+		$filter = static::getFilter($params['FILTER'] ?? null, $fields, ['MODIFIED']);
 		$filter['<AUTO_EXECUTE'] = \CBPDocumentEventType::Automation;
 
-		$order = static::getOrder($params['ORDER'], $fields, array('ID' => 'ASC'));
+		$order = static::getOrder($params['ORDER'] ?? null, $fields, ['ID' => 'ASC']);
+		$shouldCountTotal = ($n >= 0);
 
 		$iterator = WorkflowTemplateTable::getList(array(
 			'select' => $select,
 			'filter' => $filter,
 			'order' => $order,
 			'limit' => static::LIST_LIMIT,
-			'offset' => (int) $n,
-			'count_total' => true,
+			'offset' => max(0, (int)$n),
+			'count_total' => $shouldCountTotal,
 		));
 
-		$countTotal = $iterator->getCount();
+		$countTotal = $shouldCountTotal ? $iterator->getCount() : 0;
 
 		$iterator = new \CBPWorkflowTemplateResult($iterator, \CBPWorkflowTemplateLoader::useGZipCompression());
 
@@ -931,15 +961,22 @@ class RestService extends \IRestService
 
 		$data = self::prepareTemplateData($params['TEMPLATE_DATA']);
 
-		return \CBPWorkflowTemplateLoader::ImportTemplate(
-			0,
-			$params['DOCUMENT_TYPE'],
-			$autoExecute,
-			$params['NAME'],
-			isset($params['DESCRIPTION']) ? (string) $params['DESCRIPTION'] : '',
-			$data,
-			self::generateTemplateSystemCode($server)
-		);
+		try
+		{
+			return \CBPWorkflowTemplateLoader::ImportTemplate(
+				0,
+				$params['DOCUMENT_TYPE'],
+				$autoExecute,
+				$params['NAME'],
+				isset($params['DESCRIPTION']) ? (string) $params['DESCRIPTION'] : '',
+				$data,
+				self::generateTemplateSystemCode($server)
+			);
+		}
+		catch (\Exception $e)
+		{
+			throw new RestException($e->getMessage());
+		}
 	}
 
 	/**
@@ -963,7 +1000,7 @@ class RestService extends \IRestService
 
 		if (!$fields)
 		{
-			throw new RestException("No fields to update.");
+			throw new RestException("No fields to update.", self::ERROR_TEMPLATE_VALIDATION_FAILURE);
 		}
 
 		$tpl = WorkflowTemplateTable::getList(array(
@@ -973,12 +1010,15 @@ class RestService extends \IRestService
 
 		if (!$tpl)
 		{
-			throw new RestException("Workflow template not found.");
+			throw new RestException("Workflow template not found.", self::ERROR_TEMPLATE_NOT_FOUND);
 		}
 
 		if ($tpl['SYSTEM_CODE'] !== self::generateTemplateSystemCode($server))
 		{
-			throw new RestException("You can update ONLY templates created by current application");
+			throw new RestException(
+				"You can update ONLY templates created by current application",
+				self::ERROR_TEMPLATE_NOT_OWNER,
+			);
 		}
 
 		if (isset($fields['NAME']))
@@ -1046,7 +1086,7 @@ class RestService extends \IRestService
 
 		if (!$tpl)
 		{
-			throw new RestException("Workflow template not found.");
+			throw new RestException("Workflow template not found.", self::ERROR_TEMPLATE_NOT_FOUND);
 		}
 
 		if ($tpl['SYSTEM_CODE'] !== self::generateTemplateSystemCode($server))
@@ -1054,7 +1094,14 @@ class RestService extends \IRestService
 			throw new RestException("You can delete ONLY templates created by current application");
 		}
 
-		\CBPWorkflowTemplateLoader::Delete($tpl['ID']);
+		try
+		{
+			\CBPWorkflowTemplateLoader::Delete($tpl['ID']);
+		}
+		catch (\CBPInvalidOperationException $e)
+		{
+			throw new RestException($e->getMessage());
+		}
 	}
 
 	/**
@@ -1268,6 +1315,42 @@ class RestService extends \IRestService
 		return true;
 	}
 
+	public static function delegateTask($params, $n, $server)
+	{
+		$params = array_change_key_case($params, CASE_UPPER);
+		$currentUserId = self::getCurrentUserId();
+
+		if (!is_array($params['TASK_IDS']) || array_filter($params['TASK_IDS'], static fn($id) => !is_numeric($id)))
+		{
+			throw new RestException('Invalid TASK_IDS', self::ERROR_TASK_VALIDATION);
+		}
+		$taskIds = array_map('intval', $params['TASK_IDS']);
+
+		if (!isset($params['FROM_USER_ID']) || !is_numeric($params['FROM_USER_ID']) || $params['FROM_USER_ID'] <= 0)
+		{
+			throw new RestException('Invalid FROM_USER_ID', self::ERROR_INVALID_USER_ID);
+		}
+		$fromUserId = (int)$params['FROM_USER_ID'];
+
+		if (!isset($params['TO_USER_ID']) || !is_numeric($params['TO_USER_ID']) || $params['TO_USER_ID'] <= 0)
+		{
+			throw new RestException('Invalid TO_USER_ID', self::ERROR_INVALID_USER_ID);
+		}
+		$toUserId = (int)$params['TO_USER_ID'];
+
+		$taskService = new Api\Service\TaskService(new Api\Service\TaskAccessService($currentUserId));
+		$tasksRequest = new Api\Request\TaskService\DelegateTasksRequest($taskIds, $fromUserId, $toUserId, $currentUserId);
+		$delegateTaskResult = $taskService->delegateTasks($tasksRequest);
+
+		if (!$delegateTaskResult->isSuccess())
+		{
+			$errors = implode(';', $delegateTaskResult->getErrorMessages());
+			throw new RestException($errors, self::ERROR_DELEGATION_NOT_ALLOWED);
+		}
+
+		return true;
+	}
+
 	private static function validateTaskParameters(array $params)
 	{
 		if (empty($params['TASK_ID']))
@@ -1443,13 +1526,21 @@ class RestService extends \IRestService
 		{
 			foreach ($rules as $field)
 			{
+				if (!is_scalar($field))
+				{
+					throw new RestException(
+						"Invalid data in SELECT parameter",
+						self::ERROR_SELECT_VALIDATION_FAILURE,
+					);
+				}
+
 				$field = mb_strtoupper($field);
 				if (isset($fields[$field]) && !in_array($field, $select))
 					$select[$field] = $fields[$field];
 			}
 		}
 
-		return $select ? $select : $default;
+		return $select ?: $default;
 	}
 
 	private static function getOrder($rules, $fields, array $default = array())
@@ -1484,7 +1575,9 @@ class RestService extends \IRestService
 					if (in_array($operation, static::$allowedOperations, true) && isset($fields[$field]))
 					{
 						if (in_array($field, $datetimeFieldsList))
+						{
 							$value = \CRestUtil::unConvertDateTime($value);
+						}
 
 						$filter[$operation.$fields[$field]] = $value;
 					}
@@ -1699,7 +1792,7 @@ class RestService extends \IRestService
 		{
 			$documentService = \CBPRuntime::getRuntime()->getDocumentService();
 			$documentId = $documentService->normalizeDocumentId($documentId);
-			if ($documentService->getDocument($documentId))
+			if ($documentService->getDocument($documentId, select: ['ID']))
 			{
 				return $documentId;
 			}
@@ -1742,7 +1835,7 @@ class RestService extends \IRestService
 	{
 		if (empty($name))
 		{
-			throw new RestException('Empty activity code!', self::ERROR_TEMPLATE_VALIDATION_FAILURE);
+			throw new RestException('Empty template name!', self::ERROR_TEMPLATE_VALIDATION_FAILURE);
 		}
 	}
 
@@ -1816,7 +1909,7 @@ class RestService extends \IRestService
 
 			if ($fileFields)
 			{
-				return file_get_contents($fileFields['tmp_name']);
+				return \Bitrix\Main\IO\File::getFileContents($fileFields['tmp_name']);
 			}
 		}
 		throw new RestException('Incorrect field TEMPLATE_DATA!', self::ERROR_TEMPLATE_VALIDATION_FAILURE);

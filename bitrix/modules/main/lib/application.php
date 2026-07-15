@@ -11,6 +11,8 @@ namespace Bitrix\Main;
 
 use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\DI\ServiceLocator;
+use Bitrix\Main\Messenger\Config\WorkerRunMode;
+use Bitrix\Main\Messenger\Internals\Worker;
 use Bitrix\Main\Routing\CompileCache;
 use Bitrix\Main\Routing\Route;
 use Bitrix\Main\Routing\Router;
@@ -84,6 +86,7 @@ abstract class Application
 		$this->backgroundJobs = new \SplPriorityQueue();
 		$this->initializeExceptionHandler();
 		$this->initializeCache();
+		$this->initializeMessengerWorker();
 		$this->createDatabaseConnection();
 	}
 
@@ -391,8 +394,8 @@ abstract class Application
 	 * 'exception_handling' => array(
 	 *        'value' => array(
 	 *            'debug' => true,        // output exception on screen
-	 *            'handled_errors_types' => E_ALL & ~E_STRICT & ~E_NOTICE,    // catchable error types, printed to log
-	 *            'exception_errors_types' => E_ALL & ~E_NOTICE & ~E_STRICT,  // error types from catchable which throws exceptions
+	 *            'handled_errors_types' => E_ALL & ~E_NOTICE,    // catchable error types, printed to log
+	 *            'exception_errors_types' => E_ALL & ~E_NOTICE,  // error types from catchable which throws exceptions
 	 *            'ignore_silence' => false,      // ignore @
 	 *            'assertion_throws_exception' => true,       // assertion throws exception
 	 *            'assertion_error_type' => 256,
@@ -550,6 +553,30 @@ abstract class Application
 		{
 			Data\Cache::setClearCache($_GET["clear_cache"] === 'Y');
 		}
+	}
+
+	protected function initializeMessengerWorker(): void
+	{
+		$config = Config\Configuration::getValue('messenger');
+
+		if (!$config)
+		{
+			$config = ['run_mode' => WorkerRunMode::BackgroundInWeb->value];
+		}
+
+		if (!isset($config['run_mode']))
+		{
+			$config['run_mode'] = WorkerRunMode::BackgroundInWeb->value;
+		}
+
+		if ($config['run_mode'] === WorkerRunMode::Cli->value)
+		{
+			return;
+		}
+
+		$worker = new Worker();
+
+		$this->addBackgroundJob([$worker, 'process']);
 	}
 
 	/**

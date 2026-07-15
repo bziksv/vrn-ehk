@@ -4,13 +4,20 @@ namespace Bitrix\Im\V2\Chat;
 
 use Bitrix\Disk\Folder;
 use Bitrix\Im\Model\ChatTable;
+use Bitrix\Im\Recent;
 use Bitrix\Im\V2\Chat;
+use Bitrix\Im\V2\Message\Send\MentionService;
+use Bitrix\Im\V2\Message\Send\SendingConfig;
+use Bitrix\Im\V2\Message\Send\SendingService;
+use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Im\V2\Relation;
+use Bitrix\Im\V2\RelationCollection;
 use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Message;
 use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Type\DateTime;
 use Bitrix\Pull\Event;
 
 /**
@@ -18,6 +25,8 @@ use Bitrix\Pull\Event;
  */
 class CommentChat extends GroupChat
 {
+	protected const LOCK_TIMEOUT = 3;
+	protected const EXTRANET_CAN_SEE_HISTORY = true;
 	protected ?Chat $parentChat;
 	protected ?Message $parentMessage;
 
@@ -48,6 +57,40 @@ class CommentChat extends GroupChat
 		return static::create($message);
 	}
 
+	/**
+	 * @param MessageCollection $messages
+	 * @return Result<Chat[]>
+	 */
+	public static function getChatsByMessages(MessageCollection $messages): Result
+	{
+		$result = new Result();
+
+		$chatIds = static::getIdsByMessages($messages);
+		if (empty($chatIds))
+		{
+			return $result;
+		}
+
+		$chats = [];
+
+		foreach ($chatIds as $chatInfo)
+		{
+			$chat = Chat::getInstance((int)$chatInfo['ID']);
+			if ($chat instanceof self)
+			{
+				$chat->parentMessage = $messages[(int)$chatInfo['PARENT_MID']];
+				$chats[] = $chat;
+			}
+		}
+
+		return $result->setResult($chats);
+	}
+
+	protected function getMentionService(SendingConfig $config): MentionService
+	{
+		return new Message\Send\Mention\CommentMentionService($config);
+	}
+
 	public static function create(Message $message): Result
 	{
 		$result = new Result();
@@ -58,7 +101,11 @@ class CommentChat extends GroupChat
 			return $result->addError(new ChatError(ChatError::WRONG_PARENT_CHAT));
 		}
 
-		Application::getConnection()->lock(self::getLockName($message->getId()));
+		$isLocked = Application::getConnection()->lock(self::getLockName($message->getId()), self::LOCK_TIMEOUT);
+		if (!$isLocked)
+		{
+			return $result->addError(new ChatError(ChatError::CREATION_ERROR));
+		}
 
 		$chat = Chat::getInstance(static::getIdByMessage($message));
 		if ($chat instanceof self)
@@ -73,6 +120,16 @@ class CommentChat extends GroupChat
 		Application::getConnection()->unlock(self::getLockName($message->getId()));
 
 		return $createResult;
+	}
+
+	public function isAutoJoinEnabled(): bool
+	{
+		return true;
+	}
+
+	public function canUserAutoJoin(?int $userId = null): bool
+	{
+		return parent::canUserAutoJoin($userId) && $this->getParentChat()->getSelfRelation() !== null;
 	}
 
 	public function join(bool $withMessage = true): Chat
@@ -101,6 +158,76 @@ class CommentChat extends GroupChat
 		return $role;
 	}
 
+	public function isCounterIncrementAllowed(): bool
+	{
+		return true;
+	}
+
+	public function allowMentionAllChatNotification(): bool
+	{
+		return false;
+	}
+
+	public function onAfterMessageUpdate(Message $message): Result
+	{
+		$result = $this->subscribeUsers(true, $message->getMentionedUserIds(), $message->getPrevId());
+		$parentResult = parent::onAfterMessageUpdate($message);
+
+		return Result::merge($parentResult, $result);
+	}
+
+	protected function onAfterMessageSend(Message $message, SendingService $sendingService): void
+	{
+		$this->subscribe(true, $message->getAuthorId());
+		$this->subscribeUsers(true, $message->getMentionedUserIds(), $message->getPrevId());
+		Message\LastMessages::insert($message);
+
+		if (!$sendingService->getConfig()->skipCounterIncrements())
+		{
+			Recent::raiseChat($this->getParentChat(), $this->getParentRelationsForRaiseChat(), new DateTime());
+		}
+
+		parent::onAfterMessageSend($message, $sendingService);
+	}
+
+	public function filterUsersToMention(array $userIds): array
+	{
+		return $this->getParentChat()->filterUsersToMention($userIds);
+	}
+
+	public function getRelations(): RelationCollection
+	{
+		$relations = parent::getRelations();
+		$userIds = $relations->getUserIds();
+		if (empty($userIds))
+		{
+			return $relations;
+		}
+
+		$parentRelations = $this->getParentChat()->getRelationsByUserIds($userIds);
+
+		return $relations->filter(
+			fn (Relation $relation) => $parentRelations->getByUserId($relation->getUserId(), $this->getParentChatId())
+		);
+	}
+
+	public function getAllUserIdsForMention(): array
+	{
+		return $this->getParentChat()->getRelations()->getUserIds();
+	}
+
+	public function getRelationsForSendMessage(): RelationCollection
+	{
+		return parent::getRelationsForSendMessage()->filterNotifySubscribed();
+	}
+
+	protected function getParentRelationsForRaiseChat(): RelationCollection
+	{
+		$userIds = $this->getRelationsForSendMessage()->getUserIds();
+
+		return $this->getParentChat()->getRelationsByUserIds($userIds);
+	}
+
 	public function subscribe(bool $subscribe = true, ?int $userId = null): Result
 	{
 		$userId ??= $this->getContext()->getUserId();
@@ -124,16 +251,11 @@ class CommentChat extends GroupChat
 		return $result;
 	}
 
-	protected function filterUsersToAdd(array $userIds): array
+	protected function getValidUsersToAdd(array $userIds): array
 	{
-		$userIds = parent::filterUsersToAdd($userIds);
+		$userIds = parent::getValidUsersToAdd($userIds);
 
-		if (empty($userIds))
-		{
-			return $userIds;
-		}
-
-		return $this->getParentChat()->getRelations(['FILTER' => ['USER_ID' => $userIds]])->getUserIds();
+		return $this->getParentChat()->getRelationsByUserIds($userIds)->getUserIds();
 	}
 
 	public function subscribeUsers(bool $subscribe = true, array $userIds = [], ?int $lastId = null): Result
@@ -145,7 +267,7 @@ class CommentChat extends GroupChat
 			return $result;
 		}
 
-		$this->addUsers($userIds, [], false);
+		$this->addUsers($userIds, new Relation\AddUsersConfig(hideHistory: false));
 		$relations = $this->getRelations();
 		$subscribedUsers = [];
 		foreach ($userIds as $userId)
@@ -215,11 +337,11 @@ class CommentChat extends GroupChat
 		return $folder;
 	}
 
-	protected function createRelation(int $userId, bool $hideHistory, array $managersMap, Relation\Reason $reason): Relation
+	protected function createRelation(int $userId, Relation\AddUsersConfig $config): Relation
 	{
-		$notifyBlock = $userId !== $this->getParentMessage()->getAuthorId();
+		$notifyBlock = $userId !== $this->getParentMessage()?->getAuthorId();
 
-		return parent::createRelation($userId, $hideHistory, $managersMap, $reason)->setLastId(0)->setNotifyBlock($notifyBlock);
+		return parent::createRelation($userId, $config)->setLastId(0)->setNotifyBlock($notifyBlock);
 	}
 
 	protected function getDefaultType(): string
@@ -255,7 +377,7 @@ class CommentChat extends GroupChat
 		return $this->parentMessage;
 	}
 
-	protected function sendMessageUsersAdd(array $usersToAdd, bool $skipRecent = false): void
+	protected function sendMessageUsersAdd(array $usersToAdd, Relation\AddUsersConfig $config): void
 	{
 		return;
 	}
@@ -265,7 +387,7 @@ class CommentChat extends GroupChat
 		return;
 	}
 
-	protected function sendMessageUserDelete(int $userId, bool $skipRecent = false): void
+	protected function sendMessageUserDelete(int $userId, Relation\DeleteUserConfig $config): void
 	{
 		return;
 	}
@@ -344,13 +466,16 @@ class CommentChat extends GroupChat
 			'AUTHOR_ID' => $parentChat->getAuthorId(),
 		]);
 
-		if (!$addResult->isSuccess())
+		/**
+		 * @var ?static $chat
+		 */
+		$chat = $addResult->getChat();
+
+		if (!isset($chat) || !$addResult->isSuccess())
 		{
 			return $addResult;
 		}
 
-		/** @var static $chat */
-		$chat = $addResult->getResult()['CHAT'];
 		$chat->parentMessage = $message;
 		$chat->sendPushChatCreate();
 
@@ -367,6 +492,25 @@ class CommentChat extends GroupChat
 		;
 
 		return (int)($row['ID'] ?? 0);
+	}
+
+	public static function getIdsByMessages(MessageCollection $messages): array
+	{
+		$chatId = $messages->getCommonChatId();
+
+		if (!isset($chatId))
+		{
+			return [];
+		}
+
+		$result = ChatTable::query()
+			->setSelect(['ID', 'PARENT_MID'])
+			->where('PARENT_ID', $chatId)
+			->whereIn('PARENT_MID', $messages->getIds())
+			->fetchAll()
+		;
+
+		return $result;
 	}
 
 	protected function sendPushChatCreate(): void
@@ -386,9 +530,11 @@ class CommentChat extends GroupChat
 		);
 	}
 
-	protected function checkAccessWithoutCaching(int $userId): bool
+	protected function checkAccessInternal(int $userId): Result
 	{
-		return $this->getParentMessage()?->hasAccess() ?? false;
+		return $this->getParentMessage()?->checkAccess($userId)
+			?? (new Result())->addError(new ChatError(ChatError::ACCESS_DENIED))
+		;
 	}
 
 	protected function addIndex(): Chat
@@ -404,5 +550,10 @@ class CommentChat extends GroupChat
 	protected static function getLockName(int $messageId): string
 	{
 		return 'com_create_' . $messageId;
+	}
+
+	protected function needToSendMessageUserDelete(): bool
+	{
+		return false;
 	}
 }

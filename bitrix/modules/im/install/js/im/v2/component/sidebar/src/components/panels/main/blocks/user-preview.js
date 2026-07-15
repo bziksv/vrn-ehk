@@ -1,7 +1,10 @@
+import { Analytics } from 'im.v2.lib.analytics';
 import { hint } from 'ui.vue3.directives.hint';
 
-import { ChatAvatar, AvatarSize, ChatTitle, Button as MessengerButton, ButtonColor, ButtonSize } from 'im.v2.component.elements';
-import { ChatActionType } from 'im.v2.const';
+import { ChatTitle } from 'im.v2.component.elements.chat-title';
+import { ChatButton, ButtonColor, ButtonSize } from 'im.v2.component.elements.button';
+import { ChatAvatar, AvatarSize } from 'im.v2.component.elements.avatar';
+import { ActionByRole, ActionByUserType, UserType } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 import { AddToChat } from 'im.v2.component.entity-selector';
 import { PermissionManager } from 'im.v2.lib.permission';
@@ -17,7 +20,7 @@ import type { ImModelChat, ImModelUser } from 'im.v2.model';
 export const UserPreview = {
 	name: 'UserPreview',
 	directives: { hint },
-	components: { ChatAvatar, ChatTitle, MessengerButton, AddToChat, AutoDelete },
+	components: { ChatAvatar, ChatTitle, ChatButton, AddToChat, AutoDelete },
 	props: {
 		dialogId: {
 			type: String,
@@ -53,7 +56,10 @@ export const UserPreview = {
 		},
 		canInviteMembers(): boolean
 		{
-			return PermissionManager.getInstance().canPerformAction(ChatActionType.extend, this.dialogId);
+			const canCreateChat = PermissionManager.getInstance().canPerformActionByUserType(ActionByUserType.createChat);
+			const canExtendChat = PermissionManager.getInstance().canPerformActionByRole(ActionByRole.extend, this.dialogId);
+
+			return canCreateChat && canExtendChat;
 		},
 		showInviteButton(): boolean
 		{
@@ -70,13 +76,14 @@ export const UserPreview = {
 		},
 		isBot(): boolean
 		{
-			return this.user.bot === true;
+			return this.user.type === UserType.bot;
 		},
 	},
 	methods:
 	{
 		onAddClick()
 		{
+			Analytics.getInstance().userAdd.onChatSidebarClick(this.dialogId);
 			this.showAddToChatPopup = true;
 		},
 	},
@@ -101,7 +108,7 @@ export const UserPreview = {
 				class="bx-im-sidebar-main-preview-personal-chat__invite-button-container" 
 				ref="add-members"
 			>
-				<MessengerButton
+				<ChatButton
 					v-if="canInviteMembers"
 					:text="$Bitrix.Loc.getMessage('IM_SIDEBAR_CREATE_GROUP_CHAT')"
 					:size="ButtonSize.S"
@@ -116,9 +123,9 @@ export const UserPreview = {
 				<AutoDelete :dialogId="dialogId" />
 			</div>
 			<AddToChat
+				v-if="showAddToChatPopup"
 				:bindElement="$refs['add-members'] || {}"
 				:dialogId="dialogId"
-				:showPopup="showAddToChatPopup"
 				:popupConfig="{offsetTop: -220, offsetLeft: -320}"
 				@close="showAddToChatPopup = false"
 			/>

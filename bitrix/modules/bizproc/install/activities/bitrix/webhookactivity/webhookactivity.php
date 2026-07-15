@@ -28,12 +28,17 @@ class CBPWebHookActivity extends CBPActivity
 		}
 
 		$handler = $this->Handler;
+		if (is_array($handler))
+		{
+			$handler = CBPHelper::flatten($handler)[0] ?? null;
+		}
 
 		if ($handler)
 		{
 			$handlerData = parse_url($handler);
 
 			if (is_array($handlerData)
+				&& isset($handlerData['host'])
 				&& $handlerData['host'] <> ''
 				&& mb_strpos($handlerData['host'], '.') > 0
 				&& ($handlerData['scheme'] == 'http' || $handlerData['scheme'] == 'https')
@@ -68,23 +73,28 @@ class CBPWebHookActivity extends CBPActivity
 					$target .= '#'.CHTTP::urnEncode($handlerData['fragment']);
 				}
 
-				$queryItems = array(
-					Sqs::queryItem(
-						null,
-						$target,
-						array(
-							'document_id' => $this->GetDocumentId(),
-						),
-						array(),
-						array(
-							"sendAuth" => false,
-							"sendRefreshToken" => false,
-							"category" => Sqs::CATEGORY_BIZPROC,
-						)
-					),
+				$queryItem = Sqs::queryItem(
+					null,
+					$target,
+					[
+						'document_id' => $this->GetDocumentId(),
+					],
+					[],
+					[
+						"sendAuth" => false,
+						"sendRefreshToken" => false,
+						"category" => Sqs::CATEGORY_BIZPROC,
+					]
 				);
 
-				\Bitrix\Rest\OAuthService::getEngine()->getClient()->sendEvent($queryItems);
+				if (is_callable([\Bitrix\Rest\Event\Sender::class, 'queueEvent']))
+				{
+					\Bitrix\Rest\Event\Sender::queueEvent($queryItem);
+				}
+				else
+				{
+					\Bitrix\Rest\OAuthService::getEngine()->getClient()->sendEvent([$queryItem]);
+				}
 			}
 		}
 

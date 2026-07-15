@@ -1,7 +1,7 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetPageProperty("description", "Интернет магазин элементов художественной ковки и готовых кованых изделий от производителей оптом и в розницу.");
-$APPLICATION->SetPageProperty("keywords", "элементы ковки, кованые изделия, ковка, художественная ковка, воронеж");
+$APPLICATION->SetPageProperty("keywords", "элементы ковки, кованые изделия, ковка, художественная ковка");
 $APPLICATION->SetPageProperty("title", "Элементы художественной ковки и кованые изделия купить оптом и в розницу");
 $APPLICATION->SetTitle("Художественная ковка и кованые изделия из металла");
 ?><div class="main_banner">
@@ -55,121 +55,42 @@ $APPLICATION->SetTitle("Художественная ковка и кованы�
 </div>
 <div class="selector_block tabs_change">
 	<div class="man">
-		<div class="item i1 change_tab active"><!--noindex--><a rel="nofollow" href="#"><span class="ico"><img src="<?=SITE_TEMPLATE_PATH?>/images/man_i1_ico.png" width="100" height="100" alt="" /></span><span class="text">Элементы ковки</span></a><!--/noindex--></div>
-		<div class="item i2 change_tab"><!--noindex--><a rel="nofollow" href="#"><span class="ico"><img src="<?=SITE_TEMPLATE_PATH?>/images/man_i2_ico.png" width="100" height="100" alt="" /></span><span class="text">Готовые изделия</span></a><!--/noindex--></div>
-		<div class="item i3 change_tab"><!--noindex--><a rel="nofollow" href="#"><span class="ico"><img src="<?=SITE_TEMPLATE_PATH?>/images/man_i3_ico.png" width="100" height="100" alt="" /></span><span class="text">Фотогалерея</span></a><!--/noindex--></div>
-		<div class="item i4"><!--noindex--><a rel="nofollow" href="/price/"><span class="ico"><img src="<?=SITE_TEMPLATE_PATH?>/images/man_i4_ico.png" width="100" height="100" alt="" /></span><span class="text">Прайс-лист</span></a><!--/noindex--></div>
+		<div class="item i1 change_tab active"><!--noindex--><a rel="nofollow" href="#tab1" id="tab1"><span class="ico"><img src="<?=SITE_TEMPLATE_PATH?>/images/elementy_kovki_man_i1_ico.png" width="100" height="100" alt="" /></span><span class="text">Элементы ковки</span></a><!--/noindex--></div>
+		<div class="item i2 change_tab"><!--noindex--><a rel="nofollow" href="#tab2" id="tab2"><span class="ico"><img src="<?=SITE_TEMPLATE_PATH?>/images/man_i2_ico.png" width="100" height="100" alt="" /></span><span class="text">Готовые изделия</span></a><!--/noindex--></div>
+		
+		<div class="item i3 change_tab">
+			<!--noindex-->
+			<a rel="nofollow" href="#tab3" id="tab3">
+				<span class="ico"><img src="<?=SITE_TEMPLATE_PATH?>/images/man_i1_ico.png" width="100" height="100" alt="" /></span>
+				<span class="text">Террасная доска</span>	
+			</a>
+			<!--/noindex-->
+		</div>
+		
+		<div class="item i4 change_tab">
+			<!--noindex-->
+			<a rel="nofollow" href="#tab4" id="tab4">
+				<span class="ico"><img src="<?=SITE_TEMPLATE_PATH?>/images/man_i3_ico.png" width="100" height="100" alt="" /></span>
+				<span class="text">Фотогалерея</span>
+			</a>
+			<!--/noindex-->
+		</div>
 	</div>
 	<div class="clear"></div>
 	<?if(CModule::IncludeModule("iblock"))
 	{?>
 		<div class="selector_content tabs">
 			<div class="tab active">
-				<div class="catalog_section_list">
-					<ul class="menu_type">
-
-							<li class="category_home_page">
-								<a rel="nofollow" class="image" href="/catalog/filter/?SHOW=SPEC_RAZDEL">
-									<span>
-
-							<?
-								$APPLICATION->IncludeFile(SITE_TEMPLATE_PATH."/includes/img_front_1.php", Array(), Array(
-							    "MODE"      => "html",
-							    "NAME"      => "Картинка",
-							    "TEMPLATE"  => "img_front_1.php"
-							    )
-							);
-
-							?>
-
-									</span>
-								</a>
-
-								<span class="name"><a rel="nofollow" href="/catalog/filter/?SHOW=SPEC_RAZDEL"><?=tplvar('name_1',true);?></a></span>
-							</li>
-<!--	комментировать строки ниже -->
-							<li class="category_home_page">
-
-								<a rel="nofollow" class="image" href="/catalog/filter/?SHOW=NEW_RAZDEL">
-									<span>
-							<?$APPLICATION->IncludeFile(SITE_TEMPLATE_PATH."/includes/img_front_2.php", Array(), Array(
-							    "MODE"      => "html",
-							    "NAME"      => "Картинка",
-							    "TEMPLATE"  => "img_front_2.php"
-							    )
-							);?>
-									</span>
-								</a>
-
-
-<span class="name"><a rel="nofollow" href="/catalog/filter/?SHOW=NEW_RAZDEL"><?= tplvar('name_2',true);?></a></span>
-							</li>
-<!-- до сюда -->
-						<?$ar_sections=CIBlockSection::GetList(
-							array("SORT"=>"ASC"),
-							array("IBLOCK_ID"=>21,"ACTIVE"=>"Y","DEPTH_LEVEL"=>2,"SECTION_ID"=>958),
-							false,
-							["*", "UF_NAME_SECTION"]
-						);
-						while($section = $ar_sections->GetNext())
-						{?>
-							<li class="category_home_page">
-								<!--noindex-->
-								<a rel="nofollow" class="image" href="<?=$section["SECTION_PAGE_URL"]?>">
-									<span>
-										<img src="<?=CFile::GetPath($section["PICTURE"])?>" alt="<?=$section["NAME"]?>" />
-									</span>
-								</a>
-								<!--/noindex-->
-								<span class="name"><!--noindex-->
-								<a rel="nofollow" href="<?=$section["SECTION_PAGE_URL"];?>">
-								<? if($section['UF_NAME_SECTION']):?>
-									<?=implode("<br/>", $section['UF_NAME_SECTION']);?>
-								<? else: ?>
-									<?=$section["NAME"]?>
-								<? endif; ?>
-								</a>
-								<!--/noindex--></span>
-							</li>
-						<?}?>
-					</ul>
-					<div class="clear"></div>
-				</div>
+				<?$APPLICATION->IncludeFile(SITE_TEMPLATE_PATH."/includes/home_tab1.php", Array(), ["SHOW_BORDER" => false]);?>
 			</div>
 			<div class="tab">
-				<div class="catalog_section_list">
-					<ul class="menu_type">
-						<?$ar_sections=CIBlockSection::GetList(
-							array("SORT"=>"ASC"),
-							array("IBLOCK_ID"=>21,"ACTIVE"=>"Y","DEPTH_LEVEL"=>2,"SECTION_ID"=>943),
-							false,
-							["*", "UF_NAME_SECTION"]
-						);
-						while($section=$ar_sections->GetNext())
-						{?>
-							<li class="category_home_page">
-								<!--noindex-->
-								<a rel="nofollow" class="image" href="<?=$section["SECTION_PAGE_URL"]?>">
-									<span>
-										<img src="<?=CFile::GetPath($section["PICTURE"])?>" alt="<?=$section["NAME"]?>" />
-									</span>
-								</a>
-								<!--/noindex-->
-								<span class="name"><!--noindex--><a rel="nofollow" href="<?=$section["SECTION_PAGE_URL"]?>">
-								<? if($section['UF_NAME_SECTION']):?>
-									<?=implode("<br/>", $section['UF_NAME_SECTION']);?>
-								<? else: ?>
-									<?=$section["NAME"]?>
-								<? endif; ?>
-								</a><!--/noindex--></span>
-							</li>
-						<?}?>
-					</ul>
-					<div class="clear"></div>
-				</div>
+				<?$APPLICATION->IncludeFile(SITE_TEMPLATE_PATH."/includes/home_tab2.php", Array(), ["SHOW_BORDER" => false]);?>
 			</div>
 			<div class="tab">
-			<h1 style="margin:25px;">Примеры готовых изделий из элементов нашего ассортимента</h1>
+				<?$APPLICATION->IncludeFile(SITE_TEMPLATE_PATH."/includes/home_tab3.php", Array(), ["SHOW_BORDER" => false]);?>
+			</div>
+			<div class="tab">
+			<div class="h1" style="margin:25px;">Примеры готовых изделий из элементов нашего ассортимента</div>
 				<div class="gallery_list gallery_main">
 					<?$ar_items=CIBlockSection::GetList(
 						array("RAND"=>"ASC"),
@@ -194,7 +115,7 @@ $APPLICATION->SetTitle("Художественная ковка и кованы�
 					<div class="clear"></div>
 				</div>
 				<div class="" style="border-bottom: 5px solid;width: 1280px;margin: 60px -40px;color: #D37B48;"></div>
-				<h1 style="margin:25px;">Примеры использования кованых изделий</h1>
+				<div class="h1" style="margin:25px;">Примеры использования кованых изделий</div>
 				<p style="margin: 25px;">
 				В данном разделе размещены фото работ лучших мастеров. Здесь вы можете увидеть, как применяются готовые изделия ручной ковки в интерьере, экстерьере и оформлении ландшафта.
 				Обращаем ваше внимание на то, что наша компания не изготавливает и не осуществляет установку готовых кованых изделий.
@@ -203,7 +124,7 @@ $APPLICATION->SetTitle("Художественная ковка и кованы�
 				<div class="gallery_list gallery_main">
 					<?$ar_items=CIBlockSection::GetList(
 						array("RAND"=>"ASC"),
-						array("IBLOCK_ID"=>16,"ACTIVE"=>"Y"),
+						array("IBLOCK_ID" => 16,"ACTIVE"=>"Y"),
 						false,
 						array("nTopCount"=>5),
 						array()
@@ -224,11 +145,9 @@ $APPLICATION->SetTitle("Художественная ковка и кованы�
 					<div class="clear"></div>
 				</div>
 			</div>
-			<div class="tab">
-				Ну а тут Прайс-лист
-			</div>
 		</div>
 	<?}?>
+	
 	<?$APPLICATION->IncludeFile(SITE_TEMPLATE_PATH."/includes/our_benefits.php", Array(), Array(
 	    "MODE"      => "html",
 	    "NAME"      => "наши преимущества",

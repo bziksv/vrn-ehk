@@ -27,6 +27,8 @@ CREATE TABLE b_sender_contact
   PRIMARY KEY (ID),
   UNIQUE UK_B_SENDER_CONTACT_TYPE_CODE (TYPE_ID, CODE)
 );
+CREATE INDEX IX_SENDER_CONTACT_BLACKLISTED_DATE_INSERT on b_sender_contact(BLACKLISTED, DATE_INSERT);
+
 CREATE TABLE b_sender_contact_list
 (
 	CONTACT_ID	int(11) NOT NULL,
@@ -129,6 +131,7 @@ CREATE TABLE b_sender_mailing_chain
 );
 CREATE INDEX IX_SENDER_MAILING_CHAIN_MAILING on b_sender_mailing_chain(MAILING_ID, STATUS);
 CREATE INDEX IX_SENDER_MAILING_CHAIN_REITERATE on b_sender_mailing_chain(REITERATE, STATUS);
+CREATE INDEX IX_SENDER_MAILING_CHAIN_POSTING_ID on b_sender_mailing_chain(POSTING_ID);
 
 CREATE TABLE b_sender_mailing_chain_group
 (
@@ -186,6 +189,7 @@ CREATE TABLE b_sender_posting_recipient
   DATE_SENT	DATETIME	NULL,
   USER_ID INT(11) NULL,
   DATE_DENY DATETIME  NULL,
+  DATE_UPDATE DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FIELDS LONGTEXT NULL,
   ROOT_ID int(11) NULL,
 
@@ -197,6 +201,7 @@ CREATE TABLE b_sender_posting_recipient
 );
 CREATE INDEX IX_SENDER_POSTING_RECIP_1 on b_sender_posting_recipient(POSTING_ID, STATUS);
 CREATE INDEX IX_B_SENDER_POSTING_RECIPIENT_CONTACT_ID on b_sender_posting_recipient(CONTACT_ID);
+CREATE INDEX IX_B_SENDER_POSTING_RECIPIENT_CONTACT_ID_STATUS on b_sender_posting_recipient(CONTACT_ID, STATUS);
 
 CREATE TABLE b_sender_posting_read
 (
@@ -418,7 +423,7 @@ create table b_sender_timeline_queue
 
 create table b_sender_group_data
 (
-	ID int auto_increment primary key,
+	ID bigint unsigned auto_increment primary key,
 	GROUP_ID int not null,
 	DATE_INSERT DATETIME default NOW() not null,
 	FILTER_ID varchar(256) not null,
@@ -491,3 +496,11 @@ create index IX_SENDER_FILE_ENTITY_TYPE_ENTITY_ID
 
 create index IX_SENDER_FILE_FILE_ID
     on b_sender_file (`FILE_ID`);
+
+CREATE TABLE IF NOT EXISTS b_sender_file_info
+(
+	`ID` INT NOT NULL, /*ID from b_file*/
+	`FILE_NAME` VARCHAR(255) NOT NULL,
+	PRIMARY KEY (`ID`),
+	INDEX `IX_SENDER_UNIQUE_FILES_FILE_NAME` (`FILE_NAME`)
+);

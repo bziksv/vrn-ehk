@@ -1,8 +1,21 @@
-<?
+<?php
+
+use Bitrix\Main\EventManager;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Socialnetwork\Collab\Control\Event\CollabAddEvent;
+use Bitrix\Socialnetwork\Collab\Control\Event\CollabDeleteEvent;
+use Bitrix\Socialnetwork\Collab\Control\Event\CollabUpdateEvent;
+use Bitrix\Socialnetwork\Collab\Entity\Event\CollabEntityAddEvent;
+use Bitrix\Socialnetwork\Collab\Onboarding\Event\Type\CollabAddEventListener;
+use Bitrix\Socialnetwork\Collab\Onboarding\Event\Type\CollabDeleteEventListener;
+use Bitrix\Socialnetwork\Collab\Onboarding\Event\Type\CollabEntityAddEventListener;
+use Bitrix\Socialnetwork\Collab\Onboarding\Event\Type\CollaberAcceptInvitationEventListener;
+use Bitrix\Socialnetwork\Collab\Onboarding\Event\Type\CollabUpdateEventListener;
 use Bitrix\Socialnetwork\Integration;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
+use Bitrix\Socialnetwork\Internals\Registry\Event\GroupLoadedEvent;
+use Bitrix\Socialnetwork\Provider\GroupProvider;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -12,11 +25,13 @@ define("SONET_RELATIONS_FRIEND", "F");
 define("SONET_RELATIONS_REQUEST", "Z");
 define("SONET_RELATIONS_BAN", "B");
 
+define("SONET_ROLES_NONE", "0");
 define("SONET_ROLES_OWNER", "A");
 define("SONET_ROLES_MODERATOR", "E");
 define("SONET_ROLES_USER", "K");
 define("SONET_ROLES_BAN", "T");
 define("SONET_ROLES_REQUEST", "Z");
+define("SONET_ROLES_EMPLOYEE", "J");
 define("SONET_ROLES_ALL", "N");
 define("SONET_ROLES_AUTHORIZED", "L");
 
@@ -82,7 +97,7 @@ global $arSocNetAllowedRolesForUserInGroup;
 $arSocNetAllowedRolesForUserInGroup = array(SONET_ROLES_MODERATOR, SONET_ROLES_USER, SONET_ROLES_BAN, SONET_ROLES_REQUEST, SONET_ROLES_OWNER);
 
 global $arSocNetAllowedRolesForFeaturesPerms;
-$arSocNetAllowedRolesForFeaturesPerms = array(SONET_ROLES_MODERATOR, SONET_ROLES_USER, SONET_ROLES_ALL, SONET_ROLES_OWNER, SONET_ROLES_AUTHORIZED);
+$arSocNetAllowedRolesForFeaturesPerms = array(SONET_ROLES_MODERATOR, SONET_ROLES_USER, SONET_ROLES_ALL, SONET_ROLES_OWNER, SONET_ROLES_AUTHORIZED, SONET_ROLES_EMPLOYEE, SONET_ROLES_NONE);
 
 global $arSocNetAllowedInitiatePerms;
 $arSocNetAllowedInitiatePerms = array(SONET_ROLES_MODERATOR, SONET_ROLES_USER, SONET_ROLES_OWNER);
@@ -132,7 +147,7 @@ $arEntityTypesDescTmp = array(
 		"URL_PARAM_KEY" => "PATH_TO_GROUP",
 		"URL_PATTERN" => "group_id",
 		"HAS_SITE_ID" => "Y",
-		"XDIMPORT_ALLOWED" => "Y"
+		"XDIMPORT_ALLOWED" => "Y",
 	),
 	SONET_SUBSCRIBE_ENTITY_USER	=> array(
 		"TITLE_LIST" => GetMessage("SOCNET_LOG_LIST_U_ALL"),
@@ -157,8 +172,8 @@ $arEntityTypesDescTmp = array(
 		"METHOD_DESC_SHOW" => "ShowUser",
 		"URL_PARAM_KEY" => "PATH_TO_USER",
 		"URL_PATTERN" => "user_id",
-		"XDIMPORT_ALLOWED" => "Y"
-	)
+		"XDIMPORT_ALLOWED" => "Y",
+	),
 );
 
 if (
@@ -171,7 +186,7 @@ if (
 
 $arEntityTypeTmp = array(
 	SONET_SUBSCRIBE_ENTITY_USER,
-	SONET_SUBSCRIBE_ENTITY_GROUP
+	SONET_SUBSCRIBE_ENTITY_GROUP,
 );
 
 CSocNetAllowed::AddAllowedEntityType($arEntityTypeTmp);
@@ -193,7 +208,7 @@ if (
 		'js' => '/bitrix/js/socialnetwork/log-destination.js',
 		'css' => [
 			'/bitrix/js/intranet/intranet-common.css',
-			'/bitrix/js/main/core/css/core_finder.css'
+			'/bitrix/js/main/core/css/core_finder.css',
 		],
 		'lang_additional' => array(
 			'LM_POPUP_TITLE' => GetMessage("LM_POPUP_TITLE"),
@@ -232,7 +247,7 @@ if (
 			'LM_POPUP_WAITER_TEXT' => GetMessage("LM_POPUP_WAITER_TEXT"),
 			'LM_POPUP_SEARCH_NETWORK_MSGVER_1' => GetMessage("LM_POPUP_SEARCH_NETWORK_MSGVER_1"),
 		),
-		'rel' => array('core', 'popup', 'json', 'finder')
+		'rel' => array('core', 'popup', 'finder'),
 	));
 }
 
@@ -250,7 +265,7 @@ CJSCore::RegisterExt('videorecorder', array(
 	'js' => '/bitrix/js/socialnetwork/video_recorder.js',
 	'css' => [
 		'/bitrix/js/intranet/intranet-common.css',
-		'/bitrix/js/socialnetwork/css/video_recorder.css'
+		'/bitrix/js/socialnetwork/css/video_recorder.css',
 	],
 	'lang_additional' => array(
 		'BLOG_VIDEO_RECORD_BUTTON' => GetMessage('BLOG_VIDEO_RECORD_BUTTON'),
@@ -294,7 +309,7 @@ CJSCore::RegisterExt('content_view', array(
 	'lang_additional' => array(
 		'SONET_CONTENTVIEW_JS_HIDDEN_COUNT' => GetMessage("SONET_CONTENTVIEW_JS_HIDDEN_COUNT"),
 	),
-	'rel' => ['ui.design-tokens', 'ajax', 'popup', 'main.polyfill.intersectionobserver' ]
+	'rel' => ['ui.design-tokens', 'ajax', 'popup', 'main.polyfill.intersectionobserver' ],
 ));
 
 $arLogEvents = array(
@@ -312,35 +327,35 @@ $arLogEvents = array(
 				"TITLE_SETTINGS" => GetMessage("SOCNET_LOG_SYSTEM_USER_SETTINGS"),
 				"TITLE_SETTINGS_1" => GetMessage("SOCNET_LOG_SYSTEM_USER_SETTINGS_1"),
 				"TITLE_SETTINGS_2" => GetMessage("SOCNET_LOG_SYSTEM_USER_SETTINGS_2"),
-				"OPERATION" => "viewprofile"
-			)
+				"OPERATION" => "viewprofile",
+			),
 		),
 		"FULL_SET" => array("system", "system_friends", "system_groups"),
 		"CLASS_FORMAT"	=> "CSocNetLogTools",
-		"METHOD_FORMAT" => "FormatEvent_System"
+		"METHOD_FORMAT" => "FormatEvent_System",
 	),
 	"system_groups" => array(
 		"ENTITIES" => array(
 			SONET_SUBSCRIBE_ENTITY_USER => array(
 				"TITLE" => GetMessage("SOCNET_LOG_SYSTEM_GROUPS_USER"),
-				"OPERATION" => "viewgroups"
-			)
+				"OPERATION" => "viewgroups",
+			),
 		),
 		"HIDDEN" => true,
 		"CLASS_FORMAT" => "CSocNetLogTools",
-		"METHOD_FORMAT" => "FormatEvent_SystemGroups"
+		"METHOD_FORMAT" => "FormatEvent_SystemGroups",
 	),
 	"system_friends" =>  array(
 		"ENTITIES" => array(
 			SONET_SUBSCRIBE_ENTITY_USER => array(
 				"TITLE" => GetMessage("SOCNET_LOG_SYSTEM_FRIENDS_USER"),
-				"OPERATION" => "viewfriends"
-			)
+				"OPERATION" => "viewfriends",
+			),
 		),
 		"HIDDEN" => true,
 		"CLASS_FORMAT" => "CSocNetLogTools",
-		"METHOD_FORMAT" => "FormatEvent_SystemFriends"
-	)
+		"METHOD_FORMAT" => "FormatEvent_SystemFriends",
+	),
 );
 
 foreach ($arLogEvents as $eventCode => $arLogEventTmp)
@@ -365,7 +380,7 @@ $arSocNetUserEvents = array(
 	"SONET_INVITE_FRIEND",
 	"SONET_INVITE_GROUP",
 	"SONET_AGREE_FRIEND",
-	"SONET_BAN_FRIEND"
+	"SONET_BAN_FRIEND",
 );
 
 if (!CBXFeatures::IsFeatureEnabled("WebMessenger"))
@@ -394,4 +409,52 @@ class CSocNetUpdater
 	}
 }
 
-?>
+$eventManager = EventManager::getInstance();
+
+$eventManager->addEventHandler(
+	'socialnetwork',
+	'OnGroupLoaded',
+	static function(GroupLoadedEvent $event): void {
+		GroupProvider::getInstance()->onObjectLoaded($event);
+	}
+);
+
+$eventManager->addEventHandler(
+	'socialnetwork',
+	'OnCollabAdd',
+	static function(CollabAddEvent $event): void {
+		CollabAddEventListener::getInstance()->onCollabAdd($event);
+	}
+);
+
+$eventManager->addEventHandler(
+	'socialnetwork',
+	'OnCollabUpdate',
+	static function(CollabUpdateEvent $event): void {
+		CollabUpdateEventListener::getInstance()->onCollabUpdate($event);
+	}
+);
+
+$eventManager->addEventHandler(
+	'socialnetwork',
+	'OnCollabDelete',
+	static function(CollabDeleteEvent $event): void {
+		CollabDeleteEventListener::getInstance()->onCollabDelete($event);
+	}
+);
+
+$eventManager->addEventHandler(
+	'socialnetwork',
+	'OnSocNetUserConfirmRequestToBeMember',
+	static function(string $id, array $params): void {
+		CollaberAcceptInvitationEventListener::getInstance()->onCollaberAcceptInvitation($params);
+	}
+);
+
+$eventManager->addEventHandler(
+	'socialnetwork',
+	'OnCollabEntityAdd',
+	static function(CollabEntityAddEvent $event): void {
+		CollabEntityAddEventListener::getInstance()->onCollabEntityAdd($event);
+	}
+);

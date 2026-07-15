@@ -1,7 +1,11 @@
 <?php
+
 namespace Bitrix\Main\Data;
 
-class CacheEngineRedis extends CacheEngine
+use Bitrix\Main\Config\Configuration;
+use Bitrix\Main\Data\LocalStorage\Storage;
+
+class CacheEngineRedis extends Cache\KeyValueEngine implements Storage\CacheEngineInterface
 {
 	public function getConnectionName() : string
 	{
@@ -11,6 +15,54 @@ class CacheEngineRedis extends CacheEngine
 	public static function getConnectionClass()
 	{
 		return RedisConnection::class;
+	}
+
+	protected function configure($options = []): array
+	{
+		$config = parent::configure($options);
+
+		$cacheConfig = Configuration::getValue('cache');
+
+		if (isset($cacheConfig['serializer']))
+		{
+			$config['serializer'] = (int)$cacheConfig['serializer'];
+		}
+
+		$config['persistent'] = true;
+		if (isset($cacheConfig['persistent']) && $cacheConfig['persistent'] == 0)
+		{
+			$config['persistent'] = false;
+		}
+
+		if (isset($cacheConfig['compression']))
+		{
+			$config['compression'] = $cacheConfig['compression'];
+		}
+
+		if (isset($cacheConfig['compression_level']))
+		{
+			$config['compression_level'] = $cacheConfig['compression_level'];
+		}
+
+		if (isset($cacheConfig['timeout']))
+		{
+			$cacheConfig['timeout'] = (float)$cacheConfig['timeout'];
+			if ($cacheConfig['timeout'] > 0)
+			{
+				$config['timeout'] = $cacheConfig['timeout'];
+			}
+		}
+
+		if (isset($cacheConfig['read_timeout']))
+		{
+			$cacheConfig['read_timeout'] = (float)$cacheConfig['read_timeout'];
+			if ($cacheConfig['read_timeout'] > 0)
+			{
+				$config['read_timeout'] = $cacheConfig['read_timeout'];
+			}
+		}
+
+		return $config;
 	}
 
 	public function set($key, $ttl, $value) : bool
@@ -45,10 +97,8 @@ class CacheEngineRedis extends CacheEngine
 			{
 				self::$engine->expire($key, $ttl);
 			}
-
 			return true;
 		}
-
 		return false;
 	}
 
@@ -79,46 +129,97 @@ class CacheEngineRedis extends CacheEngine
 
 		if (is_array($list)  && !empty($list))
 		{
-			if ($this->useLock)
-			{
-				foreach ($list as $iKey)
-				{
-					$delKey = $prefix . $iKey;
-					$oldKey = $delKey . '|old';
-
-					if (self::$engine->rename($delKey, $oldKey))
-					{
-						self::$engine->expire($oldKey, $this->ttlOld);
-					}
-				}
-			}
-			else
-			{
-				if ($prefix != '')
-				{
-					$format = $prefix . '%s';
-					$list = array_map(function ($key) use ($format) {
-						return sprintf($format, $key);
-					}, $list);
-				}
-
-				self::$engine->del($list);
-			}
+			self::$engine->del($list);
 		}
 	}
 
 	public function delFromSet($key, $member)
 	{
-		if (is_array($member))
+		if (!is_array($member))
 		{
-			if (!empty($member))
+			$member = [0 => $member];
+		}
+
+		if (!empty($member))
+		{
+			self::$engine->sRem($key, ...$member);
+		}
+	}
+
+	public function addCleanPath(array $data): void
+	{
+		self::$engine->lPush($this->sid . '/cacheCleanPath', $data);
+	}
+
+	public function delayedDelete(): void
+	{
+		$delta = 10;
+		$deleted = 0;
+		$etime = time() + 5;
+		$needClean = self::$engine->get($this->sid . '|needClean');
+
+		if ($needClean !== 'Y')
+		{
+			$this->unlock($this->sid . '|cacheClean');
+			return;
+		}
+
+		$count = (int) self::$engine->get($this->sid . '|delCount');
+		if ($count < 1)
+		{
+			$count = 1;
+		}
+
+		$step = $count + $delta;
+		for ($i = 0; $i < $step; $i++)
+		{
+			$finished = true;
+			$paths = self::$engine->rPop($this->sid . '/cacheCleanPath');
+			if ($paths)
 			{
-				self::$engine->sRem($key, ...$member);
+				$partitionListKey = $paths['PREFIX'] . '|' . static::BX_INIT_DIR_LIST;
+				$partitionKeys = $this->getSet($partitionListKey);
+				foreach ($partitionKeys as $partition)
+				{
+					if (time() > $etime)
+					{
+						$finished = false;
+						break;
+					}
+
+					$this->deleteBySet($partitionListKey . '|' . $partition);
+				}
+
+				if ($finished)
+				{
+					$deleted++;
+				}
+				elseif (time() > $etime)
+				{
+					self::$engine->lPush($this->sid . '/cacheCleanPath', $paths);
+					break;
+				}
+			}
+			else
+			{
+				break;
 			}
 		}
-		else
+
+		if ($deleted > $count)
 		{
-			self::$engine->sRem($key, $member);
+			self::$engine->setex($this->sid . '|delCount', 604800, $deleted);
 		}
+		elseif ($deleted < $count && $count > 1)
+		{
+			self::$engine->setex($this->sid . '|delCount', 604800, --$count);
+		}
+
+		if ($deleted === 0)
+		{
+			self::$engine->setex($this->sid . '|needClean', 3600, 'N');
+		}
+
+		$this->unlock($this->sid . '|cacheClean');
 	}
 }

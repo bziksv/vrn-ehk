@@ -1,0 +1,631 @@
+<Root>
+	<GoodsSubType name="Тепловое">
+		<EquipmentType name="Аппараты для ваты и попкорна">
+			<Brand file="food/brand/teplovoe.xml" rename="proizvoditel_teplovoe"/>
+			<PopcornMakerCapacity variable="text"/>
+			<PopcornMakerPower variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Блинницы">
+			<Brand file="food/brand/teplovoe.xml" rename="proizvoditel_teplovoe"/>
+			<CrepeMakerHeating name="Газовый"/>
+			<CrepeMakerHeating name="Электрический"/>
+			<CrepeMakerMaterial name="Алюминий"/>
+			<CrepeMakerMaterial name="Антипригарное покрытие"/>
+			<CrepeMakerMaterial name="Нержавеющая сталь"/>
+			<CrepeMakerMaterial name="Чугун"/>
+			<CrepeMakerMaterial name="Эмалированная сталь"/>
+			<CrepeMakerPower variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Вафельницы">
+			<Brand file="food/brand/teplovoe.xml" rename="proizvoditel_teplovoe"/>
+			<WaffleMakerType name="Американские"/>
+			<WaffleMakerType name="Бельгийские"/>
+			<WaffleMakerType name="Венские"/>
+			<WaffleMakerType name="Гонконгские"/>
+			<WaffleMakerType name="Тонкие"/>
+			<WaffleMakerType name="Фигурные"/>
+			<WaffleMakerMaterial name="Алюминий"/>
+			<WaffleMakerMaterial name="Антипригарное покрытие"/>
+			<WaffleMakerMaterial name="Нержавеющая сталь"/>
+			<WaffleMakerMaterial name="Чугун"/>
+			<WaffleMakerMaterial name="Эмалированная сталь"/>
+			<WaffleMakerCapacity variable="text"/>
+			<WaffleMakerPower variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Грили">
+			<Brand file="food/brand/teplovoe.xml" rename="proizvoditel_teplovoe"/>
+			<GrillConnection name="Газ"/>
+			<GrillConnection name="Уголь"/>
+			<GrillConnection name="Электричество"/>
+			<GrillPower variable="text"/>
+			<Setup name="Встраиваемая"/>
+			<Setup name="На подставке"/>
+			<Setup name="Напольная"/>
+			<Setup name="Настольная"/>
+			<GrillType name="Барбекю"/>
+			<GrillType name="Вапо гриль"/>
+			<GrillType name="Контактный"/>
+			<GrillType name="Лавовый"/>
+			<GrillType name="Роликовый"/>
+			<GrillType name="Саламандер"/>
+		</EquipmentType>
+		<EquipmentType name="Дегидраторы" oldNames="Дегидраторы ">
+			<Brand file="food/brand/teplovoe.xml" rename="proizvoditel_teplovoe"/>
+			<DehydratorControl name="Механическое"/>
+			<DehydratorControl name="Электромеханическое"/>
+			<DehydratorControl name="Электронное"/>
+			<DehydratorNLevels variable="text"/>
+			<DehydratorPower variable="text"/>
+			<DehydratorPurpose name="Грибы"/>
+			<DehydratorPurpose name="Закуски и снеки"/>
+			<DehydratorPurpose name="Зерновые и бобовые"/>
+			<DehydratorPurpose name="Мясо и рыба"/>
+			<DehydratorPurpose name="Орехи и семена"/>
+			<DehydratorPurpose name="Травы и специи"/>
+			<DehydratorPurpose name="Фрукты, овощи и ягоды"/>
+			<DehydratorPurpose name="Хлебобулочные изделия"/>
+		</EquipmentType>
+		<EquipmentType name="Кипятильники">
+			<Brand file="food/brand/teplovoe.xml" rename="proizvoditel_teplovoe"/>
+			<BoilerTypeWater name="Заливной"/>
+			<BoilerTypeWater name="Проточный"/>
+			<BoilerPower variable="text"/>
+			<BoilerVolume variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Коптильни">
+			<Brand file="food/brand/teplovoe.xml" rename="proizvoditel_teplovoe"/>
+			<SmokerType name="Горячее"/>
+			<SmokerType name="Холодное"/>
+			<SmokerType name="Холодное и горячее"/>
+			<SmokerPower variable="text"/>
+			<SmokerVolume variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Макароноварки" oldNames="Макароноварки ">
+			<Brand file="food/brand/teplovoe.xml" rename="proizvoditel_teplovoe"/>
+			<Connection name="Газ"/>
+			<Connection name="Электричество"/>
+			<PastaMakerPower variable="text"/>
+			<Setup name="Встраиваемая"/>
+			<Setup name="На подставке"/>
+			<Setup name="Напольная"/>
+			<Setup name="Настольная"/>
+			<PastaMakerVolume variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Мармиты">
+			<Brand file="food/brand/teplovoe.xml" rename="proizvoditel_teplovoe"/>
+			<MarmiteConnection name="Без подключения"/>
+			<MarmiteConnection name="Газ"/>
+			<MarmiteConnection name="Горелка"/>
+			<MarmiteConnection name="Индукция"/>
+			<MarmiteConnection name="Электричество"/>
+			<MarmiteHeating name="Водяной"/>
+			<MarmiteHeating name="Горелка"/>
+			<MarmiteHeating name="Инфракрасная лампа"/>
+			<MarmiteHeating name="Паровой"/>
+			<MarmiteHeating name="Сухой"/>
+			<MarmiteHeating name="ТЭН"/>
+			<MarmitePower variable="text"/>
+			<MarmitePurpose name="Для вторых блюд"/>
+			<MarmitePurpose name="Для первых блюд"/>
+			<MarmitePurpose name="Для шоколада"/>
+			<MarmitePurpose name="Универсальный"/>
+			<Setup name="Встраиваемая"/>
+			<Setup name="На подставке"/>
+			<Setup name="Напольная"/>
+			<Setup name="Настольная"/>
+		</EquipmentType>
+		<EquipmentType name="Пароконвектоматы" oldNames="Пароконвектоматы ">
+			<Brand file="food/brand/teplovoe.xml" rename="proizvoditel_teplovoe"/>
+			<Connection name="Газ"/>
+			<Connection name="Электричество"/>
+			<CombiSteamerNLevel variable="text"/>
+			<CombiSteamerPower variable="text"/>
+			<CombiSteamerVapor name="Бойлерный"/>
+			<CombiSteamerVapor name="Инжекторный"/>
+			<CombiSteamerVapor name="Комбинированный"/>
+		</EquipmentType>
+		<EquipmentType name="Печи">
+			<Brand file="food/brand/teplovoe.xml" rename="proizvoditel_teplovoe"/>
+			<OvenType name="Гибридный"/>
+			<OvenType name="Конвекционный"/>
+			<OvenType name="Подовый"/>
+			<OvenType name="Ротационный"/>
+			<OvenType name="СВЧ"/>
+			<OvenType name="Туннельный"/>
+			<OvenHeating name="Газовый"/>
+			<OvenHeating name="Инфракрасный"/>
+			<OvenHeating name="Комбинированный"/>
+			<OvenHeating name="Электрический"/>
+			<OvenTemp name="Высокотемпературный"/>
+			<OvenTemp name="Низкотемпературный"/>
+			<OvenTemp name="Среднетемпературный"/>
+			<OvenPower variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Пищеварочные котлы">
+			<Brand file="food/brand/teplovoe.xml" rename="proizvoditel_teplovoe"/>
+			<CookingPotConnection name="Газ"/>
+			<CookingPotConnection name="Пар"/>
+			<CookingPotConnection name="Электричество"/>
+			<CookingPotPower variable="text"/>
+			<CookingPotVolume variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Плиты">
+			<Brand file="food/brand/teplovoe.xml" rename="proizvoditel_teplovoe"/>
+			<StoveHeating name="Газовый"/>
+			<StoveHeating name="Комбинированный"/>
+			<StoveHeating name="Электрический"/>
+			<Setup name="Встраиваемая"/>
+			<Setup name="На подставке"/>
+			<Setup name="Напольная"/>
+			<Setup name="Настольная"/>
+			<StoveNBurner variable="text"/>
+			<StovePower variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Подогреватели" oldNames="Подогреватели ">
+			<Brand file="food/brand/teplovoe.xml" rename="proizvoditel_teplovoe"/>
+			<Setup name="Встраиваемая"/>
+			<Setup name="На подставке"/>
+			<Setup name="Напольная"/>
+			<Setup name="Настольная"/>
+			<WarmerPower variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Рисоварки">
+			<Brand file="food/brand/teplovoe.xml" rename="proizvoditel_teplovoe"/>
+			<RiceCookerPower variable="text"/>
+			<RiceCookerVolume variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Тепловые витрины">
+			<Brand file="food/brand/teplovoe.xml" rename="proizvoditel_teplovoe"/>
+			<Setup name="Встраиваемая"/>
+			<Setup name="На подставке"/>
+			<Setup name="Напольная"/>
+			<Setup name="Настольная"/>
+			<HeatCasePurpose name="Выпечка"/>
+			<HeatCasePurpose name="Гамбургеры"/>
+			<HeatCasePurpose name="Готовые блюда"/>
+			<HeatCasePurpose name="Десерты"/>
+			<HeatCasePurpose name="Пицца"/>
+			<HeatCasePurpose name="Универсальное"/>
+			<HeatCasePower variable="text"/>
+			<HeatCaseLength variable="text"/>
+			<HeatCaseWidth variable="text"/>
+			<HeatCaseHeight variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Тепловые шкафы">
+			<Brand file="food/brand/teplovoe.xml" rename="proizvoditel_teplovoe"/>
+			<Connection name="Газ"/>
+			<Connection name="Электричество"/>
+			<HeatBoxControl name="Механическое"/>
+			<HeatBoxControl name="Электромеханическое"/>
+			<HeatBoxControl name="Электронное"/>
+			<HeatBoxLoad variable="text"/>
+			<HeatBoxMaterial name="Алюминий"/>
+			<HeatBoxMaterial name="Антипригарное покрытие"/>
+			<HeatBoxMaterial name="Нержавеющая сталь"/>
+			<HeatBoxMaterial name="Чугун"/>
+			<HeatBoxMaterial name="Эмалированная сталь"/>
+			<HeatBoxPower variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Тостеры">
+			<Brand file="food/brand/teplovoe.xml" rename="proizvoditel_teplovoe"/>
+			<ToasterPower variable="text"/>
+			<ToasterType name="Вертикальный"/>
+			<ToasterType name="Горизонтальный"/>
+			<ToasterType name="Конвейерный"/>
+			<ToasterType name="Прижимной"/>
+		</EquipmentType>
+		<EquipmentType name="Фритюрницы" oldNames="Фритюрницы ">
+			<Brand file="food/brand/teplovoe.xml" rename="proizvoditel_teplovoe"/>
+			<Connection name="Газ"/>
+			<Connection name="Электричество"/>
+			<FryerPower variable="text"/>
+			<Setup name="Встраиваемая"/>
+			<Setup name="На подставке"/>
+			<Setup name="Напольная"/>
+			<Setup name="Настольная"/>
+			<FryerVolume variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Запчасти и комплектующие" />
+	</GoodsSubType>
+	<GoodsSubType name="Для производства напитков">
+		<EquipmentType name="Граниторы">
+			<GraniterPower variable="text"/>
+			<GraniterVolume variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Кофемашины">
+			<CoffeeMachineType name="Автоматическая"/>
+			<CoffeeMachineType name="Капельная"/>
+			<CoffeeMachineType name="Капсульная"/>
+			<CoffeeMachineType name="На песке"/>
+			<CoffeeMachineType name="Полуавтоматическая"/>
+			<CoffeeMachineType name="Рожковая"/>
+			<CoffeeMachineType name="Рычажная"/>
+			<CoffeeMachineType name="Суперавтоматическая"/>
+			<CoffeeMachineVolume variable="text"/>
+			<CoffeeMachinePower variable="text"/>
+			<CoffeeMachineCapacity variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Пивоваренное оборудование">
+			<BreweryType name="Котлы">
+				<BreweryPotVolume variable="text"/>
+			</BreweryType>
+			<BreweryType name="Мельницы"/>
+			<BreweryType name="Пивоварни и сусловарни">
+				<BreweryVolume variable="text"/>
+			</BreweryType>
+			<BreweryType name="Тара и оборудование для розлива"/>
+			<BreweryType name="Трубки, шланги и соединения"/>
+			<BreweryType name="Устройства для охлаждения сусла"/>
+			<BreweryType name="Фильтрация и укупорка"/>
+			<BreweryType name="ЦКТ и ёмкости для брожения">
+				<BreweryTankVolume variable="text"/>
+			</BreweryType>
+			<BreweryType name="Аксессуары"/>
+		</EquipmentType>
+		<EquipmentType name="Соковыжималки">
+			<JuicerType name="Автоматическая"/>
+			<JuicerType name="Конусная"/>
+			<JuicerType name="Прессовая"/>
+			<JuicerType name="Центробежная"/>
+			<JuicerType name="Шнековая"/>
+			<JuicerPurpose name="Для граната"/>
+			<JuicerPurpose name="Для томатов"/>
+			<JuicerPurpose name="Для цитрусовых"/>
+			<JuicerPurpose name="Для яблок"/>
+			<JuicerPurpose name="Универсальная"/>
+		</EquipmentType>
+	</GoodsSubType>
+	<GoodsSubType name="Холодильное">
+		<EquipmentType name="Холодильные моноблоки">
+			<MonoblockVoltage name="220"/>
+			<MonoblockVoltage name="380"/>
+			<MonoblockVoltage name="220/380"/>
+			<MonoblockTemp name="Низкотемпературный"/>
+			<MonoblockTemp name="Среднетемпературный"/>
+			<MonoblockTemp name="Универсальный"/>
+			<MonoblockPower variable="text"/>
+			<MonoblockCoolVol variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Льдогенераторы">
+			<IceGenTypeIce name="Гранулированный"/>
+			<IceGenTypeIce name="Гурме"/>
+			<IceGenTypeIce name="Конусный"/>
+			<IceGenTypeIce name="Крошковый"/>
+			<IceGenTypeIce name="Кубиковый"/>
+			<IceGenTypeIce name="Кусковой"/>
+			<IceGenTypeIce name="Нуггет"/>
+			<IceGenTypeIce name="Пальчиковый"/>
+			<IceGenTypeIce name="Пирамида/Трапеция"/>
+			<IceGenTypeIce name="Полумесяц"/>
+			<IceGenTypeIce name="Сухой"/>
+			<IceGenTypeIce name="Фраппе"/>
+			<IceGenTypeIce name="Цилиндрический"/>
+			<IceGenTypeIce name="Чешуйчатый"/>
+			<IceGenTypeIce name="Шарообразный"/>
+			<IceGenTypeWater name="Заливной"/>
+			<IceGenTypeWater name="Комбинированный"/>
+			<IceGenTypeWater name="Проточный"/>
+			<IceGenCapacity variable="text"/>
+			<IceGenCooling name="Водяное"/>
+			<IceGenCooling name="Воздушное"/>
+			<IceGenPower variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Морозильные лари">
+			<ChestSize variable="text"/>
+			<ChestVoltage name="220"/>
+			<ChestVoltage name="230"/>
+			<ChestVoltage name="380"/>
+			<ChestVoltage name="220/380"/>
+			<ChestPower variable="text"/>
+			<ChestTemp name="Низкотемпературный"/>
+			<ChestTemp name="Среднетемпературный"/>
+			<ChestTemp name="Универсальный"/>
+		</EquipmentType>
+		<EquipmentType name="Холодильные горки">
+			<CoolSlideVoltage name="220"/>
+			<CoolSlideVoltage name="380"/>
+			<CoolSlideVoltage name="220/380"/>
+			<CoolSlideArea variable="text"/>
+			<CoolSlidePower variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Холодильные столы">
+			<CoolTablePower variable="text"/>
+			<CoolTableTemp name="Низкотемпературный"/>
+			<CoolTableTemp name="Среднетемпературный"/>
+			<CoolTableTemp name="Универсальный"/>
+			<CoolTableVoltage name="220"/>
+			<CoolTableVoltage name="230"/>
+			<CoolTableVoltage name="380"/>
+			<CoolTableVoltage name="220/380"/>
+			<CoolTableVolume variable="text"/>
+			<CoolTableTop name="Гранит"/>
+			<CoolTableTop name="Нержавеющая сталь"/>
+			<CoolTableTop name="Пластификат"/>
+			<CoolTableTop name="Полипропилен"/>
+		</EquipmentType>
+		<EquipmentType name="Запчасти и комплектующие"/>
+		<EquipmentType name="Морозильные шкафы">
+			<FreezerVolume variable="text"/>
+			<FreezerTemp name="Среднетемпературный"/>
+			<FreezerTemp name="Низкотемпературный"/>
+			<FreezerTemp name="Универсальный"/>
+			<FreezerLength variable="text"/>
+			<FreezerWidth variable="text"/>
+			<FreezerHeight variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Холодильные витрины">
+			<CoolCasePower variable="text"/>
+			<CoolCaseTemp name="Среднетемпературный"/>
+			<CoolCaseTemp name="Низкотемпературный"/>
+			<CoolCaseTemp name="Универсальный"/>
+			<CoolCaseLength variable="text"/>
+			<CoolCaseWidth variable="text"/>
+			<CoolCaseHeight variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Охладители">
+			<CoolerPower variable="text"/>
+			<CoolerTemp name="Среднетемпературный"/>
+			<CoolerTemp name="Низкотемпературный"/>
+			<CoolerTemp name="Универсальный"/>
+			<CoolerVoltage name="220"/>
+			<CoolerVoltage name="380"/>
+			<CoolerVoltage name="220/380"/>
+			<CoolerNBoxes name="1"/>
+			<CoolerNBoxes name="2"/>
+			<CoolerNBoxes name="3"/>
+			<CoolerNBoxes name="4"/>
+			<CoolerNBoxes name="5"/>
+			<CoolerNBoxes name="6"/>
+		</EquipmentType>
+		<EquipmentType name="Холодильные камеры">
+			<CoolRoomTemp name="Среднетемпературный"/>
+			<CoolRoomTemp name="Низкотемпературный"/>
+			<CoolRoomTemp name="Универсальный"/>
+			<CoolRoomVolume variable="text"/>
+			<CoolRoomLength variable="text"/>
+			<CoolRoomWidth variable="text"/>
+			<CoolRoomHeight variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Холодильные шкафы">
+			<CoolCabPower variable="text"/>
+			<CoolCabTemp name="Среднетемпературный"/>
+			<CoolCabTemp name="Низкотемпературный"/>
+			<CoolCabTemp name="Универсальный"/>
+			<CoolCabVolume variable="text"/>
+		</EquipmentType>
+	</GoodsSubType>
+	<GoodsSubType name="Нейтральное">
+		<EquipmentType name="Зонты вытяжные">
+			<ExtUmbrellaInstall name="Встраиваемый"/>
+			<ExtUmbrellaInstall name="Островной"/>
+			<ExtUmbrellaInstall name="Пристенный"/>
+			<ExtUmbrellaMaterial name="Алюминий"/>
+			<ExtUmbrellaMaterial name="Нержавеющая сталь"/>
+			<ExtUmbrellaMaterial name="Окрашенная сталь"/>
+			<ExtUmbrellaMaterial name="Оцинкованная сталь"/>
+			<ExtUmbrellaMaterial name="Эмалированный металл"/>
+			<ExtUmbrellaLength variable="text"/>
+			<ExtUmbrellaWidth variable="text"/>
+			<ExtUmbrellaHeight variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Моечное оборудование">
+			<WashingMaterial name="Алюминий"/>
+			<WashingMaterial name="Нержавеющая сталь"/>
+			<WashingMaterial name="Пластик"/>
+			<WashingMaterial name="Стеклопластик"/>
+			<WashingLength variable="text"/>
+			<WashingWidth variable="text"/>
+			<WashingHeight variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Полки">
+			<NeutralShelfType name="Напольная"/>
+			<NeutralShelfType name="Настенная"/>
+			<NeutralShelfType name="Настольная"/>
+			<NeutralShelfType name="Подвесная"/>
+			<NeutralShelfMaterial name="Алюминий"/>
+			<NeutralShelfMaterial name="Дерево"/>
+			<NeutralShelfMaterial name="Нержавеющая сталь"/>
+			<NeutralShelfMaterial name="Оцинкованная сталь"/>
+			<NeutralShelfMaterial name="Пластик"/>
+			<NeutralShelfMaterial name="Полимерное покрытие"/>
+			<NeutralShelfMaterial name="Сталь"/>
+			<NeutralShelfLength variable="text"/>
+			<NeutralShelfWidth variable="text"/>
+			<NeutralShelfHeight variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Стеллажи">
+			<ShelvingNShelves variable="text"/>
+			<ShelvingMaterial name="Алюминий"/>
+			<ShelvingMaterial name="Нержавеющая сталь"/>
+			<ShelvingMaterial name="Оцинкованная сталь"/>
+			<ShelvingMaterial name="Пластик"/>
+			<ShelvingMaterial name="Порошковое покрытие"/>
+			<ShelvingLength variable="text"/>
+			<ShelvingWidth variable="text"/>
+			<ShelvingHeight variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Столы">
+			<NeutralTableCarcass name="Алюминий"/>
+			<NeutralTableCarcass name="Металл"/>
+			<NeutralTableCarcass name="Нержавеющая сталь"/>
+			<NeutralTableCarcass name="Оцинкованная сталь"/>
+			<NeutralTableCarcass name="Полимерно-порошковое покрытие"/>
+			<NeutralTableCarcass name="Сталь"/>
+			<NeutralTableTop name="Бук"/>
+			<NeutralTableTop name="Влагостойкая фанера"/>
+			<NeutralTableTop name="Дерево"/>
+			<NeutralTableTop name="Нержавеющая сталь"/>
+			<NeutralTableTop name="Оцинкованная сталь"/>
+			<NeutralTableTop name="Полипропилен"/>
+			<NeutralTableLength variable="text"/>
+			<NeutralTableWidth variable="text"/>
+			<NeutralTableHeight variable="text"/>
+		</EquipmentType>
+	</GoodsSubType>
+	<GoodsSubType name="Хлебопекарное">
+		<Brand file="food/brand/bread.xml" rename="true"/>
+		<EquipmentType name="Тестоокруглители">
+			<DoughRounderLength variable="text"/>
+			<DoughRounderWidth variable="text"/>
+			<DoughRounderHeight variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Тестомесы">
+			<DoughMixerVoltage name="220"/>
+			<DoughMixerVoltage name="220/380"/>
+			<DoughMixerVoltage name="380"/>
+			<DoughMixerType name="Вилочный"/>
+			<DoughMixerType name="Горизонтальный"/>
+			<DoughMixerType name="Планетарный"/>
+			<DoughMixerType name="Спиральный"/>
+		</EquipmentType>
+		<EquipmentType name="Тестораскаточные аппараты">
+			<DoughRollVoltage name="220"/>
+			<DoughRollVoltage name="220/380"/>
+			<DoughRollVoltage name="380"/>
+			<DoughRollVoltage name="Без электричества"/>
+			<DoughRollPurpose name="Для вареников"/>
+			<DoughRollPurpose name="Для круассанов"/>
+			<DoughRollPurpose name="Для лавашей"/>
+			<DoughRollPurpose name="Для лапши"/>
+			<DoughRollPurpose name="Для пельменей"/>
+			<DoughRollPurpose name="Для песочного теста"/>
+			<DoughRollPurpose name="Для пиццы"/>
+			<DoughRollPurpose name="Для слоёных изделий"/>
+			<DoughRollPurpose name="Для хинкали"/>
+			<DoughRollPurpose name="Для чебуреков"/>
+			<DoughRollPurpose name="Универсальное"/>
+		</EquipmentType>
+		<EquipmentType name="Тестоделители">
+			<DoughDividerLength variable="text"/>
+			<DoughDividerWidth variable="text"/>
+			<DoughDividerHeight variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Хлеборезки">
+			<BreadSlicerPower variable="text"/>
+			<BreadSlicerLength variable="text"/>
+			<BreadSlicerWidth variable="text"/>
+			<BreadSlicerHeight variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Мукопросеиватели">
+			<FlourSifterPower variable="text"/>
+			<FlourSifterLength variable="text"/>
+			<FlourSifterWidth variable="text"/>
+			<FlourSifterHeight variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Ферментаторы">
+			<FermenterPower variable="text"/>
+			<FermenterVolume variable="text"/>
+		</EquipmentType>
+	</GoodsSubType>
+	<GoodsSubType name="Электромеханическое">
+		<EquipmentType name="Блендеры">
+			<Brand file="food/brand/elektromehanicheskoe.xml" rename="true"/>
+			<BlenderCrushIce name="Да"/>
+			<BlenderCrushIce name="Нет"/>
+			<BlenderMaterial name="Алюминий"/>
+			<BlenderMaterial name="Нержавеющая сталь"/>
+			<BlenderMaterial name="Пластик"/>
+			<BlenderMaterial name="Поликарбонат"/>
+			<BlenderMaterial name="Стекло"/>
+			<BlenderMaterial name="Тритан"/>
+			<BlenderPower variable="text"/>
+			<BlenderVolume variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Запчасти и комплектующие"/>
+		<EquipmentType name="Измельчители">
+			<Brand file="food/brand/elektromehanicheskoe.xml" rename="true"/>
+			<ShredderPower variable="text"/>
+			<ShredderRotationSpeed variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Котлетоформовочные аппараты">
+			<Brand file="food/brand/elektromehanicheskoe.xml" rename="true"/>
+			<CutletFormLoad variable="text"/>
+			<CutletFormPower variable="text"/>
+			<Purpose name="Гамбургеры"/>
+			<Purpose name="Котлеты"/>
+			<Purpose name="Крокеты"/>
+			<Purpose name="Наггетсы"/>
+			<Purpose name="Печенье"/>
+			<Purpose name="Полуфабрикаты"/>
+			<Purpose name="Рыбные палочки"/>
+			<Purpose name="Тефтели"/>
+			<Purpose name="Фрикадельки"/>
+			<Purpose name="Шарики"/>
+		</EquipmentType>
+		<EquipmentType name="Массажеры для мяса">
+			<Brand file="food/brand/elektromehanicheskoe.xml" rename="true"/>
+			<MeatMassagerLoad variable="text"/>
+			<MeatMassagerPower variable="text"/>
+			<MeatMassagerType name="Атмосферный"/>
+			<MeatMassagerType name="Вакуумный"/>
+			<MeatMassagerType name="С принудительным перемешиванием"/>
+			<MeatMassagerType name="Тумблер"/>
+			<MeatMassagerVolume variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Миксеры">
+			<Brand file="food/brand/elektromehanicheskoe.xml" rename="true"/>
+			<MixerPower variable="text"/>
+			<Setup name="На подставке"/>
+			<Setup name="Напольная"/>
+			<Setup name="Настольная"/>
+		</EquipmentType>
+		<EquipmentType name="Мясорубки">
+			<Brand file="food/brand/elektromehanicheskoe.xml" rename="true"/>
+			<MincerCapacity variable="text"/>
+			<MincerPower variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Овощерезки">
+			<Brand file="food/brand/elektromehanicheskoe.xml" rename="true"/>
+			<VegSlicerCapacity variable="text"/>
+			<Control name="Автоматическое"/>
+			<Control name="Полуавтоматическое"/>
+			<Control name="Ручное"/>
+			<Control name="Электрическое"/>
+			<Control name="Электромеханическое"/>
+			<VegSlicerPower variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Овощечистки и рыбочистки">
+			<Brand file="food/brand/elektromehanicheskoe.xml" rename="true"/>
+			<PeelerPower variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Пельменные аппараты">
+			<Brand file="food/brand/elektromehanicheskoe.xml" rename="true"/>
+			<DumplingCapacity variable="text"/>
+			<DumplingPower variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Слайсеры">
+			<Brand file="food/brand/elektromehanicheskoe.xml" rename="true"/>
+			<SlicerPower variable="text"/>
+			<SlicerThickness variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Тендерайзеры">
+			<Brand file="food/brand/elektromehanicheskoe.xml" rename="true"/>
+			<TenderizerControl name="Механический"/>
+			<TenderizerControl name="Пневматический"/>
+			<TenderizerControl name="Электрический"/>
+			<TenderizerPower variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Фаршемешалки">
+			<Brand file="food/brand/elektromehanicheskoe.xml" rename="true"/>
+			<Control name="Автоматическое"/>
+			<Control name="Полуавтоматическое"/>
+			<Control name="Ручное"/>
+			<Control name="Электрическое"/>
+			<Control name="Электромеханическое"/>
+			<MeatMixerPower variable="text"/>
+			<MeatMixerVolume variable="text"/>
+		</EquipmentType>
+		<EquipmentType name="Шприцы колбасные">
+			<Brand file="food/brand/elektromehanicheskoe.xml" rename="true"/>
+			<SausageFillerDrive name="Механический"/>
+			<SausageFillerDrive name="Пневматический"/>
+			<SausageFillerDrive name="Электрический"/>
+			<Setup name="На подставке"/>
+			<Setup name="Напольная"/>
+			<Setup name="Настольная"/>
+			<SausageFillerType name="Вертикальный"/>
+			<SausageFillerType name="Горизонтальный"/>
+		</EquipmentType>
+	</GoodsSubType>
+	<GoodsSubType name="Кухонный инвентарь"/>
+</Root>

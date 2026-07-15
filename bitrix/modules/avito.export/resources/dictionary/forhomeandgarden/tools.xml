@@ -1,0 +1,738 @@
+<Tools>
+	<ToolType name="Электроинструменты">
+		<ToolSubType name="Дрели и шуруповёрты" oldNames="Дрели и шуруповерты"/>
+		<ToolSubType name="Перфораторы">
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+			<CartridgeType name="SDS – plus"/>
+			<CartridgeType name="SDS – max"/>
+			<CartridgeType name="SDS – top"/>
+			<CartridgeType name="SDS – quick"/>
+			<CartridgeType name="Быстрозажимной"/>
+			<CartridgeType name="Ключевой"/>
+			<CartridgeType name="Цанговый"/>
+			<PowerType name="Аккумуляторный"/>
+			<PowerType name="Сетевой"/>
+			<Modes name="1"/>
+			<Modes name="2"/>
+			<Modes name="3"/>
+			<Modes name="4"/>
+		</ToolSubType>
+		<ToolSubType name="Болгарки (УШМ)"/>
+		<ToolSubType name="Шлифовальные инструменты" oldNames="Шлифовальные машины">
+			<GrindingToolType name="Для стен и потолков (жираф)"/>
+			<GrindingToolType name="Эксцентриковые"/>
+			<GrindingToolType name="Полировальные машины"/>
+			<GrindingToolType name="Ленточные"/>
+			<GrindingToolType name="Плоскошлифовальные"/>
+			<GrindingToolType name="Граверы"/>
+			<GrindingToolType name="Реноваторы (МФИ)"/>
+			<GrindingToolType name="Другое"/>
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</ToolSubType>
+		<ToolSubType name="Пилы" oldNames="Пилы электрические">
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+			<ElectricSawType name="Цепные"/>
+			<ElectricSawType name="Дисковые (Циркулярные)">
+				<PlungeSaw name="Да"/>
+				<PlungeSaw name="Нет"/>
+				<PowerType name="Аккумуляторный"/>
+				<PowerType name="Сетевой"/>
+			</ElectricSawType>
+			<ElectricSawType name="Торцовочные">
+				<DiscDiameter variable="text"/>
+				<SawMaterialOption name="Металла" multiple="true"/>
+				<SawMaterialOption name="Дерева"/>
+				<SawMaterialOption name="Пластика"/>
+				<SawBroaching name="Да"/>
+				<SawBroaching name="Нет"/>
+			</ElectricSawType>
+			<ElectricSawType name="Отрезные (Монтажные)"/>
+			<ElectricSawType name="Сабельные"/>
+			<ElectricSawType name="Ленточные"/>
+		</ToolSubType>
+		<ToolSubType name="Фрезеры">
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+			<RouterType name="Универсальный"/>
+			<RouterType name="Кромочный"/>
+			<RouterType name="Ротационный"/>
+			<RouterType name="Ламельный"/>
+			<RouterType name="Вертикальный"/>
+			<RouterType name="Зачистной"/>
+			<RouterType name="Присадочный"/>
+			<WorkpieceMaterial name="Дерева" multiple="true"/>
+			<WorkpieceMaterial name="Металла"/>
+		</ToolSubType>
+		<ToolSubType name="Отбойные молотки">
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</ToolSubType>
+		<ToolSubType name="Электролобзики">
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</ToolSubType>
+		<ToolSubType name="Пылесосы строительные">
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+			<VacuumCleanerType name="Строительный"/>
+			<VacuumCleanerType name="Промышленный"/>
+		</ToolSubType>
+		<ToolSubType name="Строительные фены" oldNames="Фены строительные">
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</ToolSubType>
+		<ToolSubType name="Электрорубанки">
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</ToolSubType>
+		<ToolSubType name="Строительные миксеры" oldNames="Миксеры строительные">
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</ToolSubType>
+		<ToolSubType name="Плиткорезы">
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+			<WorkpieceMaterial name="Керамогранит" multiple="true"/>
+			<WorkpieceMaterial name="Керамическая плитка"/>
+			<WorkpieceMaterial name="Камень"/>
+			<WorkpieceMaterial name="Кирпич"/>
+			<WorkpieceMaterial name="Мрамор"/>
+			<WorkpieceMaterial name="Кварцевый агломерат"/>
+			<WaterCooling name="Есть"/>
+			<WaterCooling name="Нет"/>
+			<InstallationType name="Напольный"/>
+			<InstallationType name="Настольный"/>
+		</ToolSubType>
+		<ToolSubType name="Строительные пистолеты" oldNames="Пистолеты монтажные">
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</ToolSubType>
+		<ToolSubType name="Оснастка и комплектующие">
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</ToolSubType>
+		<ToolSubType name="Гайковёрты">
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+			<PowerType name="Аккумуляторный"/>
+			<PowerType name="Сетевой"/>
+			<Impact name="Да"/>
+			<Impact name="Нет"/>
+		</ToolSubType>
+		<ToolSubType name="Штроборезы, бетонорезы">
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</ToolSubType>
+		<ToolSubType name="Запчасти и комплектующие для электроинструмента">
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</ToolSubType>
+		<ToolSubType name="Наборы электроинструмента">
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+			<PowerType name="Аккумуляторный"/>
+			<PowerType name="Сетевой"/>
+			<PowerType name="Комбинированный"/>
+			<ToolSetPackage name="Кейс"/>
+			<ToolSetPackage name="Сумка"/>
+			<ToolSetPackage name="Коробка"/>
+			<ToolSetPackage name="Без упаковки"/>
+			<ToolSetComplectation file="repairandconstruction/tools/tool_set_complectation.xml" multiple="true"/>
+		</ToolSubType>
+		<ToolSubType name="Другое">
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</ToolSubType>
+	</ToolType>
+	<ToolType name="Ручные инструменты">
+		<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		<ToolSubType name="Наборы инструментов">
+			<SetType name="Автоинструмент"/>
+			<SetType name="Столярно-слесарный"/>
+			<SetType name="Электромонтажный"/>
+			<SetType name="Шарнирно-губцевый инструмент"/>
+			<SetType name="Ударно-рычажный инструмент"/>
+			<SetType name="Набор отвёрток"/>
+			<SetType name="Набор трещоток с головками"/>
+			<SetType name="Наборы ключей"/>
+			<SetType name="Резьбонарезной"/>
+			<ToolSetComplectation file="repairandconstruction/tools/hand_tool_set_complectation.xml" multiple="true"/>
+			<Quantity variable="text"/>
+		</ToolSubType>
+		<ToolSubType name="Режущие инструменты">
+			<CutSubType name="Ножи"/>
+			<CutSubType name="Ножницы"/>
+			<CutSubType name="Пилы и ножовки">
+				<DeviceType name="Пилы">
+					<Material name="Дерево" multiple="true"/>
+					<Material name="Металл"/>
+					<Material name="Гипсокартон"/>
+					<Material name="Газобетон"/>
+					<Material name="Пенобетон"/>
+					<Material name="Пластик"/>
+					<Material name="Ламинат"/>
+					<Material name="Паркет"/>
+					<Material name="Фанера"/>
+					<Material name="ОСБ"/>
+					<Material name="Камень"/>
+					<Material name="Кирпич"/>
+					<Material name="Керамогранит"/>
+					<Material name="Кафель"/>
+					<Material name="Плитка"/>
+					<Material name="Бетон"/>
+					<Material name="Ветки"/>
+					<Material name="Газосиликат"/>
+				</DeviceType>
+				<DeviceType name="Ножовки">
+					<Material name="Дерево" multiple="true"/>
+					<Material name="Металл"/>
+					<Material name="Гипсокартон"/>
+					<Material name="Газобетон"/>
+					<Material name="Пенобетон"/>
+					<Material name="Пластик"/>
+					<Material name="Ламинат"/>
+					<Material name="Паркет"/>
+					<Material name="Фанера"/>
+					<Material name="ОСБ"/>
+					<Material name="Камень"/>
+					<Material name="Кирпич"/>
+					<Material name="Керамогранит"/>
+					<Material name="Кафель"/>
+					<Material name="Плитка"/>
+					<Material name="Бетон"/>
+					<Material name="Ветки"/>
+					<Material name="Газосиликат"/>
+				</DeviceType>
+				<DeviceType name="Полотна">
+					<Material name="Дерево" multiple="true"/>
+					<Material name="Металл"/>
+					<Material name="Гипсокартон"/>
+					<Material name="Газобетон"/>
+					<Material name="Пенобетон"/>
+					<Material name="Пластик"/>
+					<Material name="Ламинат"/>
+					<Material name="Паркет"/>
+					<Material name="Фанера"/>
+					<Material name="ОСБ"/>
+					<Material name="Камень"/>
+					<Material name="Кирпич"/>
+					<Material name="Керамогранит"/>
+					<Material name="Кафель"/>
+					<Material name="Плитка"/>
+					<Material name="Бетон"/>
+					<Material name="Ветки"/>
+					<Material name="Газосиликат"/>
+				</DeviceType>
+				<DeviceType name="Стусла"/>
+				<DeviceType name="Уголки"/>
+			</CutSubType>
+			<CutSubType name="Плиткорезы">
+				<Material name="Плитка" multiple="true"/>
+				<Material name="Керамогранит"/>
+				<CuttingLength file="repairandconstruction/tools/cuttinglength.xml"/>
+				<Thickness name="3 мм"/>
+				<Thickness name="4 мм"/>
+				<Thickness name="6 мм"/>
+				<Thickness name="8 мм"/>
+				<Thickness name="10 мм"/>
+				<Thickness name="12 мм"/>
+				<Thickness name="14 мм"/>
+				<Thickness name="15 мм"/>
+				<Thickness name="16 мм"/>
+				<Thickness name="20 мм"/>
+				<Thickness name="23 мм"/>
+				<Thickness name="24 мм"/>
+				<Thickness name="25 мм"/>
+			</CutSubType>
+		</ToolSubType>
+		<ToolSubType name="Домкраты"/>
+		<ToolSubType name="Шарнирно-губцевый инструмент">
+			<DeviceType name="Плоскогубцы и пассатижи"/>
+			<DeviceType name="Бокорезы и кусачки"/>
+			<DeviceType name="Тонкогубцы и круглогубцы"/>
+			<DeviceType name="Переставные клещи"/>
+			<DeviceType name="Зажимные клещи"/>
+			<DeviceType name="Арматурные клещи"/>
+			<DeviceType name="Ножницы по металлу"/>
+			<DeviceType name="Съёмники стопорных колец"/>
+			<DeviceType name="Болторезы"/>
+			<DeviceType name="Труборезы"/>
+			<DeviceType name="Щипцы"/>
+			<DeviceType name="Мультитулы"/>
+			<Purpose name="Универсальные"/>
+			<Purpose name="Сантехнические"/>
+			<Purpose name="Ювелирные"/>
+			<Purpose name="Металлорежущие"/>
+			<Shape name="Загнутые"/>
+			<Shape name="Удлинённые"/>
+			<Shape name="Без особенностей"/>
+			<Length variable="text"/>
+		</ToolSubType>
+		<ToolSubType name="Малярные инструменты">
+			<MaterialType name="Пластик"/>
+			<MaterialType name="Металл"/>
+			<MaterialType name="Дерево"/>
+			<DeviceType name="Краскопульт"/>
+			<DeviceType name="Валик">
+				<Width variable="text"/>
+			</DeviceType>
+			<DeviceType name="Шпатель">
+				<Width variable="text"/>
+			</DeviceType>
+			<DeviceType name="Кисть">
+				<Width variable="text"/>
+			</DeviceType>
+			<DeviceType name="Ёмкость"/>
+			<DeviceType name="Набор"/>
+			<DeviceType name="Кельма">
+				<Width variable="text"/>
+			</DeviceType>
+			<DeviceType name="Гладилка">
+				<Width variable="text"/>
+			</DeviceType>
+			<DeviceType name="Правило">
+				<Width variable="text"/>
+			</DeviceType>
+			<DeviceType name="Держатель"/>
+			<DeviceType name="Нож"/>
+			<DeviceType name="Губка"/>
+			<DeviceType name="Другое"/>
+			<Purpose name="Для штукатурки" multiple="true"/>
+			<Purpose name="Для шпаклёвки"/>
+			<Purpose name="Для краски"/>
+			<Purpose name="Для затирки"/>
+			<Purpose name="Для клея"/>
+			<Purpose name="Для обоев"/>
+			<Purpose name="Для плёнки"/>
+			<Purpose name="Для натяжного потолка"/>
+		</ToolSubType>
+		<ToolSubType name="Пистолеты для пены и герметика"/>
+		<ToolSubType name="Столярно-слесарные инструменты" oldNames="Столярные инструменты">
+			<CarpenterSubType name="Ключи">
+				<DeviceType name="Набор">
+					<Ratchet name="Да"/>
+					<Ratchet name="Нет"/>
+				</DeviceType>
+				<DeviceType name="Комбинированный">
+					<Ratchet name="Да"/>
+					<Ratchet name="Нет"/>
+				</DeviceType>
+				<DeviceType name="Разводной"/>
+				<DeviceType name="Рожковый"/>
+				<DeviceType name="Трубный"/>
+				<DeviceType name="Динамометрический">
+					<Ratchet name="Да"/>
+					<Ratchet name="Нет"/>
+				</DeviceType>
+				<DeviceType name="Накидной">
+					<Ratchet name="Да"/>
+					<Ratchet name="Нет"/>
+				</DeviceType>
+				<DeviceType name="Шестигранный (Имбусовый)"/>
+				<DeviceType name="Торцевой"/>
+				<DeviceType name="Torx"/>
+				<DeviceType name="Балонный"/>
+				<DeviceType name="Свечной"/>
+				<DeviceType name="Для электрошкафа"/>
+				<DeviceType name="Ступенчатый">
+					<Ratchet name="Да"/>
+					<Ratchet name="Нет"/>
+				</DeviceType>
+				<DeviceType name="Специализированный">
+					<Ratchet name="Да"/>
+					<Ratchet name="Нет"/>
+				</DeviceType>
+				<Size file="repairandconstruction/tools/spanner_size.xml" multiple="true"/>
+			</CarpenterSubType>
+			<CarpenterSubType name="Отвёртки"/>
+			<CarpenterSubType name="Резьбонарезные инструменты"/>
+			<CarpenterSubType name="Рубанки">
+				<DeviceType file="repairandconstruction/tools/planer_device_type.xml"/>
+				<Material name="Газобетон" multiple="true"/>
+				<Material name="Гипсокартон"/>
+				<Material name="Дерево"/>
+				<Material name="ДСП, ДВП, МДФ"/>
+				<Material name="Металл"/>
+				<Material name="Пластмасса"/>
+				<Material name="Фибергласс"/>
+				<Material name="Штукатурка"/>
+			</CarpenterSubType>
+			<CarpenterSubType name="Тиски и струбцины">
+				<DeviceType name="Тиски">
+					<ViceType name="Слесарные"/>
+					<ViceType name="Станочные"/>
+					<ViceType name="Столярные"/>
+					<ViceType name="Трубные"/>
+					<ViceType name="Угловые"/>
+				</DeviceType>
+				<DeviceType name="Струбцины">
+					<ClampType name="F-образная"/>
+					<ClampType name="G-образная"/>
+					<ClampType name="Быстрозажимная"/>
+					<ClampType name="Пружинная"/>
+					<ClampType name="Монтажная"/>
+					<ClampType name="Трубная"/>
+					<ClampType name="Угловая"/>
+					<ClampType name="Пистолетная"/>
+					<ClampType name="Клещеобразная"/>
+					<ClampType name="Ленточная"/>
+					<ClampType name="Кромочная"/>
+				</DeviceType>
+			</CarpenterSubType>
+			<CarpenterSubType name="Другое"/>
+		</ToolSubType>
+		<ToolSubType name="Ударно-рычажные инструменты">
+			<MaterialType name="Дерево"/>
+			<MaterialType name="Металл"/>
+			<MaterialType name="Металл с прорезиненным покрытием"/>
+			<MaterialType name="Фиберглас"/>
+			<MaterialType name="Пластик"/>
+			<DeviceType name="Молоток">
+				<DeviceSubType name="Слесарный"/>
+				<DeviceSubType name="Столярный"/>
+				<DeviceSubType name="Кровельщика"/>
+				<DeviceSubType name="Безынерционный"/>
+				<DeviceSubType name="Каменщика"/>
+				<DeviceSubType name="Сварщика"/>
+				<DeviceSubType name="Рихтовочный"/>
+				<DeviceSubType name="Плиточника"/>
+				<DeviceSubType name="Искробезопасный"/>
+				<DeviceSubType name="Ювелирный"/>
+			</DeviceType>
+			<DeviceType name="Гвоздодёр"/>
+			<DeviceType name="Кувалда"/>
+			<DeviceType name="Лом"/>
+			<DeviceType name="Наковальня"/>
+			<DeviceType name="Монтировка"/>
+			<DeviceType name="Пробойник"/>
+			<DeviceType name="Зубило"/>
+			<DeviceType name="Кёрнер"/>
+			<DeviceType name="Топор"/>
+			<DeviceType name="Выколотка"/>
+			<DeviceType name="Киянка"/>
+			<DeviceType name="Бородка"/>
+			<DeviceType name="Кирка"/>
+			<DeviceType name="Дровокол"/>
+			<DeviceType name="Клеймо"/>
+			<DeviceType name="Ледоруб"/>
+			<DeviceType name="Валочная лопатка"/>
+			<DeviceType name="Рукоять"/>
+			<DeviceType name="Другой"/>
+		</ToolSubType>
+		<ToolSubType name="Электромонтажные инструменты">
+			<DeviceType name="Для опрессовки"/>
+			<DeviceType name="Для очистки изоляции"/>
+			<DeviceType name="Для резки кабелей и тросов"/>
+			<DeviceType name="Ключи для электрошкафов"/>
+			<DeviceType name="Для монтажа электрощитов"/>
+			<DeviceType name="Для прокладки кабеля"/>
+			<DeviceType name="Для монтажа кабельных стяжек и лент"/>
+			<DeviceType name="Тестеры проверки напряжения"/>
+		</ToolSubType>
+		<ToolSubType name="Другое"/>
+	</ToolType>
+	<ToolType name="Измерительные инструменты">
+		<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		<ToolSubType name="Лазерные рулетки и дальномеры"></ToolSubType>
+		<ToolSubType name="Лазерные уровни и нивелиры"></ToolSubType>
+		<ToolSubType name="Пирометры и прочие детекторы"></ToolSubType>
+		<ToolSubType name="Разметочные инструменты"></ToolSubType>
+		<ToolSubType name="Рулетки"></ToolSubType>
+		<ToolSubType name="Ручные измерительные инструменты"></ToolSubType>
+		<ToolSubType name="Строительные уровни"></ToolSubType>
+		<ToolSubType name="Штативы, рейки, держатели"></ToolSubType>
+		<ToolSubType name="Электроизмерительные приборы и тестеры"></ToolSubType>
+		<ToolSubType name="Другое"></ToolSubType>
+	</ToolType>
+	<ToolType name="Газовое и сварочное оборудование">
+		<ToolSubType name="Газовое оборудование">
+			<GasSubType name="Газовые баллоны">
+				<GasCylinderFill name="Пустой">
+					<GasCylinderPurpose name="Пропан"/>
+					<GasCylinderPurpose name="Изобутан"/>
+					<GasCylinderPurpose name="Кислород"/>
+					<GasCylinderPurpose name="Углекислотный"/>
+					<GasCylinderPurpose name="Аргон"/>
+					<GasCylinderPurpose name="Азот"/>
+					<GasCylinderPurpose name="Гелий"/>
+					<GasCylinderPurpose name="Ацетиленовый"/>
+					<GasCylinderPurpose name="Бутан"/>
+					<GasCylinderPurpose name="МАПП"/>
+					<GasCylinderPurpose name="Смешанный"/>
+				</GasCylinderFill>
+				<GasCylinderFill name="С газом">
+					<GasType name="Пропан"/>
+					<GasType name="Изобутан"/>
+					<GasType name="Кислород"/>
+					<GasType name="Углекислотный"/>
+					<GasType name="Аргон"/>
+					<GasType name="Азот"/>
+					<GasType name="Гелий"/>
+					<GasType name="Ацетиленовый"/>
+					<GasType name="Бутан"/>
+					<GasType name="МАПП"/>
+					<GasType name="Смешанный"/>
+				</GasCylinderFill>
+				<Volume file="repairandconstruction/tools/gas_volume.xml"/>
+			</GasSubType>
+			<GasSubType name="Газовые горелки и паяльные лампы"/>
+			<GasSubType name="Резаки"/>
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</ToolSubType>
+		<ToolSubType name="Сварочные аппараты">
+			<WeldingSubType name="Полуавтоматы">
+				<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+				<MaxCurrent variable="text"/>
+				<WeldingMode name="С газом, без газа"/>
+				<WeldingMode name="С газом"/>
+				<WeldingMode name="Без газа"/>
+			</WeldingSubType>
+			<WeldingSubType name="Инверторы"/>
+			<WeldingSubType name="Аппараты для сварки полимеров">
+				<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+			</WeldingSubType>
+			<WeldingSubType name="Другое">
+				<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+			</WeldingSubType>
+		</ToolSubType>
+		<ToolSubType name="Паяльники и аксессуары для пайки" oldNames="Паяльники и аксессуары">
+			<SolderingSubType name="Паяльники и паяльные станции"/>
+			<SolderingSubType name="Паяльники для труб"/>
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</ToolSubType>
+		<ToolSubType name="Электроды, проволока, прутки">
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</ToolSubType>
+		<ToolSubType name="Аксессуары и комплектующие для сварки" oldNames="Маски и перчатки для сварки">
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</ToolSubType>
+		<ToolSubType name="Спецодежда и средства защиты">
+			<ProtectionSubType name="Маски, очки для сварки"/>
+			<ProtectionSubType name="Перчатки и краги для сварки"/>
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</ToolSubType>
+	</ToolType>
+	<ToolType name="Расходные материалы и оснастка">
+		<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		<ToolSubType name="Алмазные диски"></ToolSubType>
+		<ToolSubType name="Буры, долота, пики"></ToolSubType>
+		<ToolSubType name="Зарядные устройства и аккумуляторы"></ToolSubType>
+		<ToolSubType name="Коронки"></ToolSubType>
+		<ToolSubType name="Отрезные круги и пильные диски"></ToolSubType>
+		<ToolSubType name="Патроны и переходники"></ToolSubType>
+		<ToolSubType name="Свёрла"></ToolSubType>
+		<ToolSubType name="Шлифовальные круги и насадки"></ToolSubType>
+		<ToolSubType name="Другое"></ToolSubType>
+	</ToolType>
+	<ToolType name="Организация рабочего места" oldNames="Другие инструменты">
+		<ToolSubType name="Верстаки и оборудование для мастерской">
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+			<DeviceType name="Столярный">
+				<Kit name="Экран" multiple="true"/>
+				<Kit name="Тиски"/>
+				<Kit name="Струбицы"/>
+				<Kit name="Тумбочки"/>
+				<Portable name="Да"/>
+				<Portable name="Нет"/>
+			</DeviceType>
+			<DeviceType name="Слесарный">
+				<Kit name="Экран" multiple="true"/>
+				<Kit name="Тиски"/>
+				<Kit name="Струбицы"/>
+				<Kit name="Тумбочки"/>
+				<Portable name="Да"/>
+				<Portable name="Нет"/>
+			</DeviceType>
+			<DeviceType name="Универсальный">
+				<Kit name="Экран" multiple="true"/>
+				<Kit name="Тиски"/>
+				<Kit name="Струбицы"/>
+				<Kit name="Тумбочки"/>
+				<Portable name="Да"/>
+				<Portable name="Нет"/>
+			</DeviceType>
+			<DeviceType name="Комплектующие"/>
+		</ToolSubType>
+		<ToolSubType name="Оборудование для работ на высоте" oldNames="Лестницы, стремянки, вышки-туры">
+			<HeightWorkingEquipmentType name="Строительные леса">
+				<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+			</HeightWorkingEquipmentType>
+			<HeightWorkingEquipmentType name="Лестницы">
+				<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+				<MaterialType name="Алюминий"/>
+				<MaterialType name="Сталь"/>
+				<MaterialType name="Пластик"/>
+				<MaterialType name="Дерево"/>
+				<StairsType name="Приставная"/>
+				<StairsType name="Телескопическая"/>
+				<StairsType name="Навесная"/>
+				<StairsType name="Трансформер"/>
+				<StairsType name="Универсальная"/>
+				<StairsType name="Специального назначения"/>
+				<StairsType name="Кровельная"/>
+				<SectionQuantity name="1"/>
+				<SectionQuantity name="2"/>
+				<SectionQuantity name="3"/>
+				<SectionQuantity name="4"/>
+				<SectionQuantity name="5"/>
+				<SectionQuantity name="6"/>
+				<SectionQuantity name="7"/>
+				<SectionQuantity name="8"/>
+				<SectionQuantity name="9"/>
+			</HeightWorkingEquipmentType>
+			<HeightWorkingEquipmentType name="Стремянки">
+				<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+			</HeightWorkingEquipmentType>
+			<HeightWorkingEquipmentType name="Вышки-туры">
+				<Brand file="repairandconstruction/tools/vyshkitury.xml" rename="true"/>
+				<MaterialType name="Сталь"/>
+				<MaterialType name="Алюминий"/>
+				<SectionQuantity file="repairandconstruction/tools/section_quantity.xml"/>
+				<Height variable="text"/>
+				<Portable name="Да"/>
+				<Portable name="Нет"/>
+			</HeightWorkingEquipmentType>
+		</ToolSubType>
+		<ToolSubType name="Насосы и комплектующие">
+			<Brand file="repairandconstruction/tools/brendy_nasosov.xml" rename="true"/>
+			<DeviceType name="Инъекционный"/>
+			<DeviceType name="Мотопомпа"/>
+			<DeviceType name="Дренажный">
+				<InstallationType name="Поверхностный"/>
+				<InstallationType name="Погружной"/>
+			</DeviceType>
+			<DeviceType name="Скважинный">
+				<InstallationType name="Поверхностный"/>
+				<InstallationType name="Погружной"/>
+			</DeviceType>
+			<DeviceType name="Циркуляционный"/>
+			<DeviceType name="Насосная станция"/>
+			<DeviceType name="Канализационный">
+				<InstallationType name="Поверхностный"/>
+				<InstallationType name="Погружной"/>
+			</DeviceType>
+			<DeviceType name="Повысительный"/>
+			<DeviceType name="Фекальный">
+				<InstallationType name="Поверхностный"/>
+				<InstallationType name="Погружной"/>
+			</DeviceType>
+			<DeviceType name="Комплектующие"/>
+			<DeviceType name="Другой"/>
+		</ToolSubType>
+	</ToolType>
+	<ToolType name="Силовая, строительная техника и комплектующие">
+		<ToolSubType name="Бетономешалки">
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</ToolSubType>
+		<ToolSubType name="Виброоборудование" oldNames="Виброплиты">
+			<Brand file="repairandconstruction/tools/vibrooborudovanie.xml" rename="true"/>
+			<DeviceType name="Виброплита"/>
+			<DeviceType name="Вибратор">
+				<DeviceSubType name="Глубинный"/>
+				<DeviceSubType name="Поверхностный"/>
+			</DeviceType>
+			<DeviceType name="Вибротрамбовка"/>
+			<DeviceType name="Виброрейка"/>
+			<DeviceType name="Виброкаток"/>
+			<DeviceType name="Виброприсоска"/>
+			<DeviceType name="Вибростол"/>
+			<EngineType name="Бензиновый"/>
+			<EngineType name="Дизельный"/>
+			<EngineType name="Электрический">
+				<Voltage name="220 В"/>
+				<Voltage name="380 В"/>
+				<Voltage name="42 В"/>
+				<Voltage name="12 В"/>
+				<Voltage name="24 В"/>
+				<Voltage name="36 В"/>
+				<Voltage name="18 В"/>
+			</EngineType>
+			<EngineType name="Гидравлический"/>
+		</ToolSubType>
+		<ToolSubType name="Станки">
+			<Kit name="ЧПУ" multiple="true"/>
+			<Kit name="Подсветка"/>
+			<Kit name="Подача СОЖ"/>
+			<Kit name="Плавный пуск"/>
+			<Kit name="Защита от перегрузки"/>
+			<Kit name="Лазер"/>
+			<Kit name="Система охлаждения"/>
+			<Kit name="Пылеотвод"/>
+			<Kit name="Цифровая линейка"/>
+			<Kit name="Сенсорное управление"/>
+			<Kit name="Система обдува"/>
+			<Kit name="Система удаления стружки"/>
+			<Brand file="repairandconstruction/tools/stanki.xml" rename="true"/>
+			<Functionality name="Фрезерование" multiple="true"/>
+			<Functionality name="Резка"/>
+			<Functionality name="Сверление"/>
+			<Functionality name="Шлифование"/>
+			<Functionality name="Строгание"/>
+			<Functionality name="Прессование"/>
+			<Functionality name="Заточка"/>
+			<Functionality name="Производство РВД"/>
+			<Functionality name="Гибка"/>
+			<Material name="Дерево" multiple="true"/>
+			<Material name="Металл"/>
+			<Material name="Пластик"/>
+			<Material name="Бумага"/>
+			<Material name="Камень"/>
+			<Material name="Композит"/>
+		</ToolSubType>
+		<ToolSubType name="Двигатели и моторы" oldNames="Вибраторы">
+			<DeviceType name="Бензиновые двигатели"/>
+			<DeviceType name="Электродвигатели"/>
+			<DeviceType name="Электромоторы"/>
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</ToolSubType>
+		<ToolSubType name="Устройства электропитания">
+			<DeviceType name="Генераторы"/>
+			<DeviceType name="Частотные преобразователи">
+				<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+			</DeviceType>
+			<DeviceType name="Стабилизаторы напряжения">
+				<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+			</DeviceType>
+		</ToolSubType>
+		<ToolSubType name="Пескоструйные и окрасочные аппараты">
+			<DeviceType name="Окрасочные"/>
+			<DeviceType name="Пескоструйные"/>
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</ToolSubType>
+		<ToolSubType name="Компрессоры">
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+			<ReceiverPresence name="Есть">
+				<Volume file="repairandconstruction/tools/compressor_volume.xml"/>
+			</ReceiverPresence>
+			<ReceiverPresence name="Нет"/>
+			<CompressorUnitType name="Поршневой"/>
+			<CompressorUnitType name="Винтовой"/>
+			<CompressorUnitType name="Спиральный"/>
+			<LubricantType name="Масляный"/>
+			<LubricantType name="Безмасляный"/>
+			<Pressure variable="text"/>
+			<Capacity variable="text"/>
+		</ToolSubType>
+		<ToolSubType name="Другое">
+			<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+		</ToolSubType>
+	</ToolType>
+	<ToolType name="Электрика">
+		<ToolSubType name="Кабели и провода"/>
+		<ToolSubType name="Трансформаторы"/>
+		<ToolSubType name="Удлинители"/>
+		<ToolSubType name="Розетки и выключатели"/>
+		<ToolSubType name="УЗО"/>
+		<ToolSubType name="Солнечные панели"/>
+		<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+	</ToolType>
+	<ToolType name="Бензопилы"/>
+	<ToolType name="Садовая техника">
+		<ToolSubType name="Газонокосилки и триммеры"></ToolSubType>
+		<ToolSubType name="Канистры"></ToolSubType>
+		<ToolSubType name="Лопаты"></ToolSubType>
+		<ToolSubType name="Тачки и тележки"></ToolSubType>
+		<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+	</ToolType>
+	<ToolType name="Спецодежда и средства защиты">
+		<ToolSubType name="Каски строительные"></ToolSubType>
+		<ToolSubType name="Маски, очки"></ToolSubType>
+		<ToolSubType name="Наушники и беруши"></ToolSubType>
+		<ToolSubType name="Неодимовые магниты"></ToolSubType>
+		<ToolSubType name="Огнетушители"></ToolSubType>
+		<ToolSubType name="Перчатки, рукавицы"></ToolSubType>
+		<ToolSubType name="Пояса, ремни, сумки"></ToolSubType>
+		<ToolSubType name="Респираторы"></ToolSubType>
+		<ToolSubType name="Спецодежда, обувь и наколенники"></ToolSubType>
+		<ToolSubType name="Другое"></ToolSubType>
+		<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+	</ToolType>
+	<ToolType name="Другое">
+		<Brand file="repairandconstruction/brendy_instrumentov.xml" rename="true"/>
+	</ToolType>
+</Tools>

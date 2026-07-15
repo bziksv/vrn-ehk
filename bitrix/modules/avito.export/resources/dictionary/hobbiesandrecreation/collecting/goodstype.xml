@@ -1,0 +1,62 @@
+<root>
+	<GoodsType name="Банкноты">
+		<ProductType name="Банкнота"/>
+		<ProductType name="Сувенирная купюра"/>
+		<ProductType name="Шуточная купюра"/>
+		<ProductType name="Облигация"/>
+		<ProductType name="Акция"/>
+		<Complect name="Один экземпляр">
+			<Year file="Year.xml"/>
+			<FancyNumber name="Да"/>
+			<FancyNumber name="Нет"/>
+		</Complect>
+		<Complect name="Набор"/>
+	</GoodsType>
+	<GoodsType name="Билеты"/>
+	<GoodsType name="Вещи знаменитостей, автографы"/>
+	<GoodsType name="Военные вещи"/>
+	<GoodsType name="Грампластинки"/>
+	<GoodsType name="Документы"/>
+	<GoodsType name="Жетоны, медали, значки"/>
+	<GoodsType name="Игры"/>
+	<GoodsType name="Календари"/>
+	<GoodsType name="Картины"/>
+	<GoodsType name="Киндер-сюрприз"/>
+	<GoodsType name="Конверты и почтовые карточки"/>
+	<GoodsType name="Макеты оружия"/>
+	<GoodsType name="Марки"/>
+	<GoodsType name="Модели"/>
+	<GoodsType name="Монеты">
+		<Complect name="Набор монет"/>
+		<Complect name="Одна монета">
+			<Period name="Нашей эры">
+				<Year file="coins_year.xml"/>
+			</Period>
+			<Period name="До нашей эры"/>
+			<Material name="Золото"/>
+			<Material name="Серебро"/>
+			<Material name="Платина"/>
+			<Material name="Палладий"/>
+			<Material name="Медь"/>
+			<Material name="Бронза"/>
+			<Material name="Латунь"/>
+			<Material name="Никель"/>
+			<Material name="Алюминий"/>
+			<Material name="Сталь"/>
+			<Material name="Цинк"/>
+			<Material name="Биллон"/>
+			<Material name="Купроникель"/>
+			<Material name="Пластик"/>
+			<Material name="Керамика"/>
+			<Material name="Титан"/>
+			<Material name="Неизвестен"/>
+		</Complect>
+	</GoodsType>
+	<GoodsType name="Открытки"/>
+	<GoodsType name="Пепельницы, зажигалки"/>
+	<GoodsType name="Пластиковые карточки"/>
+	<GoodsType name="Спортивные карточки"/>
+	<GoodsType name="Фотографии, письма"/>
+	<GoodsType name="Этикетки, бутылки, пробки"/>
+	<GoodsType name="Другое"/>
+</root>

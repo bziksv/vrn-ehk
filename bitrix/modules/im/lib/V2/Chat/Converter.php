@@ -7,16 +7,23 @@ use Bitrix\Im\Model\MessageUnreadTable;
 use Bitrix\Im\Model\RecentTable;
 use Bitrix\Im\Model\RelationTable;
 use Bitrix\Im\V2\Chat;
+use Bitrix\Im\V2\Integration\Socialnetwork\Collab\Collab;
 use Bitrix\Im\V2\Message\CounterService;
+use Bitrix\Im\V2\Permission;
 use Bitrix\Im\V2\Result;
 use Bitrix\Main\Application;
 
 class Converter
 {
 	private const PUSH_CONVERT_NAME = 'chatConvert';
+	private const VALID_CONVERSIONS = [
+		Chat::IM_TYPE_OPEN => [Chat::IM_TYPE_CHAT, Chat::IM_TYPE_CHANNEL, Chat::IM_TYPE_OPEN_CHANNEL],
+		Chat::IM_TYPE_CHAT => [Chat::IM_TYPE_OPEN, Chat::IM_TYPE_CHANNEL, Chat::IM_TYPE_OPEN_CHANNEL, Chat::IM_TYPE_COLLAB],
+		Chat::IM_TYPE_OPEN_CHANNEL => [Chat::IM_TYPE_CHANNEL, Chat::IM_TYPE_CHAT, Chat::IM_TYPE_OPEN],
+		Chat::IM_TYPE_CHANNEL => [Chat::IM_TYPE_OPEN_CHANNEL,  Chat::IM_TYPE_CHAT, Chat::IM_TYPE_OPEN],
+	];
 	private const OPEN_TYPES = [Chat::IM_TYPE_OPEN, Chat::IM_TYPE_OPEN_CHANNEL];
 	private const CHANNEL_TYPES = [Chat::IM_TYPE_CHANNEL, Chat::IM_TYPE_OPEN_CHANNEL];
-	private const BLACKLIST_TYPES = [Chat::IM_TYPE_COMMENT, Chat::IM_TYPE_PRIVATE];
 	private int $chatId;
 	private ?Chat $chat;
 	private string $oldType;
@@ -59,7 +66,7 @@ class Converter
 			return $result->addError(new ChatError(ChatError::CONVERT_ERROR));
 		}
 
-		$this->onBeforeConvert();
+		$this->onAfterConvert();
 
 		return $result;
 	}
@@ -68,21 +75,31 @@ class Converter
 	{
 		$result = new Result();
 
-		if (
-			!in_array($this->newType, Chat::IM_TYPES, true)
-			|| !in_array($this->oldType, Chat::IM_TYPES, true)
-			|| in_array($this->newType, self::BLACKLIST_TYPES, true)
-			|| in_array($this->oldType, self::BLACKLIST_TYPES, true)
-			|| $this->oldType === $this->newType
-		)
+		$validConversions = self::VALID_CONVERSIONS[$this->oldType] ?? [];
+		if (!in_array($this->newType, $validConversions, true) || $this->getChat() instanceof Chat\VideoConfChat)
 		{
-			return $result->addError(new ChatError(ChatError::WRONG_TYPE));
+			return $result->addError(new ChatError(ChatError::WRONG_CHAT_TYPE));
+		}
+
+		if ($this->toCollab() && !$this->canConvertToCollab())
+		{
+			return $result->addError(new ChatError(ChatError::WRONG_CHAT_TYPE));
 		}
 
 		return $result;
 	}
 
-	protected function onBeforeConvert(): void
+	protected function canConvertToCollab(): bool
+	{
+		return $this->isSonetChat() && Collab::isCollab($this->getChat()->getEntityId());
+	}
+
+	protected function isSonetChat(): bool
+	{
+		return $this->getChat()->getEntityType() === Chat\ExtendedType::Sonet->value && $this->getChat()->getEntityId() > 0;
+	}
+
+	protected function onAfterConvert(): void
 	{
 		Chat::cleanCache($this->chatId);
 		Chat::cleanAccessCache($this->chatId);
@@ -96,7 +113,13 @@ class Converter
 	 */
 	protected function convertChatInfo(): self
 	{
-		ChatTable::update($this->chatId, ['TYPE' => $this->newType]);
+		$fields = ['TYPE' => $this->newType];
+		if ($this->toCollab())
+		{
+			$fields['DISK_FOLDER_ID'] = null;
+		}
+
+		ChatTable::update($this->chatId, $fields);
 		$this->chat = null;
 		$this->setChatPermissionToDefaultValues();
 
@@ -166,9 +189,16 @@ class Converter
 				'oldType' => $this->oldRestType,
 				'newType' => $chat->getExtendedType(),
 				'newPermissions' => $chat->getPermissions(),
+				'newTypeParams' => null,
 			],
 			'extra' => \Bitrix\Im\Common::getPullExtra()
 		];
+
+		if ($chat instanceof CollabChat)
+		{
+			$collabInfo = new Chat\Collab\CollabInfo($chat);
+			$pushParams['params']['newTypeParams'][$collabInfo::getRestEntityName()] = $collabInfo->toRestFormat();
+		}
 
 		\Bitrix\Pull\Event::add($chat->getRelations()->getUserIds(), $pushParams);
 		if (\CIMMessenger::needToSendPublicPull($this->newType) || \CIMMessenger::needToSendPublicPull($this->oldType))
@@ -250,13 +280,17 @@ class Converter
 		return $isOldTypeChannel && $isNewTypeNotChannel;
 	}
 
+	protected function toCollab(): bool
+	{
+		return $this->oldType === Chat::IM_TYPE_CHAT && $this->newType === Chat::IM_TYPE_COLLAB;
+	}
+
 	protected function setChatPermissionToDefaultValues(): void
 	{
-		$permissionNames = array_keys(Permission::GROUP_ACTIONS);
 		$emptyPermissions = [];
-		foreach ($permissionNames as $permissionName)
+		foreach (Permission\ActionGroup::cases() as $permission)
 		{
-			$emptyPermissions[$permissionName] = '';
+			$emptyPermissions[$permission->value] = '';
 		}
 		$this->getChat()->fill($emptyPermissions);
 		$this->getChat()->save();

@@ -1,7 +1,7 @@
 /* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Bizproc = this.BX.Bizproc || {};
-(function (exports,ui_alerts,ui_entitySelector,main_popup,bizproc_types,bizproc_task,bizproc_workflow_faces,bizproc_workflow_faces_summary,ui_cnt,main_core,ui_notification) {
+(function (exports,ui_alerts,ui_entitySelector,main_popup,bizproc_types,bizproc_task,ui_hint,bizproc_workflow_faces,bizproc_workflow_faces_summary,bizproc_workflow_result,main_core,ui_notification) {
 	'use strict';
 
 	var _runComponentAction = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("runComponentAction");
@@ -100,14 +100,20 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    var _babelHelpers$classPr, _babelHelpers$classPr2, _babelHelpers$classPr3, _babelHelpers$classPr4;
 	    const itemName = main_core.Type.isString((_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data]) == null ? void 0 : _babelHelpers$classPr.name) ? babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].name : '';
 	    const typeName = main_core.Type.isString((_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data]) == null ? void 0 : _babelHelpers$classPr2.typeName) ? babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].typeName : '';
-	    const documentUrl = ((_babelHelpers$classPr3 = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].task) == null ? void 0 : _babelHelpers$classPr3.url) || babelHelpers.classPrivateFieldLooseBase(this, _getWorkflowInfoUrl)[_getWorkflowInfoUrl]();
+	    const documentUrl = ((_babelHelpers$classPr3 = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].task) == null ? void 0 : _babelHelpers$classPr3.url) || babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowUrl || babelHelpers.classPrivateFieldLooseBase(this, _getWorkflowInfoUrl)[_getWorkflowInfoUrl]();
 	    const description = main_core.Type.isString((_babelHelpers$classPr4 = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data]) == null ? void 0 : _babelHelpers$classPr4.description) ? babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].description : '';
 	    const lengthLimit = 80;
 	    const collapsedDescription = main_core.Dom.create('span', {
 	      html: description == null ? void 0 : description.replace(/(<br \/>)+/gm, ' ')
 	    }).textContent.replace(/\n+/, ' ').slice(0, lengthLimit);
 	    const collapsed = (description == null ? void 0 : description.length) > lengthLimit;
-	    return main_core.Tag.render(_t || (_t = _`
+	    const descriptionNode = main_core.Tag.render(_t || (_t = _`
+			<span class="bp-user-processes__description">
+				${0}
+			</span>
+		`), description);
+	    BX.UI.Hint.init(descriptionNode);
+	    return main_core.Tag.render(_t2 || (_t2 = _`
 				<div class="bp-user-processes">
 					<a class="bp-user-processes__title-link ui-typography-text-lg"
 						href="${0}">${0}
@@ -118,12 +124,10 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 							${0}
 							...<a href="#" onclick="this.closest('div').classList.add('--expanded'); return false;" class="bp-user-processes__description-link">${0}</a>
 						</span>
-						<span class="bp-user-processes__description">
-							${0}
-						</span>
+						${0}
 					</div>
 			</div>
-		`), main_core.Text.encode(documentUrl), main_core.Text.encode(itemName), main_core.Text.encode(typeName.toUpperCase()), collapsed ? '' : '--expanded', main_core.Text.encode(collapsedDescription), main_core.Loc.getMessage('BIZPROC_USER_PROCESSES_TEMPLATE_DESCRIPTION_MORE'), description);
+		`), main_core.Text.encode(documentUrl), main_core.Text.encode(itemName), main_core.Text.encode(typeName.toUpperCase()), collapsed ? '' : '--expanded', main_core.Text.encode(collapsedDescription), main_core.Loc.getMessage('BIZPROC_USER_PROCESSES_TEMPLATE_DESCRIPTION_MORE'), descriptionNode);
 	  }
 	  renderTaskName() {
 	    var _babelHelpers$classPr5;
@@ -132,16 +136,19 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  renderTask() {
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].task || babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].userId !== babelHelpers.classPrivateFieldLooseBase(this, _currentUserId)[_currentUserId]) {
 	      const completedClassName = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].isCompleted ? '--success' : '';
-	      return main_core.Tag.render(_t2 || (_t2 = _`
+	      let resultNode = '';
+	      if (babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].isCompleted && babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowResult !== null) {
+	        resultNode = new bizproc_workflow_result.WorkflowResult(babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowResult).render();
+	      }
+	      return main_core.Tag.render(_t3 || (_t3 = _`
 				<div class="bp-status-panel ${0}">
-						<div class="bp-status-item">
-							<div class="bp-status-name">${0}</div>
-							${0}
-						</div>
+					<div class="bp-status-item">
+						<div class="bp-status-name">${0}</div>
+						${0}
+					</div>
 				</div>
-			`), completedClassName, main_core.Text.encode(babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].statusText.toUpperCase()), '' /* completedClassName ? '' : '<div class="ui-icon-set --help bp-status-icon"></div>' */);
+			`), completedClassName, main_core.Text.encode(babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].statusText.toUpperCase()), resultNode);
 	    }
-
 	    return this.renderTaskName();
 	  }
 	  renderDocumentName() {
@@ -149,7 +156,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    const documentName = main_core.Type.isString((_babelHelpers$classPr6 = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data]) == null ? void 0 : (_babelHelpers$classPr7 = _babelHelpers$classPr6.document) == null ? void 0 : _babelHelpers$classPr7.name) ? babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].document.name : '';
 	    if (main_core.Type.isString((_babelHelpers$classPr8 = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data]) == null ? void 0 : (_babelHelpers$classPr9 = _babelHelpers$classPr8.document) == null ? void 0 : _babelHelpers$classPr9.url)) {
 	      const url = new main_core.Uri(babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].document.url);
-	      return main_core.Tag.render(_t3 || (_t3 = _`
+	      return main_core.Tag.render(_t4 || (_t4 = _`
 				<a href="${0}">
 					${0}
 				</a>
@@ -158,47 +165,35 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    return main_core.Text.encode(documentName);
 	  }
 	  renderWorkflowFaces() {
-	    const target = main_core.Tag.render(_t4 || (_t4 = _`<div></div>`));
-	    babelHelpers.classPrivateFieldLooseBase(this, _faces)[_faces] = new bizproc_workflow_faces.WorkflowFaces({
-	      workflowId: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowId,
-	      targetUserId: babelHelpers.classPrivateFieldLooseBase(this, _targetUserId)[_targetUserId],
-	      target,
-	      data: {
-	        ...babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].taskProgress,
-	        summaryProps: {
-	          showContent: false
-	        }
+	    const target = main_core.Tag.render(_t5 || (_t5 = _`<div></div>`));
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowId && babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].taskProgress) {
+	      try {
+	        babelHelpers.classPrivateFieldLooseBase(this, _faces)[_faces] = new bizproc_workflow_faces.WorkflowFaces({
+	          workflowId: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowId,
+	          targetUserId: babelHelpers.classPrivateFieldLooseBase(this, _targetUserId)[_targetUserId],
+	          target,
+	          data: {
+	            steps: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].taskProgress.steps,
+	            progressBox: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].taskProgress.progressBox
+	          },
+	          showArrow: true
+	        });
+	        babelHelpers.classPrivateFieldLooseBase(this, _faces)[_faces].render();
+	      } catch (e) {
+	        console.error(e);
 	      }
-	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _faces)[_faces].render();
+	    }
 	    return target;
 	  }
 	  renderSummary() {
+	    var _babelHelpers$classPr10;
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowId || !((_babelHelpers$classPr10 = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].taskProgress) != null && _babelHelpers$classPr10.timeStep)) {
+	      return null;
+	    }
 	    return new bizproc_workflow_faces_summary.Summary({
 	      workflowId: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowId,
-	      time: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].taskProgress.time.total,
-	      workflowIsCompleted: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].taskProgress.workflowIsCompleted,
-	      showArrow: false
+	      data: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].taskProgress.timeStep
 	    }).render();
-	  }
-	  renderModified() {
-	    var _counter;
-	    let counter = null;
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].userId === babelHelpers.classPrivateFieldLooseBase(this, _currentUserId)[_currentUserId] && (babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].taskCnt > 0 || babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].commentCnt > 0)) {
-	      const primaryColor = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].taskCnt === 0 && babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].commentCnt > 0 ? ui_cnt.CounterColor.SUCCESS : ui_cnt.CounterColor.DANGER;
-	      counter = new ui_cnt.Counter({
-	        value: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].taskCnt || babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].commentCnt,
-	        color: primaryColor,
-	        secondaryColor: ui_cnt.CounterColor.SUCCESS,
-	        isDouble: babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].taskCnt > 0 && babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].commentCnt > 0
-	      });
-	    }
-	    return main_core.Tag.render(_t5 || (_t5 = _`
-			<div class="bp-modified-cell">
-				<span class="bp-row-counters">${0}</span>
-				<span>${0}</span>
-			</div>
-		`), (_counter = counter) == null ? void 0 : _counter.getContainer(), main_core.Text.encode(babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].modified));
 	  }
 	  destroy() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _data)[_data] = null;
@@ -211,13 +206,9 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }
 	}
 	function _getWorkflowInfoUrl2() {
-	  var _babelHelpers$classPr10;
-	  const uri = new main_core.Uri('/bitrix/components/bitrix/bizproc.workflow.info/');
-	  uri.setQueryParam('workflow', babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowId);
-	  if (!main_core.Type.isNil((_babelHelpers$classPr10 = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].task) == null ? void 0 : _babelHelpers$classPr10.id)) {
-	    var _babelHelpers$classPr11;
-	    uri.setQueryParam('task', (_babelHelpers$classPr11 = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].task) == null ? void 0 : _babelHelpers$classPr11.id);
-	  }
+	  var _babelHelpers$classPr11;
+	  const idParam = main_core.Type.isNil((_babelHelpers$classPr11 = babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].task) == null ? void 0 : _babelHelpers$classPr11.id) ? babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].workflowId : babelHelpers.classPrivateFieldLooseBase(this, _data)[_data].task.id;
+	  const uri = new main_core.Uri(`/company/personal/bizproc/${idParam}/`);
 	  return uri.toString();
 	}
 
@@ -346,10 +337,14 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  _t$1;
 	var _workflowTasks = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("workflowTasks");
 	var _workflowRenderer = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("workflowRenderer");
+	var _targetUserId$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("targetUserId");
+	var _shownMobilePopup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("shownMobilePopup");
+	var _appLink = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("appLink");
 	var _subscribeToPushes = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("subscribeToPushes");
+	var _subscribeToTaskDo = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("subscribeToTaskDo");
 	var _updateWorkflows = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateWorkflows");
 	var _appendWorkflow = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("appendWorkflow");
-	var _detectSliderWidth = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("detectSliderWidth");
+	var _getCountersOption = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getCountersOption");
 	var _createWorkflowRenderer = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("createWorkflowRenderer");
 	var _getWorkflowRendererById = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getWorkflowRendererById");
 	var _deleteWorkflowRendererById = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("deleteWorkflowRendererById");
@@ -372,14 +367,17 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    Object.defineProperty(this, _createWorkflowRenderer, {
 	      value: _createWorkflowRenderer2
 	    });
-	    Object.defineProperty(this, _detectSliderWidth, {
-	      value: _detectSliderWidth2
+	    Object.defineProperty(this, _getCountersOption, {
+	      value: _getCountersOption2
 	    });
 	    Object.defineProperty(this, _appendWorkflow, {
 	      value: _appendWorkflow2
 	    });
 	    Object.defineProperty(this, _updateWorkflows, {
 	      value: _updateWorkflows2
+	    });
+	    Object.defineProperty(this, _subscribeToTaskDo, {
+	      value: _subscribeToTaskDo2
 	    });
 	    Object.defineProperty(this, _subscribeToPushes, {
 	      value: _subscribeToPushes2
@@ -393,6 +391,18 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      writable: true,
 	      value: {}
 	    });
+	    Object.defineProperty(this, _targetUserId$1, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _shownMobilePopup, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _appLink, {
+	      writable: true,
+	      value: void 0
+	    });
 	    let mustSubscribeToPushes = false;
 	    if (main_core.Type.isPlainObject(options)) {
 	      this.gridId = options.gridId;
@@ -404,18 +414,20 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        actionButtonName: `${this.gridId}_action_button`
 	      };
 	      this.currentUserId = options.currentUserId;
+	      babelHelpers.classPrivateFieldLooseBase(this, _targetUserId$1)[_targetUserId$1] = options.targetUserId;
+	      babelHelpers.classPrivateFieldLooseBase(this, _shownMobilePopup)[_shownMobilePopup] = options.shownMobilePopup;
+	      babelHelpers.classPrivateFieldLooseBase(this, _appLink)[_appLink] = options.appLink;
 	      mustSubscribeToPushes = options.mustSubscribeToPushes === true;
 	    }
-	    this.bindAnchors();
 	    this.loader = new WorkflowLoader();
 	    if (mustSubscribeToPushes) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _subscribeToPushes)[_subscribeToPushes]();
 	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _subscribeToTaskDo)[_subscribeToTaskDo]();
 	    this.init();
 	    this.initCounterPanel(options.counters, options.filterId);
 	  }
 	  getDefaultAddRowOptions(workflow, renderer) {
-	    var _workflow$task, _workflow$task2;
 	    const actions = [{
 	      text: main_core.Loc.getMessage('BIZPROC_USER_PROCESSES_TEMPLATE_ROW_ACTION_DOCUMENT'),
 	      href: workflow.document.url || '#'
@@ -438,20 +450,22 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        DOCUMENT_NAME: renderer.renderDocumentName(),
 	        WORKFLOW_TEMPLATE_NAME: main_core.Text.encode(workflow.templateName),
 	        TASK_DESCRIPTION: main_core.Dom.create('span', {
-	          html: ((_workflow$task = workflow.task) == null ? void 0 : _workflow$task.description) || ''
+	          html: workflow.description || ''
 	        }),
-	        MODIFIED: renderer.renderModified(),
+	        MODIFIED: main_core.Text.encode(workflow.modified),
 	        WORKFLOW_STARTED: main_core.Text.encode(workflow.workflowStarted),
 	        WORKFLOW_STARTED_BY: main_core.Text.encode(workflow.startedBy),
-	        OVERDUE_DATE: main_core.Text.encode((_workflow$task2 = workflow.task) == null ? void 0 : _workflow$task2.overdueDate),
+	        OVERDUE_DATE: main_core.Text.encode(workflow.overdueDate),
 	        SUMMARY: renderer.renderSummary()
 	      },
 	      actions,
 	      columnClasses: {
 	        TASK_PROGRESS: 'bp-task-progress-cell',
 	        SUMMARY: 'bp-summary-cell',
-	        TASK: workflow.isCompleted ? 'bp-status-completed-cell' : ''
+	        TASK: workflow.isCompleted ? 'bp-status-completed-cell' : '',
+	        TASK_DESCRIPTION: 'bp-description-cell'
 	      },
+	      counters: babelHelpers.classPrivateFieldLooseBase(this, _getCountersOption)[_getCountersOption](workflow),
 	      editable: Boolean(workflow.task)
 	    };
 	  }
@@ -520,99 +534,30 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      main_core.Dom.replace(target, childNode);
 	    }
 	  }
-	  bindAnchors() {
-	    BX.SidePanel.Instance.bindAnchors({
-	      rules: [{
-	        condition: ['/rpa/task/'],
-	        options: {
-	          width: 580,
-	          cacheable: false,
-	          allowChangeHistory: false
-	        }
-	      }, {
-	        condition: ['/bitrix/components/bitrix/bizproc.workflow.info/'],
-	        options: {
-	          cacheable: false,
-	          allowChangeHistory: false,
-	          loader: '/bitrix/components/bitrix/bizproc.workflow.info/templates/slider/images/skeleton.svg',
-	          width: babelHelpers.classPrivateFieldLooseBase(this, _detectSliderWidth)[_detectSliderWidth]()
-	        }
-	      }]
-	    });
-	  }
-	  async initStartWorkflowButton(buttonId) {
-	    const button = main_core.Type.isStringFilled(buttonId) && document.getElementById(buttonId);
-	    const lists = main_core.Type.isStringFilled(button == null ? void 0 : button.dataset.lists) && JSON.parse(button.dataset.lists);
-	    let selectedIBlockSliderParams = null;
-	    if (lists) {
-	      const popupMenu = new main_popup.Menu({
-	        angle: true,
-	        offsetLeft: main_core.Dom.getPosition(button).width / 2,
-	        autoHide: true,
-	        bindElement: button,
-	        closeByEsc: true,
-	        items: Object.values(lists).map(list => {
-	          const item = {
-	            text: list.name,
-	            className: 'feed-add-post-form-link-lists',
-	            dataset: {
-	              iconUrl: list.icon
-	            }
-	          };
-	          if (main_core.Type.isNil(list.url)) {
-	            const params = {
-	              iBlockTypeId: list.iBlockTypeId,
-	              iBlockId: list.iBlockId,
-	              analyticsP1: list.name
-	            };
-	            if (list.selected === true) {
-	              selectedIBlockSliderParams = params;
-	            }
-	            item.onclick = () => {
-	              popupMenu.close();
-	              main_core.Runtime.loadExtension('lists.element.creation-guide').then(({
-	                CreationGuide
-	              }) => {
-	                CreationGuide == null ? void 0 : CreationGuide.open(params);
-	              }).catch(() => {});
-	            };
-	          } else {
-	            item.href = list.url;
-	          }
-	          return item;
-	        })
+	  clickStartWorkflowButton() {
+	    main_core.Runtime.loadExtension('bizproc.router').then(({
+	      Router
+	    }) => {
+	      Router.openUserProcessesStart();
+	    }).catch(e => console.error(e));
+	    main_core.Runtime.loadExtension('ui.analytics').then(({
+	      sendData
+	    }) => {
+	      sendData({
+	        tool: 'automation',
+	        category: 'bizproc_operations',
+	        event: 'drawer_open',
+	        c_section: 'bizproc',
+	        c_element: 'button'
 	      });
-	      const popupElement = popupMenu.getMenuContainer();
-	      for (const iconElement of popupElement.querySelectorAll('.menu-popup-item-icon')) {
-	        main_core.Dom.append(main_core.Tag.render(_t$1 || (_t$1 = _$1`
-						<img src = "${0}" alt="" width = "19" height = "16"/>
-					`), iconElement.parentElement.dataset.iconUrl), iconElement);
-	      }
-	      button.onclick = event => {
-	        event.preventDefault();
-	        if (!popupMenu.getPopupWindow().isShown()) {
-	          main_core.Runtime.loadExtension('ui.analytics').then(({
-	            sendData
-	          }) => {
-	            sendData({
-	              tool: 'automation',
-	              category: 'bizproc_operations',
-	              event: 'drawer_open',
-	              c_section: 'bizproc',
-	              c_element: 'button'
-	            });
-	          }).catch(() => {});
-	        }
-	        popupMenu.toggle();
-	      };
-	    }
-	    if (selectedIBlockSliderParams) {
-	      main_core.Runtime.loadExtension('lists.element.creation-guide').then(({
-	        CreationGuide
-	      }) => {
-	        CreationGuide == null ? void 0 : CreationGuide.open(selectedIBlockSliderParams);
-	      }).catch(() => {});
-	    }
+	    }).catch(() => {});
+	  }
+	  creationGuideOpen(params) {
+	    main_core.Runtime.loadExtension('lists.element.creation-guide').then(({
+	      CreationGuide
+	    }) => {
+	      CreationGuide == null ? void 0 : CreationGuide.open(params);
+	    }).catch(() => {});
 	  }
 	  initUserSelector() {
 	    if (!this.delegateToSelector) {
@@ -786,9 +731,45 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    });
 	  }
 	  removeWorkflow(workflowId) {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _shownMobilePopup)[_shownMobilePopup] && babelHelpers.classPrivateFieldLooseBase(this, _workflowTasks)[_workflowTasks].has(workflowId)) {
+	      const mobile = new BX.UI.MobilePromoter({
+	        title: main_core.Loc.getMessage('BIZPROC_USER_PROCESSES_POPUP_PUSH_TITLE'),
+	        content: this.getPopupContent(),
+	        position: {
+	          right: 30,
+	          bottom: 30
+	        },
+	        qrContent: babelHelpers.classPrivateFieldLooseBase(this, _appLink)[_appLink],
+	        analytics: {
+	          c_section: 'bizproc'
+	        }
+	      });
+	      mobile.show();
+	      BX.userOptions.save('bizproc.user.processes', 'mobile_promotion_popup', 'shown_popup', 'Y', false);
+	      babelHelpers.classPrivateFieldLooseBase(this, _shownMobilePopup)[_shownMobilePopup] = true;
+	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _hideRow)[_hideRow](workflowId, true);
 	    babelHelpers.classPrivateFieldLooseBase(this, _deleteWorkflowRendererById)[_deleteWorkflowRendererById](workflowId);
 	    babelHelpers.classPrivateFieldLooseBase(this, _workflowTasks)[_workflowTasks].delete(workflowId);
+	  }
+	  getPopupContent() {
+	    return main_core.Tag.render(_t$1 || (_t$1 = _$1`
+			<div class="ui-mobile-promoter__content-wrapper">
+				<ul class="ui-mobile-promoter__popup-list">
+					<li class="ui-mobile-promoter__popup-list-item">
+						${0}
+					</li>
+					<li class="ui-mobile-promoter__popup-list-item">
+						${0}
+					</li>
+					<li class="ui-mobile-promoter__popup-list-item">
+						${0}
+					</li>
+				</ul>
+				<div class="ui-mobile-promoter__popup-desc">${0}</div>
+				<div class="ui-mobile-promoter__popup-info">${0}</div>
+			</div>
+		`), main_core.Loc.getMessage('BIZPROC_USER_PROCESSES_POPUP_PUSH_DO_PROCESS'), main_core.Loc.getMessage('BIZPROC_USER_PROCESSES_POPUP_PUSH_REACT'), main_core.Loc.getMessage('BIZPROC_USER_PROCESSES_POPUP_PUSH_CONTROL'), main_core.Loc.getMessage('UI_MOBILE_PROMOTER_DESC'), main_core.Loc.getMessage('UI_MOBILE_PROMOTER_INFO'));
 	  }
 	  getGrid() {
 	    if (this.gridId) {
@@ -819,6 +800,21 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	          this.loader.loadWorkflows(ids).then(babelHelpers.classPrivateFieldLooseBase(this, _updateWorkflows)[_updateWorkflows].bind(this)).catch(response => this.showErrors(response));
 	        }
 	      }
+	    }
+	  });
+	}
+	function _subscribeToTaskDo2() {
+	  BX.addCustomEvent('SidePanel.Slider:onMessage', event => {
+	    if (event.getEventId() === 'try-do-bp-task-event') {
+	      babelHelpers.classPrivateFieldLooseBase(this, _hideRow)[_hideRow](event.data.workflowId);
+	    } else if (event.getEventId() === 'error-do-bp-task-event') {
+	      babelHelpers.classPrivateFieldLooseBase(this, _showRow)[_showRow](event.data.workflowId);
+	    } else if (event.getEventId() === 'success-do-bp-task-event') {
+	      ui_notification.UI.Notification.Center.notify({
+	        content: main_core.Loc.getMessage('BIZPROC_USER_PROCESSES_TEMPLATE_TASK_TOUCHED', {
+	          '#TASK_NAME#': main_core.Text.encode(event.data.taskName)
+	        })
+	      });
 	    }
 	  });
 	}
@@ -887,12 +883,19 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    });
 	  }
 	}
-	function _detectSliderWidth2() {
-	  if (window.innerWidth < 1500) {
-	    return null; // default slider width
+	function _getCountersOption2(workflow) {
+	  const counters = {};
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _targetUserId$1)[_targetUserId$1] === this.currentUserId && (workflow.taskCnt > 0 || workflow.commentCnt > 0)) {
+	    const primaryColor = workflow.taskCnt === 0 && workflow.commentCnt > 0 ? BX.Grid.Counters.Color.SUCCESS : BX.Grid.Counters.Color.DANGER;
+	    counters.MODIFIED = {
+	      type: BX.Grid.Counters.Type.LEFT,
+	      color: primaryColor,
+	      secondaryColor: BX.Grid.Counters.Color.SUCCESS,
+	      value: (workflow.taskCnt || 0) + (workflow.commentCnt || 0),
+	      isDouble: workflow.taskCnt > 0 && workflow.commentCnt > 0
+	    };
 	  }
-
-	  return 1500 + Math.floor((window.innerWidth - 1500) / 3);
+	  return counters;
 	}
 	function _createWorkflowRenderer2(workflowId, workflow) {
 	  babelHelpers.classPrivateFieldLooseBase(this, _workflowRenderer)[_workflowRenderer][workflowId] = new WorkflowRenderer({
@@ -926,11 +929,20 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }
 	}
 	function _showRow2(id) {
-	  var _this$getGrid5, _this$getGrid5$getRow;
-	  (_this$getGrid5 = this.getGrid()) == null ? void 0 : (_this$getGrid5$getRow = _this$getGrid5.getRows().getById(id)) == null ? void 0 : _this$getGrid5$getRow.show();
+	  var _this$getGrid5;
+	  const row = (_this$getGrid5 = this.getGrid()) == null ? void 0 : _this$getGrid5.getRows().getById(id);
+	  if (row) {
+	    row.show();
+	    main_core.Dom.addClass(row.getNode(), 'main-ui-grid-show-new-row');
+	    main_core.Event.bind(row.getNode(), 'animationend', event => {
+	      if (event.animationName === 'showNewRow') {
+	        main_core.Dom.removeClass(row.getNode(), 'main-ui-grid-show-new-row');
+	      }
+	    });
+	  }
 	}
 
 	exports.UserProcesses = UserProcesses;
 
-}((this.BX.Bizproc.Component = this.BX.Bizproc.Component || {}),BX.UI,BX.UI.EntitySelector,BX.Main,BX.Bizproc,BX.Bizproc,BX.Bizproc.Workflow,BX.Bizproc.Workflow.Faces,BX.UI,BX,BX));
+}((this.BX.Bizproc.Component = this.BX.Bizproc.Component || {}),BX.UI,BX.UI.EntitySelector,BX.Main,BX.Bizproc,BX.Bizproc,BX,BX.Bizproc.Workflow,BX.Bizproc.Workflow.Faces,BX.Bizproc.Workflow.Result,BX,BX));
 //# sourceMappingURL=script.js.map

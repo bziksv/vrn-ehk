@@ -1,0 +1,41 @@
+<root>
+	<CarSeats name="Автолюльки">
+		<InfantCarriersWeight name="До 36 кг"/>
+		<InfantCarriersWeight name="До 25 кг"/>
+		<InfantCarriersWeight name="До 18 кг"/>
+		<InfantCarriersWeight name="До 13 кг"/>
+		<InfantCarriersWeight name="До 10 кг"/>
+	</CarSeats>
+	<CarSeats name="Автокресла">
+		<CarSeatsWeight name="До 36 кг"/>
+		<CarSeatsWeight name="До 25 кг"/>
+		<CarSeatsWeight name="До 18 кг"/>
+		<CarSeatsWeight name="До 13 кг"/>
+		<CarSeatsWeight name="До 10 кг"/>
+	</CarSeats>
+	<CarSeats name="Бустеры">
+		<BoostersWeight name="До 36 кг"/>
+		<BoostersWeight name="До 25 кг"/>
+		<BoostersWeight name="До 18 кг"/>
+		<BoostersWeight name="До 13 кг"/>
+		<BoostersWeight name="До 10 кг"/>
+	</CarSeats>
+	<CarSeats name="Аксессуары">
+		<AccessoryType name="Система крепления"/>
+		<AccessoryType name="Чехол"/>
+		<AccessoryType name="Ремень для переноски"/>
+		<AccessoryType name="Вкладыш"/>
+		<AccessoryType name="Зеркало контроля"/>
+		<AccessoryType name="База"/>
+		<AccessoryType name="Козырёк от солнца"/>
+		<AccessoryType name="Накидка"/>
+		<AccessoryType name="Фиксатор"/>
+		<AccessoryType name="Подстаканник"/>
+		<AccessoryType name="Дождевик"/>
+		<AccessoryType name="Москитная сетка"/>
+		<AccessoryType name="Конверт"/>
+		<AccessoryType name="Коврик"/>
+		<AccessoryType name="Сумка-органайзер"/>
+		<AccessoryType name="Другой"/>
+	</CarSeats>
+</root>

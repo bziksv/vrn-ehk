@@ -15,4 +15,12 @@ export const DesktopFeature = {
 		id: 'openNewTab',
 		version: 76,
 	},
+	openPage: {
+		id: 'openPage',
+		version: 79,
+	},
+	portalTabActivation: {
+		id: 'portalTabActivation',
+		version: 85,
+	},
 };

@@ -2,10 +2,12 @@
 
 use Bitrix\Bitrix24\Integration\Network\Broadcast;
 use Bitrix\Bitrix24\License;
+use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
+use Bitrix\Socialservices\OAuth\StateService;
 use Bitrix\Socialservices\UserTable;
 
 Loc::loadMessages(__FILE__);
@@ -21,6 +23,10 @@ if(!defined('B24NETWORK_NODE'))
 	elseif(defined('B24NETWORK_URL'))
 	{
 		define('B24NETWORK_NODE', B24NETWORK_URL);
+	}
+	elseif (in_array(Application::getInstance()->getLicense()->getRegion(), ['ru','by','kz','uz']))
+	{
+		define('B24NETWORK_NODE', 'https://auth2.bitrix24.net');
 	}
 	else
 	{
@@ -128,19 +134,42 @@ class CSocServBitrix24Net extends CSocServAuth
 
 	public function getUrl($mode = "page")
 	{
-		$redirect_uri = CSocServUtil::GetCurUrl('auth_service_id='.self::ID);
+		$redirectUri = CSocServUtil::GetCurUrl(
+			'auth_service_id='.self::ID,
+			[
+				'invite_token',
+			],
+		);
+		$backUrl = $GLOBALS["APPLICATION"]->GetCurPageParam(
+			'check_key=' . CSocServAuthManager::GetUniqueKey(),
+			array_merge(
+				[
+					'auth_service_error',
+					'auth_service_id',
+					'check_key',
+					'error_message',
+					'invite_token',
+				],
+				\Bitrix\Main\HttpRequest::getSystemParameters(),
+			)
+		);
 
-		$state =
-			(defined("ADMIN_SECTION") && ADMIN_SECTION == true ? 'admin=1' : 'site_id='.SITE_ID)
-			.'&backurl='.urlencode($GLOBALS["APPLICATION"]->GetCurPageParam(
-				'check_key='.CSocServAuthManager::GetUniqueKey(),
-				array_merge(array(
-					"auth_service_error", "auth_service_id", "check_key", "error_message"
-				), \Bitrix\Main\HttpRequest::getSystemParameters())
-			))
-			.'&mode='.$mode;
+		$stateFields = [
+			'check_key' => \CSocServAuthManager::getUniqueKey(),
+			'redirect_url' => $backUrl,
+			'mode' => $mode,
+		];
+		if (defined("ADMIN_SECTION") && ADMIN_SECTION == true)
+		{
+			$stateFields['admin'] = 1;
+		}
+		else
+		{
+			$stateFields['site_id'] = SITE_ID;
+		}
+		$state = StateService::getInstance()->createState($stateFields);
 
-		return $this->getEntityOAuth()->GetAuthUrl($redirect_uri, $state, $mode);
+		return $this->getEntityOAuth()->GetAuthUrl($redirectUri, $state, $mode);
 	}
 
 	public function getInviteUrl($userId, $checkword)
@@ -176,7 +205,7 @@ class CSocServBitrix24Net extends CSocServAuth
 
 			if (isset($_REQUEST["state"]))
 			{
-				parse_str($_REQUEST["state"], $arState);
+				$arState = StateService::getInstance()->getPayload((string)$_REQUEST["state"]);
 				$bAdmin = isset($arState['admin']);
 			}
 			if ($bAdmin)
@@ -248,21 +277,6 @@ class CSocServBitrix24Net extends CSocServAuth
 					$CACHE_MANAGER->Clean("sso_portal_list_".$USER->GetID());
 				}
 			}
-			else
-			{
-				CSocServBitrix24NetLogger::log('Authorize - cannot load data', [
-					'skipCheck' => $skipCheck,
-					'has_saml' => isset($_REQUEST['saml']),
-					'has_code' => isset($_REQUEST['code']),
-				]);
-			}
-		}
-		else
-		{
-			CSocServBitrix24NetLogger::log('Authorize - bad request', [
-				'skipCheck' => $skipCheck,
-				'has_code' => isset($_REQUEST['code']),
-			]);
 		}
 
 		$bSuccess = $authError === true;
@@ -292,9 +306,7 @@ class CSocServBitrix24Net extends CSocServAuth
 
 		if (isset($_REQUEST["state"]))
 		{
-			$arState = array();
-			parse_str($_REQUEST["state"], $arState);
-
+			$arState = StateService::getInstance()->getPayload((string)$_REQUEST["state"]) ?? [];
 			if (isset($arState['backurl']) || isset($arState['redirect_url']))
 			{
 				$parseUrl = parse_url(isset($arState['redirect_url']) ? $arState['redirect_url'] : $arState['backurl']);
@@ -381,7 +393,7 @@ class CSocServBitrix24Net extends CSocServAuth
 			? 'if(window.opener) window.opener.location = \''.$url.'\'; window.close();'
 			: 'window.location = \''.$url.'\';';
 ?>
-<script type="text/javascript">
+<script>
 <?=$location?>
 </script>
 <?
@@ -441,6 +453,7 @@ class CBitrix24NetOAuthInterface
 	protected $accessTokenExpires = 0;
 	protected $lastAuth = null;
 	protected $refresh_token = '';
+	protected $httpTimeout;
 	protected string $samlEncodedValue;
 	protected $scope = array(
 		'auth',
@@ -956,14 +969,7 @@ class CBitrix24NetTransport
 		$request["user_lang"] = $lang ?? LANGUAGE_ID;
 		$request["auth"] = $this->access_token;
 
-		return $this->convertRequest($request);
-	}
-
-	protected function convertRequest(array $request)
-	{
-		global $APPLICATION;
-
-		return $APPLICATION->ConvertCharsetArray($request, LANG_CHARSET, 'utf-8');
+		return $request;
 	}
 
 	public function call($methodName, $additionalParams = null, $lang = null)

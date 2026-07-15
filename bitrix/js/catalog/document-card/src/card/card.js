@@ -1,14 +1,17 @@
-import { Dom, Event, Loc, Reflection, Tag, Type, Text } from 'main.core';
 import { BaseCard } from 'catalog.entity-card';
-import { EventEmitter } from 'main.core.events';
+import { AnalyticsContextList, EnableWizardOpener } from 'catalog.store-enable-wizard';
+import { Dom, Event, Loc, Reflection, Tag, Text, Type } from 'main.core';
+import { type BaseEvent, EventEmitter } from 'main.core.events';
+import { MenuManager, Popup } from 'main.popup';
 import { Button } from 'ui.buttons';
 import { Dialog } from 'ui.entity-selector';
+import { Label, LabelOptions, LabelSize } from 'ui.label';
+import LabelColor from '../../../../../../../ui/install/js/ui/label/src/label-color';
+import StoreDocumentFieldConfigurationManager from '../configurator/store-document-field-configurator-manager';
 import ControllersFactory from '../controllers-factory';
-import ModelFactory from '../model/model-factory';
 import FieldsFactory from '../editor-fields/fields-factory';
-import { MenuManager, Popup } from 'main.popup';
+import ModelFactory from '../model/model-factory';
 import ProductListController from '../product-list/controller';
-import { EnableWizardOpener, AnalyticsContextList } from 'catalog.store-enable-wizard';
 
 class DocumentCard extends BaseCard
 {
@@ -33,8 +36,14 @@ class DocumentCard extends BaseCard
 		this.inventoryManagementSource = settings.inventoryManagementSource;
 		this.lockedCancellation = settings.lockedCancellation || false;
 		this.activeTabId = 'main';
+		this.insidePageTitleConfig = settings.insidePageTitleConfig || {};
 
 		this.isTabAnalyticsSent = false;
+
+		if (Type.isPlainObject(this.insidePageTitleConfig))
+		{
+			this.appendInsidePageTitle(this.insidePageTitleConfig);
+		}
 
 		this.setSliderText();
 		this.addCopyLinkPopup();
@@ -56,6 +65,63 @@ class DocumentCard extends BaseCard
 	static getInstance()
 	{
 		return DocumentCard.#instance;
+	}
+
+	appendInsidePageTitle(config: Object): void
+	{
+		const toolbar = BX.UI?.ToolbarManager?.getDefaultToolbar();
+		const titleContainer = toolbar?.titleContainer.querySelector('.ui-toolbar-title-item-box');
+
+		if (!titleContainer)
+		{
+			return;
+		}
+
+		let editButton = null;
+		let pageLink = null;
+		if (config.enableEditTitle)
+		{
+			editButton = Tag.render`
+				<span id="pagetitle_edit" class="pagetitle-edit-button"></span>
+			`;
+		}
+		if (config.enablePageLink)
+		{
+			pageLink = Tag.render`
+				<span id="${this.settings.copyLinkButtonId}" class="page-link-btn"></span>
+			`;
+		}
+		if (editButton || pageLink)
+		{
+			const buttonContainer = Tag.render`
+				<span id="pagetitle_btn_wrapper" class="pagetitile-button-container"></span>
+			`;
+			if (editButton)
+			{
+				Dom.append(editButton, buttonContainer);
+			}
+			if (pageLink)
+			{
+				Dom.append(pageLink, buttonContainer);
+			}
+			Dom.append(buttonContainer, titleContainer);
+		}
+
+		if (config.enableStatusLabel)
+		{
+			const labelOptions: LabelOptions = {
+				text: config.statusLabel.text,
+				color: config.statusLabel.color,
+				size: LabelSize.LG,
+				link: '',
+				fill: true,
+				customClass: 'document-status-label',
+			};
+
+			const label = new Label(labelOptions);
+
+			Dom.append(label.render(), titleContainer);
+		}
 	}
 
 	initDocumentTypeSelector()
@@ -241,6 +307,24 @@ class DocumentCard extends BaseCard
 		this.subscribeToEntityCreateEvent();
 		this.subscribeToBeforeEntityRedirectEvent();
 		this.subscribeToCreateUserFieldEvent();
+		this.subscribeToFieldConfiguratorEvent();
+	}
+
+	subscribeToFieldConfiguratorEvent()
+	{
+		EventEmitter.subscribe('BX.UI.EntityConfigurationManager:onInitialize', this.onConfigurationManagerInit.bind(this));
+	}
+
+	onConfigurationManagerInit(event: BaseEvent)
+	{
+		const [, eventArgs] = event.getCompatData();
+
+		if (!eventArgs.type || eventArgs.type === 'editor')
+		{
+			eventArgs.configurationFieldManager = StoreDocumentFieldConfigurationManager.create(this.id, eventArgs);
+		}
+
+		event.stopImmediatePropagation();
 	}
 
 	subscribeToCreateUserFieldEvent()

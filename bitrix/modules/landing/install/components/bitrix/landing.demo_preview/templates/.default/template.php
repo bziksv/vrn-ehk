@@ -10,6 +10,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var LandingEditComponent $component */
 
 use Bitrix\Landing\Manager;
+use Bitrix\Landing\Site\Type;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\UI\Extension;
@@ -32,9 +33,9 @@ Extension::load([
 	'ui.alerts',
 	'ui.progressbar',
 	'ui.notification',
-	'landing.settingsform.colorpickertheme',
 	'landing.metrika',
 	'main.qrcode',
+	'ui.analytics',
 ]);
 
 CJSCore::init([
@@ -46,20 +47,13 @@ Asset::getInstance()->addJs(
 
 // vars
 $request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
-$colors = $arResult['COLORS'];
-$themeCurr = $arResult['THEME_CURRENT'] ?? null;
-$themeSite = $arResult['THEME_SITE'] ?? null;
 $template = $arResult['TEMPLATE'] ?? null;
-$siteGroup = $arResult['SITE_GROUP'];
 $hasAccessCreate = $arResult['RIGHTS_CREATE'] ?: null;
 $marketSubscriptionNeeded = false;
 if ($arResult['NEEDED_SUBSCRIPTION'] === true && !Client::isSubscriptionAvailable())
 {
 	$marketSubscriptionNeeded = true;
 }
-
-$sliderCode = Restriction\Hook::getRestrictionCodeByHookCode('THEME');
-$allowed = Restriction\Manager::isAllowed($sliderCode);
 
 
 if (!$template)
@@ -70,12 +64,14 @@ if (!$template)
 
 // create store
 $externalImport = !empty($arResult['EXTERNAL_IMPORT']);
-$createStore = !$externalImport &&
+$isCreateStore = !$externalImport &&
 			   !$arResult['DISABLE_IMPORT'] &&
 			   ($arParams['SITE_ID'] <= 0) &&
 			   (in_array('STORE', (array) $template['TYPE']));
 
-if ($createStore)
+$isCreateMainpage = $arParams['TYPE'] === Type::SCOPE_CODE_MAINPAGE;
+
+if ($isCreateStore)
 {
 	$uriSelect = new Uri($arResult['CUR_URI']);
 	$uriSelect->addParams([
@@ -87,7 +83,13 @@ if ($createStore)
 else
 {
 	$uriSelect = new Uri($arResult['CUR_URI']);
-	preg_match('/preview.bitrix24.site\/pub\/site\/(\d+)/i', $template['PREVIEW_URL'] ?? '', $matches);
+	$host = Manager::getPreviewHost();
+	$host = str_replace(['http://', 'https://'], '', $host);
+	preg_match(
+		"/{$host}\\/pub\\/site\\/(\\d+)/i",
+		$template['PREVIEW_URL'] ?? '',
+		$matches
+	);
 	$previewId = $matches[1] ?? 0;
 	$uriSelect->addParams([
 		'action' => 'select',
@@ -104,21 +106,32 @@ else
 <div class="landing-template-demo-preview-header-container">
 	<div class="landing-template-demo-preview-header landing-ui-panel-top">
 		<div class="landing-template-demo-preview-header-logo">
-			<span class="landing-ui-panel-top-logo-text"><?=Loc::getMessage('LANDING_TPL_HEADER_LOGO_BITRIX')?></span>
-			<span class="landing-ui-panel-top-logo-color">24</span>
-			<?php if ($arParams['TYPE'] === 'KNOWLEDGE' || $arParams['TYPE'] === 'GROUP'):?>
-				<span class="landing-ui-panel-top-logo-text">.<?=Loc::getMessage('LANDING_TPL_HEADER_LOGO_KB')?></span>
+			<?php if (Manager::isB24()):?>
+				<span class="landing-ui-panel-top-logo-text"><?=Loc::getMessage('LANDING_TPL_HEADER_LOGO_BITRIX')?></span>
+				<span class="landing-ui-panel-top-logo-color">24</span>
+				<span class="landing-ui-panel-top-logo-icon far fa-clock-three"></span>
+				<?php if ($arParams['TYPE'] === 'KNOWLEDGE' || $arParams['TYPE'] === 'GROUP'):?>
+					<span class="landing-ui-panel-top-logo-text left-spaced"><?=Loc::getMessage('LANDING_TPL_HEADER_LOGO_KB')?></span>
+				<?php elseif ($isCreateMainpage) : ?>
+					<span class="landing-ui-panel-top-logo-text left-spaced"><?=Loc::getMessage('LANDING_TPL_HEADER_LOGO_MAINPAGE')?></span>
+				<?php else:?>
+					<span class="landing-ui-panel-top-logo-text left-spaced"><?=Loc::getMessage('LANDING_TPL_HEADER_LOGO_SITE')?></span>
+				<?php endif;?>
 			<?php else:?>
-				<span class="landing-ui-panel-top-logo-text">.<?=Loc::getMessage('LANDING_TPL_HEADER_LOGO_SITE')?></span>
+				<span class="landing-ui-panel-top-logo-text"><?=Loc::getMessage('LANDING_TPL_HEADER_LOGO_SITE')?></span>
+				<span class="landing-ui-panel-top-logo-color">24</span>
+				<span class="landing-ui-panel-top-logo-icon far fa-clock-three"></span>
 			<?php endif;?>
 		</div>
 		<div class="landing-template-demo-preview-header-title">
 			<?= htmlspecialcharsbx($template['TITLE'])?>
 		</div>
 		<div class="right-part">
+			<?php if (!$isCreateMainpage): ?>
 			<div class="mobile-view ui-btn ui-btn-light-border ui-btn-round">
 				<?= Loc::getMessage('LANDING_TPL_BUTTON_SHOW_IN_MOBILE')?>
 			</div>
+			<?php endif;?>
 			<?php if (!$marketSubscriptionNeeded) : ?>
 				<div class="create">
 			<?php else : ?>
@@ -146,7 +159,7 @@ else
 				elseif (!empty($arResult['EXTERNAL_IMPORT']))
 				{
 					?>
-					<span class="ui-btn ui-btn-success ui-btn-round landing-template-preview-create-by-import"
+					<span class="ui-btn ui-btn-success ui-btn-round"
 						  <?php if (isset($arResult['EXTERNAL_IMPORT']['href'])){?>onclick="BX.SidePanel.Instance.open('<?=CUtil::jsEscape($arResult['EXTERNAL_IMPORT']['href'])?>', {width: 1028})"<?}?>
 						<?php if (isset($arResult['EXTERNAL_IMPORT']['onclick'])){?>onclick="<?= CUtil::jsEscape($arResult['EXTERNAL_IMPORT']['onclick'])?>"<?}?>
 						data-slider-ignore-autobinding="true"
@@ -156,19 +169,21 @@ else
 					<a href="<?= $uriSelect->getUri() ?>" class="ui-btn ui-btn-success ui-btn-round landing-template-preview-create"
 						  title="<?= Loc::getMessage('LANDING_TPL_BUTTON_CREATE') ?>"
 						  data-slider-ignore-autobinding="true"
-						  style="display: none;">
-					<?= Loc::getMessage('LANDING_TPL_BUTTON_CREATE') ?>
-				</a>
+						  style="display: none;"
+					>
+						<?= Loc::getMessage('LANDING_TPL_BUTTON_CREATE') ?>
+					</a>
 					<?php
 				}
-				elseif ($createStore)
+				elseif ($isCreateStore)
 				{
 					?>
 					<span data-href="<?= $uriSelect->getUri() ?>" class="ui-btn ui-btn-success ui-btn-round landing-template-preview-create"
 						  title="<?= Loc::getMessage('LANDING_TPL_BUTTON_CREATE_STORE') ?>"
-						  data-slider-ignore-autobinding="true">
-					<?= Loc::getMessage('LANDING_TPL_BUTTON_CREATE_STORE') ?>
-				</span>
+						  data-slider-ignore-autobinding="true"
+					>
+						<?= Loc::getMessage('LANDING_TPL_BUTTON_CREATE_STORE') ?>
+					</span>
 					<?php
 				}
 				elseif (isset($arParams['REPLACE_LID']) && $arParams['REPLACE_LID'] !== 0)
@@ -220,12 +235,29 @@ else
 	<div class="landing-template-preview">
 		<div class="preview-container">
 			<div class="preview-left">
-				<div class="preview-desktop">
-					<div class="preview-desktop-body">
-						<div class="preview-desktop-body-image"></div>
-						<div class="preview-desktop-body-loader-container"></div>
+				<?php if ($isCreateMainpage):?>
+					<div class="preview-desktop --main-page">
+						<div class="preview-header">
+							<div class="preview-header-left">
+								<div class="preview-header-balloon"></div>
+							</div>
+							<div class="preview-header-right"></div>
+						</div>
+						<div class="preview-menu"></div>
+						<div class="preview-desktop-body">
+							<div class="preview-desktop-body-image"></div>
+							<div class="preview-desktop-body-loader-container"></div>
+						</div>
+						<div class="preview-sidebar"></div>
 					</div>
-				</div>
+				<?php else: ?>
+					<div class="preview-desktop">
+						<div class="preview-desktop-body">
+							<div class="preview-desktop-body-image"></div>
+							<div class="preview-desktop-body-loader-container"></div>
+						</div>
+					</div>
+				<?php endif;?>
 				<div class="landing-popup-import">
 					<div class="landing-popup-import-loader"></div>
 					<div class="landing-popup-import-repeat hide">
@@ -241,88 +273,9 @@ else
 			<div hidden class="preview-data">
 					<input type="text" data-name="title" class="landing-template-preview-input-title" value="<?= htmlspecialcharsbx($template['TITLE']) ?>">
 					<textarea data-name="description" class="landing-template-preview-input-description"><?= htmlspecialcharsbx($template['DESCRIPTION']) ?></textarea>
-
-					<?php if ($siteGroup):?>
-						<div class="landing-template-preview-site-group"
-							 data-name="param">
-							<?php foreach ($siteGroup as $i => $site):?>
-								<div data-base-url="<?= $site['url']?>"
-									 data-value="<?= $site['code']?>"
-									 class="<?= $i++ === 0 ? 'active' : ''?>"
-									 ></div>
-							<?php endforeach;?>
-						</div>
-					<?php endif;?>
-
 					<?php if ($template['URL_PREVIEW']):?>
-					<div class="landing-template-preview-base-url" data-base-url="<?= htmlspecialcharsbx($template['URL_PREVIEW'])?>"></div>
-					<div class="landing-template-preview-themes" data-name="theme">
-							<?php
-							$allColors = [];
-							foreach ($colors as $code => $color):
-								if ($themeCurr === $color['color'])
-								{
-									$code = $color['color'];
-									$color['base'] = true;
-								}
-								$allColors[] = $color['color'];
-								if (
-									!isset($color['base']) || $color['base'] !== true
-									|| !LandingSiteDemoPreviewComponent::isHex($color['color'])
-								)
-								{
-									continue;
-								}
-								if ($themeCurr !== $code || $arParams['SITE_ID'])
-								{
-									continue;
-								}
-							?>
-								<div
-									data-value="<?= substr($color['color'], 1)?>"
-									class="active"
-									style="background-color: <?= $color['color'] ?>;"
-								></div>
-							<?php endforeach;?>
-						</div>
-
-						<?php if ($allowed): ?>
-							<div data-name="theme_custom_color">
-									<div id="colorpicker-theme">
-										<?php
-										$field = new Bitrix\Landing\Field\Text('');
-										$field->viewForm([
-															 'class' => 'ui-input ui-input-color',
-															 'id' => 'colorpicker',
-															 'name_format' => 'fields[ADDITIONAL_FIELDS][THEME_COLOR]',
-															 'additional' => 'hidden',
-														 ]);
-										?>
-									</div>
-									<script>
-										var allColors = <?=CUtil::PhpToJSObject($allColors)?>;
-										var currentColor = '';
-										BX.ready(function ()
-										{
-											new BX.Landing.ColorPickerTheme(
-												BX('colorpicker-theme'),
-												allColors,
-												currentColor,
-											);
-										});
-									</script>
-								</div>
-						<?php else: ?>
-							<label id="theme-slider" for="theme-slider"></label>
-						<?php endif; ?>
-						<?php
-						// add USE SITE COLOR setting only for adding page in exist site
-						if ($arParams['SITE_ID']): ?>
-							<div class="landing-template-preview-site-color" data-name="theme_use_site">
-								<div data-value="<?= substr(LandingSiteDemoPreviewComponent::BASE_COLOR,1) ?>"></div>
-							</div>
-						<?php endif; ?>
-				<?php endif; ?>
+						<div class="landing-template-preview-base-url" data-base-url="<?= htmlspecialcharsbx($template['URL_PREVIEW'])?>"></div>
+					<?php endif; ?>
 			</div>
 		</div>
 	</div>
@@ -333,7 +286,7 @@ else
 			if (!empty($arResult['EXTERNAL_IMPORT']))
 			{
 				?>
-				<span class="ui-btn ui-btn-success landing-template-preview-create-by-import"
+				<span class="ui-btn ui-btn-success"
 					  <?php if (isset($arResult['EXTERNAL_IMPORT']['href'])){?>onclick="BX.SidePanel.Instance.open('<?=CUtil::jsEscape($arResult['EXTERNAL_IMPORT']['href'])?>', {width: 1028})"<?}?>
 						<?php if (isset($arResult['EXTERNAL_IMPORT']['onclick'])){?>onclick="<?= CUtil::jsEscape($arResult['EXTERNAL_IMPORT']['onclick'])?>"<?}?>
 						data-slider-ignore-autobinding="true"
@@ -348,7 +301,7 @@ else
 				</span>
 				<?php
 			}
-			elseif ($createStore)
+			elseif ($isCreateStore)
 			{
 				?>
 				<span data-href="<?= $uriSelect->getUri() ?>" class="ui-btn ui-btn-success landing-template-preview-create"
@@ -381,7 +334,7 @@ else
 	// Force init template preview layout
 	<?php
 	$popupTextCode = 'LANDING_TPL_POPUP_TEXT';
-	if ($createStore)
+	if ($isCreateStore)
 	{
 		$popupTextCode = 'LANDING_TPL_POPUP_TEXT_STORE';
 	}
@@ -390,14 +343,22 @@ else
 		$popupTextCode = 'LANDING_TPL_POPUP_TEXT_KB';
 	}
 
+	$isKnowledgeBase = $arParams['TYPE'] === Type::SCOPE_CODE_KNOWLEDGE || $arParams['TYPE'] === Type::SCOPE_CODE_GROUP;
+
 	?>
 	BX.Landing.TemplatePreviewInstance = BX.Landing.TemplatePreview.getInstance({
-		createStore: <?= ($createStore ? 'true' : 'false') ?>,
+		createStore: <?= ($isCreateStore ? 'true' : 'false') ?>,
+		createMainpage: <?= ($isCreateMainpage ? 'true' : 'false') ?>,
+		isMainpageExists: <?= ($arParams['MAINPAGE_EXISTS'] ?? false) ? 'true' : 'false' ?>,
 		disableClickHandler: <?=(isset($arResult['EXTERNAL_IMPORT']['onclick']) ? 'true' : 'false') ?>,
 		messages: {
 			LANDING_LOADER_WAIT: "<?= CUtil::jsEscape(Loc::getMessage('LANDING_LOADER_WAIT_MSGVER_1')) ?>",
 			LANDING_TPL_POPUP_TITLE: "<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_BUTTON_SHOW_IN_MOBILE')) ?>",
 			LANDING_TPL_POPUP_TEXT: "<?= CUtil::jsEscape(Loc::getMessage($popupTextCode)) ?>",
+			LANDING_PREVIEW_MAINPAGE_MESSAGE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PREVIEW_MAINPAGE_MESSAGE'));?>',
+			LANDING_PREVIEW_MAINPAGE_TITLE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PREVIEW_MAINPAGE_TITLE'));?>',
+			LANDING_PREVIEW_MAINPAGE_BUTTON_OK_TEXT: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PREVIEW_MAINPAGE_BUTTON_OK_TEXT'));?>',
+			LANDING_PREVIEW_MAINPAGE_BUTTON_CANCEL_TEXT: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PREVIEW_MAINPAGE_BUTTON_CANCEL_TEXT'));?>',
 		},
 		disableStoreRedirect: <?= ($arParams['DISABLE_REDIRECT'] === 'Y') ? 'true' : 'false' ?>,
 		zipInstallPath: '<?= ($template['ZIP_ID'] ?? null) ? Url::getConfigurationImportZipUrl($template['ZIP_ID']) : '' ?>',
@@ -405,15 +366,14 @@ else
 		siteId: <?= ($arParams['SITE_ID'] > 0) ? $arParams['SITE_ID'] : 0 ?>,
 		replaceLid: <?= $arParams['REPLACE_LID'] ?? 0 ?>,
 		isCrmForm: '<?= $arParams['IS_CRM_FORM'] ?? 'N' ?>',
-		context_section: '<?= isset($arParams['CONTEXT_SECTION']) ? CUtil::JSEscape($arParams['CONTEXT_SECTION']) : null ?>',
-		context_element: '<?= isset($arParams['CONTEXT_ELEMENT']) ? CUtil::JSEscape($arParams['CONTEXT_ELEMENT']) : null ?>',
+		isKnowledgeBase: '<?= $isKnowledgeBase ? 'Y' : 'N' ?>',
 		langId: "<?= is_string($arParams['LANG_ID']) ? $arParams['LANG_ID'] : ''?>",
 		folderId: <?= ($arResult['FOLDER_ID'] ?? 0 && $arResult['FOLDER_ID'] > 0) ? $arResult['FOLDER_ID'] : 0 ?>,
 		adminSection: <?= $arParams['ADMIN_SECTION'] === 'Y' ? 'true' : 'false'?>,
 		urlPreview: <?=CUtil::PhpToJSObject($template['URL_PREVIEW'])?>,
 	});
 
-	<?php if (!$createStore):?>
+	<?php if (!$isCreateStore):?>
 	BX.ready(function(){
 		new BX.Landing.SaveBtn(document.querySelector(".landing-template-preview-create"));
 	});

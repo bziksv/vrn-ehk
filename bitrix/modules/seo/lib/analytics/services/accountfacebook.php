@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Bitrix\Seo\Analytics\Services;
 
@@ -28,14 +28,15 @@ class AccountFacebook extends Account
 
 	public function getProfile()
 	{
-		$response = $this->getRequest()->getClient()->get(
-			'https://graph.facebook.com/me?fields=id,name,picture,link&access_token=' .
-			urlencode($this->getRequest()->getAuthAdapter()->getToken())
+		$response = $this->request->send([
+			'methodName' => 'analytics.profile',
+			'parameters' => [],
+			]
 		);
 
-		if ($response)
+		if ($response && $response->isSuccess())
 		{
-			$response = Json::decode($response);
+			$response = $response->getData();
 			if (is_array($response))
 			{
 				return array(
@@ -136,6 +137,58 @@ class AccountFacebook extends Account
 		]);
 
 		return $response;
+	}
+
+	/**
+	 * @param string|null $accountId
+	 * @param Date|null $dateFrom
+	 * @param Date|null $dateTo
+	 *
+	 * @return Result
+	 */
+	public function getDailyExpensesReport(?string $accountId, ?Date $dateFrom, ?Date $dateTo): Result
+	{
+		if (mb_substr($accountId, 0, 4) === 'act_')
+		{
+			$accountId = mb_substr($accountId, 4);
+		}
+
+		$parameters = [
+			'ACCOUNT_ID' => $accountId,
+		];
+
+		if ($dateFrom && $dateTo)
+		{
+			$parameters['DATE_FROM'] = $dateFrom->format('Ymd');
+			$parameters['DATE_TO'] = $dateTo->format('Ymd');
+		}
+
+		$response = $this->getRequest()->send([
+			'methodName' => 'analytics.expenses.ads.report',
+			'parameters' => $parameters,
+			'streamTimeout' => static::LOAD_DAILY_EXPENSES_TIMEOUT,
+			'listenHttpErrors' => true,
+		]);
+
+		$result = new Result();
+
+		if (!$response->isSuccess())
+		{
+			$innerErrors = implode(',', $response->getErrorMessages());
+			$errorMessage = $this->buildErrorMessage("Error occurred while load daily expenses: {$innerErrors}");
+
+			return $result->addError(new Error($errorMessage));
+		}
+
+		$data = $response->getData();
+		$result->setData(['expenses' => Helpers\ExpensesAdapter::translateExpensesReportToDailyExpenses($data)]);
+
+		return $result;
+	}
+
+	public function hasDailyExpensesReport(): bool
+	{
+		return true;
 	}
 
 	/**

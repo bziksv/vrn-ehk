@@ -27,6 +27,16 @@ class ActionDictionary
 		ACTION_TYPE_EDIT = 'type_edit',
 		ACTION_TYPE_VIEW = 'type_view';
 
+	public const ACTION_OPEN_EVENT_ATTEND = 'open_event_attend';
+	public const ACTION_EVENT_CATEGORY_ADD = 'event_category_add';
+	public const ACTION_EVENT_CATEGORY_EDIT = 'event_category_edit';
+	public const ACTION_EVENT_CATEGORY_DELETE = 'event_category_delete';
+	public const ACTION_EVENT_CATEGORY_VIEW = 'event_category_view';
+	public const ACTION_EVENT_CATEGORY_POST = 'event_category_post';
+
+	public const ACTION_SYNC_RUN = 'sync_run';
+	public const ACTION_SYNC_DELETE = 'sync_delete';
+
 	public static function getOldActionKeysMap(): array
 	{
 		return [

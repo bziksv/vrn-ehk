@@ -5,11 +5,7 @@ use Bitrix\AI;
 use Bitrix\Main;
 
 /* @note To turn on Copilot in the main.post.form component, please, execute code:
-	\COption::SetOptionString('main', 'bitrix:main.post.form:Copilot', 'Y');
-	\COption::SetOptionString('main', 'bitrix:main.post.form:AIImage', 'Y');
-	\COption::SetOptionString('tasks', 'tasks_ai_image_available', 'N');
 	\COption::SetOptionString('socialnetwork', 'ai_base_enabled', 'N');
-	\COption::SetOptionString('fileman', 'isCopilotFeatureEnabled', 'Y');
 */
 
 final class MainPostForm extends CBitrixComponent
@@ -51,8 +47,13 @@ final class MainPostForm extends CBitrixComponent
 		}
 		$arParams['NAME_TEMPLATE'] = empty($arParams['NAME_TEMPLATE']) ? \CSite::GetNameFormat(false) : str_replace(array("#NOBR#","#/NOBR#"), "", $arParams["NAME_TEMPLATE"]);
 		$arParams['COPILOT_AVAILABLE'] = $this->isCopilotEnabled();
+		$arParams['isAiImageEnabled'] ??= true;
+		$arParams['isDnDEnabled'] ??= true;
 
-		if ($this->iaAIAvailable())
+		if (
+			$arParams['isAiImageEnabled']
+			&& $this->iaAIAvailable()
+		)
 		{
 			$arParams["PARSER"][] = 'AIImage';
 		}
@@ -73,12 +74,8 @@ final class MainPostForm extends CBitrixComponent
 		}
 
 		$engine = AI\Engine::getByCategory('image', new AI\Context('main', ''));
-		if (is_null($engine))
-		{
-			return false;
-		}
 
-		return Main\Config\Option::get('main', 'bitrix:main.post.form:AIImage', 'N') === 'Y';
+		return !is_null($engine);
 	}
 
 	public function isCopilotEnabled(): bool
@@ -88,14 +85,7 @@ final class MainPostForm extends CBitrixComponent
 			return false;
 		}
 
-		$engine = null;
-
-		if (Main\Config\Option::get('main', 'bitrix:main.post.form:Copilot', 'N') === 'Y'
-			&& Main\Config\Option::get('fileman', 'isCopilotFeatureEnabled', 'N') === 'Y'
-		)
-		{
-			$engine = AI\Engine::getByCategory(AI\Engine::CATEGORIES['text'], AI\Context::getFake());
-		}
+		$engine = AI\Engine::getByCategory(AI\Engine::CATEGORIES['text'], AI\Context::getFake());
 
 		return !is_null($engine);
 	}

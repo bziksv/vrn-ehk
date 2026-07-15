@@ -1,6 +1,6 @@
 import { PopupOptions } from 'main.popup';
 
-import { MessengerPopup } from 'im.v2.component.elements';
+import { MessengerPopup } from 'im.v2.component.elements.popup';
 
 import { ForwardContent } from './forward-content';
 
@@ -12,12 +12,12 @@ export const ForwardPopup = {
 	components: { MessengerPopup, ForwardContent },
 	props:
 	{
-		showPopup: {
-			type: Boolean,
+		messagesIds: {
+			type: Array,
 			required: true,
 		},
-		messageId: {
-			type: [Number, String],
+		dialogId: {
+			type: String,
 			required: true,
 		},
 	},
@@ -28,7 +28,7 @@ export const ForwardPopup = {
 		config(): PopupOptions
 		{
 			return {
-				titleBar: this.$Bitrix.Loc.getMessage('IM_ENTITY_SELECTOR_ADD_TO_CHAT_FORWARD_TITLE'),
+				titleBar: this.popupTitle,
 				closeIcon: true,
 				targetContainer: document.body,
 				fixed: true,
@@ -37,18 +37,35 @@ export const ForwardPopup = {
 				autoHide: false,
 				contentPadding: 0,
 				contentBackground: '#fff',
+				overlay: true,
 				className: 'bx-im-entity-selector-forward__scope',
 			};
+		},
+		popupTitle(): string
+		{
+			return this.messagesIds.length > 1
+				? this.loc('IM_ENTITY_SELECTOR_ADD_TO_CHAT_FORWARD_TITLE_SEVERAL_MESSAGES')
+				: this.loc('IM_ENTITY_SELECTOR_ADD_TO_CHAT_FORWARD_TITLE');
+		},
+	},
+	methods:
+	{
+		loc(phraseCode: string): string
+		{
+			return this.$Bitrix.Loc.getMessage(phraseCode);
 		},
 	},
 	template: `
 		<MessengerPopup
-			v-if="showPopup"
 			:id="POPUP_ID"
 			:config="config"
 			@close="$emit('close')"
 		>
-			<ForwardContent :messageId="messageId" @close="$emit('close')" />
+			<ForwardContent
+				:dialogId="dialogId"
+				:messagesIds="messagesIds" 
+				@close="$emit('close')"
+			/>
 		</MessengerPopup>
 	`,
 };

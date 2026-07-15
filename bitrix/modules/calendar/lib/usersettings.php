@@ -1,67 +1,75 @@
 <?php
 namespace Bitrix\Calendar;
-use Bitrix\Main;
-use \Bitrix\Main\Web\Json;
+
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
+use Bitrix\Calendar\Integration\Pull\PushCommand;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Web\Json;
 
 class UserSettings
 {
-	private static
-		$settings = [
-			'view' => 'month',
-			'CalendarSelCont' => false,
-			'SPCalendarSelCont' => false,
-			'meetSection' => false,
-			'crmSection' => false,
-			'showDeclined' => false,
-			'denyBusyInvitation' => false,
-			'collapseOffHours' => 'Y',
-			'showWeekNumbers' => 'N',
-			'showTasks' => 'Y',
-			'syncTasks' => 'N',
-			'showCompletedTasks' => 'N',
-			'lastUsedSection' => false,
-			'sendFromEmail' => false,
-			'defaultSections' => [],
-			'syncPeriodPast' => 3,
-			'syncPeriodFuture' => 12,
-			'defaultReminders' => [
-				'fullDay' => [
-					'type' => 'daybefore',
-					'before' => 0,
-					'time' => 480,
-				],
-				'withTime' => [
-					'type' => 'min',
-					'count' => 15
-				]
+	private static array $settings = [
+		'view' => 'month',
+		'CalendarSelCont' => false,
+		'SPCalendarSelCont' => false,
+		'meetSection' => false,
+		'crmSection' => false,
+		'showDeclined' => false,
+		'denyBusyInvitation' => false,
+		'collapseOffHours' => 'Y',
+		'showWeekNumbers' => 'N',
+		'showTasks' => 'Y',
+		'syncTasks' => 'N',
+		'showCompletedTasks' => 'N',
+		'lastUsedSection' => false,
+		'sendFromEmail' => false,
+		'defaultSections' => [],
+		'syncPeriodPast' => 3,
+		'syncPeriodFuture' => 12,
+		'defaultReminders' => [
+			'fullDay' => [
+				'type' => 'daybefore',
+				'before' => 0,
+				'time' => 480,
 			],
-			// 'enableLunchTime' => 'N',
-			// 'lunchStart' => '13:00',
-			// 'lunchEnd' => '14:00',
-		];
+			'withTime' => [
+				'type' => 'min',
+				'count' => 15
+			]
+		],
+		// 'enableLunchTime' => 'N',
+		// 'lunchStart' => '13:00',
+		// 'lunchEnd' => '14:00',
+	];
 
-	public static function set($settings = [], $userId = false)
+	private static array $serializedSettings = [
+		'defaultSections',
+		'defaultReminders',
+	];
+
+	public static function set($settings = [], $userId = false): void
 	{
 		if (!$userId)
+		{
 			$userId = \CCalendar::getUserId();
+		}
 		if (!$userId)
+		{
 			return;
+		}
 
 		if ($settings === false)
 		{
 			\CUserOptions::setOption("calendar", "user_settings", false, false, $userId);
 		}
-		elseif(is_array($settings))
+		elseif (is_array($settings))
 		{
 			$curSet = self::get($userId);
 			foreach($settings as $optionName => $value)
 			{
 				if (isset(self::$settings[$optionName]))
 				{
-					if (
-						($optionName === 'defaultSections' || $optionName === 'defaultReminders')
-						&& is_array($value)
-					)
+					if (is_array($value) && in_array($optionName, self::$serializedSettings, true))
 					{
 						$curSet[$optionName] = Json::encode($value);
 					}
@@ -75,7 +83,7 @@ class UserSettings
 		}
 	}
 
-	public static function get($userId = null)
+	public static function get($userId = null): array
 	{
 		if (!$userId)
 		{
@@ -91,10 +99,7 @@ class UserSettings
 			{
 				foreach($settings as $optionName => $value)
 				{
-					if (
-						($optionName === 'defaultSections' || $optionName === 'defaultReminders')
-						&& !is_array($value)
-					)
+					if (!is_array($value) && in_array($optionName, self::$serializedSettings, true))
 					{
 						$resSettings[$optionName] = Json::decode($value);
 					}
@@ -111,12 +116,12 @@ class UserSettings
 
 			if (isset($settings['denyBusyInvitation']))
 			{
-				$resSettings['denyBusyInvitation'] = !!$settings['denyBusyInvitation'];
+				$resSettings['denyBusyInvitation'] = (bool)$settings['denyBusyInvitation'];
 			}
 
 			if (isset($settings['showDeclined']))
 			{
-				$resSettings['showDeclined'] = !!$settings['showDeclined'];
+				$resSettings['showDeclined'] = (bool)$settings['showDeclined'];
 			}
 
 			// We don't have default timezone for this offset for this user
@@ -137,16 +142,25 @@ class UserSettings
 		return $resSettings;
 	}
 
-	public static function getFormSettings($formType, $userId = false)
+	public static function getFormSettings($formType, $userId = false, ?string $entryType = null)
 	{
 		if (!$userId)
 		{
 			$userId = \CCalendar::getUserId();
 		}
 
+		$defaultPinnedFields = ['location', 'rrule', 'section'];
+		if ($entryType === Dictionary::CALENDAR_TYPE['open_event'])
+		{
+			$pinnedFields = [...$defaultPinnedFields, 'description'];
+		}
+		else
+		{
+			$pinnedFields = $defaultPinnedFields;
+		}
 		$defaultValues = [
 			'slider_main' => [
-				'pinnedFields' => implode(',', ['location', 'rrule', 'section'])
+				'pinnedFields' => implode(',', $pinnedFields),
 			]
 		];
 		if (!isset($defaultValues[$formType]))
@@ -154,7 +168,8 @@ class UserSettings
 			$defaultValues[$formType] = false;
 		}
 		//\CUserOptions::DeleteOption("calendar", $formType);
-		$settings = \CUserOptions::getOption("calendar", $formType, $defaultValues[$formType], $userId);
+		$userOptionName = $entryType ?  sprintf('%s-%s', $formType, $entryType) : $formType;
+		$settings = \CUserOptions::getOption("calendar", $userOptionName, $defaultValues[$formType], $userId);
 		if (!is_array($settings['pinnedFields']))
 		{
 			$settings['pinnedFields'] = explode(',', $settings['pinnedFields']);
@@ -236,54 +251,6 @@ class UserSettings
 		\CUserOptions::setOption("calendar", "superpose_tracking_users", serialize($value), false, $userId);
 	}
 
-	public static function getTrackingGroups($userId = false, $params = [])
-	{
-		$res = [];
-		$str = \CUserOptions::getOption("calendar", "superpose_tracking_groups", false, $userId);
-
-		if ($str !== false && CheckSerializedData($str))
-		{
-			$ids = unserialize($str, ['allowed_classes' => false]);
-			if (is_array($ids))
-			{
-				foreach($ids as $id)
-				{
-					if (intval($id) > 0)
-					{
-						$res[] = intval($id);
-					}
-				}
-			}
-		}
-
-		if ($params && isset($params['groupList']))
-		{
-			$params['groupList'] = array_unique($params['groupList']);
-			$diff = array_diff($params['groupList'], $res);
-			if (count($diff) > 0)
-			{
-				$res = array_merge($res, $diff);
-				self::setTrackingGroups($userId, $res);
-			}
-		}
-
-		return $res;
-	}
-	public static function setTrackingGroups($userId = false, $value = [])
-	{
-		if (!$userId)
-		{
-			$userId = \CCalendar::getUserId();
-		}
-
-		if (!is_array($value))
-		{
-			$value = [];
-		}
-
-		\CUserOptions::setOption("calendar", "superpose_tracking_groups", serialize($value), false, $userId);
-	}
-
 	public static function getHiddenSections($userId = false, $options = []): array
 	{
 		$res = [];
@@ -313,9 +280,9 @@ class UserSettings
 		return is_array($res) ? $res : [];
 	}
 
-	public static function saveHiddenSections(int $userId, array $sections)
+	public static function saveHiddenSections(int $userId, array $sections, string $optionName = 'hidden_sections')
 	{
-		\CUserOptions::SetOption('calendar', 'hidden_sections', $sections, false, $userId);
+		\CUserOptions::SetOption('calendar', $optionName, $sections, false, $userId);
 	}
 
 	public static function getSectionCustomization($userId = false)
@@ -354,18 +321,20 @@ class UserSettings
 		\CUserOptions::setOption("calendar", "section_customization", serialize($sectionCustomization), false, $userId);
 
 		\Bitrix\Calendar\Util::addPullEvent(
-			'change_section_customization',
-			$userId, []
+			PushCommand::ChangeSectionCustomization,
+			$userId,
 		);
 	}
 
 
-	public static function getFollowedSectionIdList($userId = false)
+	public static function getFollowedSectionIdList($userId = false): array
 	{
 		$sectionIdList = [];
 		if ($userId)
 		{
-			$defaultFollowedSectionId = intval(\CUserOptions::GetOption("calendar", "superpose_displayed_default", 0, $userId));
+			$defaultFollowedSectionId = (int)\CUserOptions::GetOption(
+				"calendar", "superpose_displayed_default", 0, $userId
+			);
 			if ($defaultFollowedSectionId)
 			{
 				$sectionIdList[] = $defaultFollowedSectionId;
@@ -379,9 +348,9 @@ class UserSettings
 				{
 					foreach($idList as $id)
 					{
-						if (intval($id) > 0)
+						if ((int)$id > 0)
 						{
-							$sectionIdList[] = intval($id);
+							$sectionIdList[] = (int)$id;
 						}
 					}
 				}

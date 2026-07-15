@@ -111,6 +111,11 @@ class RequestParametersBuilder
 		if (Loader::includeModule('intranet'))
 		{
 			$this->parameters['user_date_register'] = \Bitrix\Intranet\CurrentUser::get()->getDateRegister()?->getTimestamp();
+
+			if (method_exists(Intranet\User::class, 'getUserRole'))
+			{
+				$this->parameters['user_type'] = (new Intranet\User())->getUserRole()->value;
+			}
 		}
 	}
 
@@ -122,11 +127,16 @@ class RequestParametersBuilder
 			'host' => $this->getHostName(),
 			'languageId' => LANGUAGE_ID,
 			'demoStatus' => $this->getDemoStatus(),
+			'isAutoPay' => $this->isCloud && \CBitrix24::isAutoPayLicense(),
 		];
 
 		if ($this->isCloud)
 		{
-			$this->parameters['portal_date_register'] = Option::get('main', '~controller_date_create', '');
+			$this->parameters += [
+				'portal_date_register' => Option::get('main', '~controller_date_create', ''),
+				'canAllUsersBuyTariff' => \CBitrix24::canAllBuyLicense(),
+				'isSidePanelDemoLicense' => Option::get('bitrix24', 'isSidePanelDemoLicense') === 'Y',
+			];
 		}
 	}
 

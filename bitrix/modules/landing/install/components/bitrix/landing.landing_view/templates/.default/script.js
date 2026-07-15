@@ -27,7 +27,7 @@
 			options
 		);
 		BX.Landing.Component.View.instance.setNewOptions(options);
-		BX.Landing.Component.View.instance.init();
+		BX.Landing.Component.View.instance.init(options);
 
 		return BX.Landing.Component.View.instance;
 	};
@@ -60,7 +60,8 @@
 			this.type = options.type || '';
 			this.title = options.title || '';
 			this.url = options.url || '';
-			this.formEditor = options.specialType === 'crm_forms';
+			this.isMainpage = options.type === 'MAINPAGE';
+			this.isFormEditor = options.specialType === 'crm_forms';
 			this.topInit = options.topInit || false;
 			this.active = options.active || false;
 			this.draftMode = options.draftMode || false;
@@ -92,7 +93,7 @@
 		/**
 		 * Some init preparing.
 		 */
-		init: function()
+		init: function(options)
 		{
 			var viewInstance = BX.Landing.Component.View.getInstance();
 
@@ -182,7 +183,7 @@
 			// build top panel
 			if (this.topInit)
 			{
-				this.buildTop();
+				this.buildTop(options);
 				this.initSliders();
 				this.loadEditor();
 				this.hideEditorsPanelHandlers();
@@ -241,6 +242,16 @@
 				]
 			});
 			BX.SidePanel.Instance.bindAnchors(sliderFullOptions);
+
+			const topPanelLogoLink = document.querySelector('.landing-ui-panel-top-logo-link');
+			if (topPanelLogoLink && BX.Dom.hasClass(topPanelLogoLink, '--mainpage-link'))
+			{
+				BX.Event.bind(topPanelLogoLink, 'click', () => {
+					event.preventDefault();
+					event.stopPropagation();
+					BX.SidePanel.Instance.close();
+				});
+			}
 		},
 
 		/**
@@ -384,7 +395,7 @@
 		 */
 		buildTop: function(options)
 		{
-			options = options || {};
+			this.options = options;
 			this.urls = this.urls || {};
 
 			// direct id for some urls
@@ -752,7 +763,7 @@
 															BX.create('a', {
 																props: { className: 'landing-popup-preview-link-target' },
 																text: (function() {
-																	if (this.formEditor)
+																	if (this.isFormEditor)
 																	{
 																		return fullUrl;
 																	}
@@ -765,33 +776,35 @@
 																	target: '_blank',
 																	href: fullUrl
 																}
-															})
+															}),
+															BX.create('input', {
+																props: {
+																	className: 'landing-popup-preview-link-target-value-hd',
+																	type: 'text',
+																}
+															}),
 														],
 													}),
+
 													BX.create('div', {
 														children: [
-															BX.create('a', {
+															BX.create('div', {
 																props: { className: 'landing-popup-preview-link-target-copy' },
 																text: BX.message('LANDING_PREVIEW_MOBILE_COPY_LINK'),
-																attrs: {
-																	href: "#"
-																},
 																events: {
 																	click: function()
 																	{
-																		var range = document.createRange();
-																		range.selectNode(document.body.querySelector(".landing-popup-preview-link-target"));
-																		window.getSelection().addRange(range);
-																		try {
+																		let href = null;
+																		const linkElement = document.body.querySelector('.landing-popup-preview-link-target');
+																		const linkElementValue = document.body.querySelector('.landing-popup-preview-link-target-value-hd');
+																		if (linkElement)
+																		{
+																			href = linkElement.getAttribute('href');
+																			linkElementValue.value = href;
+																			linkElementValue.select();
 																			document.execCommand('copy');
 																			BX.UI.Notification.Center.notify({
 																				content: BX.message('LANDING_SITE_TILE_POPUP_COPY_LINK_COMPLETE'),
-																				autoHideDelay: 2000,
-																			});
-																			window.getSelection().removeAllRanges();
-																		} catch(err) {
-																			BX.UI.Notification.Center.notify({
-																				content: 'Oops, unable to copy',
 																				autoHideDelay: 2000,
 																			});
 																		}
@@ -1046,7 +1059,7 @@
 																		else
 																		{
 																			BX.SidePanel.Instance.open(
-																				BX.message['LANDING_PAR_PAGE_URL_SITE_EDIT'] + '#b24widget',
+																				BX.message['PAGE_URL_LANDING_SETTINGS'] + '#b24widget',
 																				{ allowChangeHistory: false, cacheable: false }
 																			);
 																		}
@@ -1089,7 +1102,14 @@
 														events: {
 															click: function()
 															{
-																BX.fireEvent(BX(featuresButton.getAttribute('data-feedback')), 'click');
+																BX.UI.Feedback.Form.open({
+																	id: 'form-editor-feedback-form',
+																	portalUri: options.feedback.portalUri,
+																	forms: options.feedback.forms,
+																	presets: {
+																		source: 'landing',
+																	},
+																});
 															}
 														}
 													}),
@@ -1169,6 +1189,8 @@
 				this.formSharePopup = new BX.Landing.Form.SharePopup({
 					bindElement: event.currentTarget,
 					phoneVerified: phoneVerified,
+					portalUri: this.options.feedback.portalUri,
+					forms: this.options.feedback.forms,
 				});
 			}
 
@@ -1351,29 +1373,21 @@
 		onSettingsClick: function()
 		{
 			if (
-				typeof landingParams['PAGE_URL_LANDING_SETTINGS'] !== 'undefined' &&
-				typeof BX.SidePanel !== 'undefined'
+				typeof landingParams['PAGE_URL_LANDING_SETTINGS'] !== 'undefined'
+				&& typeof BX.SidePanel !== 'undefined'
 			)
 			{
-				if (this.type === 'KNOWLEDGE' || this.type === 'GROUP')
-				{
-					BX.SidePanel.Instance.open(landingParams['PAGE_URL_LANDING_SETTINGS'], {
-						events: {
-							onClose: function()
+				BX.SidePanel.Instance.open(landingParams['PAGE_URL_LANDING_SETTINGS'], {
+					allowChangeHistory: false,
+					events: {
+						onCloseComplete: ()=> {
+							if (top.window['landingSettingsSaved'] === true)
 							{
-								if (top.window['landingSettingsSaved'] === true)
-								{
-									top.window['landingSettingsSaved'] = false;
-									window.location.reload();
-								}
-							},
+								top.window['landingSettingsSaved'] = false;
+							}
 						},
-					});
-				}
-				else
-				{
-					BX.SidePanel.Instance.open(landingParams['PAGE_URL_LANDING_SETTINGS']);
-				}
+					},
+				});
 			}
 		},
 	};
@@ -1637,7 +1651,54 @@
 				});
 			}
 		});
-	}
+	};
+
+	BX.Landing.Component.View.MainpagePublication = function(options)
+	{
+		this.buttonPublic = options.buttonPublic;
+		this.buttonUnpublic = options.buttonUnpublic;
+		if (this.buttonPublic && this.buttonUnpublic)
+		{
+			BX.bind(this.buttonPublic, 'click', this.public.bind(this));
+			BX.bind(this.buttonUnpublic, 'click', this.unpublic.bind(this));
+		}
+	};
+
+	BX.Landing.Component.View.MainpagePublication.prototype = {
+		public: function ()
+		{
+			BX.addClass(this.buttonPublic, 'ui-btn-wait');
+			BX.ajax.runAction('intranet.mainpage.publish')
+				.then(() => {
+					BX.removeClass(this.buttonPublic, 'ui-btn-wait');
+					BX.hide(this.buttonPublic);
+					BX.show(this.buttonUnpublic);
+				});
+			BX.UI.Analytics.sendData({
+				tool: 'landing',
+				category: 'vibe',
+				event: 'publish_page',
+				c_sub_section: 'from_editor',
+			});
+		},
+
+		unpublic: function ()
+		{
+			BX.addClass(this.buttonUnpublic, 'ui-btn-wait');
+			BX.ajax.runAction('intranet.mainpage.withdraw')
+				.then(() => {
+					BX.removeClass(this.buttonUnpublic, 'ui-btn-wait');
+					BX.hide(this.buttonUnpublic);
+					BX.show(this.buttonPublic);
+				});
+			BX.UI.Analytics.sendData({
+				tool: 'landing',
+				category: 'vibe',
+				event: 'unpublish_page',
+				c_sub_section: 'from_editor',
+			});
+		},
+	};
 })();
 
 var landingAlertMessage = function landingAlertMessage(errorText, payment, errorCode)

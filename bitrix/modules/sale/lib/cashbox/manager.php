@@ -44,7 +44,7 @@ final class Manager
 
 		$dbRes = CashboxTable::getList(array(
 			'select' => array('*'),
-			'filter' => array('ACTIVE' => 'Y'),
+			'filter' => array('=ACTIVE' => 'Y'),
 			'order' => array('SORT' => 'ASC', 'NAME' => 'ASC')
 		));
 
@@ -518,8 +518,11 @@ final class Manager
 		{
 			$cashbox = Cashbox::create($item);
 			if (
-				$cashbox instanceof ICheckable
-				|| $cashbox->isCorrection()
+				$item['ACTIVE'] === 'Y'
+				&& (
+					$cashbox?->isCheckable()
+					|| $cashbox?->isCorrection()
+				)
 			)
 			{
 				$availableCashboxList[$item['ID']] = $cashbox;

@@ -1,0 +1,2390 @@
+<Makes>
+	<Make name="AFM">
+		<Model name="45">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="55">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="60">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="65">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Arbro">
+		<Model name="1000">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="400S">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Bandit">
+		<Model name="1590XP">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="1890XP">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="2090T">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="2090XP">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="2290">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="3090">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="3590XL">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="3680">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="4680XP">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="990XP">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="Rayco 4x4">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="SG-40">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="XP 90">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Bruks">
+		<Model name="BK-RG330">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="BK-RG485">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="BK-RG650">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="BK-RH330">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="BK-RH485">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="BK-RH650">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="CAT">
+		<Model name="320D FM">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="324D FM">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="521">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="521B">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="521В">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="522 / 522В">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="522В">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="525B / 525C / 525D">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="527">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="535C / 535D">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="541">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="545C / 545D">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="552">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="555D">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="563C">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="574">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="584">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="584 HD">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="CBI">
+		<Model name="3000 Freedom HOG">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="5400SE-SA">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="5800BT">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="6400CT">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="6400T">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Case">
+		<Model name="CX210B LC">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="CX220С">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Chipmaster 220 TMP">
+		<Model name="EVO 205 Sure-Trak">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="DOOSAN">
+		<Model name="DX225LL">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="DX300LL">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Develon">
+		<Model name="DX260FM">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Doppstadt">
+		<Model name="DH910">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Dynamic">
+		<Model name="CH 465">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="DC-55">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Echo">
+		<Model name="BEARCAT">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="EcoLog">
+		<Model name="550D / 550E">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="554D">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="560D / 560E / 560F">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="564D">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="574D / 574E">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="580D / 580Е / 580F / 580C">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="590D / 590Е / 590F">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="594D / 594E">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="688">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Farmi">
+		<Model name="5080">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Forst">
+		<Model name="ST6">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="ST8">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="XR8">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Furukawa">
+		<Model name="FPC 2205">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="GL&amp;D">
+		<Model name="Fusion">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="GTS">
+		<Model name="1500E">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Gandini">
+		<Model name="BIOMATICH91">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="GreenMech">
+		<Model name="150">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="19-28">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="ArbTrak 150">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="Arborist 130">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="Arborist 150">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="CM 220">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="CS100">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="EC 19-28 MT">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="EVO 165d">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="EVO 205 Sure-Trak">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="EVO 205d">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="QuadChip 160">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="QuadTrak 160">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="Safe track 19">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Gremo">
+		<Model name="1050 H">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="950 HPV R">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="HSM">
+		<Model name="208F">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="405 H1 6WD/8WD">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="405 H2 6WD/8WD">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="405 H2L 8WD">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="405 H3 8WD">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="805">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="904">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="904F">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Heinola">
+		<Model name="1310">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Heizohack">
+		<Model name="HM 10-500 K">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="HM 14-800 K">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="HM 4-300">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="HM 5-400 / HM 5-400EM">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="HM 6-300 / HM 6-300EM">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="HM 6-400 / HM 6-400EM">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="HM 8-400 / HM 8-400EM">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="HM 8-500 K">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Highlander">
+		<Model name="HL 20-2">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Hitachi">
+		<Model name="ZX250L-5G">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Hypro">
+		<Model name="300">
+			<TypeOfVehicle name="Сучкорезная машина"></TypeOfVehicle>
+		</Model>
+		<Model name="450 XL">
+			<TypeOfVehicle name="Сучкорезная машина"></TypeOfVehicle>
+		</Model>
+		<Model name="755">
+			<TypeOfVehicle name="Сучкорезная машина"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Hyundai">
+		<Model name="R 220LC-9S">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Iwafuji">
+		<Model name="T30">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="JAK-METALLI OY">
+		<Model name="JAK-200K">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="JENZ">
+		<Model name="BA 926 D">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="HEM 540 DL">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="HEM 542Z">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="HEM 561 DQ">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="HEM 583 DQ">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="HEM 583 Z">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="HEM 821">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Jansen">
+		<Model name="GTS1500E">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Jensen">
+		<Model name="A 425">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="John Deere">
+		<Model name="1010D / 1010E">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="1070D/1070G">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="1110D / 1110E / 1110G">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="1170E">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="1210E / 1210G">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="1270D">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="1270E/1270G">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="1270E/1510E">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="1410D">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="1470E/1470G">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="1510E / 1510G">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="1710D">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="1910E">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="1910G">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="2054">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="2154D">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="2154G">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="2156G">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="2454D">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="2654G">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="2954D">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="540G-III">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="640G-III">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="640L / 640L-II">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="640L-II">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="643К">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="648H">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="648L / 648L-II">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="748H">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="748L / 748L-II">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="753J">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="753JH">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="759G / 759J">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="803M">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="803MH">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="810D">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="843K">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="848L / 848L-II">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="848Н">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="853M">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="853MH">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="859M">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="859MH">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="903G / 903K / 903M">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="903MH">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="909K / 909M">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="909MH">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="948L / 948L-II">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="953K / 953M">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="959K / 959M">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="H480C">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Junkkari">
+		<Model name="HJ262G">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="HJ500">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="HJ500C">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="KIOTI">
+		<Model name="5000">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="KX-TreeShears">
+		<Model name="KX-210">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="KX-280">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="KX-350">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Kalmar">
+		<Model name="RTD 1623">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="RTD 3026">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Kato">
+		<Model name="F801">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Kershaw">
+		<Model name="SKYTRIM">
+			<TypeOfVehicle name="Сучкорезная машина"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Kesla">
+		<Model name="13H">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="16H">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="25RHII">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="27RHII">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="28RHII">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="29RH2">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="30RHII">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="500">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="600">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="600T">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="6H">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="700">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="700T">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="800T">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="C 4560 LF">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Kockums">
+		<Model name="850">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Komatsu">
+		<Model name="365">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="370.2">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="835">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="845">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="855">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="860.4 8WD">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="865">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="875">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="890.3">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="895">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="901 / 901XC">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="911 / 911.5">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="911.4">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="931 / 931.1">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="931XC">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="941.1">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="951">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="C124">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="C144">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="C164">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="C172">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="C93">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="PC200LC">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="S132">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="S172">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="S82">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="S92">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="X-19">
+			<TypeOfVehicle name="Харвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="XT430-2 / XT430L-2">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="XT445L">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="XT445L-2">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="XT450L">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Komptech">
+		<Model name="Crambo 6000">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Kone-Ketonen">
+		<Model name="Keto-150">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Krpan">
+		<Model name="CH 32">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="CS 420">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Kubota">
+		<Model name="Hope-man 1000">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="LKT">
+		<Model name="150">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="175">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="81">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="82">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="LTMG">
+		<Model name="LT08J">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="LT10J">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="LT12JS">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="LT15J">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="LT15JS">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="LT18J">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="LT18T">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="LT23T">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="LT25J">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="LT28T">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="LT32T">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="LT42T">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="LT45T">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Lako">
+		<Model name="63 HD">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Laski">
+		<Model name="LS120D">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="LS150DW">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Log Max">
+		<Model name="10000XT">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="12000XT">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="4000B">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="5000D">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="6000">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="6000B">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="6000TWIN">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="7000C">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="7000XT">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="7000XT Fixed Head">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="928A">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Logset">
+		<Model name="10F GT">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="10H GTE">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="12H GTE Hybrid">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="2F GT">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="4F GT">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="5F GT / 5FP GT">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="5HP GT">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="6F GT">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="6HP GT / 6H GTE">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="8F GT">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="8H GT / 8H GTE">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="TH65">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Lokomo">
+		<Model name="919">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Madrog">
+		<Model name="PM15">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Medved">
+		<Model name="M2">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="M3">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Merlo">
+		<Model name="TRE EMME MM180B">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Metsis">
+		<Model name="208F">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="208H">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="408">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="408S">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="608F">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="608H">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="608S">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="808F">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Morbark">
+		<Model name="27 RXL">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="30/36 WCL">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="3400 XT">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="40/36 NCL">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="4600XL">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="6600">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="Beever 2355">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="Beever M12D">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="Beever M12R">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="Beever M12R Track">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="Beever M12RX">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="Beever M15R">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="Beever M15RX">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="Beever M6R">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="Beever M8D">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Morooka">
+		<Model name="MST-300VDL">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Mus-Max">
+		<Model name="Wood-Terminator 10 DLK">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="Wood-Terminator 7L Z">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="Wood-Terminator WT 8XL Z">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="Wood-Terminator WT 9XL Z">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="NOE">
+		<Model name="NF160-4R">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+			<TypeOfVehicle name="Харвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="NF160-6R">
+			<TypeOfVehicle name="Харвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="NF160G">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="NF160S">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="NF210-4R">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+			<TypeOfVehicle name="Харвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="NF210-6R">
+			<TypeOfVehicle name="Харвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="NF210-8R">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="NF210G">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Naarva">
+		<Model name="E24">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="K24">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="KV38">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="S23">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="S23C">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="S25">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Neuson Forest">
+		<Model name="103HV / 103HVT">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="104HV / 104HVT">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="133HVT">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="183HVT">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="243HV / 243HVT">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Nisula">
+		<Model name="500H">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="PEZZOLATO">
+		<Model name="PTH 1000/1000">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="PTH 30.70">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="PM PFANZELT">
+		<Model name="Trac 2385 4f">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="PONSSE">
+		<Model name="Bear">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="Beaver">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="Bison Active Frame">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="Buffalo">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="BuffaloDual">
+			<TypeOfVehicle name="Харвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="BuffaloKing">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="Cobra">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="Elephant">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="ElephantKing">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="Elk">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="Ergo">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="Ergo 6W">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="Fox">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="Gazelle">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="H10">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="H5">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="H6">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="H7 / H77euca / H7euca / H7HD">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="H73E">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="H8 / H8HD / H8HD euca">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="H9">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="HS15">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="Scorpion">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="Scorpion King">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="Wisent">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="PRIDE">
+		<Model name="Медведь">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="PROFI">
+		<Model name="40">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="50">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="54">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Peterson">
+		<Model name="4710B">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="5000H">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Prime Tech">
+		<Model name="PT300">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Prinoth">
+		<Model name="Beaver">
+			<TypeOfVehicle name="Сучкорезная машина"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="ProSilva">
+		<Model name="S3">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="S4">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="S5">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="S6">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="S6HD">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="QUADCO">
+		<Model name="Forespro">
+			<TypeOfVehicle name="Сучкорезная машина"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Rottne">
+		<Model name="EGS 596">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="F10D">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="F13D">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="F15C / F15D">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="F18 / F18D">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="H11 6WD / 8WD">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="H14C">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="H20">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="H21D">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="H8B">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="Rapid SMV">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="SDLG">
+		<Model name="E6210FLC">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="E6255F">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="SP-Maskiner">
+		<Model name="SP 461 LF">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="SP 561 LF">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="SP 591 LX G3">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="SP 661 E">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="SP 661 LF">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="SP 761 E">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="SP 761 LF">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Saelen">
+		<Model name="COBRA 65 DRI">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Sampo Rosenlew">
+		<Model name="1046pro">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="1066">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="FR28">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="HR46">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Sany">
+		<Model name="SY245F">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Sennebogen">
+		<Model name="723 E">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="735 E">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Silvatec">
+		<Model name="Sleipner 814 TF">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="Sleipner 814-L TF">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="Sleipner 8292-L TH">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="Sleipner 8292-S TH">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="Sleipner 8294 TH">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="Sleipner 8298 TH">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="Sleipner 8322-L TH">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="Sleipner 8322-S TH">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="Sleipner 8324 TH">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="Sleipner 8328 TH">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Skogsjan">
+		<Model name="1088S">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="TEKNAMOTOR">
+		<Model name="Skorpion 250 SDTG">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="Skorpion 350 SDB">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Tajfun">
+		<Model name="RCA 330 JOY">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Tigercat">
+		<Model name="1055">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="1075C">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="1085C">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="1135">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="1165">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="1185">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="250B">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="568">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="570">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="575">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="604">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="610C / 610E">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="615C / 615E">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="620D / 620E / 620Н">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="625Е / 625Н">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="630C/630D/630E/630Н">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="632Е / 632Н">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="635 / 635D / 635E / 635G / 635Н">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="720E">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="822">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="822C / 822D">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="845C / 845E">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="855E">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="860C">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="870B / 870C">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="H250B">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="H822D">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="H845D">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="H845Е">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="H855C / H855D / H855Е">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="L845E">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="L855E">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="L870C / LX870C">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="LH822D">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="LH845D / LH845Е">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="LH855C / LH855D / LH855Е">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="LX830C">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="T250D">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="TimberPro">
+		<Model name="T830B">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="TB630C">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="TB830C">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="TF840D">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="TL725C">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="TL725D">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="TL735B">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="TL735C">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="TL745C">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="TS650">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="TS840C">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="ТB630">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="ТB830">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="ТF830С">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="ТF840С / ТF840D">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="ТN725С / ТN725D">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="ТN735С / ТN735D">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="ТN745D">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="ТN745С / ТN745D">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="ТN755D">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Timberjack">
+		<Model name="1010B">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="1010D">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="1070D">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="1110">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="1270A">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="1270B">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="1270C">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="1270D">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="1410B">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="1470D">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="1710B">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="330">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="430">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="530">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="608B">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="608S">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="610">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="635">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="735">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="745">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="754">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="770">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="810B / 810D">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="860">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Timberwolf">
+		<Model name="230 VTR">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="DHW">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="TW 190 TDH">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="TW 190 TR">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="TreEmme">
+		<Model name="MM250X">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="UM-Forest">
+		<Model name="BL 120">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="BL 150">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="BL 200">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Usewood">
+		<Model name="Combi Master">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Valmet">
+		<Model name="300">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="475 FXL">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="500T">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="603">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="640">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="801 Combi">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="820">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="830">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="838">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="840">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="860">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="862">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="890">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="890.3">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="892">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="900">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="901">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="902">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="911">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="921">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="921.1">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="931">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="941">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="EX10">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="RTD 810">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Vermeer">
+		<Model name="935">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="BC1500">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="BC700S">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="Bc 190 Xl">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="HG4000 / HG4000Е / HG4000TX">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="HG6000 / HG6000Е / HG6000TX">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="HG8000 / HG8000TX">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="Sc 252">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="Sc 292">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="Sc 60 TX">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Vimek">
+		<Model name="608.2 BioCombi">
+			<TypeOfVehicle name="Харвардер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Volvo">
+		<Model name="BM868">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="EC210BF">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="EC220DL">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="EC230B">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Waratah">
+		<Model name="200 С 2 вальцами">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="400 С 4 вальцами">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="415">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="600 С 3 и 4 вальцами">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="H212">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="H219X">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="H423">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="H425">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="H480C">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="XCMG">
+		<Model name="XE245F">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="XE250UF">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Xuvol">
+		<Model name="XVF600D">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="YUGONG">
+		<Model name="JZL50">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Yuchai">
+		<Model name="F35">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="F40">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+		<Model name="F60">
+			<TypeOfVehicle name="Харвестерная головка"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="АЗСМ «ПРОГРЕСС»">
+		<Model name="ЛП-19">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="ЛТ-188 на шасси МСН-10">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="МСН-10 (аналог ТТ-4М)">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="МСН-10 ЛТ-187">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="МСН-10-003-04">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="МСН-10-003-07">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="МСН-10-04 (аналог ТТ-4М-04)">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="ОБГН-4 МСН-10-07 (аналог ТТ-4М-07)">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="Форвардер на шасси МСН-10">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="Харвестер на базе ВПМ ЛП-19">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="АЛТАЙАГРОМАШ">
+		<Model name="ЛТ-72">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="АЛТАЙЛЕСМАШ">
+		<Model name="ЛТ-188АЛМ">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="ЛТ-18АЛМ">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="МТЧ-4">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="СЭМ-4">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="ТЛ-3АЛМ">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="ТЛ-4">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="ТЛ-5АЛМ">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="ТЛ-5АЛМ-01">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="АЛТТРАК">
+		<Model name="ТТ-4 / ТТ-4М">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="АОМЗ">
+		<Model name="Егерь-600">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="ЛП-60">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="Т-147">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="АТЗ Гранд">
+		<Model name="ТСН-4">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="ТТ-4">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="ТТ-4А">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="ТТ-4М">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Аксиом-групп">
+		<Model name="LOGBULLET">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="LOGBULLET AGF 3">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Альфа-Техник">
+		<Model name="ПРМ160">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="ПРМ200Г">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="ПРМ200Г/200">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="ПРМ250">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="ПРМ250Г">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="ПРМ250Г/260">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Амкодор">
+		<Model name="2241">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="2242В">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="2243">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="2310">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="2401">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="2531">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="2535">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="2541">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="2551">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="2561 / 2561-01">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="2631">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="2641">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="2661 / 2661-01">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="2662 / 2662-01">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="2682-01">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="2904">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="352Л / 352Л-01 / 352Л-02">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="БЕЛАРУС-SAMPO">
+		<Model name="МЛФ-100">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="МЛХ-265">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="МЛХ-46">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Вятка-АгроДизель">
+		<Model name="КОК-2">
+			<TypeOfVehicle name="Каток"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Дарекс PRO">
+		<Model name="РМ 600">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Егерь">
+		<Model name="750">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="ЗГМ">
+		<Model name="ТГЛ-4Т">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="КУЗБАССДРОБМАШ">
+		<Model name="КЕДР М300">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="КЕДР М400">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="КУРГАНМАШЗАВОД">
+		<Model name="МЛ-107">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Кировец">
+		<Model name="КТ-12">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="ПЛК-6 (К-700)">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Ковровец">
+		<Model name="МЛ-119А">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="МЛ-135">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="МЛ-148">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="МЛ-152">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="ПЛ-87">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Краслесмаш">
+		<Model name="ЛП-49">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="ЛП-58">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="ЛТ-65">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="ЛТ-65Б">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="ЛЕСТЕХКОМ">
+		<Model name="ЛП-187">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="ЛП-18К">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="ЛП-19">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="ЛП-19 с пильной шиной">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="ЛП-19 с погрузочным навесным оборудованием">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="ЛП-19 с фрезой и накопителем">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="ЛП-19В">
+			<TypeOfVehicle name="Валочно-пакетирующая машина"></TypeOfVehicle>
+		</Model>
+		<Model name="ЛТ-188">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="ЛТК-08">
+			<TypeOfVehicle name="Сучкорезная машина"></TypeOfVehicle>
+		</Model>
+		<Model name="МСН-10 / МСН-10-04 / МСН-10-07">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Лесмаш">
+		<Model name="ЛП-33А / ЛП-33Б">
+			<TypeOfVehicle name="Сучкорезная машина"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Леспожмаш">
+		<Model name="МСН-10">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="МТЗ (Беларус)">
+		<Model name="1025">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+			<TypeOfVehicle name="Харвардер"></TypeOfVehicle>
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="1221">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+			<TypeOfVehicle name="Харвардер"></TypeOfVehicle>
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="82">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+			<TypeOfVehicle name="Харвардер"></TypeOfVehicle>
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+		<Model name="BELARUS МЛ 131">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="BELARUS МЛПТ-344">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="BELARUS МПТ-461">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="BELARUS МПТ-461.1">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="BELARUS МПТ-461.2">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="BELARUS МР-100">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="BELARUS МР-25">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="BELARUS МР-40">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="BELARUS ТТР-401М">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="МЛПР-394">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="МУЛ 82.2">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="МУЛ-1221">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="Т150К">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Маштехсервис">
+		<Model name="МТС-210">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Онежец">
+		<Model name="300БС">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="320">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="ОТЗ-492">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="ТДТ-40">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="ТДТ-55 / ТДТ-55А">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="ТЛТ-100">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="ТЛТ-100А">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="ТЛТ-100А-06">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Псковский тракторный завод">
+		<Model name="ПТЗ-Ф">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="ПТЗ-Х">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Сибирь-Техника">
+		<Model name="ТЛП-4М-031">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="ТЛП-4М-033">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="ТЛП-4М-034">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="ТЛП-4М-034-04">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="ТЛП-4М-034-07">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+		<Model name="ТЛП-4М-038">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="ТЛП-4М-038А">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="СпецМаш">
+		<Model name="10Ч-00">
+			<TypeOfVehicle name="Трактор трелевочный (скиддер)"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="ТЕХМАШ СЕВЕРО-ЗАПАД">
+		<Model name="ТМСЗ-17">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Термотех">
+		<Model name="РМ-5">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Техносервис-Н">
+		<Model name="Т6920">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Тигер">
+		<Model name="ЩРМ">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Торнадо">
+		<Model name="М350">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+		<Model name="М400">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="УКБТМ">
+		<Model name="UFM 250HT">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="ХТЗ">
+		<Model name="Т150К">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="ЧЕТРА">
+		<Model name="КЛ 410-450">
+			<TypeOfVehicle name="Лесопогрузчик"></TypeOfVehicle>
+		</Model>
+		<Model name="КС 146-421">
+			<TypeOfVehicle name="Форвардер"></TypeOfVehicle>
+		</Model>
+		<Model name="КХ-451">
+			<TypeOfVehicle name="Харвестер"></TypeOfVehicle>
+		</Model>
+	</Make>
+	<Make name="Эксмаш">
+		<Model name="М300">
+			<TypeOfVehicle name="Измельчитель древесины"></TypeOfVehicle>
+		</Model>
+	</Make>
+</Makes>

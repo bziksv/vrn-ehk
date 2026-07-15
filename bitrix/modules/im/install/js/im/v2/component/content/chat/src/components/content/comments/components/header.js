@@ -1,10 +1,10 @@
 import { EventEmitter } from 'main.core.events';
 
-import { EventType, ChatActionType } from 'im.v2.const';
-import { AvatarSize, ChatAvatar } from 'im.v2.component.elements';
+import { EventType, ActionByRole } from 'im.v2.const';
+import { AvatarSize, ChatAvatar } from 'im.v2.component.elements.avatar';
 import { PermissionManager } from 'im.v2.lib.permission';
+import { ChatHeader } from 'im.v2.component.content.elements';
 
-import { ChatHeader } from '../../base/components/chat-header/chat-header';
 import { SubscribeToggle } from './subscribe-toggle';
 
 import '../css/header.css';
@@ -25,10 +25,6 @@ export const CommentsHeader = {
 			type: String,
 			required: true,
 		},
-		currentSidebarPanel: {
-			type: String,
-			default: '',
-		},
 	},
 	computed:
 	{
@@ -39,7 +35,7 @@ export const CommentsHeader = {
 		},
 		showSubscribeToggle(): boolean
 		{
-			return PermissionManager.getInstance().canPerformAction(ChatActionType.subscribeToComments, this.dialogId);
+			return PermissionManager.getInstance().canPerformActionByRole(ActionByRole.subscribeToComments, this.dialogId);
 		},
 	},
 	methods:
@@ -56,7 +52,6 @@ export const CommentsHeader = {
 	template: `
 		<ChatHeader
 			:dialogId="dialogId"
-			:currentSidebarPanel="currentSidebarPanel"
 			class="bx-im-comment-header__container"
 		>
 			<template #left>

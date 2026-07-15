@@ -1,14 +1,21 @@
-import { Button as ChatButton, ButtonSize, ButtonColor } from 'im.v2.component.elements';
+import { SearchInput } from 'im.v2.component.elements.search-input';
+import { ChatButton, ButtonSize, ButtonColor } from 'im.v2.component.elements.button';
+import { ChatType } from 'im.v2.const';
 
 import './detail-header.css';
-import { Layout } from 'im.v2.const';
+
+import type { ImModelChat } from 'im.v2.model';
 
 // @vue/component
 export const DetailHeader = {
 	name: 'DetailHeader',
-	components: { ChatButton },
+	components: { ChatButton, SearchInput },
 	props:
 	{
+		dialogId: {
+			type: String,
+			required: true,
+		},
 		title: {
 			type: String,
 			required: true,
@@ -21,23 +28,37 @@ export const DetailHeader = {
 			type: Boolean,
 			default: false,
 		},
+		withSearch: {
+			type: Boolean,
+			default: false,
+		},
+		isSearchHeaderOpened: {
+			type: Boolean,
+			default: false,
+		},
+		delayForFocusOnStart: {
+			type: Number || null,
+			default: null,
+		},
 	},
-	emits: ['back', 'addClick'],
+	emits: ['back', 'addClick', 'changeQuery', 'toggleSearchPanelOpened'],
 	computed:
 	{
 		ButtonSize: () => ButtonSize,
 		ButtonColor: () => ButtonColor,
-		isCopilotLayout(): boolean
+		dialog(): ImModelChat
 		{
-			const { name: currentLayoutName } = this.$store.getters['application/getLayout'];
-
-			return currentLayoutName === Layout.copilot.name;
+			return this.$store.getters['chats/get'](this.dialogId, true);
+		},
+		isCollab(): boolean
+		{
+			return this.dialog.type === ChatType.collab;
 		},
 		addButtonColor(): ButtonColor
 		{
-			if (this.isCopilotLayout)
+			if (this.isCollab)
 			{
-				return this.ButtonColor.Copilot;
+				return this.ButtonColor.Collab;
 			}
 
 			return this.ButtonColor.PrimaryLight;
@@ -57,9 +78,9 @@ export const DetailHeader = {
 					:class="{'bx-im-messenger__cross-icon': !secondLevel, 'bx-im-sidebar__back-icon': secondLevel}"
 					@click="$emit('back')"
 				/>
-				<div class="bx-im-sidebar-detail-header__title-text">{{ title }}</div>
+				<div v-if="!isSearchHeaderOpened" class="bx-im-sidebar-detail-header__title-text">{{ title }}</div>
 				<slot name="action">
-					<div v-if="withAddButton" class="bx-im-sidebar-detail-header__add-button" ref="add-button">
+					<div v-if="withAddButton && !isSearchHeaderOpened" class="bx-im-sidebar-detail-header__add-button" ref="add-button">
 						<ChatButton
 							:text="loc('IM_SIDEBAR_ADD_BUTTON_TEXT')"
 							:size="ButtonSize.S"
@@ -71,6 +92,19 @@ export const DetailHeader = {
 						/>
 					</div>
 				</slot>
+				<div v-if="withSearch" class="bx-im-sidebar-detail-header__search">
+					<SearchInput
+						v-if="isSearchHeaderOpened"
+						:placeholder="loc('IM_SIDEBAR_SEARCH_MESSAGE_PLACEHOLDER')"
+						:withIcon="false"
+						:delayForFocusOnStart="delayForFocusOnStart"
+						@queryChange="$emit('changeQuery', $event)"
+						@close="$emit('toggleSearchPanelOpened', $event)"
+						@closeByEsc="$emit('toggleSearchPanelOpened', $event)"
+						class="bx-im-sidebar-search-header__input"
+					/>
+					<div v-else @click="$emit('toggleSearchPanelOpened', $event)" class="bx-im-sidebar-detail-header__search__icon --search"></div>
+				</div>
 			</div>
 		</div>
 	`,

@@ -31,7 +31,7 @@ if (strlen($arResult["BACKURL"]) > 0)
 			<tr> 
 				<td><?=GetMessage("AUTH_EMAIL")?></td>
 				<td>
-					<input type="text" name="USER_EMAIL" maxlength="255" />
+					<input type="text" name="USER_EMAIL" maxlength="255" class="req email_check" />
 				</td>
 			</tr>
 		</tbody>
@@ -48,6 +48,3 @@ if (strlen($arResult["BACKURL"]) > 0)
 </p> 
 </form>
 </div>
-<script type="text/javascript">
-document.bform.USER_LOGIN.focus();
-</script>

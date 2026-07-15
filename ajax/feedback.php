@@ -1,31 +1,23 @@
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");?>
+<?require_once $_SERVER['DOCUMENT_ROOT'].'/bitrix/php_interface/include/env.php';?>
 <?if(CModule::IncludeModule("iblock"))
 {
-
-	if($g_recaptcha_response = $_POST['g-recaptcha-response']){
-		$response = json_decode(file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=6Le8ZZ4aAAAAABGjJMS6tsYCxXZwiWZJ39j9KE1Q&response=".$g_recaptcha_response."&remoteip=".$_SERVER["REMOTE_ADDR"]),true);
-		if (($response["success"] && $response["score"] <= 0.7)){
-			echo "error";
-			return false;
-		}
-	}else{
-		echo "error";
+	if (!vrnEhkVerifyRecaptcha(isset($_POST['g-recaptcha-response']) ? $_POST['g-recaptcha-response'] : ''))
+	{
+		echo 'error_recaptcha';
 		return false;
 	}
-	
-	 if(!$APPLICATION->CaptchaCheckCode($_POST["captcha_word"], $_POST["captcha_code"]))
+
+	if(!$APPLICATION->CaptchaCheckCode($_POST["captcha_word"], $_POST["captcha_code"]))
 	{
-		// Неправильное значение
-		echo "error";
+		echo 'error_captcha';
 	}
 	else
 	{
-		// Правильное значение
-		
-	    $el = new CIBlockElement;
-	
+		$el = new CIBlockElement;
+
 		$PROP = array();
-		
+
 		foreach($_POST as $key=>$value)
 		{
 			$PROP[$key] = strip_tags($value);
@@ -56,7 +48,7 @@
 		}
 		else
 		{
-			echo "error";//.$el->LAST_ERROR;
+			echo 'error';
 		}
-	}	
+	}
 }?>

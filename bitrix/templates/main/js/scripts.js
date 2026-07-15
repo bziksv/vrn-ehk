@@ -10,6 +10,81 @@ jQuery(function($){
 		$( "input[name=ORDER_PROP_16]" ).inputmask("9999 999999");
 	});
 
+	function normalizeRuPhone(phone)
+	{
+		var digits = String(phone || '').replace(/\D/g, '');
+		if (digits.length === 11 && digits.charAt(0) === '8') {
+			digits = '7' + digits.slice(1);
+		}
+		if (digits.length === 10) {
+			digits = '7' + digits;
+		}
+		return digits;
+	}
+
+	function isValidRuPhone(phone)
+	{
+		return /^7[3-9]\d{9}$/.test(normalizeRuPhone(phone));
+	}
+
+	function formatRuPhone(phone)
+	{
+		var digits = normalizeRuPhone(phone);
+		var match = digits.match(/^7(\d{3})(\d{3})(\d{2})(\d{2})$/);
+		if (!match) {
+			return phone;
+		}
+		return '+7 (' + match[1] + ') ' + match[2] + '-' + match[3] + '-' + match[4];
+	}
+
+	function validateRuPhoneField($input, showAlert)
+	{
+		var value = $.trim($input.val());
+		if (!value) {
+			if ($input.hasClass('req')) {
+				if (showAlert) {
+					alertify.error('Укажите номер телефона');
+				}
+				$input.addClass('err');
+				return false;
+			}
+			$input.removeClass('err');
+			return true;
+		}
+		if (!isValidRuPhone(value)) {
+			if (showAlert) {
+				alertify.error('Введите корректный номер телефона РФ, например +7 900 123 45 67');
+			}
+			$input.addClass('err');
+			return false;
+		}
+		$input.removeClass('err').val(formatRuPhone(value));
+		return true;
+	}
+
+	function initRuPhoneFields()
+	{
+		var $phones = $('input.ru_phone_check, input[name="REGISTER[PERSONAL_PHONE]"], input.phone_check[name="PERSONAL_PHONE"]');
+		if (!$phones.length) {
+			return;
+		}
+		$phones.each(function(){
+			var $input = $(this);
+			if (!$input.hasClass('ru_phone_check')) {
+				$input.addClass('phone_check ru_phone_check');
+			}
+			if ($input.data('ruPhoneMask')) {
+				return;
+			}
+			if ($.fn.inputmask) {
+				$input.inputmask('+7 (999) 999-99-99', { showMaskOnHover: false });
+				$input.data('ruPhoneMask', true);
+			}
+		});
+	}
+
+	initRuPhoneFields();
+
 	function GetFormData(need_form,check)
 	{
 		var data="";
@@ -60,9 +135,7 @@ jQuery(function($){
 			}
 			if($(this).hasClass("phone_check") && check && $(this).val()!="")
 			{
-				var phone=$(this).val();
-				var regexp = /^([0-9+\-\s]*)$/i;
-				if(!regexp.test(phone) || phone=="")
+				if(!isValidRuPhone($(this).val()))
 				{
 					error=true;
 					if($(this).parents(".input_block").length>0)
@@ -76,7 +149,7 @@ jQuery(function($){
 					if(flag_phone==false)
 					{
 						flag_phone=true;
-						error_text+="Неверный формат телефона<br />";
+						error_text+="Введите корректный номер телефона РФ<br />";
 					}
 				}
 			}
@@ -207,6 +280,7 @@ jQuery(function($){
 					}
 					
 					cur_form.html(msg);
+					initRuPhoneFields();
 				}
 			}
 		});
@@ -579,9 +653,20 @@ jQuery(function($){
 				{
 					if($(this).val()!="" || ($(this).val()=="" && $(this).hasClass("req")))
 					{
-						var phone=$(this).val();
-						var regexp = /^([0-9+\-\s]*)$/i;
-						if(!regexp.test(phone) || phone=="")
+						if($(this).hasClass("req") && $.trim($(this).val()) === "")
+						{
+							error=true;
+							$(this).addClass("err");
+							if(!show_errors)
+							{
+								if(flag_phone==false)
+								{
+									flag_phone=true;
+									error_text+="Укажите номер телефона РФ<br />";
+								}
+							}
+						}
+						else if($(this).val()!="" && !isValidRuPhone($(this).val()))
 						{
 							error=true;
 							if($(this).parents(".input_block").length>0)
@@ -597,12 +682,12 @@ jQuery(function($){
 								if(flag_phone==false)
 								{
 									flag_phone=true;
-									error_text+="Неверный формат телефона<br />";
+									error_text+="Введите корректный номер телефона РФ<br />";
 								}
 							}
 							else
 							{
-								var error_field="Неверный формат телефона";
+								var error_field="Введите корректный номер телефона РФ";
 								if($(this).data("error"))
 								{
 									error_field=$(this).data("error");
@@ -1662,24 +1747,67 @@ jQuery(function($){
 					url: "/ajax/feedback.php",
 					data:data,
 					success: function(msg){
-						if(msg!="error")
+						msg = $.trim(msg);
+						if(msg.indexOf("success") !== -1)
 						{
+							alertify.success("Спасибо. Ваше сообщение принято.");
 							cur_form.html(msg).fadeTo("fast",1,function(){
 								setTimeout(function(){
 									cur_form.reloadForm();
 								},3000);
 							});
 						}
+						else if(msg === "error_captcha")
+						{
+							alertify.error("Неверно введена CAPTCHA. Попробуйте ещё раз.");
+							cur_form.reloadForm().fadeTo("fast",1);
+						}
+						else if(msg === "error_recaptcha")
+						{
+							alertify.error("Не прошла проверка безопасности. Обновите страницу и попробуйте снова.");
+							cur_form.fadeTo("fast",1);
+						}
 						else
 						{
 							alertify.error("Произошла ошибка. Повторите попытку позже");
+							cur_form.fadeTo("fast",1);
 						}
+					},
+					error: function(){
+						alertify.error("Не удалось отправить форму. Проверьте соединение.");
 						cur_form.fadeTo("fast",1);
 					}
 				});
 			});
 		}
 		return false;
+	});
+
+	$(document).on("blur","input.ru_phone_check",function(){
+		validateRuPhoneField($(this), false);
+	});
+
+	$(document).on("submit",".personal_enter .reg form[name=regform]",function(){
+		var $phone = $(this).find('input[name="REGISTER[PERSONAL_PHONE]"]');
+		if ($phone.length && !validateRuPhoneField($phone, true)) {
+			return false;
+		}
+	});
+
+	$(document).on("submit",".fgt_pass form[name=bform]",function(){
+		var $email = $(this).find('input[name="USER_EMAIL"]');
+		var email = $.trim($email.val());
+		if (!email) {
+			alertify.error("Укажите E-Mail");
+			$email.addClass("err").focus();
+			return false;
+		}
+		if (!/^[0-9a-z\-\._+]+@(?:[0-9a-z\-]+\.)+[a-z]+$/i.test(email)) {
+			alertify.error("E-mail введен неверно");
+			$email.addClass("err").focus();
+			return false;
+		}
+		$email.removeClass("err");
 	});
 
 	// персональная страница
@@ -1916,6 +2044,11 @@ jQuery(function($){
 
 	initSearchSidebarSticky();
 
+	function isLocalDevHost()
+	{
+		return /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
+	}
+
 	function shouldSkipRecaptchaHandler(form)
 	{
 		if (!form || !form.length) {
@@ -1928,7 +2061,7 @@ jQuery(function($){
 		if (action.indexOf('/search') !== -1) {
 			return true;
 		}
-		if (form.closest('.personal_page, .personal_enter, #authorized.popup').length) {
+		if (form.closest('.personal_page, .personal_enter, #authorized.popup, .fgt_pass').length) {
 			return true;
 		}
 		if (form.is('.change_pass, .update_user')) {
@@ -1944,7 +2077,7 @@ jQuery(function($){
 
 	$('body').on('click','form input[type="submit"]', function(e) {
 		var form = $(this).closest('form');
-		if (shouldSkipRecaptchaHandler(form) || !formUsesRecaptcha(form)) {
+		if (isLocalDevHost() || shouldSkipRecaptchaHandler(form) || !formUsesRecaptcha(form)) {
 			return true;
 		}
 		if (form.find('input[name="g-recaptcha-response"]').length) {

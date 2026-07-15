@@ -553,7 +553,7 @@
         global $USER;
         if (!$USER->IsAuthorized()):
         ?>
-        <div id="authorized" class="popup" <? if($_REQUEST['AUTH_FORM'] === "Y"): ?>style="display: block;"<? endif; ?>>
+        <div id="authorized" class="popup" <? if(isset($_REQUEST['AUTH_FORM']) && $_REQUEST['AUTH_FORM'] === 'Y' && isset($_REQUEST['TYPE']) && $_REQUEST['TYPE'] === 'AUTH'): ?>style="display: block;"<? endif; ?>>
             <a class="close empty" href="#">&nbsp;</a>
             <div class="personal_enter">
                 <?$APPLICATION->IncludeComponent("bitrix:system.auth.form", "agr_auth", Array(

@@ -73,7 +73,7 @@ else
 			<div class="line">
 				<span class="label">*Номер телефона</span>
 				<span class="value">
-					<input type="text" placeholder="+7 900 123 45 67" name="REGISTER[PERSONAL_PHONE]" value="<?=$arResult["VALUES"]["PERSONAL_PHONE"]?>" />
+					<input type="text" placeholder="+7 900 123 45 67" name="REGISTER[PERSONAL_PHONE]" class="req phone_check ru_phone_check" value="<?=$arResult["VALUES"]["PERSONAL_PHONE"]?>" />
 				</span>
 			</div>
 			<div class="line">

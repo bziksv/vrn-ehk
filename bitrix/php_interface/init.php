@@ -579,6 +579,24 @@ if(CModule::IncludeModule("iblock"))
     }
 }
 
+AddEventHandler("main", "OnBeforeUserRegister", "vrnEhkOnBeforeUserRegisterHandler");
+function vrnEhkOnBeforeUserRegisterHandler(&$arFields)
+{
+	require_once $_SERVER['DOCUMENT_ROOT'].'/bitrix/php_interface/include/env.php';
+
+	$phone = isset($arFields['PERSONAL_PHONE']) ? $arFields['PERSONAL_PHONE'] : '';
+	if (!vrnEhkIsValidRuPhone($phone))
+	{
+		global $APPLICATION;
+		$APPLICATION->ThrowException('Укажите корректный номер телефона РФ, например +7 900 123 45 67');
+		return false;
+	}
+
+	$arFields['PERSONAL_PHONE'] = vrnEhkFormatRuPhone($phone);
+
+	return true;
+}
+
 AddEventHandler("main", "OnAfterUserRegister", "OnAfterUserRegisterHandler");
 function OnAfterUserRegisterHandler(&$arFields)
 {

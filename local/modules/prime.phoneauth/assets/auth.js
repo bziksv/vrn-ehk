@@ -209,7 +209,8 @@
 		}
 
 		status.className += ' is-wait';
-		status.innerHTML = 'Номер не подтверждён. <button type="button" class="prime-phoneauth-back" data-role="verify">Подтвердить звонком</button>';
+		status.innerHTML = '<span>Номер не подтверждён</span>'
+			+ '<button type="button" class="prime-phoneauth-prompt__btn is-compact" data-role="verify">Подтвердить звонком</button>';
 		line.appendChild(status);
 
 		var waitBox = document.createElement('div');
@@ -496,6 +497,176 @@
 		}
 	}
 
+	function waitMarkup() {
+		return '<p data-role="message"></p>'
+			+ '<p>Звоните с номера <strong data-role="from-phone"></strong></p>'
+			+ '<a class="prime-phoneauth-number" data-role="call-number"></a>'
+			+ '<button type="button" class="prime-phoneauth-test" data-role="test">Я позвонил (тест)</button>'
+			+ '<button type="button" class="prime-phoneauth-back" data-role="back">Отмена</button>';
+	}
+
+	function mountPhoneConfirm(root) {
+		if (!root || root.getAttribute('data-bound') === '1') return;
+		root.setAttribute('data-bound', '1');
+		if (cfg.confirmed) {
+			root.innerHTML = '<div class="prime-phoneauth-status is-ok">Номер подтверждён</div>';
+			return;
+		}
+
+		var compact = root.classList.contains('is-inline');
+		var label = compact ? 'Подтвердить' : 'Подтвердить звонком';
+
+		root.innerHTML = '<div class="prime-phoneauth-error" data-role="error" style="display:none"></div>'
+			+ (cfg.duplicate ? '<ul class="prime-phoneauth-reg__accounts" data-role="accounts"></ul>' : '')
+			+ '<button type="button" class="prime-phoneauth-prompt__btn' + (compact ? ' is-compact' : '') + '" data-role="verify">' + label + '</button>'
+			+ '<div class="prime-phoneauth-wait" data-role="wait" style="display:none">' + waitMarkup() + '</div>';
+
+		var err = root.querySelector('[data-role="error"]');
+		var accountsEl = root.querySelector('[data-role="accounts"]');
+		var verifyBtn = root.querySelector('[data-role="verify"]');
+		var wait = root.querySelector('[data-role="wait"]');
+		if (accountsEl) {
+			(cfg.duplicateAccounts || []).forEach(function (email) {
+				if (!email) return;
+				var li = document.createElement('li');
+				li.textContent = email;
+				accountsEl.appendChild(li);
+			});
+			accountsEl.style.display = accountsEl.children.length ? '' : 'none';
+			if (err && cfg.duplicateMessage) {
+				err.textContent = cfg.duplicateMessage;
+				err.style.display = '';
+			}
+		}
+
+		var pollTimer = null;
+		function stopPoll() {
+			if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+		}
+		function setError(text) {
+			if (!err) return;
+			err.textContent = text || '';
+			err.style.display = text ? '' : 'none';
+		}
+		function startPoll(token) {
+			stopPoll();
+			if (!token) return;
+			pollTimer = setInterval(function () {
+				fetch(cfg.statusUrl + '&token=' + encodeURIComponent(token), { credentials: 'same-origin' })
+					.then(function (r) { return r.json(); })
+					.then(function (data) {
+						if (data && data.status === 'confirmed') {
+							stopPoll();
+							window.location.reload();
+						} else if (data && (data.status === 'expired' || data.status === 'cancelled' || data.status === 'missing')) {
+							stopPoll();
+							wait.style.display = 'none';
+							verifyBtn.style.display = '';
+							setError(data.error || 'Время истекло');
+						}
+					})
+					.catch(function () {});
+			}, 2000);
+		}
+
+		verifyBtn.addEventListener('click', function () {
+			verifyBtn.disabled = true;
+			setError('');
+			postForm(cfg.startUrl, { phone: cfg.phone || '', verify: 'Y' })
+				.then(function (data) {
+					verifyBtn.disabled = false;
+					if (!data || !data.ok) {
+						if (data && data.status === 'duplicate') {
+							showDuplicate(data.error, data.accounts);
+						}
+						setError((data && (data.error || data.message)) || 'Не удалось начать подтверждение');
+						return;
+					}
+					verifyBtn.style.display = 'none';
+					wait.style.display = '';
+					wait.querySelector('[data-role="message"]').textContent = data.message || '';
+					wait.querySelector('[data-role="from-phone"]').textContent = data.phone || cfg.phone || '';
+					var num = wait.querySelector('[data-role="call-number"]');
+					var n = data.callNumber || cfg.callNumber || '';
+					num.textContent = n || 'номер для звонка не настроен';
+					if (n) num.href = 'tel:+' + String(n).replace(/\D/g, '');
+					wait.querySelector('[data-role="test"]').style.display = data.testConfirm ? '' : 'none';
+					wait.setAttribute('data-token', data.token || '');
+					startPoll(data.token);
+				})
+				.catch(function () {
+					verifyBtn.disabled = false;
+					setError('Ошибка сети');
+				});
+		});
+		wait.querySelector('[data-role="back"]').addEventListener('click', function () {
+			stopPoll();
+			wait.style.display = 'none';
+			verifyBtn.style.display = '';
+		});
+		wait.querySelector('[data-role="test"]').addEventListener('click', function () {
+			var token = wait.getAttribute('data-token') || '';
+			var testBtn = wait.querySelector('[data-role="test"]');
+			testBtn.disabled = true;
+			postForm(cfg.testUrl, { token: token }).then(function (data) {
+				if (data && data.status === 'confirmed') {
+					window.location.reload();
+					return;
+				}
+				testBtn.disabled = false;
+				setError((data && data.error) || 'Не подтвердилось');
+			}).catch(function () { testBtn.disabled = false; });
+		});
+	}
+
+	function initPhonePrompt() {
+		if (!cfg.authorized || cfg.confirmed) return;
+		var slot = document.querySelector('[data-prime-phone-confirm="1"]');
+		if (slot) {
+			mountPhoneConfirm(slot);
+			return;
+		}
+		if (!cfg.standalonePrompt) return;
+		if (document.querySelector('.prime-alerts-profile-modal, .prime-phoneauth-prompt-modal')) return;
+
+		var wrap = document.createElement('div');
+		wrap.className = 'prime-phoneauth-prompt-modal';
+		wrap.setAttribute('role', 'dialog');
+		wrap.innerHTML = '<div class="prime-phoneauth-prompt-modal__overlay"></div>'
+			+ '<div class="prime-phoneauth-prompt-modal__box">'
+			+ '<button type="button" class="prime-phoneauth-prompt-modal__close" data-close="1" aria-label="Закрыть">&times;</button>'
+			+ '<div class="prime-phoneauth-prompt-modal__title">Подтвердите телефон</div>'
+			+ '<p class="prime-phoneauth-prompt-modal__text">Подтвердите номер звонком — после этого можно будет входить в кабинет по телефону, без пароля.</p>'
+			+ '<div class="prime-phoneauth-prompt-modal__phone">' + (cfg.phone || '') + '</div>'
+			+ '<div data-prime-phone-confirm="1"></div>'
+			+ '<button type="button" class="prime-phoneauth-prompt-modal__snooze" data-snooze="1">Отложить на 2 недели</button>'
+			+ '</div>';
+		document.body.appendChild(wrap);
+		document.body.classList.add('prime-phoneauth-prompt-open');
+		mountPhoneConfirm(wrap.querySelector('[data-prime-phone-confirm="1"]'));
+
+		function closeModal() {
+			wrap.parentNode && wrap.parentNode.removeChild(wrap);
+			document.body.classList.remove('prime-phoneauth-prompt-open');
+		}
+		wrap.addEventListener('click', function (e) {
+			if (e.target && e.target.getAttribute('data-close') === '1') {
+				closeModal();
+			}
+			if (e.target && e.target.getAttribute('data-snooze') === '1') {
+				e.preventDefault();
+				e.target.disabled = true;
+				postForm(cfg.snoozeUrl, {}).then(closeModal).catch(closeModal);
+			}
+		});
+		document.addEventListener('keydown', function onKey(e) {
+			if (e.key === 'Escape') {
+				document.removeEventListener('keydown', onKey);
+				closeModal();
+			}
+		});
+	}
+
 	function onReady() {
 		document.querySelectorAll('.personal_enter .auth').forEach(function (root) {
 			initTabs(root);
@@ -503,6 +674,7 @@
 		});
 		initRegister();
 		initProfile();
+		setTimeout(initPhonePrompt, 0);
 	}
 
 	if (document.readyState === 'loading') {

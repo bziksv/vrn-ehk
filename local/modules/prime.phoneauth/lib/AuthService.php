@@ -545,4 +545,51 @@ class AuthService
 			'accounts' => $accounts,
 		];
 	}
+
+	public const PROMPT_SNOOZE_OPTION = 'profile_phone_modal_snooze';
+	public const PROMPT_SNOOZE_SECONDS = 1209600;
+
+	public static function isPromptSnoozed(): bool
+	{
+		global $USER;
+		if (!is_object($USER) || !$USER->IsAuthorized()) {
+			return true;
+		}
+
+		return (int)\CUserOptions::GetOption(Config::MODULE_ID, self::PROMPT_SNOOZE_OPTION, '0') > time();
+	}
+
+	public static function snoozePrompt(int $seconds = self::PROMPT_SNOOZE_SECONDS): int
+	{
+		$until = time() + max(1, $seconds);
+		\CUserOptions::SetOption(Config::MODULE_ID, self::PROMPT_SNOOZE_OPTION, (string)$until);
+
+		return $until;
+	}
+
+	public static function hasAlertsProfileUi(): bool
+	{
+		try {
+			if (!\Bitrix\Main\Loader::includeModule('prime.alerts')) {
+				return false;
+			}
+			if (!\Prime\Alerts\Config::isEnabled() || !\Prime\Alerts\Config::isYes('profile_banner', 'Y')) {
+				return false;
+			}
+		} catch (\Throwable $e) {
+			return false;
+		}
+
+		return true;
+	}
+
+	public static function isPersonalPage(): bool
+	{
+		try {
+			$path = (string)\Bitrix\Main\Context::getCurrent()->getRequest()->getRequestedPageDirectory();
+			return $path === '/personal' || strpos($path, '/personal/') === 0;
+		} catch (\Throwable $e) {
+			return false;
+		}
+	}
 }

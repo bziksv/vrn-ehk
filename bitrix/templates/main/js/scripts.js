@@ -34,7 +34,7 @@ jQuery(function($){
 		if (!match) {
 			return phone;
 		}
-		return '+7 (' + match[1] + ') ' + match[2] + '-' + match[3] + '-' + match[4];
+		return '+7-' + match[1] + '-' + match[2] + '-' + match[3] + '-' + match[4];
 	}
 
 	function validateRuPhoneField($input, showAlert)
@@ -53,7 +53,7 @@ jQuery(function($){
 		}
 		if (!isValidRuPhone(value)) {
 			if (showAlert) {
-				alertify.error('Введите корректный номер телефона РФ, например +7 900 123 45 67');
+				alertify.error('Введите корректный номер телефона РФ, например +7-900-123-11-22');
 			}
 			$input.addClass('err');
 			return false;

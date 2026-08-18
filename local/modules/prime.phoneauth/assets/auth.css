@@ -93,14 +93,29 @@
 	border-radius: 5px;
 }
 .prime-phoneauth-status {
-	font-size: 12px;
-	margin: 6px 0 0;
+	font-size: 13px;
+	margin: 8px 0 0 160px;
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 8px 12px;
 }
 .prime-phoneauth-status.is-ok {
 	color: #2d6a3e;
 }
 .prime-phoneauth-status.is-wait {
 	color: #8a7a55;
+}
+.personal_page .prime-phoneauth-status .prime-phoneauth-prompt__btn.is-compact {
+	height: 34px;
+	padding: 0 14px;
+	font-size: 13px;
+	line-height: 30px;
+	border-width: 2px;
+}
+.personal_page .prime-phoneauth-wait {
+	margin: 10px 0 0 160px;
+	max-width: 320px;
 }
 .prime-phoneauth-modal {
 	position: fixed;
@@ -244,4 +259,109 @@
 }
 #authorized.popup .prime-phoneauth-test {
 	width: 100%;
+}
+.prime-phoneauth-prompt-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 10050;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 16px;
+	box-sizing: border-box;
+}
+.prime-phoneauth-prompt-modal__overlay {
+	position: absolute;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.55);
+}
+.prime-phoneauth-prompt-modal__box {
+	position: relative;
+	z-index: 1;
+	background: #fffdf6;
+	border: 1px solid #e0c36a;
+	border-left: 4px solid #a64221;
+	border-radius: 8px;
+	box-shadow: 0 0 35px rgba(0, 0, 0, 0.45);
+	padding: 32px 28px 24px;
+	max-width: 480px;
+	width: 100%;
+	box-sizing: border-box;
+}
+.prime-phoneauth-prompt-modal__close {
+	position: absolute;
+	top: 10px;
+	right: 12px;
+	border: 0;
+	background: none;
+	font-size: 28px;
+	line-height: 1;
+	color: #999;
+	cursor: pointer;
+	width: 32px;
+	height: 32px;
+}
+.prime-phoneauth-prompt-modal__title {
+	font-size: 22px;
+	font-weight: 700;
+	color: #a64221;
+	margin: 0 0 12px;
+	text-align: center;
+}
+.prime-phoneauth-prompt-modal__text {
+	font-size: 14px;
+	line-height: 1.5;
+	color: #404040;
+	margin: 0 0 12px;
+}
+.prime-phoneauth-prompt-modal__phone {
+	font-size: 18px;
+	font-weight: 700;
+	text-align: center;
+	margin: 0 0 14px;
+	color: #1f1f1f;
+}
+.prime-phoneauth-prompt__btn {
+	display: block;
+	width: 100%;
+	height: 42px;
+	border: 3px solid #a64221;
+	border-radius: 5px;
+	background: #fff;
+	color: #a64221;
+	font-size: 15px;
+	font-weight: 700;
+	cursor: pointer;
+	box-sizing: border-box;
+}
+.prime-phoneauth-prompt__btn:hover {
+	background: #a64221;
+	color: #fff;
+}
+.prime-phoneauth-prompt__btn.is-compact {
+	display: inline-block;
+	width: auto;
+	height: 28px;
+	padding: 0 12px;
+	border-width: 2px;
+	font-size: 12px;
+	line-height: 24px;
+}
+.prime-phoneauth-prompt-modal .prime-phoneauth-test {
+	width: 100%;
+}
+.prime-phoneauth-prompt-modal__snooze {
+	display: block;
+	width: 100%;
+	margin-top: 12px;
+	border: 0;
+	background: none;
+	color: #7a6a4a;
+	font-size: 14px;
+	font-weight: 700;
+	text-decoration: underline;
+	cursor: pointer;
+}
+body.prime-phoneauth-prompt-open {
+	overflow: hidden;
 }

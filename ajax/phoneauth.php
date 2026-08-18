@@ -63,4 +63,16 @@ if ($action === 'test') {
 	primePhoneauthJson(\Prime\PhoneAuth\AuthService::testConfirm($token));
 }
 
+if ($action === 'snooze') {
+	if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST' || !check_bitrix_sessid()) {
+		primePhoneauthJson(['ok' => false, 'error' => 'auth'], 403);
+	}
+	global $USER;
+	if (!is_object($USER) || !$USER->IsAuthorized()) {
+		primePhoneauthJson(['ok' => false, 'error' => 'auth'], 403);
+	}
+	\Prime\PhoneAuth\AuthService::snoozePrompt();
+	primePhoneauthJson(['ok' => true]);
+}
+
 primePhoneauthJson(['ok' => false, 'error' => 'unknown action'], 400);

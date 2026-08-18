@@ -34,6 +34,13 @@ class Frontend
 		$authorized = is_object($USER) && $USER->IsAuthorized();
 		$profile = $authorized ? AuthService::profileState() : ['phone' => '', 'confirmed' => false, 'duplicate' => false, 'accounts' => []];
 
+		$standalonePrompt = $authorized
+			&& !$profile['confirmed']
+			&& trim((string)$profile['phone']) !== ''
+			&& !AuthService::hasAlertsProfileUi()
+			&& !AuthService::isPersonalPage()
+			&& !AuthService::isPromptSnoozed();
+
 		$config = [
 			'enabled' => true,
 			'sessid' => function_exists('bitrix_sessid') ? bitrix_sessid() : '',
@@ -41,18 +48,20 @@ class Frontend
 			'lookupUrl' => '/ajax/phoneauth.php?action=lookup',
 			'statusUrl' => '/ajax/phoneauth.php?action=status',
 			'testUrl' => '/ajax/phoneauth.php?action=test',
+			'snoozeUrl' => '/ajax/phoneauth.php?action=snooze',
 			'callNumber' => Config::getVerifyNumberDisplay(),
 			'testConfirm' => Config::isTestConfirm(),
 			'authorized' => $authorized,
-			'phone' => $profile['phone'],
+			'phone' => $profile['phone'] !== '' ? \Prime\PhoneAuth\Phone::format($profile['phone']) : '',
 			'confirmed' => $profile['confirmed'],
 			'duplicate' => $profile['duplicate'],
 			'duplicateMessage' => AuthService::duplicateMessage(),
 			'duplicateAccounts' => $profile['accounts'],
+			'standalonePrompt' => $standalonePrompt,
 		];
 
-		$css = '/local/modules/prime.phoneauth/assets/auth.css?v=1.0.4';
-		$js = '/local/modules/prime.phoneauth/assets/auth.js?v=1.0.2';
+		$css = '/local/modules/prime.phoneauth/assets/auth.css?v=1.0.7';
+		$js = '/local/modules/prime.phoneauth/assets/auth.js?v=1.0.5';
 		$inject = "\n<link rel=\"stylesheet\" href=\"" . htmlspecialcharsbx($css) . "\">\n"
 			. '<script>window.PRIME_PHONEAUTH=' . Json::encode($config) . ';</script>' . "\n"
 			. '<script src="' . htmlspecialcharsbx($js) . '"></script>' . "\n";

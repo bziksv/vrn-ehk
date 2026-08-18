@@ -1,5 +1,6 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
+require_once $_SERVER["DOCUMENT_ROOT"]."/bitrix/php_interface/include/env.php";
 $APPLICATION->SetTitle("Личный кабинет");
 ?>
 <?if($USER->IsAuthorized())
@@ -132,7 +133,7 @@ $APPLICATION->SetTitle("Личный кабинет");
 								</div>
 								<div class="line">
 									<span class="label">Телефон</span>
-									<span class="value"><input type="text" value="<?=$cur_user["PERSONAL_PHONE"]?>" name="PERSONAL_PHONE"></span>
+									<span class="value"><input type="text" value="<?=htmlspecialcharsbx(vrnEhkFormatRuPhone($cur_user["PERSONAL_PHONE"]))?>" name="PERSONAL_PHONE" class="phone_check ru_phone_check" placeholder="+7-___-___-__-__"></span>
 									<div class="clear"></div>
 								</div>
 								<div class="line">

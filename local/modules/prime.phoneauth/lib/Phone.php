@@ -46,7 +46,7 @@ class Phone
 			return trim($phone);
 		}
 
-		return '+7 (' . $m[1] . ') ' . $m[2] . '-' . $m[3] . '-' . $m[4];
+		return '+7-' . $m[1] . '-' . $m[2] . '-' . $m[3] . '-' . $m[4];
 	}
 
 	public static function match(string $a, string $b): bool

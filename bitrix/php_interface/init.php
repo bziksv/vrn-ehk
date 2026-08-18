@@ -588,7 +588,7 @@ function vrnEhkOnBeforeUserRegisterHandler(&$arFields)
 	if (!vrnEhkIsValidRuPhone($phone))
 	{
 		global $APPLICATION;
-		$APPLICATION->ThrowException('Укажите корректный номер телефона РФ, например +7 900 123 45 67');
+		$APPLICATION->ThrowException('Укажите корректный номер телефона РФ, например +7-900-123-11-22');
 		return false;
 	}
 

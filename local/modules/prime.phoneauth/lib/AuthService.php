@@ -80,9 +80,9 @@ class AuthService
 
 	public static function duplicateMessage(): string
 	{
-		return 'Этот номер указан сразу в нескольких аккаунтах. '
-			. 'Войдите по логину и паролю в тот, который считаете своим, '
-			. 'и подтвердите телефон в профиле. После этого вход по номеру станет доступен.';
+		return 'Этот номер уже есть в других аккаунтах. '
+			. 'Если это вы — войдите по логину и паролю и подтвердите телефон в профиле. '
+			. 'Если доступа к старым ящикам нет — можно завести новый аккаунт и жёстко подтвердить номер звонком с этого телефона.';
 	}
 
 	/**
@@ -153,26 +153,24 @@ class AuthService
 				'ok' => true,
 				'status' => 'taken',
 				'canConfirm' => false,
+				'canClaim' => true,
 				'accounts' => $accounts,
-				'message' => count($accounts) > 1
-					? 'Этот номер уже подтверждён. Войдите в свой аккаунт или укажите другой телефон.'
-					: 'Этот номер уже подтверждён в другом аккаунте. Войдите в него или укажите другой телефон.',
+				'message' => self::duplicateMessage(),
 			];
 		}
 
 		return [
 			'ok' => true,
 			'status' => 'exists',
-			'canConfirm' => true,
+			'canConfirm' => false,
+			'canClaim' => true,
 			'accounts' => $accounts,
-			'message' => count($accounts) > 1
-				? self::duplicateMessage()
-				: 'Этот номер уже указан в аккаунте. Если это вы — войдите по логину и паролю. Если регистрируетесь заново, подтвердите номер звонком.',
+			'message' => self::duplicateMessage(),
 		];
 	}
 
 	/** @return array<string,mixed> */
-	public static function startRegister(string $phoneRaw): array
+	public static function startRegister(string $phoneRaw, bool $claim = false): array
 	{
 		if (!Config::isEnabled()) {
 			return ['ok' => false, 'error' => 'Вход по телефону выключен.'];
@@ -191,12 +189,15 @@ class AuthService
 		if (!$lookup['ok']) {
 			return $lookup;
 		}
-		if (empty($lookup['canConfirm'])) {
+
+		$hasAccounts = !empty($lookup['accounts']);
+		if ($hasAccounts && !$claim) {
 			return [
 				'ok' => false,
 				'status' => 'duplicate',
-				'error' => (string)($lookup['message'] ?? 'Этот номер уже используется.'),
-				'accounts' => $lookup['accounts'] ?? [],
+				'error' => (string)($lookup['message'] ?? self::duplicateMessage()),
+				'accounts' => $lookup['accounts'],
+				'canClaim' => true,
 			];
 		}
 
@@ -206,13 +207,29 @@ class AuthService
 
 		$norm = Phone::national10($phoneRaw);
 		$challenge = Challenge::create(0, $norm, Challenge::TYPE_REGISTER);
+		$message = $hasAccounts
+			? 'Позвоните на указанный номер с этого телефона. Звонок подтвердит, что номер ваш: после регистрации вход по нему будет у нового аккаунта.'
+			: 'Позвоните на указанный номер с этого телефона. После звонка завершите регистрацию — номер сохранится подтверждённым.';
 
-		return self::challengePayload(
-			$challenge,
-			'need_verify',
-			$norm,
-			'Позвоните на указанный номер с этого телефона. После звонка завершите регистрацию — номер сохранится подтверждённым.'
-		);
+		return self::challengePayload($challenge, 'need_verify', $norm, $message);
+	}
+
+	public static function releasePhoneFromOthers(int $keepUserId, string $norm): void
+	{
+		if ($norm === '' || $keepUserId <= 0) {
+			return;
+		}
+		foreach (self::findUsersByPhone($norm) as $user) {
+			$id = (int)($user['ID'] ?? 0);
+			if ($id <= 0 || $id === $keepUserId) {
+				continue;
+			}
+			if (!self::isConfirmed($user[self::UF_CONFIRMED] ?? 0)) {
+				continue;
+			}
+			$ob = new \CUser();
+			$ob->Update($id, [self::UF_CONFIRMED => 0]);
+		}
 	}
 
 	public static function consumeRegisterToken(string $token, string $phoneNorm): bool
@@ -414,6 +431,7 @@ class AuthService
 			self::UF_CONFIRMED => 1,
 			self::UF_NORM => $norm,
 		]);
+		self::releasePhoneFromOthers($userId, $norm);
 	}
 
 	/** @return array<string,mixed> */

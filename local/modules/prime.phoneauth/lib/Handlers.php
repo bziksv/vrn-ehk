@@ -24,7 +24,9 @@ class Handlers
 		if ($norm === '') {
 			return;
 		}
-		AuthService::consumeRegisterToken($token, $norm);
+		if (AuthService::consumeRegisterToken($token, $norm)) {
+			AuthService::releasePhoneFromOthers($id, $norm);
+		}
 	}
 
 	public static function onBeforeUserUpdate(&$arFields): void

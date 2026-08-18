@@ -22,21 +22,86 @@
 		}).then(function (r) { return r.json(); });
 	}
 
-	function showDuplicate(message, accounts, title) {
+	function phoneDigits(value) {
+		var d = String(value || '').replace(/\D/g, '');
+		if (d.length === 11 && (d.charAt(0) === '7' || d.charAt(0) === '8')) {
+			return d.slice(1);
+		}
+		return d.length === 10 ? d : d;
+	}
+
+	function switchToLogin() {
+		var auth = document.querySelector('.personal_enter .auth');
+		if (!auth) return;
+		var tab = auth.querySelector('.prime-phoneauth-tabs [data-tab="password"]');
+		if (tab) tab.click();
+		var loginInp = auth.querySelector('input[name="USER_LOGIN"]');
+		if (loginInp) {
+			loginInp.focus();
+			if (loginInp.scrollIntoView) {
+				loginInp.scrollIntoView({ block: 'center', behavior: 'smooth' });
+			}
+		}
+	}
+
+	function waitMarkup() {
+		return '<p data-role="message"></p>'
+			+ '<p>Звоните с номера <strong data-role="from-phone"></strong></p>'
+			+ '<a class="prime-phoneauth-number" data-role="call-number"></a>'
+			+ '<div class="prime-phoneauth-error" data-role="wait-error" style="display:none"></div>'
+			+ '<button type="button" class="prime-phoneauth-test" data-role="test">Я позвонил (тест)</button>'
+			+ '<button type="button" class="prime-phoneauth-back" data-role="back">Отмена</button>';
+	}
+
+	function fillWaitBox(root, data) {
+		var msg = root.querySelector('[data-role="message"]');
+		var num = root.querySelector('[data-role="call-number"]');
+		var from = root.querySelector('[data-role="from-phone"]');
+		var testBtn = root.querySelector('[data-role="test"]');
+		if (msg) msg.textContent = data.message || '';
+		if (from) from.textContent = data.phone || '';
+		if (num) {
+			var n = data.callNumber || cfg.callNumber || '';
+			num.textContent = n || 'номер для звонка не настроен';
+			if (n) num.href = 'tel:+' + String(n).replace(/\D/g, '');
+		}
+		if (testBtn) {
+			testBtn.disabled = false;
+			testBtn.style.display = data.testConfirm ? '' : 'none';
+		}
+		root.setAttribute('data-token', data.token || '');
+	}
+
+	function showDuplicate(message, accounts, title, opts) {
+		opts = opts || {};
 		var old = document.querySelector('.prime-phoneauth-modal');
 		if (old && old.parentNode) {
 			old.parentNode.removeChild(old);
 		}
 		var wrap = document.createElement('div');
 		wrap.className = 'prime-phoneauth-modal';
-		wrap.innerHTML = '<div class="prime-phoneauth-modal__overlay" data-close="1"></div>'
+		var overlayClose = opts.lock ? '0' : '1';
+		var chooseActions = opts.startClaim
+			? '<div class="prime-phoneauth-modal__actions">'
+				+ '<button type="button" class="prime-phoneauth-modal__btn" data-claim="1">Всё равно создать новый — подтвердить звонком</button>'
+				+ '<button type="button" class="prime-phoneauth-modal__btn is-ghost" data-login="1">Войти в существующий аккаунт</button>'
+				+ '</div>'
+			: '<button type="button" class="prime-phoneauth-modal__btn" data-close="1">Понятно</button>';
+		wrap.innerHTML = '<div class="prime-phoneauth-modal__overlay" data-close="' + overlayClose + '"></div>'
 			+ '<div class="prime-phoneauth-modal__box">'
 			+ '<div class="prime-phoneauth-modal__title"></div>'
+			+ '<div class="prime-phoneauth-modal__choose" data-role="choose">'
 			+ '<p class="prime-phoneauth-modal__text"></p>'
 			+ '<ul class="prime-phoneauth-modal__accounts"></ul>'
-			+ '<button type="button" class="prime-phoneauth-modal__btn" data-close="1">Понятно</button>'
+			+ chooseActions
+			+ '</div>'
+			+ '<div class="prime-phoneauth-modal__wait" data-role="wait" style="display:none">' + waitMarkup() + '</div>'
 			+ '</div>';
-		wrap.querySelector('.prime-phoneauth-modal__title').textContent = title || 'Несколько аккаунтов';
+		var titleEl = wrap.querySelector('.prime-phoneauth-modal__title');
+		var choose = wrap.querySelector('[data-role="choose"]');
+		var waitBox = wrap.querySelector('[data-role="wait"]');
+		var waitErr = waitBox.querySelector('[data-role="wait-error"]');
+		titleEl.textContent = title || 'Несколько аккаунтов';
 		wrap.querySelector('.prime-phoneauth-modal__text').textContent = message || cfg.duplicateMessage;
 		var list = wrap.querySelector('.prime-phoneauth-modal__accounts');
 		(accounts || []).forEach(function (email) {
@@ -49,11 +114,128 @@
 			list.style.display = 'none';
 		}
 		document.body.appendChild(wrap);
+
+		var pollTimer = null;
+		function stopPoll() {
+			if (pollTimer) {
+				clearInterval(pollTimer);
+				pollTimer = null;
+			}
+		}
+		function setWaitError(text) {
+			if (!waitErr) return;
+			waitErr.textContent = text || '';
+			waitErr.style.display = text ? '' : 'none';
+		}
+		function closeModal() {
+			stopPoll();
+			if (wrap.parentNode) wrap.parentNode.removeChild(wrap);
+		}
+		function showChoose() {
+			stopPoll();
+			setWaitError('');
+			waitBox.style.display = 'none';
+			choose.style.display = '';
+			titleEl.textContent = title || 'Несколько аккаунтов';
+		}
+		function onConfirmed(token) {
+			closeModal();
+			if (opts.onConfirmed) opts.onConfirmed(token);
+		}
+		function startPoll(token) {
+			stopPoll();
+			if (!token) return;
+			pollTimer = setInterval(function () {
+				fetch(cfg.statusUrl + '&token=' + encodeURIComponent(token), { credentials: 'same-origin' })
+					.then(function (r) { return r.json(); })
+					.then(function (data) {
+						if (data && data.status === 'confirmed') {
+							onConfirmed(token);
+						} else if (data && (data.status === 'expired' || data.status === 'cancelled' || data.status === 'missing')) {
+							setWaitError(data.error || 'Время истекло. Попробуйте ещё раз.');
+							stopPoll();
+						}
+					})
+					.catch(function () {});
+			}, 2000);
+		}
+		function showWaitView(data) {
+			choose.style.display = 'none';
+			waitBox.style.display = '';
+			titleEl.textContent = 'Подтвердите номер';
+			setWaitError('');
+			fillWaitBox(waitBox, data);
+			startPoll(data.token);
+		}
+		function beginClaim() {
+			if (!opts.startClaim) return;
+			choose.style.display = 'none';
+			waitBox.style.display = '';
+			titleEl.textContent = 'Подтвердите номер';
+			setWaitError('');
+			var msg = waitBox.querySelector('[data-role="message"]');
+			if (msg) msg.textContent = 'Запрашиваем номер для звонка…';
+			var from = waitBox.querySelector('[data-role="from-phone"]');
+			if (from) from.textContent = '';
+			var num = waitBox.querySelector('[data-role="call-number"]');
+			if (num) {
+				num.textContent = '';
+				num.removeAttribute('href');
+			}
+			var testBtn = waitBox.querySelector('[data-role="test"]');
+			if (testBtn) testBtn.style.display = 'none';
+			opts.startClaim().then(function (data) {
+				if (!data || !data.ok) {
+					showChoose();
+					wrap.querySelector('.prime-phoneauth-modal__text').textContent =
+						(data && (data.error || data.message)) || message || cfg.duplicateMessage;
+					return;
+				}
+				showWaitView(data);
+			}).catch(function () {
+				showChoose();
+				wrap.querySelector('.prime-phoneauth-modal__text').textContent = 'Ошибка сети. Попробуйте ещё раз.';
+			});
+		}
+
 		wrap.addEventListener('click', function (e) {
-			if (e.target && e.target.getAttribute('data-close') === '1') {
-				wrap.parentNode && wrap.parentNode.removeChild(wrap);
+			var t = e.target;
+			if (!t || !t.getAttribute) return;
+			if (t.getAttribute('data-claim') === '1') {
+				beginClaim();
+				return;
+			}
+			if (t.getAttribute('data-login') === '1') {
+				closeModal();
+				if (opts.onLogin) opts.onLogin();
+				else switchToLogin();
+				return;
+			}
+			if (t.getAttribute('data-close') === '1' && !opts.lock) {
+				closeModal();
 			}
 		});
+		waitBox.querySelector('[data-role="back"]').addEventListener('click', showChoose);
+		waitBox.querySelector('[data-role="test"]').addEventListener('click', function () {
+			var token = waitBox.getAttribute('data-token') || '';
+			var testBtn = waitBox.querySelector('[data-role="test"]');
+			testBtn.disabled = true;
+			postForm(cfg.testUrl, { token: token }).then(function (data) {
+				if (data && data.status === 'confirmed') {
+					onConfirmed(token);
+					return;
+				}
+				testBtn.disabled = false;
+				setWaitError((data && data.error) || 'Не подтвердилось');
+			}).catch(function () {
+				testBtn.disabled = false;
+				setWaitError('Ошибка сети');
+			});
+		});
+
+		if (opts.autoClaim) {
+			beginClaim();
+		}
 	}
 
 	function initTabs(root) {
@@ -319,6 +501,9 @@
 		var wait = box.querySelector('[data-role="wait"]');
 		var lastLookupPhone = '';
 		var lastModalPhone = '';
+		var lastPhoneDigits = phoneDigits(phoneInput.value);
+		var claimMode = false;
+		var lastLookupData = null;
 		var pollTimer = null;
 
 		function stopPoll() {
@@ -378,20 +563,32 @@
 		function showWait(data) {
 			verifyBtn.style.display = 'none';
 			wait.style.display = '';
-			var msg = wait.querySelector('[data-role="message"]');
-			var num = wait.querySelector('[data-role="call-number"]');
-			var from = wait.querySelector('[data-role="from-phone"]');
-			var testBtn = wait.querySelector('[data-role="test"]');
-			if (msg) msg.textContent = data.message || '';
-			if (from) from.textContent = data.phone || '';
-			if (num) {
-				var n = data.callNumber || cfg.callNumber || '';
-				num.textContent = n || 'номер для звонка не настроен';
-				if (n) num.href = 'tel:+' + String(n).replace(/\D/g, '');
-			}
-			if (testBtn) testBtn.style.display = data.testConfirm ? '' : 'none';
-			wait.setAttribute('data-token', data.token || '');
+			fillWaitBox(wait, data);
 			startPoll(data.token);
+		}
+
+		function openClaimModal(autoClaim) {
+			if (!lastLookupData) return;
+			var data = lastLookupData;
+			var title = data.status === 'taken' || ((data.accounts || []).length === 1)
+				? 'Номер уже используется'
+				: 'Несколько аккаунтов';
+			showDuplicate(data.message || data.error, data.accounts, title, {
+				lock: true,
+				autoClaim: !!autoClaim,
+				startClaim: function () {
+					return postForm(cfg.startUrl, { phone: phoneInput.value, register: 'Y', claim: 'Y' });
+				},
+				onConfirmed: function (token) {
+					tokenInp.value = token;
+					markConfirmed();
+					setAccounts([]);
+				},
+				onLogin: function () {
+					switchToLogin();
+					verifyBtn.style.display = '';
+				}
+			});
 		}
 
 		function applyLookup(data, phone) {
@@ -400,22 +597,23 @@
 				statusEl.textContent = '';
 				setAccounts([]);
 				verifyBtn.style.display = 'none';
+				claimMode = false;
+				lastLookupData = null;
 				return;
 			}
+			lastLookupData = data;
+			claimMode = !!data.canClaim || (data.accounts || []).length > 0;
 			statusEl.className = 'prime-phoneauth-reg__status' + (data.status === 'taken' ? ' is-bad' : '');
 			statusEl.textContent = data.message || '';
-			setAccounts(data.accounts);
-			if (tokenInp.value) {
+			setAccounts(claimMode ? [] : data.accounts);
+			if (tokenInp.value || wait.style.display !== 'none' || document.querySelector('.prime-phoneauth-modal')) {
 				verifyBtn.style.display = 'none';
 				return;
 			}
 			verifyBtn.style.display = data.canConfirm ? '' : 'none';
 			if ((data.accounts || []).length && lastModalPhone !== phone) {
 				lastModalPhone = phone;
-				var title = data.status === 'taken' || (data.accounts.length === 1)
-					? 'Номер уже используется'
-					: 'Несколько аккаунтов';
-				showDuplicate(data.message, data.accounts, title);
+				openClaimModal(false);
 			}
 		}
 
@@ -428,9 +626,12 @@
 				setAccounts([]);
 				verifyBtn.style.display = 'none';
 				lastLookupPhone = '';
+				claimMode = false;
+				lastLookupData = null;
 				return;
 			}
-			if (phone === lastLookupPhone && tokenInp.value) return;
+			if (document.querySelector('.prime-phoneauth-modal')) return;
+			if (phone === lastLookupPhone && (tokenInp.value || wait.style.display !== 'none')) return;
 			lastLookupPhone = phone;
 			postForm(cfg.lookupUrl, { phone: phone }).then(function (data) {
 				if (phoneInput.value !== phone) return;
@@ -440,27 +641,36 @@
 
 		phoneInput.addEventListener('blur', lookupNow);
 		phoneInput.addEventListener('change', function () {
+			var now = phoneDigits(phoneInput.value);
+			if (now === lastPhoneDigits) return;
+			lastPhoneDigits = now;
 			resetConfirm();
 			statusEl.className = 'prime-phoneauth-reg__status';
 			statusEl.textContent = '';
 			setAccounts([]);
 			verifyBtn.style.display = 'none';
 			lastLookupPhone = '';
+			lastModalPhone = '';
 			lookupNow();
 		});
 
 		verifyBtn.addEventListener('click', function () {
+			if (claimMode) {
+				openClaimModal(true);
+				return;
+			}
 			verifyBtn.disabled = true;
 			postForm(cfg.startUrl, { phone: phoneInput.value, register: 'Y' })
 				.then(function (data) {
 					verifyBtn.disabled = false;
 					if (!data || !data.ok) {
 						if (data && data.status === 'duplicate') {
-							showDuplicate(data.error, data.accounts, 'Номер уже используется');
+							lastLookupData = data;
+							claimMode = true;
+							openClaimModal(false);
 						}
 						statusEl.className = 'prime-phoneauth-reg__status is-bad';
 						statusEl.textContent = (data && (data.error || data.message)) || 'Не удалось начать подтверждение';
-						setAccounts((data && data.accounts) || []);
 						return;
 					}
 					showWait(data);
@@ -495,14 +705,6 @@
 		if (phoneReady(phoneInput.value)) {
 			lookupNow();
 		}
-	}
-
-	function waitMarkup() {
-		return '<p data-role="message"></p>'
-			+ '<p>Звоните с номера <strong data-role="from-phone"></strong></p>'
-			+ '<a class="prime-phoneauth-number" data-role="call-number"></a>'
-			+ '<button type="button" class="prime-phoneauth-test" data-role="test">Я позвонил (тест)</button>'
-			+ '<button type="button" class="prime-phoneauth-back" data-role="back">Отмена</button>';
 	}
 
 	function mountPhoneConfirm(root) {

@@ -17,7 +17,15 @@ function primePhoneauthJson(array $data, int $code = 200): void
 	die;
 }
 
-if (!\Bitrix\Main\Loader::includeModule('prime.phoneauth')) {
+$loaded = \Bitrix\Main\Loader::includeModule('prime.phoneauth');
+if (!$loaded) {
+	$inc = $_SERVER['DOCUMENT_ROOT'] . '/local/modules/prime.phoneauth/include.php';
+	if (is_file($inc)) {
+		require_once $inc;
+		$loaded = class_exists(\Prime\PhoneAuth\AuthService::class);
+	}
+}
+if (!$loaded) {
 	primePhoneauthJson(['ok' => false, 'error' => 'module'], 500);
 }
 
@@ -45,7 +53,8 @@ if ($action === 'start') {
 		$phone = (string)($row['PERSONAL_PHONE'] ?? '');
 	}
 	if ($register && !$asUser) {
-		primePhoneauthJson(\Prime\PhoneAuth\AuthService::startRegister($phone));
+		$claim = (string)($_POST['claim'] ?? '') === 'Y';
+		primePhoneauthJson(\Prime\PhoneAuth\AuthService::startRegister($phone, $claim));
 	}
 	primePhoneauthJson(\Prime\PhoneAuth\AuthService::start($phone, $asUser));
 }

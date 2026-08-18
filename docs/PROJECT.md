@@ -15,7 +15,8 @@
 | Локальная БД | `vrn_ehk_local` @ `127.0.0.1` |
 | Prod БД | `kovka_bd` |
 | Git | [github.com/bziksv/vrn-ehk](https://github.com/bziksv/vrn-ehk) |
-| Prod | [http://vrn-ehk.ru/](http://vrn-ehk.ru/) |
+| Prod | [https://vrn-ehk.ru/](https://vrn-ehk.ru/) |
+| Dev (клиентский стенд) | [https://dev.vrn-ehk.ru/](https://dev.vrn-ehk.ru/) |
 
 ### Бизнес-особенности
 
@@ -32,17 +33,22 @@
 ### Главное правило деплоя
 
 > **Выкат только через Git.**  
-> Локально → commit/push в GitHub → на prod `git pull`.  
-> **Запрещено** заливать отдельные файлы через scp/sftp/rsync на prod.
+> Локально → commit/push в GitHub → `git pull` на нужном стенде.  
+> **Запрещено** заливать отдельные файлы через scp/sftp/rsync.
 
-| Окружение | Домен | Путь на сервере | IP |
-|-----------|-------|-----------------|-----|
-| **Prod** | vrn-ehk.ru | `/var/www/vrn-ehk.ru/data/www/vrn-ehk.ru` | 62.109.11.114 |
-| **Local** | localhost:8089 | `vrn-ehk.ru/` (папка сайта в репозитории) | Mac |
+| Окружение | Домен | Путь на сервере | БД | IP |
+|-----------|-------|-----------------|----|-----|
+| **Prod** | vrn-ehk.ru | `/var/www/vrn-ehk.ru/data/www/vrn-ehk.ru` | `kovka_bd` | 62.109.11.114 |
+| **Dev** | dev.vrn-ehk.ru | `/var/www/vrn-ehk.ru/data/www/dev.vrn-ehk.ru` | та же `kovka_bd` | 62.109.11.114 |
+| **Local** | localhost:8089 | `vrn-ehk.ru/` (папка сайта в репозитории) | `vrn_ehk_local` | Mac |
 
-**Workflow:** локально → push в Git → на сервере `git pull` → очистка кеша Битрикс.
+**Dev** — стенд для показа клиенту. Код отдельный (свой document root), **база общая с prod**. Пользователи, заказы, опции модулей и UF на dev — те же данные, что на боевом сайте.
 
-### Деплой на prod
+**Workflow:** локально → push в Git → `git pull` на **dev** (для клиента) или на **prod** (только по явной просьбе) → очистка кеша Битрикс.
+
+Gitignored-файлы на dev (конфиги БД, лицензия, `upload/`) берутся с prod: `dbconn.php`, `.settings.php`, `license_key.php`; каталог `upload/` — симлинк на prod, потому что медиа общее.
+
+### Деплой на dev
 
 ```bash
 # На Mac: в папке сайта (корень git-репозитория)
@@ -51,8 +57,39 @@ git add .
 git commit -m "описание изменений"
 git push origin main
 
-# На сервере
-ssh root@62.109.11.114
+# На сервере — только dev, не prod
+ssh vrn-ehk
+cd /var/www/vrn-ehk.ru/data/www/dev.vrn-ehk.ru
+git pull origin main
+rm -rf bitrix/cache/* bitrix/managed_cache/*
+```
+
+### Первичная установка git на dev
+
+FastPanel создаёт пустой каталог со stub `index.php`. Один раз:
+
+```bash
+PROD=/var/www/vrn-ehk.ru/data/www/vrn-ehk.ru
+DEV=/var/www/vrn-ehk.ru/data/www/dev.vrn-ehk.ru
+cd "$DEV"
+mv -f index.php /tmp/dev-vrn-ehk-fastpanel-index.php
+git clone -b main https://github.com/bziksv/vrn-ehk.git .
+cp "$PROD/bitrix/.settings.php" bitrix/
+cp "$PROD/bitrix/license_key.php" bitrix/
+cp "$PROD/bitrix/php_interface/dbconn.php" bitrix/php_interface/
+ln -sfn "$PROD/upload" upload
+mkdir -p bitrix/cache bitrix/managed_cache bitrix/stack_cache
+chown -R vrn-ehk.ru:vrn-ehk.ru "$DEV"
+```
+
+Дальше только `git pull origin main` в этом каталоге.
+
+### Деплой на prod
+
+Только если явно попросили выкатить на боевой.
+
+```bash
+ssh vrn-ehk
 cd /var/www/vrn-ehk.ru/data/www/vrn-ehk.ru
 git pull origin main
 rm -rf bitrix/cache/* bitrix/managed_cache/*
@@ -224,6 +261,7 @@ git push -u origin main
 
 | Дата | Что сделано |
 |------|-------------|
+| 2026-08-18 | Стенд **dev.vrn-ehk.ru**: путь `/var/www/vrn-ehk.ru/data/www/dev.vrn-ehk.ru`, общая БД с prod |
 | 2026-07-15 | Инициализация git-workflow, `.gitignore`, docs, локальный dev :8089, импорт `kovka_bd` |
 
 ### Шаблон записи

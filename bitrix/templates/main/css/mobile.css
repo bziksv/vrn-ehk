@@ -628,6 +628,10 @@ h1,
 .personal_enter .title{
     font-size: 18px;
 }
+.personal_enter .prime-alerts-live-notice{
+    width: 100%;
+    margin: 6px 0 12px;
+}
 .catalog_section_list .sort_block .item .value select{
     width: 100%;
 }
@@ -808,4 +812,30 @@ div.search-page .mobile_search tr{
 }
 a.show-all-top > span {
 	display:none;
+}
+
+.reg-confirmed-modal {
+	padding: 12px;
+	align-items: flex-end;
+}
+
+.reg-confirmed-content {
+	padding: 28px 20px 22px;
+	border-radius: 12px 12px 0 0;
+	max-width: none;
+}
+
+.reg-confirmed-title {
+	font-size: 20px;
+}
+
+.reg-confirmed-text {
+	font-size: 14px;
+	margin-bottom: 20px;
+}
+
+.reg-confirmed-btn {
+	width: 100%;
+	min-width: 0;
+	box-sizing: border-box;
 }

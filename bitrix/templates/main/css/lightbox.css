@@ -225,13 +225,19 @@ body:after {
 #lightbox .lb-data .lb-details{
   display: none;
 }
+
+/* Controls sit outside the white image frame, on the dark overlay */
+#lightbox .lb-outerContainer{
+  overflow: visible;
+}
+
 #lightbox .lb-outerContainer > .lb-closeContainer{
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: -52px;
+  right: -4px;
   left: auto;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   pointer-events: auto;
   z-index: 10003;
 }
@@ -239,34 +245,64 @@ body:after {
   display: block;
   float: none;
   position: static;
-  width: 36px;
-  height: 36px;
-  background: rgba(0, 0, 0, 0.55) url(../images/close.png) center center no-repeat;
-  background-size: 14px 14px;
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.12);
+  background-image: none;
+  border: 2px solid rgba(255, 255, 255, 0.95);
   border-radius: 50%;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
   opacity: 1;
   filter: none;
+  transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
+}
+#lightbox .lb-outerContainer > .lb-closeContainer .lb-close::before,
+#lightbox .lb-outerContainer > .lb-closeContainer .lb-close::after{
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 18px;
+  height: 2px;
+  background: #fff;
+  border-radius: 1px;
+}
+#lightbox .lb-outerContainer > .lb-closeContainer .lb-close::before{
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+#lightbox .lb-outerContainer > .lb-closeContainer .lb-close::after{
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+#lightbox .lb-outerContainer > .lb-closeContainer .lb-close{
+  position: relative;
 }
 #lightbox .lb-outerContainer > .lb-closeContainer .lb-close:hover{
-  background-color: rgba(0, 0, 0, 0.75);
+  background: rgba(255, 255, 255, 0.28);
+  border-color: #fff;
   opacity: 1;
+  transform: scale(1.06);
 }
 
+#lightbox .lb-nav{
+  overflow: visible;
+}
 #lightbox .lb-nav a.lb-prev,
 #lightbox .lb-nav a.lb-next{
   position: absolute;
   top: 50%;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   float: none;
-  margin-top: -18px;
-  background: rgba(0, 0, 0, 0.55);
+  margin-top: -22px;
+  background: rgba(255, 255, 255, 0.12);
   background-image: none;
+  border: 2px solid rgba(255, 255, 255, 0.95);
   border-radius: 50%;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
   opacity: 1;
   filter: none;
   z-index: 10002;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
 }
 #lightbox .lb-nav a.lb-prev::before,
 #lightbox .lb-nav a.lb-next::before{
@@ -274,20 +310,20 @@ body:after {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-top: 2px solid #fff;
   border-right: 2px solid #fff;
   box-sizing: border-box;
 }
 #lightbox .lb-nav a.lb-prev{
-  left: 8px;
+  left: -56px;
 }
 #lightbox .lb-nav a.lb-prev::before{
   transform: translate(-35%, -50%) rotate(-135deg);
 }
 #lightbox .lb-nav a.lb-next{
-  right: 8px;
+  right: -56px;
   left: auto;
 }
 #lightbox .lb-nav a.lb-next::before{
@@ -295,9 +331,63 @@ body:after {
 }
 #lightbox .lb-nav a.lb-prev:hover,
 #lightbox .lb-nav a.lb-next:hover{
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(255, 255, 255, 0.28);
+  border-color: #fff;
   opacity: 1;
   filter: none;
+  transform: scale(1.06);
+}
+
+@media (max-width: 768px){
+  #lightbox .lb-outerContainer > .lb-closeContainer{
+    top: -48px;
+    right: 0;
+    width: 40px;
+    height: 40px;
+  }
+  #lightbox .lb-outerContainer > .lb-closeContainer .lb-close{
+    width: 40px;
+    height: 40px;
+  }
+  #lightbox .lb-outerContainer > .lb-closeContainer .lb-close::before,
+  #lightbox .lb-outerContainer > .lb-closeContainer .lb-close::after{
+    width: 16px;
+  }
+  #lightbox .lb-nav a.lb-prev,
+  #lightbox .lb-nav a.lb-next{
+    width: 40px;
+    height: 40px;
+    margin-top: -20px;
+  }
+  #lightbox .lb-nav a.lb-prev{
+    left: -46px;
+  }
+  #lightbox .lb-nav a.lb-next{
+    right: -46px;
+  }
+}
+
+@media (max-width: 520px){
+  /* Viewport-edge controls: always sit on the dark overlay */
+  #lightbox .lb-outerContainer > .lb-closeContainer{
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    left: auto;
+    margin-right: 0;
+  }
+  #lightbox .lb-nav a.lb-prev,
+  #lightbox .lb-nav a.lb-next{
+    position: fixed;
+    top: 50%;
+    margin-top: -20px;
+  }
+  #lightbox .lb-nav a.lb-prev{
+    left: 10px;
+  }
+  #lightbox .lb-nav a.lb-next{
+    right: 10px;
+  }
 }
 
 .lb-data .lb-close:hover {

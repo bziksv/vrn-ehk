@@ -77,7 +77,7 @@ jQuery(function($){
 				return;
 			}
 			if ($.fn.inputmask) {
-				$input.inputmask('+7 (999) 999-99-99', { showMaskOnHover: false });
+				$input.inputmask('+7-999-999-99-99', { showMaskOnHover: false, placeholder: '_' });
 				$input.data('ruPhoneMask', true);
 			}
 		});
@@ -2124,5 +2124,42 @@ jQuery(function($){
 	}
 
 	adjustPageTitle();
+
+	(function initRegConfirmedModal() {
+		var params = new URLSearchParams(window.location.search);
+		if (params.get('reg_confirmed') !== 'Y') {
+			return;
+		}
+
+		var $modal = $('#reg-confirmed-modal');
+		if (!$modal.length) {
+			return;
+		}
+
+		function openModal() {
+			$modal.addClass('active').attr('aria-hidden', 'false');
+			$('body').addClass('reg-confirmed-open');
+		}
+
+		function closeModal() {
+			$modal.removeClass('active').attr('aria-hidden', 'true');
+			$('body').removeClass('reg-confirmed-open');
+		}
+
+		$modal.on('click', '.reg-confirmed-overlay, .reg-confirmed-close, .reg-confirmed-btn', closeModal);
+
+		$(document).on('keydown.regConfirmed', function(e) {
+			if (e.key === 'Escape' && $modal.hasClass('active')) {
+				closeModal();
+			}
+		});
+
+		params.delete('reg_confirmed');
+		var cleanSearch = params.toString();
+		var cleanUrl = window.location.pathname + (cleanSearch ? '?' + cleanSearch : '') + window.location.hash;
+		window.history.replaceState({}, document.title, cleanUrl);
+
+		openModal();
+	})();
 
 });

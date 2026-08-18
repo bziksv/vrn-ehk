@@ -1,5 +1,20 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 
+<?
+// После успешного подтверждения по ссылке из письма — сразу логиним,
+// чтобы не заставлять пользователя вводить те же данные ещё раз.
+if (
+	!$USER->IsAuthorized()
+	&& isset($arResult["MESSAGE_CODE"])
+	&& $arResult["MESSAGE_CODE"] === "E06"
+	&& !empty($arResult["USER"]["ID"])
+)
+{
+	$USER->Authorize(intval($arResult["USER"]["ID"]));
+	LocalRedirect("/personal/?reg_confirmed=Y");
+}
+?>
+
 <?//here you can place your own messages
 	switch($arResult["MESSAGE_CODE"])
 	{
@@ -58,6 +73,12 @@
 
 <div class="clear"></div>
 
-<?elseif(!$USER->IsAuthorized()):?>
-	<p>Регистрация успешно подтверждена, пожалуйста <a href="/personal/">авторизуйтесь</a></p>
+<?elseif($USER->IsAuthorized()):?>
+	<p>Регистрация подтверждена. Добро пожаловать!</p>
+	<p><a href="/personal/">Перейти в личный кабинет</a></p>
+<?elseif($arResult["MESSAGE_CODE"] === "E03"):?>
+	<p>Регистрация уже была подтверждена ранее. <a href="/personal/">Войти</a></p>
+<?else:?>
+	<p><?echo $arResult["MESSAGE_TEXT"]?></p>
+	<p><a href="/personal/">Войти</a></p>
 <?endif?>

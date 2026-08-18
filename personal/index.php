@@ -118,7 +118,7 @@ $APPLICATION->SetTitle("Личный кабинет");
 						</div>
 					</div>
 				</div>
-				<div class="block">
+				<div class="block" id="personal-contacts">
 					<div class="title"><a href="#"><span class="ico ico_2"></span>Контактные данные</a></div>
 					<div class="b_content">
 						<form action="#" method="POST" class="update_user">

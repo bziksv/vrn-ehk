@@ -597,6 +597,39 @@ function vrnEhkOnBeforeUserRegisterHandler(&$arFields)
 	return true;
 }
 
+AddEventHandler("main", "OnBeforeUserLogin", "vrnEhkOnBeforeUserLogin");
+function vrnEhkOnBeforeUserLogin(&$arParams)
+{
+	$login = trim((string)($arParams['LOGIN'] ?? ''));
+	if ($login === '') {
+		return;
+	}
+
+	try {
+		$connection = \Bitrix\Main\Application::getConnection();
+		$escaped = $connection->getSqlHelper()->forSql($login);
+		$byLogin = $connection->query(
+			"SELECT LOGIN FROM b_user WHERE ACTIVE='Y' AND LOGIN='{$escaped}' AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID='') LIMIT 1"
+		)->fetch();
+		if ($byLogin) {
+			return;
+		}
+
+		$rs = $connection->query(
+			"SELECT LOGIN FROM b_user WHERE ACTIVE='Y' AND EMAIL='{$escaped}' AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID='') LIMIT 3"
+		);
+		$matches = [];
+		while ($row = $rs->fetch()) {
+			$matches[] = (string)$row['LOGIN'];
+		}
+		if (count($matches) === 1) {
+			$arParams['LOGIN'] = $matches[0];
+		}
+	} catch (\Throwable $e) {
+		// ignore
+	}
+}
+
 AddEventHandler("main", "OnAfterUserRegister", "OnAfterUserRegisterHandler");
 function OnAfterUserRegisterHandler(&$arFields)
 {

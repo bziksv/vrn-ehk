@@ -12,7 +12,16 @@ if($USER->IsAuthorized())
 		}
 		if(isset($fields["EMAIL"]) && !empty($fields["EMAIL"]))
 		{
-			$fields["LOGIN"]=$fields["EMAIL"];
+			$oldLogin = trim((string)$cur_user["LOGIN"]);
+			$oldEmail = trim((string)$cur_user["EMAIL"]);
+			if ($oldLogin === '' || strcasecmp($oldLogin, $oldEmail) === 0)
+			{
+				$fields["LOGIN"] = $fields["EMAIL"];
+			}
+			else
+			{
+				unset($fields["LOGIN"]);
+			}
 		}
 		$location=false;
 		if(isset($fields["LOCATION"]) && !empty($fields["LOCATION"]))

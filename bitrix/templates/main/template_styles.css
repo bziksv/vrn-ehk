@@ -763,6 +763,30 @@ a.button:hover{ background: #fff; color: #b26742; }
 .personal_enter .why ul{ margin: 20px 0 0 0; padding: 0px; list-style: none; }
 .personal_enter .why ul li{ background: url('images/auth_ul_ico.jpg') left top no-repeat transparent; padding-left: 40px; margin: 0 0 20px 0; font-size: 12px; }
 
+.personal_enter .prime-alerts-live-notice{
+	width: 252px;
+	max-width: 100%;
+	margin: 4px 0 13px;
+	box-sizing: border-box;
+}
+.personal_enter .prime-alerts-notice{
+	font-size: 12px;
+	line-height: 1.35;
+}
+.personal_enter .prime-alerts-notice__inner{
+	padding: 10px 12px;
+	gap: 8px;
+	box-sizing: border-box;
+}
+.personal_enter .prime-alerts-notice__title{
+	font-size: 13px;
+	margin-bottom: 4px;
+}
+.personal_enter .prime-alerts-notice__text p,
+.personal_enter .prime-alerts-notice__legal{
+	display: block;
+}
+
 .modern-page-navigation{ padding: 20px 0 0 0 !important; font-size: 18px; font-weight: 300; }
 .modern-page-navigation .modern-page-title{ font-weight: 900; margin-right: 20px; }
 .modern-page-navigation span.modern-page-current{ padding: 0px !important; margin: 0 15px; border:0 !important; }

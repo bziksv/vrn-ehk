@@ -550,10 +550,16 @@
 		</div>
 		
 		<?
-        global $USER;
-        if (!$USER->IsAuthorized()):
+        global $USER, $APPLICATION;
+        $curPage = $APPLICATION->GetCurPage();
+        $authFormOnPage = (
+            strpos($curPage, '/personal/') === 0
+            || strpos($curPage, '/auth/') === 0
+            || strpos($curPage, '/make-order/') === 0
+        );
+        if (!$USER->IsAuthorized() && !$authFormOnPage):
         ?>
-        <div id="authorized" class="popup" <? if(isset($_REQUEST['AUTH_FORM']) && $_REQUEST['AUTH_FORM'] === 'Y' && isset($_REQUEST['TYPE']) && $_REQUEST['TYPE'] === 'AUTH'): ?>style="display: block;"<? endif; ?>>
+        <div id="authorized" class="popup">
             <a class="close empty" href="#">&nbsp;</a>
             <div class="personal_enter">
                 <?$APPLICATION->IncludeComponent("bitrix:system.auth.form", "agr_auth", Array(
@@ -568,6 +574,17 @@
             </div>
         </div>
         <? endif; ?>
+
+		<div id="reg-confirmed-modal" class="reg-confirmed-modal" aria-hidden="true">
+			<div class="reg-confirmed-overlay"></div>
+			<div class="reg-confirmed-content" role="dialog" aria-modal="true" aria-labelledby="reg-confirmed-title">
+				<button type="button" class="reg-confirmed-close" aria-label="Закрыть">&times;</button>
+				<div class="reg-confirmed-icon" aria-hidden="true"></div>
+				<div id="reg-confirmed-title" class="reg-confirmed-title">Регистрация подтверждена</div>
+				<p class="reg-confirmed-text">Вы успешно зарегистрировались и вошли в личный кабинет. Можете оформлять заказы и управлять профилем.</p>
+				<button type="button" class="reg-confirmed-btn">Отлично</button>
+			</div>
+		</div>
 
 		<!-- Yandex.Metrika counter -->
 		<script type="text/javascript">

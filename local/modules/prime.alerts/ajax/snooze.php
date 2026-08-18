@@ -29,5 +29,12 @@ if (!\Bitrix\Main\Loader::includeModule('prime.alerts')) {
 	die;
 }
 
+if ((string)($_POST['mode'] ?? '') === 'dismiss') {
+	\Prime\Alerts\ProfileBanner::dismissEmailConfirm();
+	\Prime\Alerts\ProfileBanner::clearJustRegistered();
+	echo \Bitrix\Main\Web\Json::encode(['ok' => true, 'dismissed' => true]);
+	die;
+}
+
 $until = \Prime\Alerts\ProfileBanner::snooze();
 echo \Bitrix\Main\Web\Json::encode(['ok' => true, 'until' => $until]);

@@ -13,25 +13,100 @@ class ProfileBanner
 			return false;
 		}
 
+		if (self::isQuietPath()) {
+			return false;
+		}
+
+		$emailUnconfirmed = self::emailUnconfirmed();
+		$emailBad = self::emailNeedsAttention();
+		$phoneBad = self::phoneNeedsAttention();
+
+		if ($emailUnconfirmed && !self::isEmailConfirmDismissed()) {
+			return true;
+		}
+
 		if (self::isSnoozed()) {
 			return false;
 		}
 
-		try {
-			$path = (string)\Bitrix\Main\Context::getCurrent()->getRequest()->getRequestedPageDirectory();
-			if ($path === '/personal' || strpos($path, '/personal/') === 0) {
-				return false;
-			}
-		} catch (\Throwable $e) {
-			// ignore
+		if (self::isPersonalPath()) {
+			return false;
 		}
 
-		$data = self::profileData();
-		if (self::emailNeedsAttention($data) || self::phoneNeedsAttention()) {
-			return true;
+		return $emailBad || $phoneBad;
+	}
+
+	public static function isQuietPath(): bool
+	{
+		try {
+			$path = (string)\Bitrix\Main\Context::getCurrent()->getRequest()->getRequestedPageDirectory();
+		} catch (\Throwable $e) {
+			return false;
+		}
+
+		$skip = ['/confirm', '/auth', '/login', '/make-order'];
+		foreach ($skip as $prefix) {
+			if ($path === $prefix || strpos($path, $prefix . '/') === 0) {
+				return true;
+			}
 		}
 
 		return false;
+	}
+
+	public static function isPersonalPath(): bool
+	{
+		try {
+			$path = (string)\Bitrix\Main\Context::getCurrent()->getRequest()->getRequestedPageDirectory();
+			return $path === '/personal' || strpos($path, '/personal/') === 0;
+		} catch (\Throwable $e) {
+			return false;
+		}
+	}
+
+	public static function emailUnconfirmed(?array $data = null): bool
+	{
+		$data = $data ?: self::profileData();
+
+		return trim((string)($data['confirmCode'] ?? '')) !== '';
+	}
+
+	public static function isJustRegistered(): bool
+	{
+		try {
+			$session = \Bitrix\Main\Application::getInstance()->getSession();
+
+			return $session->get('PRIME_ALERTS_JUST_REGISTERED') === 'Y';
+		} catch (\Throwable $e) {
+			return false;
+		}
+	}
+
+	public static function clearJustRegistered(): void
+	{
+		try {
+			\Bitrix\Main\Application::getInstance()->getSession()->remove('PRIME_ALERTS_JUST_REGISTERED');
+		} catch (\Throwable $e) {
+			// ignore
+		}
+	}
+
+	public static function dismissEmailConfirm(): void
+	{
+		try {
+			\Bitrix\Main\Application::getInstance()->getSession()->set('prime_alerts_email_confirm_dismissed', 'Y');
+		} catch (\Throwable $e) {
+			// ignore
+		}
+	}
+
+	public static function isEmailConfirmDismissed(): bool
+	{
+		try {
+			return \Bitrix\Main\Application::getInstance()->getSession()->get('prime_alerts_email_confirm_dismissed') === 'Y';
+		} catch (\Throwable $e) {
+			return false;
+		}
 	}
 
 	public static function emailNeedsAttention(?array $data = null): bool
@@ -106,18 +181,20 @@ class ProfileBanner
 		return $until;
 	}
 
-	/** @return array{email:string,phone:string,profileUrl:string} */
+	/** @return array{email:string,phone:string,profileUrl:string,confirmCode:string} */
 	public static function profileData(): array
 	{
 		global $USER;
 		$email = '';
 		$phone = '';
+		$confirmCode = '';
 		if (is_object($USER) && $USER->IsAuthorized()) {
 			$email = trim((string)$USER->GetEmail());
 			$login = trim((string)$USER->GetLogin());
 			$rs = \CUser::GetByID((int)$USER->GetID());
 			if ($row = $rs->Fetch()) {
 				$phone = trim((string)($row['PERSONAL_PHONE'] ?? ''));
+				$confirmCode = trim((string)($row['CONFIRM_CODE'] ?? ''));
 				if ($email === '') {
 					$email = trim((string)($row['EMAIL'] ?? ''));
 				}
@@ -134,13 +211,18 @@ class ProfileBanner
 			'email' => $email,
 			'phone' => $phone,
 			'profileUrl' => '/personal/#personal-contacts',
+			'confirmCode' => $confirmCode,
 		];
 	}
 
 	public static function getDefaultTitle(): string
 	{
+		$emailUnconfirmed = self::emailUnconfirmed();
 		$emailBad = self::emailNeedsAttention();
 		$phoneBad = self::phoneNeedsAttention();
+		if ($emailUnconfirmed) {
+			return 'Подтвердите почту';
+		}
 		if ($emailBad && $phoneBad) {
 			return 'Проверьте почту и телефон в профиле';
 		}
@@ -156,18 +238,27 @@ class ProfileBanner
 
 	public static function getDefaultText(): string
 	{
+		$emailUnconfirmed = self::emailUnconfirmed();
 		$emailBad = self::emailNeedsAttention();
 		$phoneBad = self::phoneNeedsAttention();
 		$phoneModule = self::phoneAuthAvailable();
 		$parts = [];
-		if ($emailBad) {
+		if ($emailUnconfirmed) {
+			if (self::isJustRegistered()) {
+				$parts[] = '<p>На указанный адрес отправлена ссылка для подтверждения регистрации. '
+					. 'Можете сразу оформлять заказы — просто перейдите по ссылке из письма, когда будет удобно.</p>';
+			} else {
+				$parts[] = '<p>Вы до сих пор не подтвердили почту. '
+					. 'Перейдите по ссылке из письма — так мы будем уверены, что ящик ваш.</p>';
+			}
+		} elseif ($emailBad) {
 			$parts[] = '<p>В вашем профиле указан иностранный почтовый адрес или зарубежная почтовая служба. '
 				. 'Рекомендуем сменить его на ящик в зоне <strong>.ru</strong> / <strong>.su</strong> '
 				. 'либо на российский сервис (Яндекс, Mail.ru).</p>';
 		}
 		if ($phoneModule && $phoneBad) {
 			$parts[] = '<p>Подтвердите номер звонком — после этого можно будет входить в кабинет по телефону, без пароля.</p>';
-		} elseif (!$phoneModule) {
+		} elseif (!$phoneModule && !$emailUnconfirmed) {
 			$parts[] = '<p>Также просим проверить телефон, указанный в профиле. '
 				. 'Позже на сайте появится вход по номеру — важно, чтобы он был актуальным.</p>';
 		}
@@ -177,16 +268,24 @@ class ProfileBanner
 
 	public static function getTitle(): string
 	{
-		$custom = trim(Config::get('profile_banner_title', ''));
-		$title = $custom !== '' ? $custom : self::getDefaultTitle();
+		if (self::emailUnconfirmed()) {
+			$title = self::getDefaultTitle();
+		} else {
+			$custom = trim(Config::get('profile_banner_title', ''));
+			$title = $custom !== '' ? $custom : self::getDefaultTitle();
+		}
 
 		return EmailPolicy::applyMacrosPlain(self::applyProfileMacrosPlain($title));
 	}
 
 	public static function getBodyHtml(): string
 	{
-		$custom = trim(Config::get('profile_banner_text', ''));
-		$body = $custom !== '' ? $custom : self::getDefaultText();
+		if (self::emailUnconfirmed()) {
+			$body = self::getDefaultText();
+		} else {
+			$custom = trim(Config::get('profile_banner_text', ''));
+			$body = $custom !== '' ? $custom : self::getDefaultText();
+		}
 
 		return EmailPolicy::applyMacrosHtml(self::applyProfileMacrosHtml($body));
 	}
@@ -202,6 +301,9 @@ class ProfileBanner
 		self::phoneAuthState();
 		$phone = self::displayPhone($data['phone']);
 		$needConfirm = self::phoneAuthAvailable() && self::phoneNeedsAttention();
+		$emailUnconfirmed = self::emailUnconfirmed($data);
+		$emailBad = self::emailNeedsAttention($data);
+		$showSnooze = $emailBad || $needConfirm;
 		$emailEsc = htmlspecialcharsbx($email);
 		$phoneEsc = htmlspecialcharsbx($phone);
 		$urlEsc = htmlspecialcharsbx($data['profileUrl']);
@@ -218,7 +320,14 @@ class ProfileBanner
 				. '</div></li>';
 		}
 
-		return '<div class="prime-alerts-profile-modal" role="dialog" aria-modal="true" aria-labelledby="prime-alerts-profile-title">'
+		$primary = ($emailUnconfirmed && !$emailBad)
+			? '<button type="button" class="prime-alerts-profile-modal__btn" data-prime-alerts-close="1">Понятно, продолжить</button>'
+			: '<a class="prime-alerts-profile-modal__btn" href="' . $urlEsc . '">Изменить данные в профиле</a>';
+		$snooze = $showSnooze
+			? '<button type="button" class="prime-alerts-profile-modal__snooze" data-prime-alerts-snooze="1">Отложить на 2 недели</button>'
+			: '';
+
+		return '<div class="prime-alerts-profile-modal" role="dialog" aria-modal="true" aria-labelledby="prime-alerts-profile-title" data-email-unconfirmed="' . ($emailUnconfirmed ? '1' : '0') . '">'
 			. '<div class="prime-alerts-profile-modal__overlay"></div>'
 			. '<div class="prime-alerts-profile-modal__box">'
 			. '<button type="button" class="prime-alerts-profile-modal__close" data-prime-alerts-close="1" aria-label="Закрыть">&times;</button>'
@@ -230,8 +339,8 @@ class ProfileBanner
 			. $phoneLi
 			. '</ul>'
 			. '<div class="prime-alerts-profile-modal__actions">'
-			. '<a class="prime-alerts-profile-modal__btn" href="' . $urlEsc . '">Изменить данные в профиле</a>'
-			. '<button type="button" class="prime-alerts-profile-modal__snooze" data-prime-alerts-snooze="1">Отложить на 2 недели</button>'
+			. $primary
+			. $snooze
 			. '</div>'
 			. '</div></div>';
 	}

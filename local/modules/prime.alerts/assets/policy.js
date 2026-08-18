@@ -28,19 +28,13 @@
 		}
 		document.body.classList.add('prime-alerts-profile-open');
 
-		function closeModal() {
-			node.parentNode && node.parentNode.removeChild(node);
-			document.body.classList.remove('prime-alerts-profile-open');
-		}
-
-		function snoozeModal() {
+		function postSnooze(mode) {
 			var url = cfg.snoozeUrl || '/local/modules/prime.alerts/ajax/snooze.php';
 			var body = 'sessid=' + encodeURIComponent(cfg.sessid || (window.BX && BX.bitrix_sessid && BX.bitrix_sessid()) || '');
-			var btn = node.querySelector('[data-prime-alerts-snooze="1"]');
-			if (btn) {
-				btn.disabled = true;
+			if (mode) {
+				body += '&mode=' + encodeURIComponent(mode);
 			}
-			fetch(url, {
+			return fetch(url, {
 				method: 'POST',
 				credentials: 'same-origin',
 				headers: {
@@ -48,9 +42,36 @@
 					'X-Requested-With': 'XMLHttpRequest'
 				},
 				body: body
-			}).catch(function () {}).then(function () {
-				closeModal();
+			}).catch(function () {});
+		}
+
+		function closeModal(skipDismiss) {
+			if (!skipDismiss && cfg.emailUnconfirmed) {
+				postSnooze('dismiss');
+			}
+			node.parentNode && node.parentNode.removeChild(node);
+			document.body.classList.remove('prime-alerts-profile-open');
+		}
+
+		function snoozeModal() {
+			var btn = node.querySelector('[data-prime-alerts-snooze="1"]');
+			if (btn) {
+				btn.disabled = true;
+			}
+			postSnooze().then(function () {
+				closeModal(true);
 			});
+		}
+
+		if (cfg.justRegistered && typeof ym === 'function') {
+			try {
+				if (!sessionStorage.getItem('primeRegGoal')) {
+					sessionStorage.setItem('primeRegGoal', '1');
+					ym(29264840, 'reachGoal', 'Registracija031024143836', {}, function () {});
+				}
+			} catch (e) {
+				ym(29264840, 'reachGoal', 'Registracija031024143836', {}, function () {});
+			}
 		}
 
 		node.addEventListener('click', function (e) {

@@ -63,12 +63,14 @@ class Frontend
 			'noticeCheckout' => $policyOn ? EmailPolicy::getNoticeHtml('checkout') : '',
 			'profileBannerHtml' => $profileBannerHtml,
 			'profileEmail' => $profileBannerHtml !== '' ? (string)$profileData['email'] : '',
+			'emailUnconfirmed' => $profileBannerHtml !== '' && ProfileBanner::emailUnconfirmed($profileData),
+			'justRegistered' => $profileBannerHtml !== '' && ProfileBanner::isJustRegistered(),
 			'sessid' => function_exists('bitrix_sessid') ? bitrix_sessid() : '',
 			'snoozeUrl' => '/local/modules/prime.alerts/ajax/snooze.php',
 		];
 
-		$cssHref = '/local/modules/prime.alerts/assets/style.css?v=1.5.3';
-		$jsHref = '/local/modules/prime.alerts/assets/policy.js?v=1.5.0';
+		$cssHref = '/local/modules/prime.alerts/assets/style.css?v=1.5.4';
+		$jsHref = '/local/modules/prime.alerts/assets/policy.js?v=1.5.1';
 		$flash = '';
 		try {
 			$session = \Bitrix\Main\Application::getInstance()->getSession();

@@ -43,15 +43,6 @@ else
 				$arResult["ERRORS"][$key] = str_replace("#FIELD_NAME#", "&quot;".GetMessage("REGISTER_FIELD_".$key)."&quot;", $error);
 
 		ShowError(implode("<br />", $arResult["ERRORS"]));
-	}elseif($_REQUEST["confirm"] == "Y"){
-		ShowError("На указанный в форме e-mail отправлена ссылка<br> для подтверждения регистрации.");
-		?>
-			<script> 
-				ym(29264840,'reachGoal','Registracija031024143836', {}, function () {
-					console.log('запрос Registracija031024143836 в Метрику успешно отправлен');
-				});
-			</script>
-		<?
 	}
 	?>
 	

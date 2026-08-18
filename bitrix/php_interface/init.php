@@ -633,14 +633,36 @@ function vrnEhkOnBeforeUserLogin(&$arParams)
 AddEventHandler("main", "OnAfterUserRegister", "OnAfterUserRegisterHandler");
 function OnAfterUserRegisterHandler(&$arFields)
 {
-	$dbResult = UserTable::getList(['select' => ['CONFIRM_CODE'], 'filter' => ['=ID' => $arFields["USER_ID"]]]);
-	$arResults = $dbResult->fetch();
+	$userId = (int)($arFields['USER_ID'] ?? $arFields['ID'] ?? 0);
+	if ($userId <= 0) {
+		return;
+	}
 
-	$arFields["CONFIRM_CODE"] = $arResults['CONFIRM_CODE'];
-	
-	if ($arFields["CONFIRM_CODE"]) {
+	$dbResult = UserTable::getList(['select' => ['CONFIRM_CODE', 'ACTIVE'], 'filter' => ['=ID' => $userId]]);
+	$arResults = $dbResult->fetch() ?: [];
+	$arFields['CONFIRM_CODE'] = (string)($arResults['CONFIRM_CODE'] ?? $arFields['CONFIRM_CODE'] ?? '');
+
+	if (($arResults['ACTIVE'] ?? 'N') !== 'Y') {
+		$user = new CUser();
+		$user->Update($userId, ['ACTIVE' => 'Y']);
+	}
+
+	global $USER;
+	if (is_object($USER) && !$USER->IsAuthorized()) {
+		$USER->Authorize($userId);
+	}
+
+	try {
+		$session = \Bitrix\Main\Application::getInstance()->getSession();
+		$session->set('PRIME_ALERTS_JUST_REGISTERED', 'Y');
+		$session->remove('prime_alerts_email_confirm_dismissed');
+	} catch (\Throwable $e) {
+		// ignore
+	}
+
+	if ($arFields['CONFIRM_CODE']) {
 		$event = new CEvent;
-		$event->SendImmediate("USER_WELCOME", SITE_ID, $arFields);
+		$event->SendImmediate('USER_WELCOME', SITE_ID, $arFields);
 	}
 }
 

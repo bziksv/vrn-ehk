@@ -1057,6 +1057,19 @@
 	transform: rotate(45deg);
 }
 
+.reg-confirmed-modal.is-remind .reg-confirmed-icon::after {
+	content: '!';
+	left: 0;
+	top: 0;
+	width: 56px;
+	height: 56px;
+	border: none;
+	transform: none;
+	color: #fff;
+	font: 700 32px/56px Arial, sans-serif;
+	text-align: center;
+}
+
 .reg-confirmed-title {
 	font-size: 24px;
 	line-height: 1.25;

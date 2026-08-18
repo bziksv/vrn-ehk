@@ -17,14 +17,6 @@ class ProfileBanner
 			return false;
 		}
 
-		$emailUnconfirmed = self::emailUnconfirmed();
-		$emailBad = self::emailNeedsAttention();
-		$phoneBad = self::phoneNeedsAttention();
-
-		if ($emailUnconfirmed && !self::isEmailConfirmDismissed()) {
-			return true;
-		}
-
 		if (self::isSnoozed()) {
 			return false;
 		}
@@ -33,7 +25,7 @@ class ProfileBanner
 			return false;
 		}
 
-		return $emailBad || $phoneBad;
+		return self::emailNeedsAttention() || self::phoneNeedsAttention();
 	}
 
 	public static function isQuietPath(): bool

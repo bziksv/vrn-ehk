@@ -525,6 +525,11 @@ h1,
 {
     display: none;
 }
+.personal_page .contact-status,
+.personal_page .prime-phoneauth-status,
+.personal_page .prime-phoneauth-wait{
+    margin-left: 0;
+}
 .personal_page .blocks.order_block .block{
     padding: 10px;
     border: none;
@@ -627,6 +632,17 @@ h1,
 }
 .personal_enter .title{
     font-size: 18px;
+}
+.personal_enter .auth .title,
+.personal_enter .reg .title{
+    margin: 16px 0 18px;
+}
+.personal_enter .auth .prime-phoneauth-tabs,
+.personal_enter .auth .prime-phoneauth-panel[data-panel="phone"],
+.personal_enter .auth .prime-phoneauth-wait,
+.personal_enter .auth .prime-phoneauth-number,
+.personal_enter .auth .prime-phoneauth-test{
+    width: 100%;
 }
 .personal_enter .prime-alerts-live-notice{
     width: 100%;

@@ -736,8 +736,11 @@ a.button:hover{ background: #fff; color: #b26742; }
 .gallery_list_on_detail .item .name a{ color: #000; color: #000; line-height: 20px; border: 0px; }
 .gallery_list_on_detail .item .date{ display: block; font-size: 12px; color: #595959; margin: 10px 0 0 0; }
 
-.personal_enter{ border: 1px solid #ccc; padding: 20px; margin: 20px 0 20px -40px; }
+.personal_enter{ display: flex; flex-wrap: wrap; align-items: stretch; border: 1px solid #ccc; padding: 20px; margin: 20px 0 20px -40px; }
+.personal_enter > .clear{ display: none; }
 .personal_enter .title{ font-size: 24px; font-family: 'bitterregular'; line-height: 30px; margin: 45px 0 55px 0; position: relative; }
+.personal_enter .auth .title,
+.personal_enter .reg .title{ margin: 36px 0 22px; }
 .personal_enter .title .ico{ position: absolute; top: -15px; right: 80px; }
 .personal_enter .line{ margin: 0 0 13px 0; position: relative; }
 .personal_enter .line .label{ display: block; font-size: 16px; margin: 0 0 3px 0; font-weight: 700; }
@@ -756,9 +759,9 @@ a.button:hover{ background: #fff; color: #b26742; }
 .personal_enter input[type=submit]{ width: 238px; height: 45px; font-size: 18px; font-weight: 700; text-align: center; border: 3px solid #a64221; color:#a64221;  border-radius: 5px; transition: background-color .2s, color .2s; cursor: pointer; margin: 20px 0 0 0;}
 .personal_enter input[type=submit]:hover{ background-color: #a64221; color: #fff; transition: background-color .2s, color .2s; }
 
-.personal_enter .auth{float: left; width: 318px; padding: 0 0 50px 80px; margin-right: 20px; background-color: #f3f3f3; border: 1px solid #ccc; color: #404040; }
-.personal_enter .reg{ float: left; width: 318px; padding: 0 0 50px 80px; margin-right: 20px; background-color: #f3f3f3; border: 1px solid #ccc; color: #404040; }
-.personal_enter .why{ float: right; width: 270px; padding-right: 20px; }
+.personal_enter .auth{float: none; width: 318px; padding: 0 0 40px 80px; margin-right: 20px; background-color: #f3f3f3; border: 1px solid #ccc; color: #404040; }
+.personal_enter .reg{ float: none; width: 318px; padding: 0 0 40px 80px; margin-right: 20px; background-color: #f3f3f3; border: 1px solid #ccc; color: #404040; }
+.personal_enter .why{ float: none; width: 270px; padding-right: 20px; }
 .personal_enter .why .title{ margin-bottom: 20px; }
 .personal_enter .why ul{ margin: 20px 0 0 0; padding: 0px; list-style: none; }
 .personal_enter .why ul li{ background: url('images/auth_ul_ico.jpg') left top no-repeat transparent; padding-left: 40px; margin: 0 0 20px 0; font-size: 12px; }
@@ -928,6 +931,40 @@ a.button:hover{ background: #fff; color: #b26742; }
 .personal_page .block .b_content{ padding: 30px 30px 30px 140px; border-top: 1px dashed #cccccc; }
 .personal_page .line{ margin: 0 0 10px 0; }
 .personal_page .line .label{ float: left; width: 160px; font-size: 16px; font-weight: 700; line-height: 38px; }
+.personal_page .line .hint{ margin-left: 160px; }
+.personal_page .contact-status{
+	margin: 6px 0 0 160px;
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 8px 12px;
+	font-size: 13px;
+	line-height: 1.4;
+}
+.personal_page .contact-status.is-ok{ color: #2d6a3e; }
+.personal_page .contact-status.is-wait{ color: #8a7a55; }
+.personal_page .contact-status__btn{
+	display: inline-block;
+	height: 34px;
+	padding: 0 14px;
+	border: 2px solid #a64221;
+	border-radius: 5px;
+	background: #fff;
+	color: #a64221;
+	font-size: 13px;
+	font-weight: 700;
+	line-height: 30px;
+	cursor: pointer;
+	box-sizing: border-box;
+}
+.personal_page .contact-status__btn:hover{
+	background: #a64221;
+	color: #fff;
+}
+.personal_page .contact-status__btn:disabled{
+	opacity: 0.6;
+	cursor: default;
+}
 
 .personal_page .blocks{ float: left; width: 772px; }
 .personal_page .pass_block{ width: 242px; float: right; margin-right: 70px; }

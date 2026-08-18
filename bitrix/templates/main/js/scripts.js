@@ -1845,6 +1845,35 @@ jQuery(function($){
 		return false;
 	});
 
+	$(document).on("click", "[data-email-confirm]", function () {
+		var $btn = $(this);
+		if ($btn.prop("disabled")) {
+			return;
+		}
+		$btn.prop("disabled", true);
+		$.ajax({
+			type: "POST",
+			url: "/ajax/email-confirm.php",
+			dataType: "json",
+			data: {
+				sessid: $btn.attr("data-sessid") || (window.BX && BX.bitrix_sessid && BX.bitrix_sessid()) || ""
+			},
+			success: function (data) {
+				if (data && data.ok) {
+					alertify.success(data.message || "Письмо отправлено");
+					$btn.text("Письмо отправлено");
+					return;
+				}
+				alertify.error((data && data.error) || "Не удалось отправить");
+				$btn.prop("disabled", false);
+			},
+			error: function () {
+				alertify.error("Не удалось отправить");
+				$btn.prop("disabled", false);
+			}
+		});
+	});
+
 	$(document).on("submit",".personal_page .update_user",function(){
 		var data=NewGetFormData($(this),true,false);
 		var cur_form=$(this);
@@ -1859,6 +1888,11 @@ jQuery(function($){
 						if(msg.indexOf("error")===-1)
 						{
 							alertify.success("Данные успешно обновлены");
+							var $email = cur_form.find('input[name="EMAIL"]');
+							if ($email.length && $email.val() !== String($email.attr('data-original-email') || '')) {
+								window.location.reload();
+								return;
+							}
 						}
 						else
 						{
@@ -2124,42 +2158,5 @@ jQuery(function($){
 	}
 
 	adjustPageTitle();
-
-	(function initRegConfirmedModal() {
-		var params = new URLSearchParams(window.location.search);
-		if (params.get('reg_confirmed') !== 'Y') {
-			return;
-		}
-
-		var $modal = $('#reg-confirmed-modal');
-		if (!$modal.length) {
-			return;
-		}
-
-		function openModal() {
-			$modal.addClass('active').attr('aria-hidden', 'false');
-			$('body').addClass('reg-confirmed-open');
-		}
-
-		function closeModal() {
-			$modal.removeClass('active').attr('aria-hidden', 'true');
-			$('body').removeClass('reg-confirmed-open');
-		}
-
-		$modal.on('click', '.reg-confirmed-overlay, .reg-confirmed-close, .reg-confirmed-btn', closeModal);
-
-		$(document).on('keydown.regConfirmed', function(e) {
-			if (e.key === 'Escape' && $modal.hasClass('active')) {
-				closeModal();
-			}
-		});
-
-		params.delete('reg_confirmed');
-		var cleanSearch = params.toString();
-		var cleanUrl = window.location.pathname + (cleanSearch ? '?' + cleanSearch : '') + window.location.hash;
-		window.history.replaceState({}, document.title, cleanUrl);
-
-		openModal();
-	})();
 
 });

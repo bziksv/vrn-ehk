@@ -654,15 +654,15 @@ function OnAfterUserRegisterHandler(&$arFields)
 
 	try {
 		$session = \Bitrix\Main\Application::getInstance()->getSession();
-		$session->set('PRIME_ALERTS_JUST_REGISTERED', 'Y');
-		$session->remove('prime_alerts_email_confirm_dismissed');
+		$session->set('VRN_EHK_JUST_REGISTERED', 'Y');
+		$session->remove('VRN_EHK_EMAIL_CONFIRM_ACK');
 	} catch (\Throwable $e) {
 		// ignore
 	}
 
 	if ($arFields['CONFIRM_CODE']) {
-		$event = new CEvent;
-		$event->SendImmediate('USER_WELCOME', SITE_ID, $arFields);
+		require_once $_SERVER['DOCUMENT_ROOT'].'/bitrix/php_interface/include/env.php';
+		vrnEhkSendEmailConfirm($userId);
 	}
 }
 

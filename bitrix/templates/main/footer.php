@@ -575,16 +575,105 @@
         </div>
         <? endif; ?>
 
-		<div id="reg-confirmed-modal" class="reg-confirmed-modal" aria-hidden="true">
+		<?
+		$vrnRegModalOpen = false;
+		$vrnRegModalMode = 'confirmed';
+		$vrnRegModalTitle = 'Регистрация подтверждена';
+		$vrnRegModalText = 'Вы успешно зарегистрировались и вошли в личный кабинет. Можете оформлять заказы и управлять профилем.';
+		$vrnRegModalBtn = 'Отлично';
+
+		if (isset($_GET['reg_confirmed']) && $_GET['reg_confirmed'] === 'Y') {
+			$vrnRegModalOpen = true;
+		} elseif (is_object($USER) && $USER->IsAuthorized()) {
+			$vrnQuiet = (
+				strpos($curPage, '/confirm') === 0
+				|| strpos($curPage, '/auth/') === 0
+				|| strpos($curPage, '/login') === 0
+				|| strpos($curPage, '/make-order/') === 0
+			);
+			try {
+				$session = \Bitrix\Main\Application::getInstance()->getSession();
+				$justReg = $session->get('VRN_EHK_JUST_REGISTERED') === 'Y'
+					|| $session->get('PRIME_ALERTS_JUST_REGISTERED') === 'Y';
+				$acked = $session->get('VRN_EHK_EMAIL_CONFIRM_ACK') === 'Y';
+				$onPersonal = strpos($curPage, '/personal/') === 0;
+				if (!$vrnQuiet && !$acked && ($justReg || $onPersonal)) {
+					$confirmRow = CUser::GetByID($USER->GetID())->Fetch();
+					$unconfirmed = trim((string)($confirmRow['CONFIRM_CODE'] ?? '')) !== '';
+					if ($unconfirmed) {
+						$vrnRegModalOpen = true;
+						$vrnRegModalMode = 'email-confirm';
+						$vrnRegModalTitle = 'Подтвердите почту';
+						$vrnRegModalText = $justReg
+							? 'На указанный адрес отправлена ссылка для подтверждения регистрации. Можете сразу оформлять заказы — просто перейдите по ссылке из письма, когда будет удобно.'
+							: 'Вы до сих пор не подтвердили почту. Перейдите по ссылке из письма — так мы будем уверены, что ящик ваш.';
+						$vrnRegModalBtn = 'Понятно';
+						$session->set('VRN_EHK_EMAIL_CONFIRM_ACK', 'Y');
+						$session->remove('VRN_EHK_JUST_REGISTERED');
+						$session->remove('PRIME_ALERTS_JUST_REGISTERED');
+					}
+				}
+			} catch (\Throwable $e) {
+				// ignore
+			}
+		}
+		?>
+		<div id="reg-confirmed-modal" class="reg-confirmed-modal<?= $vrnRegModalOpen ? ' active' : '' ?><?= $vrnRegModalMode === 'email-confirm' ? ' is-remind' : '' ?>" data-mode="<?= htmlspecialcharsbx($vrnRegModalMode) ?>" aria-hidden="<?= $vrnRegModalOpen ? 'false' : 'true' ?>">
 			<div class="reg-confirmed-overlay"></div>
 			<div class="reg-confirmed-content" role="dialog" aria-modal="true" aria-labelledby="reg-confirmed-title">
 				<button type="button" class="reg-confirmed-close" aria-label="Закрыть">&times;</button>
 				<div class="reg-confirmed-icon" aria-hidden="true"></div>
-				<div id="reg-confirmed-title" class="reg-confirmed-title">Регистрация подтверждена</div>
-				<p class="reg-confirmed-text">Вы успешно зарегистрировались и вошли в личный кабинет. Можете оформлять заказы и управлять профилем.</p>
-				<button type="button" class="reg-confirmed-btn">Отлично</button>
+				<div id="reg-confirmed-title" class="reg-confirmed-title"><?= htmlspecialcharsbx($vrnRegModalTitle) ?></div>
+				<p class="reg-confirmed-text"><?= htmlspecialcharsbx($vrnRegModalText) ?></p>
+				<button type="button" class="reg-confirmed-btn"><?= htmlspecialcharsbx($vrnRegModalBtn) ?></button>
 			</div>
 		</div>
+		<script>
+		(function () {
+			var modal = document.getElementById('reg-confirmed-modal');
+			if (!modal) return;
+			var params = new URLSearchParams(window.location.search);
+			var fromUrl = params.get('reg_confirmed') === 'Y';
+			function openModal() {
+				modal.classList.add('active');
+				modal.setAttribute('aria-hidden', 'false');
+				document.body.classList.add('reg-confirmed-open');
+			}
+			function closeModal() {
+				modal.classList.remove('active');
+				modal.setAttribute('aria-hidden', 'true');
+				document.body.classList.remove('reg-confirmed-open');
+			}
+			modal.addEventListener('click', function (e) {
+				if (e.target.closest('.reg-confirmed-overlay, .reg-confirmed-close, .reg-confirmed-btn')) {
+					closeModal();
+				}
+			});
+			document.addEventListener('keydown', function (e) {
+				if (e.key === 'Escape' && modal.classList.contains('active')) {
+					closeModal();
+				}
+			});
+			if (fromUrl) {
+				params.delete('reg_confirmed');
+				var q = params.toString();
+				if (window.history && history.replaceState) {
+					history.replaceState({}, document.title, location.pathname + (q ? '?' + q : '') + location.hash);
+				}
+				openModal();
+			}
+			if (modal.getAttribute('data-mode') === 'email-confirm') {
+				try {
+					if (!sessionStorage.getItem('primeRegGoal')) {
+						sessionStorage.setItem('primeRegGoal', '1');
+						if (typeof ym === 'function') {
+							ym(29264840, 'reachGoal', 'Registracija031024143836', {}, function () {});
+						}
+					}
+				} catch (e) {}
+			}
+		})();
+		</script>
 
 		<!-- Yandex.Metrika counter -->
 		<script type="text/javascript">

@@ -89,3 +89,44 @@ if (!function_exists('vrnEhkFormatRuPhone'))
 		return '+7-'.$matches[1].'-'.$matches[2].'-'.$matches[3].'-'.$matches[4];
 	}
 }
+
+if (!function_exists('vrnEhkSendEmailConfirm'))
+{
+	function vrnEhkSendEmailConfirm($userId)
+	{
+		$userId = (int)$userId;
+		if ($userId <= 0) {
+			return false;
+		}
+
+		$rs = CUser::GetByID($userId);
+		$user = $rs ? $rs->Fetch() : null;
+		if (!$user || trim((string)$user['EMAIL']) === '') {
+			return false;
+		}
+
+		$code = trim((string)($user['CONFIRM_CODE'] ?? ''));
+		if ($code === '') {
+			$code = RandString(8);
+			$u = new CUser();
+			if (!$u->Update($userId, ['CONFIRM_CODE' => $code])) {
+				return false;
+			}
+		}
+
+		$arFields = [
+			'USER_ID' => $userId,
+			'ID' => $userId,
+			'LOGIN' => $user['LOGIN'],
+			'EMAIL' => $user['EMAIL'],
+			'NAME' => $user['NAME'],
+			'LAST_NAME' => $user['LAST_NAME'],
+			'CONFIRM_CODE' => $code,
+			'PASSWORD' => '',
+		];
+		$event = new CEvent;
+		$event->SendImmediate('USER_WELCOME', SITE_ID, $arFields);
+
+		return true;
+	}
+}

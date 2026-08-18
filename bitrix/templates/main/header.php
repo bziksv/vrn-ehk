@@ -17,7 +17,7 @@
 		<script type="text/javascript" src="<?=SITE_TEMPLATE_PATH?>/js/lightbox.min.js"></script>
 		<script src="<?=SITE_TEMPLATE_PATH?>/js/jquery.selectbox.min.js"></script>
 		<script type="text/javascript" src="<?=SITE_TEMPLATE_PATH?>/js/jquery-ui.js"></script>
-		<script type="text/javascript" src="<?=SITE_TEMPLATE_PATH?>/js/scripts.js"></script>
+		<script type="text/javascript" src="<?=SITE_TEMPLATE_PATH?>/js/scripts.js?v=email-confirm-1"></script>
 		<script src="/bitrix/templates/main/js/inputmask/jquery.inputmask.js" type="text/javascript"></script>
 		<script src="/bitrix/templates/main/js/inputmask/jquery.inputmask.extensions.js" type="text/javascript"></script>
 

@@ -126,9 +126,16 @@ $APPLICATION->SetTitle("Личный кабинет");
 							<fieldset>
 								<div class="line">
 									<span class="label">E-mail *</span>
-									<span class="value"><input type="text" value="<?=$cur_user["EMAIL"]?>" name="EMAIL" class="email_check req"></span>
+									<span class="value"><input type="text" value="<?=$cur_user["EMAIL"]?>" name="EMAIL" class="email_check req" data-original-email="<?=$cur_user["EMAIL"]?>"></span>
 									<div class="clear"></div>
-									<span class="hint">Используется как логин</span>
+									<?php if (trim((string)($cur_user['CONFIRM_CODE'] ?? '')) !== ''): ?>
+									<div class="contact-status is-wait">
+										<span>Почта не подтверждена</span>
+										<button type="button" class="contact-status__btn" data-email-confirm="1" data-sessid="<?=bitrix_sessid()?>">Выслать письмо</button>
+									</div>
+									<?php else: ?>
+									<div class="contact-status is-ok">Почта подтверждена — используется как логин</div>
+									<?php endif; ?>
 									<div class="clear"></div>
 								</div>
 								<div class="line">

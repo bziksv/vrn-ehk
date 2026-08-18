@@ -85,6 +85,7 @@ ErrorDocument 404 /404.php
   
   # УДАЛИТЬ эту строку: RewriteEngine On (дублируется)
   RewriteCond %{HTTPS} =off
+  RewriteCond %{HTTP_HOST} !^dev\.vrn-ehk\.ru$ [NC]
   RewriteCond %{REQUEST_URI} !^/bitrix/admin/1c_exchange.php
   RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [QSA,R=301,L]
   

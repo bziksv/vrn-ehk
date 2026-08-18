@@ -48,6 +48,8 @@
 
 Gitignored-файлы на dev (конфиги БД, лицензия, `upload/`) берутся с prod: `dbconn.php`, `.settings.php`, `license_key.php`; каталог `upload/` — симлинк на prod, потому что медиа общее.
 
+Пока в FastPanel не выпущен SSL на поддомен, **https://dev.vrn-ehk.ru** попадает на сертификат prod. Стенд открывать по **http://dev.vrn-ehk.ru/** (редирект на HTTPS для этого хоста отключён в `.htaccess`). После выпуска сертификата в FastPanel можно вернуть HTTPS.
+
 ### Деплой на dev
 
 ```bash

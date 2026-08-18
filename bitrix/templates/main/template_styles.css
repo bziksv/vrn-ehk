@@ -766,6 +766,21 @@ a.button:hover{ background: #fff; color: #b26742; }
 .personal_enter .why ul{ margin: 20px 0 0 0; padding: 0px; list-style: none; }
 .personal_enter .why ul li{ background: url('images/auth_ul_ico.jpg') left top no-repeat transparent; padding-left: 40px; margin: 0 0 20px 0; font-size: 12px; }
 
+.personal_enter .reg .reg-form-error{
+	width: 240px;
+	margin: 0 0 16px;
+	font-size: 13px;
+	line-height: 1.4;
+	color: #a64221;
+	white-space: pre-line;
+}
+.personal_enter .reg .reg-form-error[hidden]{
+	display: none;
+}
+.personal_enter > font.errortext,
+.personal_enter > .errortext{
+	display: none;
+}
 .personal_enter .prime-alerts-live-notice{
 	width: 252px;
 	max-width: 100%;

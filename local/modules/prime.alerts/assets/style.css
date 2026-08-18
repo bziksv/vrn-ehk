@@ -95,6 +95,7 @@
 	max-width: 520px;
 	width: 100%;
 	max-height: calc(100vh - 32px);
+	overflow-x: hidden;
 	overflow-y: auto;
 	box-sizing: border-box;
 	color: var(--pa-text, #404040);
@@ -165,7 +166,10 @@
 	border: 1px solid var(--pa-fact, #e8d7a0);
 	border-radius: 4px;
 	padding: 8px 12px;
-	flex: 1 1 180px;
+	flex: 1 1 220px;
+	min-width: 0;
+	max-width: 100%;
+	box-sizing: border-box;
 }
 .prime-alerts-profile-modal__facts > li > span {
 	display: block;
@@ -181,27 +185,41 @@
 	text-align: center;
 }
 .prime-alerts-profile-modal__fact-phone {
-	flex: 1 1 100%;
+	flex: 1 1 220px;
 }
 .prime-alerts-profile-modal__phone-row {
 	display: flex;
+	flex-direction: column;
 	align-items: center;
-	justify-content: center;
-	flex-wrap: wrap;
-	gap: 8px 12px;
+	justify-content: flex-start;
+	gap: 8px;
+	width: 100%;
 }
 .prime-alerts-profile-modal__phone-row strong {
-	display: inline;
+	display: block;
 	font-variant-numeric: tabular-nums;
 	text-align: center;
+	word-break: break-word;
 }
 .prime-alerts-profile-modal__phone-row .is-inline {
-	display: inline-flex;
-	flex-wrap: wrap;
+	display: flex;
+	flex-direction: column;
 	align-items: center;
-	justify-content: center;
+	flex-wrap: nowrap;
 	gap: 8px;
-	flex: 0 0 auto;
+	width: 100%;
+	flex: none;
+	min-width: 0;
+}
+.prime-alerts-profile-modal__phone-row .prime-phoneauth-specify {
+	width: 168px;
+	max-width: 100%;
+	height: 32px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	padding: 0 10px;
+	font-size: 14px;
+	box-sizing: border-box;
 }
 .prime-alerts-profile-modal__phone-row .prime-phoneauth-prompt__btn.is-compact {
 	display: inline-block;
@@ -214,19 +232,33 @@
 	line-height: 24px;
 	white-space: nowrap;
 }
+.prime-alerts-profile-modal__phone-row .prime-phoneauth-status {
+	margin: 0;
+	font-size: 13px;
+	line-height: 1.35;
+	text-align: center;
+}
 .prime-alerts-profile-modal__phone-row .prime-phoneauth-wait,
 .prime-alerts-profile-modal__phone-row .prime-phoneauth-error,
 .prime-alerts-profile-modal__phone-row .prime-phoneauth-reg__accounts {
-	flex-basis: 100%;
+	flex: none;
 	width: 100%;
-	margin-top: 6px;
+	max-width: 100%;
+	margin: 0;
+	box-sizing: border-box;
+	text-align: center;
+	overflow-wrap: anywhere;
+	word-break: break-word;
+	white-space: normal;
 }
 .prime-alerts-profile-modal__phone-row .prime-phoneauth-test {
 	width: 100%;
 }
 .prime-alerts-profile-modal__phone-row .prime-phoneauth-number {
-	font-size: 18px;
-	text-align: left;
+	display: inline;
+	font-size: 16px;
+	text-align: inherit;
+	margin: 0;
 }
 .prime-alerts-profile-modal__actions {
 	display: flex;
@@ -279,6 +311,52 @@
 }
 body.prime-alerts-profile-open {
 	overflow: hidden;
+}
+.prime-alerts-profile-banner {
+	margin: 0 0 20px;
+	padding: 16px 18px;
+	background: var(--pa-bg, #fffdf6);
+	border: 1px solid var(--pa-border, #e0c36a);
+	border-left: 4px solid var(--pa-accent, #a64221);
+	box-sizing: border-box;
+	color: var(--pa-text, #404040);
+}
+.prime-alerts-profile-banner__title {
+	font-weight: 700;
+	font-size: 16px;
+	margin: 0 0 8px;
+	color: var(--pa-accent, #a64221);
+}
+.prime-alerts-profile-banner__text {
+	font-size: 13px;
+	line-height: 1.45;
+}
+.prime-alerts-profile-banner__text p {
+	margin: 0 0 8px;
+}
+.prime-alerts-profile-banner__text p:last-child {
+	margin-bottom: 0;
+}
+.prime-alerts-profile-banner .prime-alerts-profile-modal__facts {
+	margin: 12px 0 0;
+}
+.prime-alerts-profile-modal__note:empty {
+	display: none;
+}
+.prime-alerts-profile-modal__note {
+	margin: 10px 0 12px;
+	color: #a64221;
+	font-size: 13px;
+	line-height: 1.45;
+	white-space: normal;
+	overflow-wrap: anywhere;
+	word-break: break-word;
+	max-width: 100%;
+	box-sizing: border-box;
+}
+.prime-alerts-profile-modal__note .prime-phoneauth-error {
+	margin: 0;
+	white-space: normal;
 }
 .prime-alerts-profile-modal__phone {
 	margin: 0 0 16px;

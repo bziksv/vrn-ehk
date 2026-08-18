@@ -1030,6 +1030,10 @@
 	height: 10px;
 	cursor: pointer;
 	padding: 0;
+	font-size: 0;
+	line-height: 0;
+	color: transparent;
+	overflow: hidden;
 }
 
 .reg-confirmed-close:hover {

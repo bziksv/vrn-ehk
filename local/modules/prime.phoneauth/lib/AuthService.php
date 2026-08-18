@@ -82,7 +82,7 @@ class AuthService
 	{
 		return 'Этот номер уже есть в других аккаунтах. '
 			. 'Если это вы — войдите по логину и паролю и подтвердите телефон в профиле. '
-			. 'Если доступа к старым ящикам нет — можно завести новый аккаунт и жёстко подтвердить номер звонком с этого телефона.';
+			. 'Если доступа к старым ящикам нет — можно завести новый аккаунт и жёстко подтвердить номер звонком с этого телефона, или подтвердить текущий, если вы уже вошли.';
 	}
 
 	/**
@@ -181,7 +181,7 @@ class AuthService
 			$norm = Phone::national10($phoneRaw);
 
 			return $norm !== ''
-				? self::startVerifyForUser((int)$USER->GetID(), $norm)
+				? self::startVerifyForUser((int)$USER->GetID(), $norm, $claim)
 				: ['ok' => false, 'error' => 'Укажите корректный номер телефона РФ.'];
 		}
 
@@ -283,7 +283,7 @@ class AuthService
 	/**
 	 * @return array<string,mixed>
 	 */
-	public static function start(string $phoneRaw, ?int $asUserId = null): array
+	public static function start(string $phoneRaw, ?int $asUserId = null, bool $claim = false): array
 	{
 		if (!Config::isEnabled()) {
 			return ['ok' => false, 'error' => 'Вход по телефону выключен.'];
@@ -295,7 +295,7 @@ class AuthService
 		}
 
 		if ($asUserId) {
-			return self::startVerifyForUser($asUserId, $norm);
+			return self::startVerifyForUser($asUserId, $norm, $claim);
 		}
 
 		$users = self::findUsersByPhone($norm);
@@ -341,7 +341,7 @@ class AuthService
 	}
 
 	/** @return array<string,mixed> */
-	protected static function startVerifyForUser(int $userId, string $norm): array
+	protected static function startVerifyForUser(int $userId, string $norm, bool $claim = false): array
 	{
 		global $USER;
 		if (!is_object($USER) || !$USER->IsAuthorized() || (int)$USER->GetID() !== $userId) {
@@ -355,25 +355,32 @@ class AuthService
 		}
 
 		$phoneNorm = Phone::national10((string)$row['PERSONAL_PHONE']);
-		if ($phoneNorm === '' || $phoneNorm !== $norm) {
-			return ['ok' => false, 'error' => 'Сначала сохраните этот номер в профиле.'];
+		if ($phoneNorm !== $norm) {
+			$user = new \CUser();
+			if (!$user->Update($userId, ['PERSONAL_PHONE' => Phone::format('7' . $norm)])) {
+				$err = trim((string)$user->LAST_ERROR);
+				return ['ok' => false, 'error' => $err !== '' ? $err : 'Не удалось сохранить номер.'];
+			}
 		}
 
 		$others = [];
+		$confirmedOthers = [];
 		foreach (self::findUsersByPhone($norm) as $u) {
 			if ((int)$u['ID'] === $userId) {
 				continue;
 			}
+			$others[] = $u;
 			if (self::isConfirmed($u[self::UF_CONFIRMED] ?? 0)) {
-				$others[] = $u;
+				$confirmedOthers[] = $u;
 			}
 		}
-		if ($others !== []) {
+		if ($confirmedOthers !== [] && !$claim) {
 			return [
 				'ok' => false,
 				'status' => 'duplicate',
 				'error' => 'Этот номер уже подтверждён в другом аккаунте. Укажите другой телефон или войдите в тот аккаунт.',
 				'accounts' => self::accountEmails($others),
+				'canClaim' => true,
 			];
 		}
 

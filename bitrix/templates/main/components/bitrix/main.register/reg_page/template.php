@@ -36,19 +36,39 @@ else
 		$arResult['ERRORS']['POLITIC'] = 'Поле "Политика конфиденциальности" обязательно для заполнения';
 	}
 	
+	$regErrors = [];
 	if(count($arResult["ERRORS"]) > 0)
 	{	
 		foreach ($arResult["ERRORS"] as $key => $error)
 			if (intval($key) == 0 && $key !== 0) 
 				$arResult["ERRORS"][$key] = str_replace("#FIELD_NAME#", "&quot;".GetMessage("REGISTER_FIELD_".$key)."&quot;", $error);
 
-		ShowError(implode("<br />", $arResult["ERRORS"]));
+		$existsError = false;
+		foreach ($arResult["ERRORS"] as $error) {
+			$text = trim(strip_tags((string)$error));
+			if ($text === '') {
+				continue;
+			}
+			if (stripos($text, 'уже существует') !== false) {
+				$existsError = true;
+				continue;
+			}
+			$regErrors[] = $text;
+		}
+		if ($existsError) {
+			array_unshift($regErrors, 'Пользователь с таким e-mail уже зарегистрирован. Войдите или укажите другой адрес.');
+		}
 	}
 	?>
 	
 	<div class="reg">
 		<div class="title">Регистрация<span class="ico"><img src="<?=SITE_TEMPLATE_PATH?>/images/auth_2.png" width="35" height="45" alt="Войти"></span></div>
 		<form method="post" action="<?=POST_FORM_ACTION_URI?>" name="regform" enctype="multipart/form-data">
+			<div class="reg-form-error"<?= empty($regErrors) ? ' hidden' : '' ?>><?php
+				if (!empty($regErrors)) {
+					echo htmlspecialcharsbx(implode("\n", $regErrors));
+				}
+			?></div>
 			<?if($arResult["BACKURL"] <> '')
 			{?>
 				<input type="hidden" name="backurl" value="<?=$arResult["BACKURL"]?>" />

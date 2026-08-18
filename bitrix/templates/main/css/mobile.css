@@ -641,7 +641,8 @@ h1,
 .personal_enter .auth .prime-phoneauth-panel[data-panel="phone"],
 .personal_enter .auth .prime-phoneauth-wait,
 .personal_enter .auth .prime-phoneauth-number,
-.personal_enter .auth .prime-phoneauth-test{
+.personal_enter .auth .prime-phoneauth-test,
+.personal_enter .reg .reg-form-error{
     width: 100%;
 }
 .personal_enter .prime-alerts-live-notice{

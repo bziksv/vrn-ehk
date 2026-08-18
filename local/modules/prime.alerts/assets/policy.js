@@ -9,7 +9,7 @@
 	if (!cfg) return;
 
 	function placeProfileBanner() {
-		var node = document.querySelector('.prime-alerts-profile-modal');
+		var node = document.querySelector('.prime-alerts-profile-modal, .prime-alerts-profile-banner');
 		if (!node) {
 			var html = cfg.profileBannerHtml;
 			if (!html) {
@@ -21,12 +21,35 @@
 			if (!node) {
 				return;
 			}
-			document.body.appendChild(node);
 		}
+
+		if (typeof window.primePhoneauthMountProfile === 'function') {
+			window.primePhoneauthMountProfile(node);
+		}
+
+		if (node.classList.contains('prime-alerts-profile-banner')) {
+			var personal = document.querySelector('.personal_page');
+			if (!personal) {
+				return;
+			}
+			if (node.parentNode !== personal) {
+				var menu = personal.querySelector('.pers_pages_menu');
+				if (menu && menu.nextSibling) {
+					personal.insertBefore(node, menu.nextSibling);
+				} else {
+					personal.insertBefore(node, personal.firstChild);
+				}
+			}
+			return;
+		}
+
 		if (node.parentNode !== document.body) {
 			document.body.appendChild(node);
 		}
 		document.body.classList.add('prime-alerts-profile-open');
+		if (typeof window.primePhoneauthMountProfile === 'function') {
+			window.primePhoneauthMountProfile(node);
+		}
 
 		function postSnooze(mode) {
 			var url = cfg.snoozeUrl || '/local/modules/prime.alerts/ajax/snooze.php';
@@ -45,10 +68,7 @@
 			}).catch(function () {});
 		}
 
-		function closeModal(skipDismiss) {
-			if (!skipDismiss && cfg.emailUnconfirmed) {
-				postSnooze('dismiss');
-			}
+		function closeModal() {
 			node.parentNode && node.parentNode.removeChild(node);
 			document.body.classList.remove('prime-alerts-profile-open');
 		}
@@ -59,7 +79,7 @@
 				btn.disabled = true;
 			}
 			postSnooze().then(function () {
-				closeModal(true);
+				closeModal();
 			});
 		}
 

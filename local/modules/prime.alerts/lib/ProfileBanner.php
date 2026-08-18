@@ -17,15 +17,16 @@ class ProfileBanner
 			return false;
 		}
 
-		if (self::isSnoozed()) {
+		$needs = self::emailUnconfirmed() || self::emailNeedsAttention() || self::phoneIssue();
+		if (!$needs) {
 			return false;
 		}
 
 		if (self::isPersonalPath()) {
-			return false;
+			return true;
 		}
 
-		return self::emailNeedsAttention() || self::phoneNeedsAttention();
+		return !self::isSnoozed();
 	}
 
 	public static function isQuietPath(): bool
@@ -125,6 +126,19 @@ class ProfileBanner
 		}
 
 		return trim((string)($state['phone'] ?? '')) !== '';
+	}
+
+	public static function phoneIssue(): bool
+	{
+		$state = self::phoneAuthState();
+		if ($state === null) {
+			return false;
+		}
+		if (!empty($state['confirmed'])) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/** @return array{phone:string,confirmed:bool,duplicate:bool,accounts:list<string>}|null */
@@ -295,21 +309,52 @@ class ProfileBanner
 		$needConfirm = self::phoneAuthAvailable() && self::phoneNeedsAttention();
 		$emailUnconfirmed = self::emailUnconfirmed($data);
 		$emailBad = self::emailNeedsAttention($data);
-		$showSnooze = $emailBad || $needConfirm;
+		$showSnooze = true;
 		$emailEsc = htmlspecialcharsbx($email);
 		$phoneEsc = htmlspecialcharsbx($phone);
 		$urlEsc = htmlspecialcharsbx($data['profileUrl']);
 		$title = htmlspecialcharsbx(self::getTitle());
 		$body = self::getBodyHtml();
 
+		$phoneEmpty = trim((string)($data['phone'] ?? '')) === '';
+		$canPhone = self::phoneAuthAvailable();
+		$phoneState = self::phoneAuthState();
+		$phoneConfirmed = $canPhone && !empty($phoneState['confirmed']);
+		$sessid = function_exists('bitrix_sessid') ? bitrix_sessid() : '';
+		$emailLi = '<li><span>Почта в профиле</span><strong>' . $emailEsc . '</strong></li>';
+		if ($emailUnconfirmed) {
+			$emailLi = '<li>'
+				. '<span>Почта в профиле</span>'
+				. '<div class="prime-alerts-profile-modal__phone-row">'
+				. '<strong>' . $emailEsc . '</strong>'
+				. '<button type="button" class="prime-phoneauth-prompt__btn is-compact" data-email-confirm="1" data-sessid="' . htmlspecialcharsbx($sessid) . '">Выслать письмо</button>'
+				. '</div></li>';
+		}
 		$phoneLi = '<li><span>Телефон в профиле</span><strong>' . $phoneEsc . '</strong></li>';
-		if ($needConfirm) {
-			$phoneLi = '<li class="prime-alerts-profile-modal__fact-phone">'
+		if ($canPhone && ($phoneEmpty || $needConfirm)) {
+			$phoneLi = '<li>'
+				. '<span>Телефон в профиле</span>'
+				. '<div class="prime-alerts-profile-modal__phone-row">'
+				. ($phoneEmpty ? '' : '<strong>' . $phoneEsc . '</strong>')
+				. '<span class="is-inline" data-prime-phone-confirm="1"></span>'
+				. '</div></li>';
+		} elseif ($phoneConfirmed) {
+			$phoneLi = '<li>'
 				. '<span>Телефон в профиле</span>'
 				. '<div class="prime-alerts-profile-modal__phone-row">'
 				. '<strong>' . $phoneEsc . '</strong>'
-				. '<span class="is-inline" data-prime-phone-confirm="1"></span>'
+				. '<div class="prime-phoneauth-status is-ok">Номер подтверждён — можно входить по телефону</div>'
 				. '</div></li>';
+		}
+		$facts = '<ul class="prime-alerts-profile-modal__facts">' . $emailLi . $phoneLi . '</ul>'
+			. '<div class="prime-alerts-profile-modal__note" data-prime-phone-note="1"></div>';
+
+		if (self::isPersonalPath()) {
+			return '<div class="prime-alerts-profile-banner" role="status">'
+				. '<div class="prime-alerts-profile-banner__title">' . $title . '</div>'
+				. '<div class="prime-alerts-profile-banner__text">' . $body . '</div>'
+				. $facts
+				. '</div>';
 		}
 
 		$primary = ($emailUnconfirmed && !$emailBad)
@@ -322,14 +367,11 @@ class ProfileBanner
 		return '<div class="prime-alerts-profile-modal" role="dialog" aria-modal="true" aria-labelledby="prime-alerts-profile-title" data-email-unconfirmed="' . ($emailUnconfirmed ? '1' : '0') . '">'
 			. '<div class="prime-alerts-profile-modal__overlay"></div>'
 			. '<div class="prime-alerts-profile-modal__box">'
-			. '<button type="button" class="prime-alerts-profile-modal__close" data-prime-alerts-close="1" aria-label="Закрыть">&times;</button>'
+			. '<button type="button" class="prime-alerts-profile-modal__close" data-prime-alerts-close="1" aria-label="Закрыть"></button>'
 			. '<div class="prime-alerts-profile-modal__icon" aria-hidden="true">!</div>'
 			. '<div id="prime-alerts-profile-title" class="prime-alerts-profile-modal__title">' . $title . '</div>'
 			. '<div class="prime-alerts-profile-modal__text">' . $body . '</div>'
-			. '<ul class="prime-alerts-profile-modal__facts">'
-			. '<li><span>Почта в профиле</span><strong>' . $emailEsc . '</strong></li>'
-			. $phoneLi
-			. '</ul>'
+			. $facts
 			. '<div class="prime-alerts-profile-modal__actions">'
 			. $primary
 			. $snooze

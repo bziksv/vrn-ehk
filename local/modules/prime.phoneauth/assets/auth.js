@@ -47,7 +47,7 @@
 	function waitMarkup() {
 		return '<p data-role="message"></p>'
 			+ '<p>Звоните с номера <strong data-role="from-phone"></strong></p>'
-			+ '<a class="prime-phoneauth-number" data-role="call-number"></a>'
+			+ '<p>Звоните на телефон: <a class="prime-phoneauth-number" data-role="call-number"></a></p>'
 			+ '<div class="prime-phoneauth-error" data-role="wait-error" style="display:none"></div>'
 			+ '<button type="button" class="prime-phoneauth-test" data-role="test">Я позвонил (тест)</button>'
 			+ '<button type="button" class="prime-phoneauth-back" data-role="back">Отмена</button>';
@@ -81,12 +81,20 @@
 		var wrap = document.createElement('div');
 		wrap.className = 'prime-phoneauth-modal';
 		var overlayClose = opts.lock ? '0' : '1';
-		var chooseActions = opts.startClaim
-			? '<div class="prime-phoneauth-modal__actions">'
-				+ '<button type="button" class="prime-phoneauth-modal__btn" data-claim="1">Всё равно создать новый — подтвердить звонком</button>'
-				+ '<button type="button" class="prime-phoneauth-modal__btn is-ghost" data-login="1">Войти в существующий аккаунт</button>'
-				+ '</div>'
-			: '<button type="button" class="prime-phoneauth-modal__btn" data-close="1">Понятно</button>';
+		var claimLabel = opts.claimLabel || (cfg.authorized
+			? 'Подтвердить звонком'
+			: 'Всё равно создать новый — подтвердить звонком');
+		var chooseActions;
+		if (opts.startClaim) {
+			chooseActions = '<div class="prime-phoneauth-modal__actions">'
+				+ '<button type="button" class="prime-phoneauth-modal__btn" data-claim="1">' + claimLabel + '</button>'
+				+ (cfg.authorized
+					? '<button type="button" class="prime-phoneauth-modal__btn is-ghost" data-close="1">Понятно</button>'
+					: '<button type="button" class="prime-phoneauth-modal__btn is-ghost" data-login="1">Войти в существующий аккаунт</button>')
+				+ '</div>';
+		} else {
+			chooseActions = '<button type="button" class="prime-phoneauth-modal__btn" data-close="1">Понятно</button>';
+		}
 		wrap.innerHTML = '<div class="prime-phoneauth-modal__overlay" data-close="' + overlayClose + '"></div>'
 			+ '<div class="prime-phoneauth-modal__box">'
 			+ '<div class="prime-phoneauth-modal__title"></div>'
@@ -367,6 +375,17 @@
 		}
 	}
 
+	function loggedInClaimOpts(getPhone) {
+		return {
+			startClaim: function () {
+				var phone = typeof getPhone === 'function' ? getPhone() : (getPhone || cfg.phone || '');
+				return postForm(cfg.startUrl, { phone: phone, verify: 'Y', claim: 'Y' });
+			},
+			onConfirmed: function () { window.location.reload(); },
+			claimLabel: 'Подтвердить звонком'
+		};
+	}
+
 	function initProfile() {
 		if (!cfg.authorized) return;
 		var phoneInput = document.querySelector('#personal-contacts input[name="PERSONAL_PHONE"]');
@@ -382,27 +401,17 @@
 			line.appendChild(status);
 			return;
 		}
-		if (cfg.duplicate) {
-			status.className += ' is-wait';
-			status.textContent = 'Этот номер указан ещё в других аккаунтах.';
-			line.appendChild(status);
-			showDuplicate(cfg.duplicateMessage, cfg.duplicateAccounts);
-			return;
-		}
-
 		status.className += ' is-wait';
-		status.innerHTML = '<span>Номер не подтверждён</span>'
+		status.innerHTML = '<span>' + (cfg.duplicate
+			? 'Этот номер указан ещё в других аккаунтах.'
+			: 'Номер не подтверждён') + '</span>'
 			+ '<button type="button" class="prime-phoneauth-prompt__btn is-compact" data-role="verify">Подтвердить звонком</button>';
 		line.appendChild(status);
 
 		var waitBox = document.createElement('div');
 		waitBox.className = 'prime-phoneauth-wait';
 		waitBox.style.display = 'none';
-		waitBox.innerHTML = '<p data-role="message"></p>'
-			+ '<p>Звоните с номера <strong data-role="from-phone"></strong></p>'
-			+ '<a class="prime-phoneauth-number" data-role="call-number"></a>'
-			+ '<button type="button" class="prime-phoneauth-test" data-role="test">Я позвонил (тест)</button>'
-			+ '<button type="button" class="prime-phoneauth-back" data-role="back">Отмена</button>';
+		waitBox.innerHTML = waitMarkup();
 		line.appendChild(waitBox);
 
 		var pollTimer = null;
@@ -423,28 +432,28 @@
 					.catch(function () {});
 			}, 2000);
 		}
+		function showProfileWait(data) {
+			waitBox.style.display = '';
+			fillWaitBox(waitBox, data);
+			startPoll(data.token);
+		}
 
 		status.querySelector('[data-role="verify"]').addEventListener('click', function () {
-			postForm(cfg.startUrl, { phone: phoneInput.value, verify: 'Y' })
+			var payload = { phone: phoneInput.value, verify: 'Y' };
+			if (cfg.duplicate) payload.claim = 'Y';
+			postForm(cfg.startUrl, payload)
 				.then(function (data) {
 					if (!data || !data.ok) {
 						if (data && data.status === 'duplicate') {
-							showDuplicate(data.error, data.accounts);
+							showDuplicate(cfg.duplicateMessage, data.accounts || cfg.duplicateAccounts, null, loggedInClaimOpts(function () {
+								return phoneInput.value;
+							}));
 							return;
 						}
 						alert((data && data.error) || 'Не удалось начать подтверждение');
 						return;
 					}
-					waitBox.style.display = '';
-					waitBox.querySelector('[data-role="message"]').textContent = data.message || '';
-					waitBox.querySelector('[data-role="from-phone"]').textContent = data.phone || cfg.phone || '';
-					var num = waitBox.querySelector('[data-role="call-number"]');
-					var n = data.callNumber || cfg.callNumber || '';
-					num.textContent = n || 'номер для звонка не настроен';
-					if (n) num.href = 'tel:+' + String(n).replace(/\D/g, '');
-					waitBox.querySelector('[data-role="test"]').style.display = data.testConfirm ? '' : 'none';
-					waitBox.setAttribute('data-token', data.token || '');
-					startPoll(data.token);
+					showProfileWait(data);
 				});
 		});
 		waitBox.querySelector('[data-role="back"]').addEventListener('click', function () {
@@ -459,6 +468,12 @@
 				}
 			});
 		});
+
+		if (cfg.duplicate) {
+			showDuplicate(cfg.duplicateMessage, cfg.duplicateAccounts, null, loggedInClaimOpts(function () {
+				return phoneInput.value;
+			}));
+		}
 	}
 
 	function phoneReady(value) {
@@ -489,7 +504,7 @@
 			+ '<div class="prime-phoneauth-wait" data-role="wait" style="display:none">'
 			+ '<p data-role="message"></p>'
 			+ '<p>Звоните с номера <strong data-role="from-phone"></strong></p>'
-			+ '<a class="prime-phoneauth-number" data-role="call-number"></a>'
+			+ '<p>Звоните на телефон: <a class="prime-phoneauth-number" data-role="call-number"></a></p>'
 			+ '<button type="button" class="prime-phoneauth-test" data-role="test">Я позвонил (тест)</button>'
 			+ '<button type="button" class="prime-phoneauth-back" data-role="back">Отмена</button>'
 			+ '</div>';
@@ -716,10 +731,14 @@
 		}
 
 		var compact = root.classList.contains('is-inline');
-		var label = compact ? 'Подтвердить' : 'Подтвердить звонком';
+		var needSpecify = !phoneReady(cfg.phone);
+		var label = needSpecify ? 'Указать' : (compact ? 'Подтвердить' : 'Подтвердить звонком');
 
 		root.innerHTML = '<div class="prime-phoneauth-error" data-role="error" style="display:none"></div>'
 			+ (cfg.duplicate ? '<ul class="prime-phoneauth-reg__accounts" data-role="accounts"></ul>' : '')
+			+ (needSpecify
+				? '<input type="tel" class="prime-phoneauth-specify" data-role="phone" inputmode="tel" autocomplete="tel" placeholder="+7-___-___-__-__">'
+				: '')
 			+ '<button type="button" class="prime-phoneauth-prompt__btn' + (compact ? ' is-compact' : '') + '" data-role="verify">' + label + '</button>'
 			+ '<div class="prime-phoneauth-wait" data-role="wait" style="display:none">' + waitMarkup() + '</div>';
 
@@ -727,6 +746,16 @@
 		var accountsEl = root.querySelector('[data-role="accounts"]');
 		var verifyBtn = root.querySelector('[data-role="verify"]');
 		var wait = root.querySelector('[data-role="wait"]');
+		var phoneInp = root.querySelector('[data-role="phone"]');
+		if (phoneInp && window.jQuery && jQuery.fn && jQuery.fn.inputmask) {
+			jQuery(phoneInp).inputmask('+7-999-999-99-99', { showMaskOnHover: false, placeholder: '_' });
+		}
+		var host = root.closest('.prime-alerts-profile-modal, .prime-alerts-profile-banner');
+		var note = host ? host.querySelector('[data-prime-phone-note="1"]') : null;
+		if (note) {
+			if (err) note.appendChild(err);
+			if (accountsEl) note.appendChild(accountsEl);
+		}
 		if (accountsEl) {
 			(cfg.duplicateAccounts || []).forEach(function (email) {
 				if (!email) return;
@@ -750,6 +779,10 @@
 			err.textContent = text || '';
 			err.style.display = text ? '' : 'none';
 		}
+		function currentPhone() {
+			if (phoneInp) return phoneInp.value || '';
+			return cfg.phone || '';
+		}
 		function startPoll(token) {
 			stopPoll();
 			if (!token) return;
@@ -764,6 +797,7 @@
 							stopPoll();
 							wait.style.display = 'none';
 							verifyBtn.style.display = '';
+							if (phoneInp) phoneInp.style.display = '';
 							setError(data.error || 'Время истекло');
 						}
 					})
@@ -772,22 +806,33 @@
 		}
 
 		verifyBtn.addEventListener('click', function () {
+			var phoneVal = currentPhone();
+			if (!phoneReady(phoneVal)) {
+				setError('Укажите корректный номер телефона РФ.');
+				if (phoneInp) phoneInp.focus();
+				return;
+			}
 			verifyBtn.disabled = true;
 			setError('');
-			postForm(cfg.startUrl, { phone: cfg.phone || '', verify: 'Y' })
+			postForm(cfg.startUrl, { phone: phoneVal, verify: 'Y', claim: cfg.duplicate ? 'Y' : '' })
 				.then(function (data) {
 					verifyBtn.disabled = false;
 					if (!data || !data.ok) {
 						if (data && data.status === 'duplicate') {
-							showDuplicate(data.error, data.accounts);
+							showDuplicate(cfg.duplicateMessage, data.accounts || cfg.duplicateAccounts, null, loggedInClaimOpts(currentPhone));
 						}
 						setError((data && (data.error || data.message)) || 'Не удалось начать подтверждение');
 						return;
 					}
+					var profileInp = document.querySelector('#personal-contacts input[name="PERSONAL_PHONE"]');
+					if (profileInp) {
+						profileInp.value = data.phone || phoneVal;
+					}
 					verifyBtn.style.display = 'none';
+					if (phoneInp) phoneInp.style.display = 'none';
 					wait.style.display = '';
 					wait.querySelector('[data-role="message"]').textContent = data.message || '';
-					wait.querySelector('[data-role="from-phone"]').textContent = data.phone || cfg.phone || '';
+					wait.querySelector('[data-role="from-phone"]').textContent = data.phone || phoneVal || cfg.phone || '';
 					var num = wait.querySelector('[data-role="call-number"]');
 					var n = data.callNumber || cfg.callNumber || '';
 					num.textContent = n || 'номер для звонка не настроен';
@@ -805,6 +850,7 @@
 			stopPoll();
 			wait.style.display = 'none';
 			verifyBtn.style.display = '';
+			if (phoneInp) phoneInp.style.display = '';
 		});
 		wait.querySelector('[data-role="test"]').addEventListener('click', function () {
 			var token = wait.getAttribute('data-token') || '';
@@ -878,6 +924,14 @@
 		initProfile();
 		setTimeout(initPhonePrompt, 0);
 	}
+
+	window.primePhoneauthMountProfile = function (root) {
+		var scope = root && root.querySelector ? root : document;
+		var slot = scope.querySelector('[data-prime-phone-confirm="1"]');
+		if (slot) {
+			mountPhoneConfirm(slot);
+		}
+	};
 
 	if (document.readyState === 'loading') {
 		document.addEventListener('DOMContentLoaded', onReady);

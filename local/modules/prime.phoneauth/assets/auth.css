@@ -57,12 +57,11 @@
 	margin: 0 0 8px;
 }
 .prime-phoneauth-number {
-	display: block;
-	text-align: center;
-	font-size: 22px;
+	display: inline;
+	font-size: 16px;
 	font-weight: 700;
 	color: #a64221;
-	margin: 12px 0;
+	margin: 0;
 	letter-spacing: 0.02em;
 }
 .prime-phoneauth-steps {
@@ -210,8 +209,9 @@
 	text-align: center;
 }
 .prime-phoneauth-modal__wait .prime-phoneauth-number {
-	font-size: 24px;
-	margin: 10px 0 16px;
+	display: inline;
+	font-size: 16px;
+	margin: 0;
 }
 .prime-phoneauth-modal__wait .prime-phoneauth-test {
 	width: 100%;
@@ -303,8 +303,10 @@
 	width: 240px;
 }
 .prime-phoneauth-reg .prime-phoneauth-number {
-	font-size: 18px;
-	text-align: left;
+	display: inline;
+	font-size: 16px;
+	text-align: inherit;
+	margin: 0;
 }
 .personal_enter .prime-phoneauth-phone-form .line .value input {
 	width: 240px;

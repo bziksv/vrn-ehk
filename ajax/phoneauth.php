@@ -46,6 +46,7 @@ if ($action === 'start') {
 	$phone = (string)($_POST['phone'] ?? '');
 	$verify = (string)($_POST['verify'] ?? '') === 'Y';
 	$register = (string)($_POST['register'] ?? '') === 'Y';
+	$claim = (string)($_POST['claim'] ?? '') === 'Y';
 	global $USER;
 	$asUser = ($verify && is_object($USER) && $USER->IsAuthorized()) ? (int)$USER->GetID() : null;
 	if ($asUser && $phone === '') {
@@ -53,10 +54,9 @@ if ($action === 'start') {
 		$phone = (string)($row['PERSONAL_PHONE'] ?? '');
 	}
 	if ($register && !$asUser) {
-		$claim = (string)($_POST['claim'] ?? '') === 'Y';
 		primePhoneauthJson(\Prime\PhoneAuth\AuthService::startRegister($phone, $claim));
 	}
-	primePhoneauthJson(\Prime\PhoneAuth\AuthService::start($phone, $asUser));
+	primePhoneauthJson(\Prime\PhoneAuth\AuthService::start($phone, $asUser, $claim));
 }
 
 if ($action === 'status') {

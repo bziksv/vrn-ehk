@@ -63,7 +63,7 @@
 			<div class="prime-phoneauth-wait" style="display:none">
 				<p data-role="message"></p>
 				<p>Звоните с номера <strong data-role="from-phone"></strong></p>
-				<a class="prime-phoneauth-number" data-role="call-number"></a>
+				<p>Звоните на телефон: <a class="prime-phoneauth-number" data-role="call-number"></a></p>
 				<ol class="prime-phoneauth-steps">
 					<li>Наберите номер с того телефона, который указали</li>
 					<li>Звонок сбросится сам — страница войдёт в аккаунт</li>

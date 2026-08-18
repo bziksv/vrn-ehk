@@ -596,8 +596,7 @@
 				$justReg = $session->get('VRN_EHK_JUST_REGISTERED') === 'Y'
 					|| $session->get('PRIME_ALERTS_JUST_REGISTERED') === 'Y';
 				$acked = $session->get('VRN_EHK_EMAIL_CONFIRM_ACK') === 'Y';
-				$onPersonal = strpos($curPage, '/personal/') === 0;
-				if (!$vrnQuiet && !$acked && ($justReg || $onPersonal)) {
+				if (!$vrnQuiet && !$acked && $justReg) {
 					$confirmRow = CUser::GetByID($USER->GetID())->Fetch();
 					$unconfirmed = trim((string)($confirmRow['CONFIRM_CODE'] ?? '')) !== '';
 					if ($unconfirmed) {
@@ -621,7 +620,7 @@
 		<div id="reg-confirmed-modal" class="reg-confirmed-modal<?= $vrnRegModalOpen ? ' active' : '' ?><?= $vrnRegModalMode === 'email-confirm' ? ' is-remind' : '' ?>" data-mode="<?= htmlspecialcharsbx($vrnRegModalMode) ?>" aria-hidden="<?= $vrnRegModalOpen ? 'false' : 'true' ?>">
 			<div class="reg-confirmed-overlay"></div>
 			<div class="reg-confirmed-content" role="dialog" aria-modal="true" aria-labelledby="reg-confirmed-title">
-				<button type="button" class="reg-confirmed-close" aria-label="Закрыть">&times;</button>
+				<button type="button" class="reg-confirmed-close" aria-label="Закрыть"></button>
 				<div class="reg-confirmed-icon" aria-hidden="true"></div>
 				<div id="reg-confirmed-title" class="reg-confirmed-title"><?= htmlspecialcharsbx($vrnRegModalTitle) ?></div>
 				<p class="reg-confirmed-text"><?= htmlspecialcharsbx($vrnRegModalText) ?></p>

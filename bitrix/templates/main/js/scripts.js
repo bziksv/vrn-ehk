@@ -62,6 +62,61 @@ jQuery(function($){
 		return true;
 	}
 
+	function setRegEmailError($form, text)
+	{
+		var $box = $form.find('.reg-form-error');
+		if (!$box.length) {
+			$box = $('<div class="reg-form-error"></div>');
+			$form.find('.title').after($box);
+		}
+		if (!text) {
+			$box.attr('hidden', true).text('');
+			return;
+		}
+		$box.removeAttr('hidden').text(text);
+	}
+
+	function checkRegEmailUnique($input, showAlert, onDone)
+	{
+		var email = $.trim($input.val() || '');
+		var $form = $input.closest('form');
+		var done = typeof onDone === 'function' ? onDone : function () {};
+		if (!email) {
+			setRegEmailError($form, '');
+			$input.removeClass('err');
+			done(true);
+			return;
+		}
+		if (!/^[0-9a-z\-\._+]+@(?:[0-9a-z\-]+\.)+[a-z]+$/i.test(email)) {
+			done(true);
+			return;
+		}
+		$.ajax({
+			type: 'POST',
+			url: '/ajax/email-exists.php',
+			dataType: 'json',
+			data: { email: email },
+			success: function (data) {
+				if (data && data.exists) {
+					var msg = 'Пользователь с таким e-mail уже зарегистрирован. Войдите или укажите другой адрес.';
+					$input.addClass('err');
+					setRegEmailError($form, msg);
+					if (showAlert) {
+						alertify.error(msg);
+					}
+					done(false);
+					return;
+				}
+				$input.removeClass('err');
+				setRegEmailError($form, '');
+				done(true);
+			},
+			error: function () {
+				done(true);
+			}
+		});
+	}
+
 	function initRuPhoneFields()
 	{
 		var $phones = $('input.ru_phone_check, input[name="REGISTER[PERSONAL_PHONE]"], input.phone_check[name="PERSONAL_PHONE"]');
@@ -1787,11 +1842,33 @@ jQuery(function($){
 		validateRuPhoneField($(this), false);
 	});
 
-	$(document).on("submit",".personal_enter .reg form[name=regform]",function(){
-		var $phone = $(this).find('input[name="REGISTER[PERSONAL_PHONE]"]');
+	$(document).on("blur", ".personal_enter .reg input[name='REGISTER[LOGIN]']", function () {
+		checkRegEmailUnique($(this), false);
+	});
+
+	$(document).on("submit",".personal_enter .reg form[name=regform]",function(e){
+		var form = this;
+		if (form.getAttribute("data-email-checked") === "1") {
+			form.removeAttribute("data-email-checked");
+			var $phone = $(form).find('input[name="REGISTER[PERSONAL_PHONE]"]');
+			if ($phone.length && !validateRuPhoneField($phone, true)) {
+				return false;
+			}
+			return true;
+		}
+		e.preventDefault();
+		var $phone = $(form).find('input[name="REGISTER[PERSONAL_PHONE]"]');
 		if ($phone.length && !validateRuPhoneField($phone, true)) {
 			return false;
 		}
+		checkRegEmailUnique($(form).find("input[name='REGISTER[LOGIN]']"), true, function (ok) {
+			if (!ok) {
+				return;
+			}
+			form.setAttribute("data-email-checked", "1");
+			form.submit();
+		});
+		return false;
 	});
 
 	$(document).on("submit",".fgt_pass form[name=bform]",function(){
@@ -1888,8 +1965,7 @@ jQuery(function($){
 						if(msg.indexOf("error")===-1)
 						{
 							alertify.success("Данные успешно обновлены");
-							var $email = cur_form.find('input[name="EMAIL"]');
-							if ($email.length && $email.val() !== String($email.attr('data-original-email') || '')) {
+							if (cur_form.find('input[name="EMAIL"], input[name="PERSONAL_PHONE"]').length) {
 								window.location.reload();
 								return;
 							}

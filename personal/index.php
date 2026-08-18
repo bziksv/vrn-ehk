@@ -126,7 +126,7 @@ $APPLICATION->SetTitle("Личный кабинет");
 							<fieldset>
 								<div class="line">
 									<span class="label">E-mail *</span>
-									<span class="value"><input type="text" value="<?=$cur_user["EMAIL"]?>" name="EMAIL" class="email_check req" data-original-email="<?=$cur_user["EMAIL"]?>"></span>
+									<span class="value"><input type="text" value="<?=htmlspecialcharsbx($cur_user["EMAIL"])?>" name="EMAIL" class="email_check req" data-original-email="<?=htmlspecialcharsbx($cur_user["EMAIL"])?>"></span>
 									<div class="clear"></div>
 									<?php if (trim((string)($cur_user['CONFIRM_CODE'] ?? '')) !== ''): ?>
 									<div class="contact-status is-wait">
@@ -140,7 +140,7 @@ $APPLICATION->SetTitle("Личный кабинет");
 								</div>
 								<div class="line">
 									<span class="label">Телефон</span>
-									<span class="value"><input type="text" value="<?=htmlspecialcharsbx(vrnEhkFormatRuPhone($cur_user["PERSONAL_PHONE"]))?>" name="PERSONAL_PHONE" class="phone_check ru_phone_check" placeholder="+7-___-___-__-__"></span>
+									<span class="value"><input type="text" value="<?=htmlspecialcharsbx(vrnEhkFormatRuPhone($cur_user['PERSONAL_PHONE'] ?: ($cur_user['PERSONAL_MOBILE'] ?? '')))?>" name="PERSONAL_PHONE" class="phone_check ru_phone_check" placeholder="+7-___-___-__-__"></span>
 									<div class="clear"></div>
 								</div>
 								<div class="line">

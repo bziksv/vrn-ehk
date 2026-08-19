@@ -13,6 +13,11 @@ class ProfileBanner
 			return false;
 		}
 
+		global $USER;
+		if (!is_object($USER) || !$USER->IsAuthorized()) {
+			return false;
+		}
+
 		if (self::isQuietPath()) {
 			return false;
 		}
@@ -130,6 +135,11 @@ class ProfileBanner
 
 	public static function phoneIssue(): bool
 	{
+		global $USER;
+		if (!is_object($USER) || !$USER->IsAuthorized()) {
+			return false;
+		}
+
 		$state = self::phoneAuthState();
 		if ($state === null) {
 			return false;

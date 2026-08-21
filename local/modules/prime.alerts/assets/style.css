@@ -30,6 +30,9 @@
 	color: var(--pa-accent, #b8860b);
 	margin: 0 0 6px;
 }
+.prime-alerts-nowrap {
+	white-space: nowrap;
+}
 .prime-alerts-notice__text p {
 	margin: 0 0 8px;
 }

@@ -162,6 +162,8 @@ class EmailPolicy
 	public static function getNoticeHtml(string $context = 'signup'): string
 	{
 		$title = htmlspecialcharsbx(self::getNoticeTitle($context));
+		// Не рвать «e-mail» по дефису — слово целиком уходит на следующую строку
+		$title = str_replace('e-mail', '<span class="prime-alerts-nowrap">e-mail</span>', $title);
 		$body = self::getNoticeBodyHtml($context);
 
 		return '<div class="prime-alerts-notice signup-email-policy-notice">'

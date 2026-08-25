@@ -1,13 +1,6 @@
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");?>
-<?require_once $_SERVER['DOCUMENT_ROOT'].'/bitrix/php_interface/include/env.php';?>
 <?if(CModule::IncludeModule("iblock"))
 {
-	if (!vrnEhkVerifyRecaptcha(isset($_POST['g-recaptcha-response']) ? $_POST['g-recaptcha-response'] : ''))
-	{
-		echo 'error_recaptcha';
-		return false;
-	}
-
 	if(!$APPLICATION->CaptchaCheckCode($_POST["captcha_word"], $_POST["captcha_code"]))
 	{
 		echo 'error_captcha';

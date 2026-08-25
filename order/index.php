@@ -77,7 +77,7 @@ $APPLICATION->SetTitle("Оформление заказа");
 		"TEMPLATE_THEME" => "site",
 		"USER_CONSENT" => "N",
 		"USER_CONSENT_ID" => "0",
-		"USER_CONSENT_IS_CHECKED" => "Y",
+		"USER_CONSENT_IS_CHECKED" => "N",
 		"USER_CONSENT_IS_LOADED" => "N",
 		"USE_CUSTOM_ADDITIONAL_MESSAGES" => "N",
 		"USE_CUSTOM_ERROR_MESSAGES" => "N",

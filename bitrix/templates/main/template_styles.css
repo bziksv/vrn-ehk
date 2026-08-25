@@ -1146,6 +1146,3 @@ ul.common li{ background: url("images/auth_ul_ico.jpg") no-repeat scroll left to
     width: auto;
     float: left;
 }
-.grecaptcha-badge {
-    visibility: hidden;
-}

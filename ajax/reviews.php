@@ -2,17 +2,6 @@
 <?
 if(CModule::IncludeModule("iblock")){
 
-    if($g_recaptcha_response = $_POST['g-recaptcha-response']){
-        $response = json_decode(file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=6Le8ZZ4aAAAAABGjJMS6tsYCxXZwiWZJ39j9KE1Q&response=".$g_recaptcha_response."&remoteip=".$_SERVER["REMOTE_ADDR"]),true);
-        if (($response["success"] && $response["score"] <= 0.7)){
-            echo "Возникли проблемы попробуйте еще раз.";
-            return false;
-        }
-    }else{
-        echo "Возникли проблемы попробуйте еще раз.";
-        return false;
-    }
-	
 	 if(!$APPLICATION->CaptchaCheckCode($_POST["captcha_word"], $_POST["captcha_code"]))
 	{
 		// Неправильное значение

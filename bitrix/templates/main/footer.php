@@ -538,7 +538,7 @@
 
 					<div class="clear"></div>
 <hr>
-					<noindex><p>Наш сайт использует <a target="_blank" href="/upload/cookies.pdf">cookies</a> для обеспечения работоспособности и сбора статистики. С их помощью мы анализируем пользовательскую активность, улучшаем работу сайта и делаем рекламу более релевантной. Оставаясь на сайте, вы даёте согласие на обработку ваших персональных данных. Вы можете отключить сохранение cookies в настройках браузера в любой момент. На сайте также применяются <a target="_blank" href="/upload/rules-recommendation.pdf">рекомендательные технологии</a>. Подробнее об обработке персональных данных — в нашей <a target="_blank" href="/upload/politics.pdf">Политике конфиденциальности.</a></p></noindex>
+					<noindex><p>Наш сайт использует <a target="_blank" rel="nofollow" href="/pages/ehk_politika_cookie/">cookies</a> для обеспечения работоспособности и сбора статистики. С их помощью мы анализируем пользовательскую активность, улучшаем работу сайта и делаем рекламу более релевантной. Оставаясь на сайте, вы даёте согласие на обработку ваших персональных данных. Вы можете отключить сохранение cookies в настройках браузера в любой момент. На сайте также применяются <a target="_blank" rel="nofollow" href="/pages/ehk_pravila_rekomendatelnyh_tehnologiy/">рекомендательные технологии</a>. Подробнее — в нашем <a rel="nofollow" href="/pages/ehk_soglasie_obrabotki_pd/">согласии на обработку персональных данных</a> и <a rel="nofollow" href="/pages/ehk_politika_obrabotki_pd/">политике обработки персональных данных</a>.</p></noindex>
 
 				</div>
 			</div><!-- end: footer-->
@@ -709,23 +709,6 @@
                 var h=d.getElementsByTagName('script')[0];h.parentNode.insertBefore(s,h);
         })(window,document,'https://cdn-ru.bitrix24.ru/b7243579/crm/site_button/loader_7_35t9fk.js');
 </script>
-
-
-<!-- Piwik от Prime -->
-<script type="text/javascript">
-  var _paq = _paq || [];
-  /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-  _paq.push(['trackPageView']);
-  _paq.push(['enableLinkTracking']);
-  (function() {
-    var u="//piwik.prime-ltd.su/";
-    _paq.push(['setTrackerUrl', u+'piwik.php']);
-    _paq.push(['setSiteId', '3']);
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-  })();
-</script>
-<!-- End Piwik Code -->
 
 
 <!-- Roistat Counter Start -->

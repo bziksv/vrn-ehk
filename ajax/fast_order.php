@@ -1,17 +1,6 @@
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 if(CModule::IncludeModule("iblock") && CModule::IncludeModule("sale") && CModule::IncludeModule("catalog"))
 {
-    if($g_recaptcha_response = $_POST['g-recaptcha-response']){
-        $response = json_decode(file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=6Le8ZZ4aAAAAABGjJMS6tsYCxXZwiWZJ39j9KE1Q&response=".$g_recaptcha_response."&remoteip=".$_SERVER["REMOTE_ADDR"]),true);
-        if (($response["success"] && $response["score"] <= 0.7)){
-            echo "error";
-            return false;
-        }
-    }else{
-        echo "error";
-        return false;
-    }
-
 	$PROP = array();
 	foreach($_POST as $key=>$value)
 	{

@@ -500,7 +500,10 @@ else
 				<?php
 				endif;
 				?>
-				<span class="chek">Нажимая кнопку «Оформить заказ», я даю свое согласие на обработку персональных данных и соглашаюсь с условиями <a target="_blank" href="/upload/politics.pdf">политики обработки персональных данных</a>.</span>
+				<div class="check">
+					<input type="checkbox" name="CHEK" class="req" value="Y">
+					<span class="chek">Нажимая кнопку «Оформить заказ», я даю <a href="/pages/ehk_soglasie_obrabotki_pd/" target="_blank">согласие на обработку персональных данных</a> и принимаю <a href="/pages/ehk_politika_obrabotki_pd/" target="_blank">политику обработки персональных данных</a>.</span>
+				</div>
 				<!--	ORDER SAVE BLOCK	-->
 				<div id="bx-soa-orderSave">
 					<div class="checkbox">

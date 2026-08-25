@@ -13,41 +13,6 @@ if (!function_exists('vrnEhkIsLocalEnv'))
 	}
 }
 
-if (!function_exists('vrnEhkVerifyRecaptcha'))
-{
-	function vrnEhkVerifyRecaptcha($token)
-	{
-		if (vrnEhkIsLocalEnv())
-		{
-			return true;
-		}
-
-		if (!$token)
-		{
-			return false;
-		}
-
-		$secret = '6Le8ZZ4aAAAAABGjJMS6tsYCxXZwiWZJ39j9KE1Q';
-		$url = 'https://www.google.com/recaptcha/api/siteverify?secret='
-			.urlencode($secret)
-			.'&response='.urlencode($token)
-			.'&remoteip='.urlencode($_SERVER['REMOTE_ADDR']);
-
-		$response = json_decode(file_get_contents($url), true);
-		if (empty($response['success']))
-		{
-			return false;
-		}
-
-		if (isset($response['score']) && $response['score'] <= 0.7)
-		{
-			return false;
-		}
-
-		return true;
-	}
-}
-
 if (!function_exists('vrnEhkNormalizeRuPhone'))
 {
 	function vrnEhkNormalizeRuPhone($phone)

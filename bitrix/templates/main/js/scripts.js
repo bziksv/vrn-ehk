@@ -1817,11 +1817,6 @@ jQuery(function($){
 							alertify.error("Неверно введена CAPTCHA. Попробуйте ещё раз.");
 							cur_form.reloadForm().fadeTo("fast",1);
 						}
-						else if(msg === "error_recaptcha")
-						{
-							alertify.error("Не прошла проверка безопасности. Обновите страницу и попробуйте снова.");
-							cur_form.fadeTo("fast",1);
-						}
 						else
 						{
 							alertify.error("Произошла ошибка. Повторите попытку позже");
@@ -2153,65 +2148,6 @@ jQuery(function($){
 	}
 
 	initSearchSidebarSticky();
-
-	function isLocalDevHost()
-	{
-		return /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
-	}
-
-	function shouldSkipRecaptchaHandler(form)
-	{
-		if (!form || !form.length) {
-			return true;
-		}
-		if (form.closest('#title-search, #title-search-fixed, #title-search-mobile, .search_block, .search').length) {
-			return true;
-		}
-		var action = form.attr('action') || '';
-		if (action.indexOf('/search') !== -1) {
-			return true;
-		}
-		if (form.closest('.personal_page, .personal_enter, #authorized.popup, .fgt_pass').length) {
-			return true;
-		}
-		if (form.is('.change_pass, .update_user')) {
-			return true;
-		}
-		return false;
-	}
-
-	function formUsesRecaptcha(form)
-	{
-		return form.is('.callback_form, .callback_form_reviews, .fast_order_form, .no_item_form');
-	}
-
-	$('body').on('click','form input[type="submit"]', function(e) {
-		var form = $(this).closest('form');
-		if (isLocalDevHost() || shouldSkipRecaptchaHandler(form) || !formUsesRecaptcha(form)) {
-			return true;
-		}
-		if (form.find('input[name="g-recaptcha-response"]').length) {
-			return true;
-		}
-
-		e.preventDefault();
-
-		if (typeof grecaptcha === 'undefined') {
-			form.trigger('submit');
-			return false;
-		}
-
-		grecaptcha.ready(function() {
-			grecaptcha.execute('6Le8ZZ4aAAAAAMZUhsxou8BmT27TR4NaAh3HivxN', {action: 'submit'}).then(function(token) {
-				form.find('input[name="g-recaptcha-response"]').remove();
-				form.prepend($('<input>').attr({name : 'g-recaptcha-response', type : 'hidden', value : token}));
-				form.trigger('submit');
-			}).catch(function() {
-				form.trigger('submit');
-			});
-		});
-		return false;
-	});
 
 	$( "#tabs" ).tabs();
 

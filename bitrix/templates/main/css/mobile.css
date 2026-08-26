@@ -599,11 +599,21 @@ h1,
     width: 100%;
 }
 .success_order .sale_order_full_table.table_0,
-.success_order .sale_order_full_table.table_1{
+.success_order .sale_order_full_table.table_1,
+.order-confirm-success,
+.order-confirm-pay-card{
     width: 100%;
     float: none;
-    padding: 10%;
-    margin: 5px auto;
+    padding: 24px 18px;
+    margin: 0 auto;
+    max-width: none;
+}
+.order-confirm__grid{
+    flex-direction: column;
+}
+.order-confirm-pay-card__row{
+    flex-direction: column;
+    align-items: flex-start;
 }
 .success_order .sale_order_full_table.table_0 .success_text .sub_title{
     line-height: 1.5;
@@ -744,6 +754,7 @@ div.modern-page-navigation a{
 }
 #authorized.popup .personal_enter .line .value input[type=text],
 #authorized.popup .personal_enter .line .value input[type=password],
+#authorized.popup .personal_enter .line .value input[type=tel],
 #authorized.popup .personal_enter input[type=submit]{
     width: 100%;
     box-sizing: border-box;

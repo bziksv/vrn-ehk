@@ -708,4 +708,30 @@ function curDir() {
 function isArticlesDir() {
 	return curDir() === "articles";
 }
+
+AddEventHandler('sale', 'OnSaleComponentOrderCreated', 'vrnEhkRequireOrderPdConsent');
+function vrnEhkRequireOrderPdConsent($order, &$arUserResult, $request, &$arParams, &$arResult)
+{
+	if (!is_object($request) || $request->get('action') !== 'saveOrderAjax') {
+		return;
+	}
+
+	if ($request->getPost('CHEK') === 'Y') {
+		return;
+	}
+
+	$message = 'Согласитесь с условиями политики конфиденциальности и дайте согласие на обработку персональных данных';
+	if (!is_array($arResult['ERROR'] ?? null)) {
+		$arResult['ERROR'] = [];
+	}
+	if (!in_array($message, $arResult['ERROR'], true)) {
+		$arResult['ERROR'][] = $message;
+	}
+	if (!is_array($arResult['ERROR_SORTED']['MAIN'] ?? null)) {
+		$arResult['ERROR_SORTED']['MAIN'] = [];
+	}
+	if (!in_array($message, $arResult['ERROR_SORTED']['MAIN'], true)) {
+		$arResult['ERROR_SORTED']['MAIN'][] = $message;
+	}
+}
 ?>

@@ -894,6 +894,9 @@ jQuery(function($){
 			}
 		});
 		need_form.find(".check input[type=checkbox]:not(:checked)").each(function(){
+				if (this.id === 'vrn-order-pd-consent') {
+					return;
+				}
 				error=true;
 				if($(this).parents(".input_block").length>0)
 				{

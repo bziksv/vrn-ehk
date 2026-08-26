@@ -500,9 +500,10 @@ else
 				<?php
 				endif;
 				?>
-				<div class="check">
-					<input type="checkbox" name="CHEK" class="req" value="Y">
+				<div class="check vrn-order-pd-consent" id="vrn-order-pd-consent-wrap">
+					<input type="checkbox" name="CHEK" id="vrn-order-pd-consent" class="req" value="Y">
 					<span class="chek">Нажимая кнопку «Оформить заказ», я даю <a href="/pages/ehk_soglasie_obrabotki_pd/" target="_blank">согласие на обработку персональных данных</a> и принимаю <a href="/pages/ehk_politika_obrabotki_pd/" target="_blank">политику обработки персональных данных</a>.</span>
+					<div class="vrn-order-pd-consent-error" id="vrn-order-pd-consent-error" role="alert" aria-live="polite"></div>
 				</div>
 				<!--	ORDER SAVE BLOCK	-->
 				<div id="bx-soa-orderSave">
@@ -652,6 +653,184 @@ else
 			propsBlockId: 'bx-soa-properties',
 			totalBlockId: 'bx-soa-total'
 		});
+	</script>
+	<script>
+		(function () {
+			var consentMsg = 'Согласитесь с условиями политики конфиденциальности и дайте согласие на обработку персональных данных';
+
+			function vrnOrderConsentChecked() {
+				var consent = document.getElementById('vrn-order-pd-consent');
+				return consent && consent.checked;
+			}
+
+			function vrnConsentErrorText(msg) {
+				if (!msg) {
+					return '';
+				}
+				if (BX.type.isArray(msg)) {
+					return msg.join(' ');
+				}
+				if (typeof msg === 'string') {
+					return msg;
+				}
+				return msg.innerHTML || msg.textContent || '';
+			}
+
+			function vrnIsConsentError(msg) {
+				var text = vrnConsentErrorText(msg);
+				return text.indexOf('политики конфиденциальности') !== -1
+					|| text.indexOf('обработку персональных данных') !== -1;
+			}
+
+			function vrnHideMainConsentError() {
+				var mainNode = document.getElementById('bx-soa-main-notifications');
+				if (!mainNode) {
+					return;
+				}
+				var errorContainer = mainNode.querySelector('.alert.alert-danger');
+				if (errorContainer) {
+					errorContainer.style.display = 'none';
+					if (BX.cleanNode) {
+						BX.cleanNode(errorContainer);
+					} else {
+						errorContainer.innerHTML = '';
+					}
+				}
+				if (BX.removeClass) {
+					BX.removeClass(mainNode, 'bx-step-error');
+				}
+			}
+
+			function vrnShowOrderConsentError() {
+				var wrap = document.getElementById('vrn-order-pd-consent-wrap');
+				var consent = document.getElementById('vrn-order-pd-consent');
+				var errorNode = document.getElementById('vrn-order-pd-consent-error');
+				vrnHideMainConsentError();
+				if (wrap) {
+					wrap.classList.add('err');
+				}
+				if (consent) {
+					consent.classList.add('err');
+					if (consent.focus) {
+						consent.focus();
+					}
+				}
+				if (errorNode) {
+					errorNode.textContent = consentMsg;
+				}
+				if (wrap && wrap.scrollIntoView) {
+					wrap.scrollIntoView({behavior: 'smooth', block: 'center'});
+				}
+			}
+
+			function vrnClearOrderConsentError() {
+				var wrap = document.getElementById('vrn-order-pd-consent-wrap');
+				var consent = document.getElementById('vrn-order-pd-consent');
+				var errorNode = document.getElementById('vrn-order-pd-consent-error');
+				if (wrap) {
+					wrap.classList.remove('err');
+				}
+				if (consent) {
+					consent.classList.remove('err');
+				}
+				if (errorNode) {
+					errorNode.textContent = '';
+				}
+			}
+
+			function vrnPatchOrderSaveAction() {
+				if (!BX.Sale || !BX.Sale.OrderAjaxComponent || BX.Sale.OrderAjaxComponent._vrnConsentPatched) {
+					return;
+				}
+
+				var originalSave = BX.Sale.OrderAjaxComponent.clickOrderSaveAction;
+				BX.Sale.OrderAjaxComponent.clickOrderSaveAction = function (event) {
+					if (!vrnOrderConsentChecked()) {
+						vrnShowOrderConsentError();
+						return BX.PreventDefault(event);
+					}
+					vrnClearOrderConsentError();
+					return originalSave.apply(this, arguments);
+				};
+				BX.Sale.OrderAjaxComponent._vrnConsentPatched = true;
+			}
+
+			function vrnBindOrderConsentGuard() {
+				if (window._vrnOrderConsentGuardBound) {
+					return;
+				}
+				window._vrnOrderConsentGuardBound = true;
+
+				var saveSelector = '[data-save-button="true"], .btn-order-save, a.btn-order-save';
+				document.addEventListener('click', function (event) {
+					if (!document.getElementById('vrn-order-pd-consent')) {
+						return;
+					}
+					var target = event.target;
+					if (!target || !target.closest) {
+						return;
+					}
+					var btn = target.closest(saveSelector);
+					if (!btn) {
+						return;
+					}
+					var orderRoot = document.getElementById('bx-soa-order');
+					if (!orderRoot || !orderRoot.contains(btn)) {
+						return;
+					}
+					if (!vrnOrderConsentChecked()) {
+						vrnShowOrderConsentError();
+						event.preventDefault();
+						event.stopImmediatePropagation();
+						return false;
+					}
+					vrnClearOrderConsentError();
+				}, true);
+			}
+
+			function vrnPatchOrderMainErrors() {
+				if (!BX.Sale || !BX.Sale.OrderAjaxComponent || BX.Sale.OrderAjaxComponent._vrnMainErrorsPatched) {
+					return;
+				}
+
+				var originalShowError = BX.Sale.OrderAjaxComponent.showError;
+				BX.Sale.OrderAjaxComponent.showError = function (node, msg, border) {
+					if (node && node.id === 'bx-soa-main-notifications' && vrnIsConsentError(msg)) {
+						vrnShowOrderConsentError();
+						return;
+					}
+					return originalShowError.apply(this, arguments);
+				};
+
+				var originalShowErrors = BX.Sale.OrderAjaxComponent.showErrors;
+				BX.Sale.OrderAjaxComponent.showErrors = function (errors, scroll, showAll) {
+					if (errors && errors.MAIN && vrnIsConsentError(errors.MAIN)) {
+						vrnShowOrderConsentError();
+						var filteredErrors = BX.clone(errors);
+						delete filteredErrors.MAIN;
+						if (!filteredErrors || BX.util.object_keys(filteredErrors).length < 1) {
+							return;
+						}
+						return originalShowErrors.call(this, filteredErrors, false, showAll);
+					}
+					return originalShowErrors.apply(this, arguments);
+				};
+				BX.Sale.OrderAjaxComponent._vrnMainErrorsPatched = true;
+			}
+
+			function vrnInitOrderConsentValidation() {
+				vrnBindOrderConsentGuard();
+				vrnPatchOrderSaveAction();
+				vrnPatchOrderMainErrors();
+				var consent = document.getElementById('vrn-order-pd-consent');
+				if (consent) {
+					BX.bind(consent, 'change', vrnClearOrderConsentError);
+				}
+			}
+
+			vrnInitOrderConsentValidation();
+			BX.ready(vrnInitOrderConsentValidation);
+		})();
 	</script>
 	<script>
 		<?php

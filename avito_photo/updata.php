@@ -4,7 +4,7 @@ require_once __DIR__ . '/lib/AvitoPhotoService.php';
 
 global $USER;
 if ($USER->IsAdmin()):
-	$cleanupFirst = ($_REQUEST['avito'] ?? '') !== 'y';
+	$cleanupFirst = (isset($_REQUEST['cleanup']) && $_REQUEST['cleanup'] === 'Y');
 	$result = AvitoPhotoService::processBatch(1, $cleanupFirst);
 
 	if ($result['processed'] > 0) {

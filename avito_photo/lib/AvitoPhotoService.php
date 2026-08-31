@@ -99,15 +99,29 @@ class AvitoPhotoService
 	}
 
 	/**
-	 * @return array{processed: int, ids: int[], remaining: int, errors: string[]}
+	 * Очередь: активные товары каталога с превью и без свойства avito.
 	 */
-	public static function processBatch($limit = 1, $cleanupFirst = true)
+	public static function pendingFilter()
+	{
+		return array(
+			'IBLOCK_ID' => self::IBLOCK_CATALOG,
+			'ACTIVE' => 'Y',
+			'!PREVIEW_PICTURE' => false,
+			'PROPERTY_avito' => false,
+		);
+	}
+
+	/**
+	 * @return array{processed: int, ids: int[], remaining: int, errors: string[], skipped: int}
+	 */
+	public static function processBatch($limit = 1, $cleanupFirst = false)
 	{
 		$result = array(
 			'processed' => 0,
 			'ids' => array(),
 			'remaining' => 0,
 			'errors' => array(),
+			'skipped' => 0,
 		);
 
 		$limit = max(1, (int)$limit);
@@ -122,19 +136,35 @@ class AvitoPhotoService
 		}
 
 		$arSelect = array('ID', 'PREVIEW_PICTURE');
-		$arFilter = array(
-			'IBLOCK_ID' => self::IBLOCK_CATALOG,
-			'!PREVIEW_PICTURE' => false,
-			'PROPERTY_avito' => false,
+		$arFilter = self::pendingFilter();
+		// Берём запас: часть превью битые (файл есть в БД, нет на диске).
+		$fetchLimit = max($limit * 20, $limit);
+
+		$res = CIBlockElement::GetList(
+			array('ID' => 'ASC'),
+			$arFilter,
+			false,
+			array('nPageSize' => $fetchLimit),
+			$arSelect
 		);
 
-		$res = CIBlockElement::GetList(array('ID' => 'ASC'), $arFilter, false, array('nPageSize' => $limit), $arSelect);
 		while ($ob = $res->GetNextElement()) {
+			if ($result['processed'] >= $limit) {
+				break;
+			}
+
 			$arFields = $ob->GetFields();
 			$elementId = (int)$arFields['ID'];
+			$previewId = (int)$arFields['PREVIEW_PICTURE'];
 
-			if (!self::generateForElement($elementId, (int)$arFields['PREVIEW_PICTURE'], $template)) {
+			if (!self::previewFileExists($previewId)) {
+				$result['skipped']++;
+				continue;
+			}
+
+			if (!self::generateForElement($elementId, $previewId, $template)) {
 				$result['errors'][] = 'Failed to generate avito image for element ' . $elementId;
+				$result['skipped']++;
 				continue;
 			}
 
@@ -142,18 +172,24 @@ class AvitoPhotoService
 			$result['ids'][] = $elementId;
 		}
 
-		$countRes = CIBlockElement::GetList(
-			array(),
-			$arFilter,
-			array(),
-			false,
-			array('ID')
-		);
-		if (is_array($countRes)) {
-			$result['remaining'] = (int)array_shift($countRes);
-		}
+		$result['remaining'] = self::countPending();
 
 		return $result;
+	}
+
+	public static function previewFileExists($previewPictureId)
+	{
+		$previewPictureId = (int)$previewPictureId;
+		if ($previewPictureId <= 0) {
+			return false;
+		}
+
+		$path = CFile::GetPath($previewPictureId);
+		if (!$path) {
+			return false;
+		}
+
+		return file_exists($_SERVER['DOCUMENT_ROOT'] . $path);
 	}
 
 	/**
@@ -161,7 +197,7 @@ class AvitoPhotoService
 	 */
 	public static function generateForElement($elementId, $previewPictureId, array $template)
 	{
-		if (!$previewPictureId) {
+		if (!$previewPictureId || !self::previewFileExists($previewPictureId)) {
 			return false;
 		}
 
@@ -176,6 +212,11 @@ class AvitoPhotoService
 			return false;
 		}
 
+		$fotoPath = $_SERVER['DOCUMENT_ROOT'] . $foto['src'];
+		if (!file_exists($fotoPath)) {
+			return false;
+		}
+
 		$canvasHeight = $template['height'] * 2 + (int)$foto['height'];
 
 		$arFilters = array(array(
@@ -183,7 +224,7 @@ class AvitoPhotoService
 			'position' => 'center',
 			'size' => 'big',
 			'type' => 'image',
-			'file' => $_SERVER['DOCUMENT_ROOT'] . $foto['src'],
+			'file' => $fotoPath,
 			'alpha_level' => '100',
 		));
 
@@ -201,7 +242,16 @@ class AvitoPhotoService
 			return false;
 		}
 
-		$newFile = CFile::MakeFileArray($_SERVER['DOCUMENT_ROOT'] . $imageResize['src']);
+		$resizedPath = $_SERVER['DOCUMENT_ROOT'] . $imageResize['src'];
+		if (!file_exists($resizedPath)) {
+			return false;
+		}
+
+		$newFile = CFile::MakeFileArray($resizedPath);
+		if (!$newFile) {
+			return false;
+		}
+
 		CIBlockElement::SetPropertyValues(
 			$elementId,
 			self::IBLOCK_CATALOG,
@@ -214,17 +264,24 @@ class AvitoPhotoService
 
 	public static function countPending()
 	{
-		$arFilter = array(
-			'IBLOCK_ID' => self::IBLOCK_CATALOG,
-			'!PREVIEW_PICTURE' => false,
-			'PROPERTY_avito' => false,
+		$countRes = CIBlockElement::GetList(
+			array(),
+			self::pendingFilter(),
+			array(),
+			false,
+			array('ID')
 		);
 
-		$countRes = CIBlockElement::GetList(array(), $arFilter, array(), false, array('ID'));
-		if (!is_array($countRes)) {
-			return 0;
+		if (is_numeric($countRes)) {
+			return (int)$countRes;
+		}
+		if (is_array($countRes)) {
+			return (int)array_shift($countRes);
+		}
+		if (is_object($countRes) && method_exists($countRes, 'SelectedRowsCount')) {
+			return (int)$countRes->SelectedRowsCount();
 		}
 
-		return (int)array_shift($countRes);
+		return 0;
 	}
 }

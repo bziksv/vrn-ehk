@@ -25,6 +25,10 @@ if ($action !== '') {
 		$result = AvitoPhotoAgent::register();
 		$message = $result['message'];
 		$messageType = $result['ok'] ? 'ok' : 'error';
+	} elseif ($action === 'repair') {
+		$result = AvitoPhotoAgent::repair();
+		$message = $result['message'];
+		$messageType = $result['ok'] ? 'ok' : 'error';
 	} elseif ($action === 'unregister') {
 		$result = AvitoPhotoAgent::unregister();
 		$message = $result['message'];
@@ -44,11 +48,12 @@ $agentExists = AvitoPhotoAgent::isRegistered();
 <?php endif; ?>
 
 <p>Статус агента: <strong><?= $agentExists ? 'зарегистрирован' : 'не зарегистрирован' ?></strong></p>
-<p>Искать в списке агентов: модуль <strong>avito_photo</strong>, функция содержит <strong>AvitoPhotoAgent</strong>.</p>
+<p>Искать в списке агентов: функция содержит <strong>AvitoPhotoAgent</strong> (поле «Модуль» должно быть пустым).</p>
 
 <form method="post" action="/avito_photo/register_agent.php">
 	<?= bitrix_sessid_post() ?>
 	<?php if ($agentExists): ?>
+		<button type="submit" name="action" value="repair">Исправить агента (MODULE_ID)</button>
 		<button type="submit" name="action" value="unregister">Удалить агента</button>
 	<?php else: ?>
 		<button type="submit" name="action" value="register">Зарегистрировать агента</button>

@@ -22,11 +22,11 @@ if (PHP_SAPI === 'cli' && isset($argv[1]) && is_numeric($argv[1])) {
 	$limit = (int)$_GET['limit'];
 }
 
-$cleanup = true;
-if (PHP_SAPI === 'cli' && isset($argv[2]) && $argv[2] === 'skip-cleanup') {
-	$cleanup = false;
-} elseif (isset($_GET['cleanup']) && $_GET['cleanup'] === 'N') {
-	$cleanup = false;
+$cleanup = false;
+if (PHP_SAPI === 'cli' && isset($argv[2]) && $argv[2] === 'cleanup') {
+	$cleanup = true;
+} elseif (isset($_GET['cleanup']) && $_GET['cleanup'] === 'Y') {
+	$cleanup = true;
 }
 
 $result = AvitoPhotoService::processBatch($limit, $cleanup);

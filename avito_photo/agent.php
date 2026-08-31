@@ -4,7 +4,11 @@ require_once __DIR__ . '/lib/AvitoPhotoService.php';
 
 class AvitoPhotoAgent
 {
-	const AGENT_MODULE = 'avito_photo';
+	/**
+	 * Пустой MODULE_ID: модуля avito_photo в Bitrix нет, а при несуществующем
+	 * MODULE_ID агент пропускается (CModule::IncludeModule → continue).
+	 */
+	const AGENT_MODULE = '';
 	const AGENT_CALL = 'require_once($_SERVER["DOCUMENT_ROOT"]."/avito_photo/agent.php"); AvitoPhotoAgent::run();';
 	const BATCH_SIZE = 10;
 	const INTERVAL_SECONDS = 300;
@@ -17,7 +21,16 @@ class AvitoPhotoAgent
 				return self::AGENT_CALL;
 			}
 
-			AvitoPhotoService::processBatch(self::BATCH_SIZE, true);
+			// cleanupFirst=false: полный обход картинок вешает агента (RUNNING=Y).
+			$result = AvitoPhotoService::processBatch(self::BATCH_SIZE, false);
+			self::log(sprintf(
+				'processed=%d skipped=%d remaining=%d ids=%s errors=%s',
+				$result['processed'],
+				isset($result['skipped']) ? $result['skipped'] : 0,
+				$result['remaining'],
+				implode(',', $result['ids']),
+				$result['errors'] ? implode('; ', $result['errors']) : '-'
+			));
 		} catch (\Throwable $e) {
 			self::log($e->getMessage());
 		}
@@ -37,14 +50,6 @@ class AvitoPhotoAgent
 	{
 		$res = CAgent::GetList(
 			array('ID' => 'DESC'),
-			array('MODULE_ID' => self::AGENT_MODULE)
-		);
-		if ($res->Fetch()) {
-			return true;
-		}
-
-		$res = CAgent::GetList(
-			array('ID' => 'DESC'),
 			array('NAME' => self::AGENT_CALL)
 		);
 
@@ -52,14 +57,79 @@ class AvitoPhotoAgent
 	}
 
 	/**
+	 * Исправляет уже созданных агентов с несуществующим MODULE_ID=avito_photo.
+	 *
+	 * @return array{ok: bool, message: string, fixed: int}
+	 */
+	public static function repair()
+	{
+		$fixed = 0;
+		$seen = array();
+
+		foreach (array(
+			array('NAME' => self::AGENT_CALL),
+			array('MODULE_ID' => 'avito_photo'),
+		) as $filter) {
+			$res = CAgent::GetList(array('ID' => 'DESC'), $filter);
+			while ($agent = $res->Fetch()) {
+				$id = (int)$agent['ID'];
+				if (isset($seen[$id])) {
+					continue;
+				}
+				$seen[$id] = true;
+
+				$needsFix = ($agent['MODULE_ID'] !== '')
+					|| ($agent['ACTIVE'] !== 'Y')
+					|| empty($agent['LAST_EXEC']);
+
+				if (!$needsFix && $agent['MODULE_ID'] === '') {
+					continue;
+				}
+
+				$ok = CAgent::Update($id, array(
+					'MODULE_ID' => '',
+					'NAME' => self::AGENT_CALL,
+					'ACTIVE' => 'Y',
+					'AGENT_INTERVAL' => self::INTERVAL_SECONDS,
+					'IS_PERIOD' => 'N',
+					'NEXT_EXEC' => ConvertTimeStamp(time() + 60, 'FULL'),
+					'DATE_CHECK' => false,
+					'RUNNING' => 'N',
+					'RETRY_COUNT' => 0,
+				));
+
+				if ($ok) {
+					$fixed++;
+				}
+			}
+		}
+
+		return array(
+			'ok' => true,
+			'fixed' => $fixed,
+			'message' => $fixed > 0
+				? 'Исправлено агентов: ' . $fixed . '. MODULE_ID очищен, следующий запуск через ~1 мин.'
+				: 'Подходящих агентов для исправления не найдено.',
+		);
+	}
+
+	/**
 	 * @return array{ok: bool, message: string}
 	 */
 	public static function register()
 	{
+		$repair = self::repair();
+		if ($repair['fixed'] > 0) {
+			return array(
+				'ok' => true,
+				'message' => $repair['message'],
+			);
+		}
+
 		if (self::isRegistered()) {
 			return array(
 				'ok' => false,
-				'message' => 'Агент уже зарегистрирован (модуль: ' . self::AGENT_MODULE . ').',
+				'message' => 'Агент уже зарегистрирован.',
 			);
 		}
 
@@ -104,8 +174,8 @@ class AvitoPhotoAgent
 		$seen = array();
 
 		foreach (array(
-			array('MODULE_ID' => self::AGENT_MODULE),
 			array('NAME' => self::AGENT_CALL),
+			array('MODULE_ID' => 'avito_photo'),
 		) as $filter) {
 			$res = CAgent::GetList(array('ID' => 'DESC'), $filter);
 			while ($agent = $res->Fetch()) {

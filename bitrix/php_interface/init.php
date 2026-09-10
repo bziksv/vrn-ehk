@@ -584,10 +584,22 @@ function vrnEhkOnBeforeUserRegisterHandler(&$arFields)
 {
 	require_once $_SERVER['DOCUMENT_ROOT'].'/bitrix/php_interface/include/env.php';
 
+	global $APPLICATION;
+
+	$chek = '';
+	if (isset($_POST['CHEK'])) {
+		$chek = (string)$_POST['CHEK'];
+	} elseif (isset($_REQUEST['CHEK'])) {
+		$chek = (string)$_REQUEST['CHEK'];
+	}
+	if ($chek !== 'Y') {
+		$APPLICATION->ThrowException('Отметьте согласие на обработку персональных данных и принятие политики');
+		return false;
+	}
+
 	$phone = isset($arFields['PERSONAL_PHONE']) ? $arFields['PERSONAL_PHONE'] : '';
 	if (!vrnEhkIsValidRuPhone($phone))
 	{
-		global $APPLICATION;
 		$APPLICATION->ThrowException('Укажите корректный номер телефона РФ, например +7-900-123-11-22');
 		return false;
 	}

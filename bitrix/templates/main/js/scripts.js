@@ -1846,6 +1846,13 @@ jQuery(function($){
 
 	$(document).on("submit",".personal_enter .reg form[name=regform]",function(e){
 		var form = this;
+		var $chek = $(form).find('input[name="CHEK"]');
+		if ($chek.length && !$chek.is(":checked")) {
+			e.preventDefault();
+			alertify.error("Отметьте согласие на обработку персональных данных и принятие политики");
+			$chek.focus();
+			return false;
+		}
 		if (form.getAttribute("data-email-checked") === "1") {
 			form.removeAttribute("data-email-checked");
 			var $phone = $(form).find('input[name="REGISTER[PERSONAL_PHONE]"]');

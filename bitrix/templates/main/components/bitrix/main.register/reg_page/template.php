@@ -31,11 +31,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 	<p><?echo GetMessage("MAIN_REGISTER_AUTH")?></p>
 <?}
 else
-{	//echo $_POST['register_submit_button'];
-	if (!$_POST['CHEK'] != '' && $_POST['register_submit_button'] == 'Регистрация') {
-		$arResult['ERRORS']['POLITIC'] = 'Поле "Политика конфиденциальности" обязательно для заполнения';
-	}
-	
+	{
 	$regErrors = [];
 	if(count($arResult["ERRORS"]) > 0)
 	{	
@@ -97,8 +93,8 @@ else
 				<span class="value"><input type="password" name="REGISTER[CONFIRM_PASSWORD]" /></span>
 			</div>
 			<div class="check">
-			    <input type="checkbox" name="CHEK" class="req" value="Y">
-				<span class="chek">Нажимая на эту кнопку, я даю <a href="/pages/ehk_soglasie_obrabotki_pd/" target="_blank">согласие на обработку персональных данных</a> и принимаю <a href="/pages/ehk_politika_obrabotki_pd/" target="_blank">политику обработки персональных данных</a>.</span>
+			    <input type="checkbox" name="CHEK" id="reg_chek_pd" class="req" value="Y" required>
+				<label class="chek" for="reg_chek_pd">Нажимая на эту кнопку, я даю <a href="/pages/ehk_soglasie_obrabotki_pd/" target="_blank">согласие на обработку персональных данных</a> и принимаю <a href="/pages/ehk_politika_obrabotki_pd/" target="_blank">политику обработки персональных данных</a>.</label>
 			</div>
 			<input type="submit" value="Зарегистрироваться" />
 			<input type="hidden" name="register_submit_button" value="<?=GetMessage("AUTH_REGISTER")?>" />
